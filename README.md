@@ -71,6 +71,16 @@ pnpm run simulate -- my_policy --args ./configs/wasm-args.json --intent ./config
 
 All flags are optional. Without them, the simulation runs with empty/default inputs.
 
+### Sandbox
+
+Test API calls with Node directly before compiling to WASM. Each policy can include a `sandbox.mjs` that reads from its config files:
+
+```bash
+pnpm run sandbox -- my_policy
+```
+
+Useful for inspecting raw API response shapes and debugging outside the WASM runtime.
+
 ### Deploy
 
 Full pipeline (generate CIDs, deploy WASM oracle, deploy policy):
@@ -103,7 +113,7 @@ newton-policy-packs/
 ├── configs/           # Your simulation configs (gitignored)
 ├── scripts/           # Shell scripts backing pnpm commands
 ├── templates/         # Scaffolding templates
-└── NEWTON_POLICY_GUIDE.md   # Detailed reference guide
+└── scripts/sandbox.mjs  # Sandbox runner
 ```
 
 ## Example: Vault Risk-Rating Gate (vaults.fyi)
@@ -180,4 +190,4 @@ This hits the vaults.fyi API using the same args file and prints the raw respons
 
 ## Reference
 
-See [NEWTON_POLICY_GUIDE.md](./NEWTON_POLICY_GUIDE.md) for the full walkthrough on writing WASM oracles, Rego policies, and deploying Newton Policy Wallets.
+- [Newton Developer Docs](https://docs.newton.xyz/developers/overview/core-concepts) — protocol overview, guides, and API reference
