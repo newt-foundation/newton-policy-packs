@@ -5,3 +5,5 @@ configs/*
 policies/*/policy-files/policy.wasm
 policies/*/policy_cids.json
 policies/*/.policy_data_address
+prompts/*
+**/.DS_Store

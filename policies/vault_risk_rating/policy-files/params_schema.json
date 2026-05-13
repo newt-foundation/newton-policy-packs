@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "description": "Risk envelope thresholds for vault deposit gating",
+  "properties": {
+    "apy_z_max": {
+      "type": "number",
+      "description": "Max APY z-score (current vs 30d median). Exceeding this indicates an APY anomaly."
+    },
+    "tvl_drawdown_24h_max_pct": {
+      "type": "number",
+      "description": "Max allowed 24h TVL drawdown percentage"
+    },
+    "tvl_drawdown_7d_max_pct": {
+      "type": "number",
+      "description": "Max allowed 7d TVL drawdown percentage"
+    },
+    "risk_score_floor": {
+      "type": "number",
+      "description": "Minimum acceptable risk score (0-1 scale)"
+    },
+    "deny_on_allocation_change": {
+      "type": "boolean",
+      "description": "Whether to deny if vault allocation/strategy metadata has changed since last evaluation"
+    },
+    "nrt_max_age_seconds": {
+      "type": "number",
+      "description": "Max staleness of NRT share price data in seconds"
+    }
+  },
+  "required": [
+    "apy_z_max",
+    "tvl_drawdown_24h_max_pct",
+    "tvl_drawdown_7d_max_pct",
+    "risk_score_floor",
+    "deny_on_allocation_change",
+    "nrt_max_age_seconds"
+  ]
+}

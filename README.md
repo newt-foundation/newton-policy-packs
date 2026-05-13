@@ -106,6 +106,78 @@ newton-policy-packs/
 └── NEWTON_POLICY_GUIDE.md   # Detailed reference guide
 ```
 
+## Example: Vault Risk-Rating Gate (vaults.fyi)
+
+This policy gates vault deposits based on real-time risk signals from [vaults.fyi](https://vaults.fyi): APY anomalies, TVL drawdowns, risk score floors, and allocation changes.
+
+### Config files
+
+Create `configs/vault_risk_rating/` with the following files:
+
+**`wasm_args.json`** — Input to the WASM oracle (secrets are passed inline for local simulation):
+
+```json
+{
+  "network": "mainnet",
+  "vaultAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+  "lastKnownAllocationHash": null,
+  "VAULTS_FYI_API_KEY": "your-api-key-here"
+}
+```
+
+**`params.json`** — Risk envelope thresholds evaluated by Rego:
+
+```json
+{
+  "apy_z_max": 4.0,
+  "tvl_drawdown_24h_max_pct": 25,
+  "tvl_drawdown_7d_max_pct": 50,
+  "risk_score_floor": 60,
+  "deny_on_allocation_change": true,
+  "nrt_max_age_seconds": 300
+}
+```
+
+**`intent.json`** — The transaction intent being evaluated:
+
+```json
+{
+  "from": "0x0000000000000000000000000000000000000001",
+  "to": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+  "value": "1000000000000000000",
+  "function_name": "deposit",
+  "args": [],
+  "chain_id": "11155111"
+}
+```
+
+### Running the example
+
+```bash
+# Build the WASM oracle
+pnpm run build -- vault_risk_rating
+
+# Test the oracle in isolation (returns vault state JSON)
+CHAIN_ID=11155111 pnpm run simulate:wasm -- vault_risk_rating \
+  --args configs/vault_risk_rating/wasm_args.json
+
+# Run full policy evaluation (WASM + Rego)
+CHAIN_ID=11155111 pnpm run simulate -- vault_risk_rating \
+  --args configs/vault_risk_rating/wasm_args.json \
+  --params configs/vault_risk_rating/params.json \
+  --intent configs/vault_risk_rating/intent.json
+```
+
+### Sandbox (test API calls outside WASM)
+
+Each policy can include a `sandbox.mjs` for testing API calls with Node directly:
+
+```bash
+pnpm run sandbox -- vault_risk_rating
+```
+
+This hits the vaults.fyi API using the same args file and prints the raw responses, useful for debugging response shapes before compiling to WASM.
+
 ## Reference
 
 See [NEWTON_POLICY_GUIDE.md](./NEWTON_POLICY_GUIDE.md) for the full walkthrough on writing WASM oracles, Rego policies, and deploying Newton Policy Wallets.

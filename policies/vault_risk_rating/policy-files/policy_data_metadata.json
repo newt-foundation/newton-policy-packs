@@ -1,0 +1,7 @@
+{
+  "name": "vault_risk_rating Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://vaults.fyi",
+  "description": "Fetches vault state from vaults.fyi API (APY, TVL, risk score, allocation metadata) for risk-rating gate evaluation"
+}

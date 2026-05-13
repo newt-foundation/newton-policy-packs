@@ -1,0 +1,7 @@
+{
+  "name": "vault_risk_rating",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://vaults.fyi",
+  "description": "Gates vault deposits based on real-time risk signals: APY anomalies, TVL drawdowns, risk score floors, and allocation changes"
+}

@@ -11,7 +11,8 @@
     "deploy:data": "bash scripts/deploy-data.sh",
     "deploy:policy": "bash scripts/deploy-policy.sh",
     "deploy": "bash scripts/deploy.sh",
-    "check-deps": "bash scripts/check-deps.sh"
+    "check-deps": "bash scripts/check-deps.sh",
+    "sandbox": "node scripts/sandbox.mjs"
   },
   "keywords": [],
   "author": "",
