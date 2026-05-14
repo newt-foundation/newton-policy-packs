@@ -1,0 +1,10 @@
+{
+  "entrypoint": "vault_risk_rating.allow",
+  "policyCid": "bafkreigqnptfdyomndz3tw2zz2hm5dncag73apz73ykystxfdbolpwvfnq",
+  "policyCodeHash": "0xeb7c838886625cd5775e676ccf817c02728e88fed026ac1cd0cb41619d21f7f8",
+  "policyDataMetadataCid": "bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4",
+  "policyMetadataCid": "bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q",
+  "schemaCid": "bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a",
+  "secretsSchemaCid": "",
+  "wasmCid": "bafybeihvj6wrdnqegf5sxfoceot5ndawuhkgk3u7m3zcf44ooalonsr3qm"
+}

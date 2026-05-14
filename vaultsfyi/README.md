@@ -31,3 +31,7 @@ newton-cli policy simulate -p ./vaultsfyi --wasm-args ./configs/wasm_args.json -
 ```bash
 newton-cli policy deploy -p ./vaultsfyi
 ```
+
+## Deployments
+
+See [deployments.json](./deployments.json) for deployed contract addresses by chain.
