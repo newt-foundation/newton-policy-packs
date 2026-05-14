@@ -1,193 +1,121 @@
 # Newton Policy Packs
 
-Development workspace for creating, testing, and deploying Newton Policies (WASM oracles + Rego rules).
+Example policies for the Newton Protocol. Each policy is a top-level directory that can be built, simulated, and deployed using `newton-cli`.
 
-## Setup
+## Prerequisites
 
 ```bash
+# Install newton-cli
+curl -L cli.newton.xyz | sh && newtup
+
+# Check all deps are installed
+newton-cli doctor
+```
+
+If `doctor` reports missing packages:
+
+```bash
+npm install -g @bytecodealliance/jco @bytecodealliance/componentize-js @bytecodealliance/preview2-shim
+```
+
+## Quick Start
+
+```bash
+# 1. Clone and setup
 git clone <repo-url> && cd newton-policy-packs
-pnpm install
-cp .env.example .env
-# Fill in .env with your values (see below)
+cp .env.stagef .env    # Edit .env with your private key
+
+# 2. Build the example policy
+newton-cli policy build -p ./vault_risk_rating
+
+# 3. Simulate locally (auto-resolves configs/ from the policy dir)
+newton-cli policy simulate -p ./vault_risk_rating
+
+# 4. Deploy (stagef testnet)
+newton-cli policy deploy -p ./vault_risk_rating
 ```
 
-Check that external dependencies are installed:
+## Creating a New Policy
 
 ```bash
-pnpm run check-deps
+newton-cli policy scaffold my_policy
+newton-cli policy build -p ./my_policy
+newton-cli policy simulate -p ./my_policy
+newton-cli policy deploy -p ./my_policy
 ```
 
-### Required tooling
+## Environment Setup
 
-| Tool | Purpose | Install |
-|------|---------|---------|
-| Node.js >= 18 | WASM componentization | `brew install node` |
-| pnpm | Package manager | `npm install -g pnpm` |
-| newton-cli | Simulate & deploy policies | `cargo install newton-cli@0.1.31` |
+Copy a starter env file and add your private key:
 
-### Environment variables (`.env`)
+```bash
+cp .env.stagef .env   # Sepolia testnet
+# OR
+cp .env.prod .env     # Mainnet
+```
 
 | Variable | Description |
 |----------|-------------|
-| `CHAIN_ID` | Target chain (default: `11155111` for Sepolia) |
-| `PINATA_JWT` | Pinata API token for IPFS uploads |
-| `PINATA_GATEWAY` | Your Pinata gateway URL |
-| `PRIVATE_KEY` | Deployer private key (prefixed with `0x`) |
-| `RPC_URL` | RPC endpoint for the target chain |
+| `CHAIN_ID` | Target chain (`11155111` for Sepolia, `1` for mainnet) |
+| `DEPLOYMENT_ENV` | `stagef` or `prod` |
+| `RPC_URL` | Ethereum RPC endpoint |
+| `PRIVATE_KEY` | Deployer wallet private key (0x-prefixed) |
+| `PINATA_JWT` | (Optional) Pinata IPFS token |
+| `PINATA_GATEWAY` | (Optional) Pinata gateway URL |
 
-## Usage
-
-### Create a new policy
-
-```bash
-pnpm run new-policy -- my_policy
-```
-
-Creates `policies/my_policy/` with scaffolded source files ready to edit.
-
-### Build
-
-Compiles `policy.js` into a WASM component and copies artifacts to `policy-files/`:
-
-```bash
-pnpm run build -- my_policy
-```
-
-### Simulate
-
-Test the WASM oracle in isolation:
-
-```bash
-pnpm run simulate:wasm -- my_policy
-pnpm run simulate:wasm -- my_policy --args ./configs/my-wasm-args.json
-```
-
-Test the full policy (WASM + Rego evaluation):
-
-```bash
-pnpm run simulate -- my_policy
-pnpm run simulate -- my_policy --args ./configs/wasm-args.json --intent ./configs/intent.json --params ./configs/params.json
-```
-
-All flags are optional. Without them, the simulation runs with empty/default inputs.
-
-### Sandbox
-
-Test API calls with Node directly before compiling to WASM. Each policy can include a `sandbox.mjs` that reads from its config files:
-
-```bash
-pnpm run sandbox -- my_policy
-```
-
-Useful for inspecting raw API response shapes and debugging outside the WASM runtime.
-
-### Deploy
-
-Full pipeline (generate CIDs, deploy WASM oracle, deploy policy):
-
-```bash
-pnpm run deploy -- my_policy
-```
-
-Or run steps individually:
-
-```bash
-pnpm run generate-cids -- my_policy
-pnpm run deploy:data -- my_policy
-pnpm run deploy:policy -- my_policy
-```
-
-## Project structure
+## Project Structure
 
 ```
 newton-policy-packs/
-├── policies/          # Your policies live here
-│   └── {name}/
-│       ├── policy.js              # WASM oracle source
-│       ├── policy.rego            # Rego rules
-│       ├── newton-provider.wit    # WIT interface
-│       ├── params_schema.json     # Parameter schema
-│       ├── policy_data_metadata.json
-│       ├── policy_metadata.json
-│       └── policy-files/          # Build output (gitignored .wasm)
-├── configs/           # Your simulation configs (gitignored)
-├── scripts/           # Shell scripts backing pnpm commands
-├── templates/         # Scaffolding templates
-└── scripts/sandbox.mjs  # Sandbox runner
+├── vault_risk_rating/     # Example: vault deposit risk gate
+│   ├── policy.js          # WASM oracle (fetches external data)
+│   ├── policy.rego        # Rego rules (allow/deny logic)
+│   ├── newton-provider.wit
+│   ├── params_schema.json
+│   ├── policy_metadata.json
+│   ├── policy_data_metadata.json
+│   ├── sandbox.mjs        # Node.js API testing
+│   ├── configs/           # Simulation configs (gitignored)
+│   │   ├── wasm_args.json
+│   │   ├── params.json
+│   │   └── intent.json
+│   └── dist/      # Build output
+├── .env.stagef            # Starter env for testnet
+├── .env.prod              # Starter env for mainnet
+└── package.json           # jco build deps
 ```
 
-## Example: Vault Risk-Rating Gate (vaults.fyi)
+## Sandbox (Node.js API Testing)
 
-This policy gates vault deposits based on real-time risk signals from [vaults.fyi](https://vaults.fyi): APY anomalies, TVL drawdowns, risk score floors, and allocation changes.
-
-### Config files
-
-Create `configs/vault_risk_rating/` with the following files:
-
-**`wasm_args.json`** — Input to the WASM oracle (secrets are passed inline for local simulation):
-
-```json
-{
-  "network": "mainnet",
-  "vaultAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-  "lastKnownAllocationHash": null,
-  "VAULTS_FYI_API_KEY": "your-api-key-here"
-}
-```
-
-**`params.json`** — Risk envelope thresholds evaluated by Rego:
-
-```json
-{
-  "apy_z_max": 4.0,
-  "tvl_drawdown_24h_max_pct": 25,
-  "tvl_drawdown_7d_max_pct": 50,
-  "risk_score_floor": 60,
-  "deny_on_allocation_change": true,
-  "nrt_max_age_seconds": 300
-}
-```
-
-**`intent.json`** — The transaction intent being evaluated:
-
-```json
-{
-  "from": "0x0000000000000000000000000000000000000001",
-  "to": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-  "value": "1000000000000000000",
-  "function_name": "deposit",
-  "args": [],
-  "chain_id": "11155111"
-}
-```
-
-### Running the example
+Test API calls outside of WASM before compiling:
 
 ```bash
-# Build the WASM oracle
-pnpm run build -- vault_risk_rating
-
-# Test the oracle in isolation (returns vault state JSON)
-CHAIN_ID=11155111 pnpm run simulate:wasm -- vault_risk_rating \
-  --args configs/vault_risk_rating/wasm_args.json
-
-# Run full policy evaluation (WASM + Rego)
-CHAIN_ID=11155111 pnpm run simulate -- vault_risk_rating \
-  --args configs/vault_risk_rating/wasm_args.json \
-  --params configs/vault_risk_rating/params.json \
-  --intent configs/vault_risk_rating/intent.json
+node ./vault_risk_rating/sandbox.mjs
 ```
 
-### Sandbox (test API calls outside WASM)
+## Config Convention
 
-Each policy can include a `sandbox.mjs` for testing API calls with Node directly:
+Each policy has a `configs/` subdirectory (gitignored) with:
+- `wasm_args.json` — Input to the WASM oracle (may contain API keys for local testing)
+- `params.json` — Policy parameters evaluated by Rego
+- `intent.json` — Transaction intent being evaluated
 
-```bash
-pnpm run sandbox -- vault_risk_rating
-```
+When you run `newton-cli policy simulate -p ./my_policy`, the CLI auto-resolves these files from `configs/` inside the policy directory. You can override with explicit flags (`--wasm-args`, `--policy-params-data`, `--intent-json`).
 
-This hits the vaults.fyi API using the same args file and prints the raw responses, useful for debugging response shapes before compiling to WASM.
+## Included Policies
+
+### vault_risk_rating
+
+Gates vault deposits based on real-time risk signals from [vaults.fyi](https://vaults.fyi):
+
+- APY anomaly detection (z-score)
+- TVL drawdown monitoring (24h and 7d)
+- Risk score floor enforcement
+- Allocation change detection
+
+See [vault_risk_rating/README.md](./vault_risk_rating/README.md) for details.
 
 ## Reference
 
-- [Newton Developer Docs](https://docs.newton.xyz/developers/overview/core-concepts) — protocol overview, guides, and API reference
+- [Newton Developer Docs](https://docs.newton.xyz/developers/overview/core-concepts)
+- [Policy Lifecycle Guide](https://github.com/newt-foundation/newton-prover-avs/blob/main/bin/newton-cli/docs/policy-lifecycle.md)

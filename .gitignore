@@ -1,9 +1,6 @@
 .env
-node_modules/
-configs/*
-!configs/.gitkeep
-policies/*/policy-files/policy.wasm
-policies/*/policy_cids.json
-policies/*/.policy_data_address
-prompts/*
+*/configs/
+*/dist/policy.wasm
+*/policy_cids.json
+*/.policy_data_address
 **/.DS_Store
