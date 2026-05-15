@@ -34,15 +34,6 @@ function getHistory(network, vaultAddress, fromTimestamp) {
   return getJson(url);
 }
 
-function median(xs) {
-  const s = [...xs].sort((a, b) => a - b);
-  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
-}
-
-function mad(xs, m) {
-  return median(xs.map((x) => Math.abs(x - m)));
-}
-
 function simpleHash(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
@@ -62,10 +53,10 @@ export function run(input) {
     const history = getHistory(network, vaultAddress, thirtyDaysAgo);
 
     const currentApy = vault.apy?.["1day"]?.total ?? 0;
-    const apySeries = (history.data ?? []).map((d) => d.apy?.total ?? 0).filter(Number.isFinite);
-    const med30d = apySeries.length ? median(apySeries) : currentApy;
-    const mad30d = apySeries.length ? mad(apySeries, med30d) : 1e-9;
-    const apyZ = (currentApy - med30d) / Math.max(mad30d, 1e-9);
+    const apy30d = vault.apy?.["30day"]?.total ?? 0;
+    const apyZ = (currentApy - apy30d) / Math.max(apy30d * 0.5, 0.001);
+    const apyBase = vault.apy?.["1day"]?.base ?? null;
+    const apyReward = vault.apy?.["1day"]?.reward ?? null;
 
     const tvl = Number(vault.tvl?.usd ?? 0);
     const tvlSeries = (history.data ?? []).map((d) => Number(d.tvl?.usd ?? 0)).filter(Number.isFinite);
@@ -74,12 +65,32 @@ export function run(input) {
     const drawdown24hPct = ((tvl24hAgo - tvl) / Math.max(tvl24hAgo, 1)) * 100;
     const drawdown7dPct = ((tvl7dAgo - tvl) / Math.max(tvl7dAgo, 1)) * 100;
 
+    const flags = Array.isArray(vault.flags)
+      ? vault.flags.map(f => ({ content: f.content ?? String(f), severity: f.severity ?? "unknown" }))
+      : [];
+    const hasCriticalFlag = flags.some(f => f.severity === "critical" || f.severity === "high");
+
     const vaultScore = vault.score?.vaultScore ?? null;
+    const scoreVaultTvl = vault.score?.vaultTvlScore ?? null;
+    const scoreProtocolTvl = vault.score?.protocolTvlScore ?? null;
+    const scoreHolder = vault.score?.holderScore ?? null;
+    const scoreNetwork = vault.score?.networkScore ?? null;
+    const scoreAsset = vault.score?.assetScore ?? null;
+    const scorePenalty = vault.score?.totalScorePenalty ?? null;
+
+    const UNCAPPED_THRESHOLD = 1e30;
+    const rawRemaining = vault.remainingCapacity != null ? Number(vault.remainingCapacity) : null;
+    const rawMax = vault.maxCapacity != null ? Number(vault.maxCapacity) : null;
+    const capacityRemaining = (rawRemaining != null && rawRemaining < UNCAPPED_THRESHOLD) ? rawRemaining : null;
+    const capacityMax = (rawMax != null && rawMax < UNCAPPED_THRESHOLD) ? rawMax : null;
+
+    const isCorrupted = vault.isCorrupted ?? false;
 
     const metaForHash = JSON.stringify({
       protocol: vault.protocol?.name,
       tags: vault.tags,
       fees: vault.fees,
+      childrenVaults: (vault.childrenVaults ?? []).map(v => v.address),
     });
     const allocationHash = simpleHash(metaForHash);
 
@@ -88,10 +99,24 @@ export function run(input) {
       network,
       apy_current: currentApy,
       apy_z_score: apyZ,
+      apy_base: apyBase,
+      apy_reward: apyReward,
+      apy_30d: apy30d,
       tvl_usd: tvl,
       tvl_drawdown_24h_pct: drawdown24hPct,
       tvl_drawdown_7d_pct: drawdown7dPct,
       risk_score: vaultScore,
+      flags,
+      has_critical_flag: hasCriticalFlag,
+      score_vault_tvl: scoreVaultTvl,
+      score_protocol_tvl: scoreProtocolTvl,
+      score_holder: scoreHolder,
+      score_network: scoreNetwork,
+      score_asset: scoreAsset,
+      score_penalty: scorePenalty,
+      capacity_remaining: capacityRemaining,
+      capacity_max: capacityMax,
+      is_corrupted: isCorrupted,
       allocation_hash: allocationHash,
       allocation_changed_since_last:
         lastKnownAllocationHash ? lastKnownAllocationHash !== allocationHash : false,

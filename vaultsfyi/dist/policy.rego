@@ -23,6 +23,16 @@ deny_reason := "allocation_changed" if {
     t.deny_on_allocation_change
 }
 
+deny_reason := "critical_flag" if {
+    v.has_critical_flag
+    t.deny_on_critical_flag
+}
+
+deny_reason := "vault_corrupted" if {
+    v.is_corrupted
+    t.deny_on_corrupted
+}
+
 deny_reason := "nrt_stale" if {
     v.nrt_age_seconds != null
     v.nrt_age_seconds > t.nrt_max_age_seconds
