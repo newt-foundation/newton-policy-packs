@@ -1,0 +1,7 @@
+{
+  "name": "webacy",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://webacy.com",
+  "description": "Gates vault deposits based on Webacy's per-address risk score (DD Score), sanctions hits, and exploit-exposure flags"
+}
