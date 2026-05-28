@@ -1,0 +1,7 @@
+{
+  "name": "chainalysis",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://www.chainalysis.com",
+  "description": "Gates vault deposits using Chainalysis Sanctions Screening (free, OFAC) and Address Screening v2 (paid risk categorization)"
+}

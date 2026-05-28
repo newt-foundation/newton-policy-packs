@@ -1,0 +1,7 @@
+{
+  "name": "chainalysis Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://www.chainalysis.com",
+  "description": "Calls Chainalysis Sanctions Screening + Address Screening v2 and emits a normalized risk snapshot for the depositor wallet"
+}
