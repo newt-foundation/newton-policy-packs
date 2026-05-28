@@ -1,0 +1,7 @@
+{
+  "name": "sumsub Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://sumsub.com",
+  "description": "Fetches the SumSub applicant record and review status for a wallet address (externalUserId) using HMAC-SHA256-signed requests."
+}
