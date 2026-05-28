@@ -1,0 +1,7 @@
+{
+  "name": "balancer",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://balancer.fi",
+  "description": "Composite Balancer v3 pool risk gate: blocks deposits into pools with excessive token concentration, non-allowlisted tokens, boosted underlying protocol risk, low TVL, or sharp TVL drawdowns"
+}
