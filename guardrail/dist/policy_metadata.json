@@ -1,0 +1,7 @@
+{
+  "name": "guardrail",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://guardrail.so",
+  "description": "Gates vault deposits when Guardrail.so reports active high/critical alerts on the target protocol or the protocol's health score is below floor"
+}
