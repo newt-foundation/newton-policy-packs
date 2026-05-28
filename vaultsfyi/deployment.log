@@ -4,7 +4,7 @@ Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 ========== Uploading All Policy Files ==========
 ================================================
 Directory: "./vaultsfyi/dist"
-policyCodeHash: 0x07752f36bedabad3ee876ebefcefd258e5a759f59aa74319851a04e14fb85f04
+policyCodeHash: 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54
 
 ================================================
 ============ Upload policy.wasm ================
@@ -22,9 +22,9 @@ Public IPFS Link: https://ipfs.io/ipfs/bafybeifv27lklax5fa5h2jvkfkyd7ia4lt4a5php
 Uploading to Pinata IPFS path=./vaultsfyi/dist/policy.rego
 
 === IPFS Upload Results ===
-IPFS Hash: bafkreihfi67optf5k2254bqwh34i3rhi6ovkjeswtx56hij5dnwxhobu6u
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreihfi67optf5k2254bqwh34i3rhi6ovkjeswtx56hij5dnwxhobu6u
-Public IPFS Link: https://ipfs.io/ipfs/bafkreihfi67optf5k2254bqwh34i3rhi6ovkjeswtx56hij5dnwxhobu6u
+IPFS Hash: bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+Public IPFS Link: https://ipfs.io/ipfs/bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
 
 ================================================
 ========== Upload params_schema.json ===========
@@ -32,9 +32,9 @@ Public IPFS Link: https://ipfs.io/ipfs/bafkreihfi67optf5k2254bqwh34i3rhi6ovkjesw
 Uploading to Pinata IPFS path=./vaultsfyi/dist/params_schema.json
 
 === IPFS Upload Results ===
-IPFS Hash: bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a
-Public IPFS Link: https://ipfs.io/ipfs/bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a
+IPFS Hash: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
 
 ================================================
 ========== Upload policy_metadata.json =========
@@ -63,35 +63,25 @@ Output file: "./vaultsfyi/dist/policy_cids.json"
 
 {
   "wasmCid": "bafybeifv27lklax5fa5h2jvkfkyd7ia4lt4a5phpr7fr46fwpywv2jx2oa",
-  "policyCid": "bafkreihfi67optf5k2254bqwh34i3rhi6ovkjeswtx56hij5dnwxhobu6u",
-  "schemaCid": "bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a",
+  "policyCid": "bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly",
+  "schemaCid": "bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m",
   "entrypoint": "vault_risk_rating.allow",
   "policyMetadataCid": "bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q",
   "policyDataMetadataCid": "bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4",
   "secretsSchemaCid": "",
-  "policyCodeHash": "0x07752f36bedabad3ee876ebefcefd258e5a759f59aa74319851a04e14fb85f04"
+  "policyCodeHash": "0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54"
 }
 
-=== Step 2: Deploying policy data (WASM) ===
-Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
-Deploying policy data:
-  wasmCid: bafybeifv27lklax5fa5h2jvkfkyd7ia4lt4a5phpr7fr46fwpywv2jx2oa
-  secretsSchemaCid: 
-  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
-  expireAfter: 25 blocks 
-
-Policy data deployed successfully at address: 0xAd76F5c6Cc5CCaEb8c7712451DF4357d922c895e
-
 === Step 3: Deploying policy ===
-Using policyCodeHash from policy_cids.json: 0x07752f36bedabad3ee876ebefcefd258e5a759f59aa74319851a04e14fb85f04
-Pinned policyCodeHash 0x07752f36bedabad3ee876ebefcefd258e5a759f59aa74319851a04e14fb85f04 in "./vaultsfyi/dist/policy_cids.json"
+Using policyCodeHash from policy_cids.json: 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54
+Pinned policyCodeHash 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54 in "./vaultsfyi/dist/policy_cids.json"
 Deploying policy:
   entrypoint: vault_risk_rating.allow
-  policyCid: bafkreihfi67optf5k2254bqwh34i3rhi6ovkjeswtx56hij5dnwxhobu6u
-  schemaCid: bafkreigs3lyrndpc3hce6qadjeh3fhuh4zdg3iabsvrsal4dsgygvk7t3a
+  policyCid: bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+  schemaCid: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
   policyData: [0xad76f5c6cc5ccaeb8c7712451df4357d922c895e]
   metadataCid: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q 
 
-Policy deployed successfully at address: 0x6A6C3ECaa0fB30e6D348Bc1E1f8C1330C72Bfbe4
+Policy deployed successfully at address: 0xDcf9CBe8557c2DD93e60783D3706725Efe1Ba008
 
 === Deploy complete ===

@@ -22,9 +22,13 @@
       "type": "boolean",
       "description": "Whether to deny if vault allocation/strategy metadata has changed since last evaluation"
     },
-    "nrt_max_age_seconds": {
-      "type": "number",
-      "description": "Max staleness of NRT share price data in seconds"
+    "deny_on_critical_flag": {
+      "type": "boolean",
+      "description": "Whether to deny if the vault has a flag with severity 'critical' or 'high'"
+    },
+    "deny_on_corrupted": {
+      "type": "boolean",
+      "description": "Whether to deny if the vault is reported as corrupted by the data source"
     }
   },
   "required": [
@@ -33,6 +37,7 @@
     "tvl_drawdown_7d_max_pct",
     "risk_score_floor",
     "deny_on_allocation_change",
-    "nrt_max_age_seconds"
+    "deny_on_critical_flag",
+    "deny_on_corrupted"
   ]
 }
