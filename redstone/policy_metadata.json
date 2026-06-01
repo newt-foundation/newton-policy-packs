@@ -1,0 +1,7 @@
+{
+  "name": "redstone",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://redstone.finance",
+  "description": "Gates vault deposits when the on-chain price oracle diverges from RedStone's market price beyond a configured threshold"
+}

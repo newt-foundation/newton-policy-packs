@@ -1,0 +1,7 @@
+{
+  "name": "redstone Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://redstone.finance",
+  "description": "Fetches RedStone median price for an asset and the corresponding on-chain oracle price via eth_call, returning the divergence in basis points"
+}
