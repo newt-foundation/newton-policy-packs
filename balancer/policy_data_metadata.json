@@ -1,0 +1,7 @@
+{
+  "name": "balancer Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://balancer.fi",
+  "description": "Fetches live Balancer v3 pool state via the public GraphQL API (composition, weights, boosted underlying tokens, TVL, TVL history) for pool-risk gate evaluation"
+}
