@@ -1,9 +1,0 @@
-{
-  "11155111": {
-    "policy": "0x2B0E8cbb1Ec702Aa5cbD2bE704480C6944a33448",
-    "policy_data": "0x02E507C84Db919fA029292b4e7a48E1E77e1d782",
-    "deployed_at": "2026-05-14",
-    "deployer": "0x8D84B1344cb6375694f5862c868BA2c78240c076",
-    "git_hash": "7fcbc968f9ac07ad63ff8d0cc2e73094eeb4c721"
-  }
-}

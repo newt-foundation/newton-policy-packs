@@ -1,0 +1,97 @@
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+=== Step 1: Generating CIDs ===
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./guardrail/dist"
+policyCodeHash: 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
+Public IPFS Link: https://ipfs.io/ipfs/bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./guardrail/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra",
+  "policyCid": "bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu",
+  "schemaCid": "bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44",
+  "entrypoint": "guardrail_protocol_monitor.allow",
+  "policyMetadataCid": "bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq",
+  "policyDataMetadataCid": "bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq",
+  "secretsSchemaCid": "",
+  "policyCodeHash": "0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392"
+}
+
+=== Step 2: Deploying policy data (WASM) ===
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
+  secretsSchemaCid: 
+  metadataCid: bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x9838Bec55DBC7b7A60e594496Ce0c113BABED32F
+
+=== Step 3: Deploying policy ===
+Using policyCodeHash from policy_cids.json: 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392
+Pinned policyCodeHash 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392 in "./guardrail/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: guardrail_protocol_monitor.allow
+  policyCid: bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu
+  schemaCid: bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+  policyData: [0x9838bec55dbc7b7a60e594496ce0c113babed32f]
+  metadataCid: bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq 
+
+Policy deployed successfully at address: 0xaC397a0868982844F35b34C11d859Bf15E87E0a0
+
+=== Deploy complete ===

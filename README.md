@@ -25,23 +25,29 @@ npm install -g @bytecodealliance/jco @bytecodealliance/componentize-js @bytecode
 git clone <repo-url> && cd newton-policy-packs
 cp .env.stagef .env    # Edit .env with your private key
 
-# 2. Build the example policy
-newton-cli policy build -p ./vaultsfyi
-
-# 3. Simulate locally (auto-resolves configs/ from the policy dir)
+# 2. Simulate locally (auto-resolves configs/ from the policy dir)
 newton-cli policy simulate -p ./vaultsfyi
 
-# 4. Deploy (stagef testnet)
-newton-cli policy deploy -p ./vaultsfyi
+# 3. Deploy (stagef testnet) — captures the on-chain address + IPFS CIDs
+newton-cli policy deploy -p ./vaultsfyi 2>&1 | tee vaultsfyi/deployment.log
 ```
+
+Each pack ships with a pre-built `dist/policy.wasm`, so no build step is needed. To rebuild from source, use `jco componentize` directly against the pack's `policy.js` + `newton-provider.wit`.
+
+## After Deploying
+
+`policy deploy` only registers the policy on-chain. To wire it into a vault you also need to register a PolicyClient, bind the policy, set params, and (for packs that read API keys at evaluation time) upload encrypted secrets. See [OPERATING.md](./OPERATING.md).
 
 ## Creating a New Policy
 
+There's no scaffold subcommand yet. To start a new pack, copy an existing one and rename the Rego package:
+
 ```bash
-newton-cli policy scaffold my_policy
-newton-cli policy build -p ./my_policy
+cp -r vaultsfyi my_policy
+# edit my_policy/policy.js, policy.rego (rename `package vault_risk_rating` → `package my_policy`),
+# params_schema.json, policy_metadata.json, policy_data_metadata.json, README.md
 newton-cli policy simulate -p ./my_policy
-newton-cli policy deploy -p ./my_policy
+newton-cli policy deploy -p ./my_policy 2>&1 | tee my_policy/deployment.log
 ```
 
 ## Environment Setup

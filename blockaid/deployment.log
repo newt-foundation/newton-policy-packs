@@ -1,0 +1,97 @@
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+=== Step 1: Generating CIDs ===
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./blockaid/dist"
+policyCodeHash: 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
+Public IPFS Link: https://ipfs.io/ipfs/bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./blockaid/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24",
+  "policyCid": "bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om",
+  "schemaCid": "bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e",
+  "entrypoint": "blockaid_tx_safety.allow",
+  "policyMetadataCid": "bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq",
+  "policyDataMetadataCid": "bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe",
+  "secretsSchemaCid": "",
+  "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b"
+}
+
+=== Step 2: Deploying policy data (WASM) ===
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
+  secretsSchemaCid: 
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x6e269f673453519B7254eD28482a7E460ae4b4CA
+
+=== Step 3: Deploying policy ===
+Using policyCodeHash from policy_cids.json: 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b
+Pinned policyCodeHash 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b in "./blockaid/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: blockaid_tx_safety.allow
+  policyCid: bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om
+  schemaCid: bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+  policyData: [0x6e269f673453519b7254ed28482a7e460ae4b4ca]
+  metadataCid: bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq 
+
+Policy deployed successfully at address: 0x14038DBEda03a2e6AeA02e9932D216892bb4Ed0d
+
+=== Deploy complete ===

@@ -1,0 +1,10 @@
+{
+  "entrypoint": "blockaid_tx_safety.allow",
+  "policyCid": "bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om",
+  "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b",
+  "policyDataMetadataCid": "bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe",
+  "policyMetadataCid": "bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq",
+  "schemaCid": "bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e",
+  "secretsSchemaCid": "",
+  "wasmCid": "bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24"
+}

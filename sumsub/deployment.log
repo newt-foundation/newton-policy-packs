@@ -1,0 +1,97 @@
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+=== Step 1: Generating CIDs ===
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeicrhyuy6kklbzp6nnpsito3nnwfzimbsjo4wtj7ojatfarwijl2lu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeicrhyuy6kklbzp6nnpsito3nnwfzimbsjo4wtj7ojatfarwijl2lu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeicrhyuy6kklbzp6nnpsito3nnwfzimbsjo4wtj7ojatfarwijl2lu
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreielwq7tofc4n4bl535sxltfk4ymtpmwqajnyujmkivnova42dqrpe
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreielwq7tofc4n4bl535sxltfk4ymtpmwqajnyujmkivnova42dqrpe
+Public IPFS Link: https://ipfs.io/ipfs/bafkreielwq7tofc4n4bl535sxltfk4ymtpmwqajnyujmkivnova42dqrpe
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeicrhyuy6kklbzp6nnpsito3nnwfzimbsjo4wtj7ojatfarwijl2lu",
+  "policyCid": "bafkreielwq7tofc4n4bl535sxltfk4ymtpmwqajnyujmkivnova42dqrpe",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "",
+  "policyCodeHash": "0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a"
+}
+
+=== Step 2: Deploying policy data (WASM) ===
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeicrhyuy6kklbzp6nnpsito3nnwfzimbsjo4wtj7ojatfarwijl2lu
+  secretsSchemaCid: 
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x5677049CFC77191F5bc3d90376489064bE4B7596
+
+=== Step 3: Deploying policy ===
+Using policyCodeHash from policy_cids.json: 0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a
+Pinned policyCodeHash 0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreielwq7tofc4n4bl535sxltfk4ymtpmwqajnyujmkivnova42dqrpe
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x5677049cfc77191f5bc3d90376489064be4b7596]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x9b619893A4751E48466d82Ec9F40c5d7AFBd988c
+
+=== Deploy complete ===

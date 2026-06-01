@@ -1,0 +1,10 @@
+{
+  "entrypoint": "webacy_depositor_reputation.allow",
+  "policyCid": "bafkreie33rojyfmwdi6xckjvcpsagbr325j7gvd2xe5yqpwds3tiu3yiey",
+  "policyCodeHash": "0xdde6da598393c4281e73a4606bbf315065b2120b162f23ebee6bb693d351e0ed",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "secretsSchemaCid": "",
+  "wasmCid": "bafybeidfi7w2dmvi7bwhhlll3cxrr44wdjluoymikug3bkfyafld54lxne"
+}

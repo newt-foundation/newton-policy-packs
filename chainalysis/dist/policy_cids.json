@@ -1,0 +1,10 @@
+{
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyCid": "bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe",
+  "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "secretsSchemaCid": "",
+  "wasmCid": "bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y"
+}
