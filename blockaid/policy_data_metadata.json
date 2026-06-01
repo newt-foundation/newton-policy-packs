@@ -1,0 +1,7 @@
+{
+  "name": "blockaid Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://www.blockaid.io",
+  "description": "Submits the proposed deposit transaction to Blockaid's /v0/evm/transaction/scan endpoint and emits the classification, flagged features, and simulated balance diffs"
+}

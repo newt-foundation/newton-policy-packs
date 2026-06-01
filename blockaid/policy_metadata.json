@@ -1,0 +1,7 @@
+{
+  "name": "blockaid",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://www.blockaid.io",
+  "description": "Gates vault deposits at transaction-submission time using Blockaid's EVM transaction scan (validation + simulation) to catch malicious calldata, frontend-redirect attacks, and value-skim simulations"
+}
