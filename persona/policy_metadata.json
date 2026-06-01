@@ -1,0 +1,7 @@
+{
+  "name": "persona",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://withpersona.com",
+  "description": "Gates permissioned vault deposits on Persona KYC: requires a recent approved inquiry bound to the sending wallet with passing government-ID, selfie, and watchlist verifications, plus country and age checks"
+}

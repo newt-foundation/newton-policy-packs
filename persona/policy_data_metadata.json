@@ -1,0 +1,7 @@
+{
+  "name": "persona Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://withpersona.com",
+  "description": "Fetches the most recent approved Persona inquiry for a wallet (via reference-id) and returns KYC status, age, country, and government-id/selfie/watchlist verification outcomes"
+}
