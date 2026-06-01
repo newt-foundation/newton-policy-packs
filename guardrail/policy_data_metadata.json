@@ -1,0 +1,7 @@
+{
+  "name": "guardrail Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://guardrail.so",
+  "description": "Queries Guardrail.so for active alerts and health score on a target vault/protocol and returns a normalized snapshot"
+}
