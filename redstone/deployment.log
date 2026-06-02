@@ -1,0 +1,97 @@
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+=== Step 1: Generating CIDs ===
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./redstone/dist"
+policyCodeHash: 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+Public IPFS Link: https://ipfs.io/ipfs/bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./redstone/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq",
+  "policyCid": "bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu",
+  "schemaCid": "bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym",
+  "entrypoint": "redstone_oracle_divergence.allow",
+  "policyMetadataCid": "bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu",
+  "policyDataMetadataCid": "bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha",
+  "secretsSchemaCid": "",
+  "policyCodeHash": "0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d"
+}
+
+=== Step 2: Deploying policy data (WASM) ===
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
+  secretsSchemaCid: 
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x2389a0434Cb45b1c359ED2025384f7C48F991895
+
+=== Step 3: Deploying policy ===
+Using policyCodeHash from policy_cids.json: 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d
+Pinned policyCodeHash 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d in "./redstone/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: redstone_oracle_divergence.allow
+  policyCid: bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu
+  schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+  policyData: [0x2389a0434cb45b1c359ed2025384f7c48f991895]
+  metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
+
+Policy deployed successfully at address: 0x9F1E0B435753Cb09713216D52C5992f69e7310BE
+
+=== Deploy complete ===

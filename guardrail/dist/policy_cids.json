@@ -1,0 +1,10 @@
+{
+  "entrypoint": "guardrail_protocol_monitor.allow",
+  "policyCid": "bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu",
+  "policyCodeHash": "0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392",
+  "policyDataMetadataCid": "bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq",
+  "policyMetadataCid": "bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq",
+  "schemaCid": "bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44",
+  "secretsSchemaCid": "",
+  "wasmCid": "bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra"
+}
