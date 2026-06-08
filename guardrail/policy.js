@@ -1,4 +1,4 @@
-import { fetch as httpFetch } from "newton:provider/http@0.1.0";
+import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 
 // Guardrail.so does not publish a stable, public REST API spec. The base URL
 // and path here are best-guess placeholders; reconfirm against the live
