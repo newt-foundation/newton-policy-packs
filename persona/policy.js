@@ -1,4 +1,4 @@
-import { fetch as httpFetch } from "newton:provider/http@0.1.0";
+import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 
 const PERSONA_BASE = "https://api.withpersona.com/api/v1";
 const PERSONA_VERSION = "2023-01-05";

@@ -1,4 +1,4 @@
-import { fetch as httpFetch } from "newton:provider/http@0.1.0";
+import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 
 const BALANCER_API = "https://api-v3.balancer.fi/";
 

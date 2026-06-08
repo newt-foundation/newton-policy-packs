@@ -1,4 +1,4 @@
-import { fetch as httpFetch } from "newton:provider/http@0.1.0";
+import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 
 const REDSTONE_BASE = "https://api.redstone.finance/prices";
 
