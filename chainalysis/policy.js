@@ -1,7 +1,8 @@
-import { fetch as httpFetch } from "newton:provider/http@0.1.0";
+import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 
 const SANCTIONS_BASE = "https://public.chainalysis.com/api/v1/address";
-const ADDRESS_SCREENING_BASE = "https://api.chainalysis.com/api/risk/v2/entities";
+const ADDRESS_SCREENING_BASE =
+  "https://api.chainalysis.com/api/risk/v2/entities";
 
 let _secrets = {};
 
@@ -33,10 +34,12 @@ function getSanctionsResult(address, apiKey) {
     ["x-api-key", apiKey ?? ""],
   ];
   const { status, body } = getJson(url, headers);
-  if (status >= 400) throw new Error(`chainalysis sanctions ${status}: ${body.slice(0, 200)}`);
+  if (status >= 400)
+    throw new Error(`chainalysis sanctions ${status}: ${body.slice(0, 200)}`);
   const parsed = JSON.parse(body);
   // Endpoint returns either { identifications: [...] } or an array; normalize.
-  const ids = parsed.identifications ?? parsed.identifiedAddresses ?? parsed ?? [];
+  const ids =
+    parsed.identifications ?? parsed.identifiedAddresses ?? parsed ?? [];
   return Array.isArray(ids) ? ids : [];
 }
 
@@ -48,7 +51,8 @@ function getAddressScreening(address, apiKey) {
     ["token", apiKey],
   ];
   const { status, body } = getJson(url, headers);
-  if (status >= 400) throw new Error(`chainalysis screening ${status}: ${body.slice(0, 200)}`);
+  if (status >= 400)
+    throw new Error(`chainalysis screening ${status}: ${body.slice(0, 200)}`);
   return JSON.parse(body);
 }
 
@@ -87,7 +91,9 @@ export function run(input) {
         riskScore = r.risk ?? r.overallRisk ?? null;
         const cats = r.exposures ?? r.riskReasons ?? r.riskReason ?? [];
         riskCategories = (Array.isArray(cats) ? cats : [])
-          .map((c) => (typeof c === "string" ? c : c?.category ?? c?.name ?? null))
+          .map((c) =>
+            typeof c === "string" ? c : (c?.category ?? c?.name ?? null),
+          )
           .filter(Boolean)
           .map((s) => String(s).toLowerCase());
       } catch (e) {
