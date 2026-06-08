@@ -66,6 +66,7 @@ There is no `policy build` or `policy scaffold` subcommand. To rebuild `policy.w
 ## Reference
 
 - [OPERATING.md](./OPERATING.md) — post-deploy lifecycle (policy-client + secrets)
+- [scripts/README.md](./scripts/README.md) — TS debug harness mirroring `../newton-dashboard`'s deploy + execute flow (uses `@newton-xyz/sdk`, no `newton-cli`)
 - Newton Task Manager on Sepolia: `0xecb741F4875770f9A5F060cb30F6c9eb5966eD13`
 
 ### Newton Protocol docs

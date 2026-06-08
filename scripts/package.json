@@ -1,0 +1,27 @@
+{
+  "name": "newton-policy-packs-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Debug-harness scripts for Newton policy packs (mirrors newton-dashboard's flow with the new @newton-xyz/sdk)",
+  "scripts": {
+    "deploy-policy-data": "tsx cmd/deploy-policy-data.ts",
+    "deploy-policy": "tsx cmd/deploy-policy.ts",
+    "deploy-client": "tsx cmd/deploy-client.ts",
+    "bind": "tsx cmd/bind.ts",
+    "upload-secrets": "tsx cmd/upload-secrets.ts",
+    "simulate": "tsx cmd/simulate.ts",
+    "run": "tsx cmd/run.ts"
+  },
+  "dependencies": {
+    "@newton-xyz/sdk": "latest",
+    "multiformats": "^13.3.1",
+    "viem": "^2.38.6",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

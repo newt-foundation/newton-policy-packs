@@ -4,3 +4,6 @@
 */policy_cids.json
 */.policy_data_address
 **/.DS_Store
+config.json
+scripts/node_modules/
+scripts/.tsbuildinfo

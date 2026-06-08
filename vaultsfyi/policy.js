@@ -1,16 +1,43 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
+import { get as getSecrets } from "newton:provider/secrets@0.2.0";
 
+// revision: v3 — uses newton:provider/secrets WIT import; built with jco --disable http,random,stdio,fetch-event
 const VAULTS_FYI_BASE = "https://api.vaults.fyi/v2";
 
-let _secrets = {};
+// Lazy cache for the decrypted secrets blob the host gives us via the
+// `newton:provider/secrets` interface. The host scopes this to
+// (policy_client, policy_data) automatically, so we don't pass any name.
+let _cachedSecrets = null;
+
+function loadSecrets() {
+  if (_cachedSecrets !== null) return _cachedSecrets;
+  try {
+    const r = getSecrets();
+    if (typeof r === "string") throw new Error(`secrets: ${r}`);
+    if (r.tag === "err") throw new Error(`secrets: ${r.val}`);
+    const resp = r.val ?? r;
+    const body = new TextDecoder().decode(new Uint8Array(resp.value));
+    _cachedSecrets = body ? JSON.parse(body) : {};
+  } catch (e) {
+    _cachedSecrets = { __error: String(e) };
+  }
+  return _cachedSecrets;
+}
 
 function secret(name) {
-  if (typeof getSecret === "function") return getSecret(name);
-  return _secrets[name];
+  const s = loadSecrets();
+  return s[name];
 }
 
 function getJson(url) {
   const apiKey = secret("VAULTS_FYI_API_KEY");
+  if (!apiKey) {
+    // Surface a clear, debuggable message in `data.wasm.error` rather than
+    // crashing inside the WIT-typed httpFetch with "expected a string".
+    throw new Error(
+      `missing VAULTS_FYI_API_KEY in stored secrets (got keys: ${Object.keys(loadSecrets()).join(",") || "(none)"})`,
+    );
+  }
   const r = httpFetch({
     url,
     method: "GET",
@@ -44,7 +71,6 @@ export function run(input) {
   try {
     const parsed = JSON.parse(input);
     const { network, vaultAddress, lastKnownAllocationHash } = parsed;
-    _secrets = parsed;
 
     const now = Math.floor(Date.now() / 1000);
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60;
