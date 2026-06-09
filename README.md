@@ -23,51 +23,92 @@ npm install -g @bytecodealliance/jco @bytecodealliance/componentize-js @bytecode
 ```bash
 # 1. Clone and setup
 git clone <repo-url> && cd newton-policy-packs
-cp .env.stagef .env    # Edit .env with your private key
 
-# 2. Simulate locally (auto-resolves configs/ from the policy dir)
-newton-cli policy simulate -p ./vaultsfyi
+# 2. Export config — newton-cli does NOT auto-load these from ~/.newton/newton-cli.toml.
+#    Pull the values out of ~/.newton/newton-cli.toml manually:
+export PRIVATE_KEY="0x..."
+export RPC_URL="https://eth-sepolia.g.alchemy.com/v2/..."
+export CHAIN_ID=11155111
+export PINATA_JWT="eyJ..."
+export PINATA_GATEWAY="https://orange-useful-booby-460.mypinata.cloud"
 
-# 3. Deploy (stagef testnet) — captures the on-chain address + IPFS CIDs
-newton-cli policy deploy -p ./vaultsfyi 2>&1 | tee vaultsfyi/deployment.log
+# 3. Build — pass --disable flags or the WASM will import wasi:http/types
+#    (rejected at runtime). Each pack ships a pre-built dist/policy.wasm so this
+#    step is only needed when you change policy.js.
+jco componentize ./vaultsfyi/policy.js \
+  --wit ./vaultsfyi/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./vaultsfyi/dist/policy.wasm
+
+# 4. Simulate locally
+newton-cli policy simulate \
+  --wasm-args ./vaultsfyi/configs/wasm_args.json \
+  --intent-json ./vaultsfyi/configs/intent.json \
+  --policy-params-data ./vaultsfyi/configs/params.json \
+  --policy-file ./vaultsfyi/policy.rego \
+  --wasm-file ./vaultsfyi/dist/policy.wasm
+
+# 5. Deploy — three separate steps. Capture all output in deployment.log.
+exec > >(tee -a vaultsfyi/deployment.log) 2>&1
+
+# 5a. Upload to IPFS, write dist/policy_cids.json
+newton-cli policy-files generate-cids \
+  -d ./vaultsfyi/dist \
+  --entrypoint vault_risk_rating.allow \
+  --secrets-schema-file ./vaultsfyi/secrets_schema.json \
+  -o ./vaultsfyi/dist/policy_cids.json
+
+# 5b. Deploy PolicyData contract — note the address it prints
+newton-cli policy-data deploy \
+  --policy-cids ./vaultsfyi/dist/policy_cids.json
+
+# 5c. Deploy Policy contract bound to the PolicyData address
+newton-cli policy deploy \
+  --policy-cids ./vaultsfyi/dist/policy_cids.json \
+  --policy-data-address 0x<from-step-5b> \
+  --policy-file ./vaultsfyi/policy.rego
 ```
 
-Each pack ships with a pre-built `dist/policy.wasm`, so no build step is needed. To rebuild from source, use `jco componentize` directly against the pack's `policy.js` + `newton-provider.wit`.
+### Common pitfalls
+
+- **`component imports instance wasi:http/types@0.2.10`** at simulate/eval time → WASM was built without `--disable http --disable random --disable fetch-event --disable stdio`. Rebuild and redeploy. The error always names the failing PolicyData address — verify it matches your latest deployment.
+- **`private_key is required` / `rpc_url is required`** → the CLI is not reading `~/.newton/newton-cli.toml`'s `[signer]` / `eth_rpc_url`. Export `PRIVATE_KEY`, `RPC_URL`, `CHAIN_ID` as env vars.
+- **Pinata gateway returns 403 for your CID** → `generate-cids` ran without `PINATA_JWT` set and uploaded via the Newton IPFS proxy (not pinned to your Pinata account). Re-pin the file directly with `curl -X POST https://api.pinata.cloud/pinning/pinFileToIPFS -H "Authorization: Bearer $PINATA_JWT" -F "file=@./<path>" -F 'pinataOptions={"cidVersion":1}'` — same CID, no redeploy needed.
 
 ## After Deploying
 
-`policy deploy` only registers the policy on-chain. To wire it into a vault you also need to register a PolicyClient, bind the policy, set params, and (for packs that read API keys at evaluation time) upload encrypted secrets. See [OPERATING.md](./OPERATING.md).
+The above only registers the Policy + PolicyData contracts. To wire them into a vault you also need to register a PolicyClient, bind the policy, set params, and (for packs that read API keys) upload encrypted secrets. See [OPERATING.md](./OPERATING.md).
+
+## Deployed addresses
+
+The canonical Policy + PolicyData address for every pack on every chain lives in [`deployments.json`](./deployments.json). Update it as part of every redeploy — the dashboard, OPERATING.md, and per-pack READMEs all read from this file.
 
 ## Creating a New Policy
 
-There's no scaffold subcommand yet. To start a new pack, copy an existing one and rename the Rego package:
+There's no scaffold subcommand. Copy an existing pack and rename the Rego package:
 
 ```bash
 cp -r vaultsfyi my_policy
 # edit my_policy/policy.js, policy.rego (rename `package vault_risk_rating` → `package my_policy`),
-# params_schema.json, policy_metadata.json, policy_data_metadata.json, README.md
-newton-cli policy simulate -p ./my_policy
-newton-cli policy deploy -p ./my_policy 2>&1 | tee my_policy/deployment.log
+# params_schema.json, policy_metadata.json, policy_data_metadata.json, README.md,
+# secrets_schema.json (or delete + drop --secrets-schema-file from the deploy command)
+# then run the build + 5-step deploy from Quick Start.
 ```
 
 ## Environment Setup
 
-Copy a starter env file and add your private key:
-
-```bash
-cp .env.stagef .env   # Sepolia testnet
-# OR
-cp .env.prod .env     # Mainnet
-```
+`~/.newton/newton-cli.toml` (created by `newtup`) is the source of truth for chain id, signer, RPC, and Pinata creds — but the current CLI does **not** auto-load it. Export the values as env vars before deploying:
 
 | Variable | Description |
 |----------|-------------|
-| `CHAIN_ID` | Target chain (`11155111` for Sepolia, `1` for mainnet) |
-| `DEPLOYMENT_ENV` | `stagef` or `prod` |
-| `RPC_URL` | Ethereum RPC endpoint |
-| `PRIVATE_KEY` | Deployer wallet private key (0x-prefixed) |
-| `PINATA_JWT` | (Optional) Pinata IPFS token |
-| `PINATA_GATEWAY` | (Optional) Pinata gateway URL |
+| `CHAIN_ID` | Target chain (`11155111` for Sepolia, `1` for mainnet) — **required** |
+| `RPC_URL` | Ethereum RPC endpoint — **required** for any deploy step |
+| `PRIVATE_KEY` | Deployer wallet private key (0x-prefixed) — **required** for any deploy step |
+| `PINATA_JWT` | Pinata IPFS token — **strongly recommended**; without it, IPFS uploads fall back to the Newton proxy and won't be pinned to your Pinata account |
+| `PINATA_GATEWAY` | Pinata gateway URL |
+
+The `.env.stagef` / `.env.prod` files are starter templates — they are **not** auto-sourced by the CLI. Either `source .env` yourself or export the values directly.
 
 ## Project Structure
 

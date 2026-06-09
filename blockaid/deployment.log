@@ -1,5 +1,4 @@
 Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
-=== Step 1: Generating CIDs ===
 ================================================
 ========== Uploading All Policy Files ==========
 ================================================
@@ -12,9 +11,9 @@ policyCodeHash: 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d26
 Uploading to Pinata IPFS path=./blockaid/dist/policy.wasm
 
 === IPFS Upload Results ===
-IPFS Hash: bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
-Public IPFS Link: https://ipfs.io/ipfs/bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
+IPFS Hash: bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu
 
 ================================================
 ============== Upload policy.rego ==============
@@ -57,41 +56,48 @@ Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/baf
 Public IPFS Link: https://ipfs.io/ipfs/bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
 
 ================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./blockaid/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+
+================================================
 ========== Created policy_cids.json ============
 ================================================
 Output file: "./blockaid/dist/policy_cids.json"
 
 {
-  "wasmCid": "bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24",
+  "wasmCid": "bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu",
   "policyCid": "bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om",
   "schemaCid": "bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e",
   "entrypoint": "blockaid_tx_safety.allow",
   "policyMetadataCid": "bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq",
   "policyDataMetadataCid": "bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe",
-  "secretsSchemaCid": "",
+  "secretsSchemaCid": "bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q",
   "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b"
 }
-
-=== Step 2: Deploying policy data (WASM) ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
 Deploying policy data:
-  wasmCid: bafybeia4lhmjgwcfh6utwsi4frgb4tmggp4ice7ypgfibi72zianauzr24
-  secretsSchemaCid: 
+  wasmCid: bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
   metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
   expireAfter: 25 blocks 
 
-Policy data deployed successfully at address: 0x6e269f673453519B7254eD28482a7E460ae4b4CA
-
-=== Step 3: Deploying policy ===
+Policy data deployed successfully at address: 0x6e78B8B9C85af4bf55669542ed2EC06708E050Dd
+Policy Data Address: 0x6e78B8B9C85af4bf55669542ed2EC06708E050Dd
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Using policyCodeHash from policy_cids.json: 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b
 Pinned policyCodeHash 0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b in "./blockaid/dist/policy_cids.json"
 Deploying policy:
   entrypoint: blockaid_tx_safety.allow
   policyCid: bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om
   schemaCid: bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
-  policyData: [0x6e269f673453519b7254ed28482a7e460ae4b4ca]
+  policyData: [0x6e78b8b9c85af4bf55669542ed2ec06708e050dd]
   metadataCid: bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq 
 
-Policy deployed successfully at address: 0x14038DBEda03a2e6AeA02e9932D216892bb4Ed0d
-
-=== Deploy complete ===
+Policy deployed successfully at address: 0xDAE3CE926e840c37df4B22760C914Ebf28b6AAeB

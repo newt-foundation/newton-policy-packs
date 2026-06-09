@@ -1,4 +1,5 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
+import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
 // Guardrail.so does not publish a stable, public REST API spec. The base URL
 // and path here are best-guess placeholders; reconfirm against the live
@@ -7,8 +8,24 @@ const GUARDRAIL_BASE = "https://api.guardrail.so";
 
 let _secrets = {};
 
+function loadHostSecrets() {
+  try {
+    const r = getHostSecrets();
+    const resp = r?.val ?? r;
+    const bytes = resp?.value;
+    if (!bytes || bytes.length === 0) return;
+    const text = new TextDecoder().decode(new Uint8Array(bytes));
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === "object") {
+      _secrets = { ..._secrets, ...parsed };
+    }
+  } catch (_) {
+    // Host secrets unavailable (e.g. local sim without uploaded secrets) —
+    // fall through to wasm_args-based secrets.
+  }
+}
+
 function secret(name) {
-  if (typeof getSecret === "function") return getSecret(name);
   return _secrets[name];
 }
 
@@ -60,6 +77,7 @@ export function run(input) {
   try {
     const parsed = JSON.parse(input);
     _secrets = parsed;
+    loadHostSecrets();
     const { protocolId, vaultAddress, chainId } = parsed;
     const target = vaultAddress ?? protocolId;
     if (!target) throw new Error("missing protocolId or vaultAddress");
