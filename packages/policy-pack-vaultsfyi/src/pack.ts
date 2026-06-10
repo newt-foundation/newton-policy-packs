@@ -11,9 +11,12 @@ import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
 
 /**
- * The numeric thresholds in `ParamsSchema` are stored in basis points so the
- * on-chain bytes carry only `uint256`. `apy_z_max: 1.5` becomes `15000`
- * (1.5e4 bp); a `0.85` floor becomes `8500`. Round to integer at encode time.
+ * The fractional thresholds (`apy_z_max`, `tvl_drawdown_*_max_pct`) are stored
+ * in basis points so the on-chain bytes carry only `uint256`. `apy_z_max: 1.5`
+ * becomes `15000` (1.5e4 bp); `tvl_drawdown_24h_max_pct: 0.05` becomes `500`.
+ * `risk_score_floor` is *not* basis-point-encoded — it's a 0-100 integer scale
+ * that matches the AVS-side `vault.scores.netScore` field directly, so it
+ * round-trips through `uint16` as-is.
  */
 const BASIS_POINTS = 10_000;
 
@@ -27,12 +30,13 @@ function fromBp(n: bigint): number {
 
 /**
  * Refined params schema with sub-basis-point precision rejection on every
- * numeric threshold so a curator typing `risk_score_floor: 0.00005` can't
- * silently encode as `0n` (which would disable the floor entirely). The
- * generated `ParamsSchema` from `./params` is the AVS-side canonical zod
- * derived from `params_schema.json`; this version sits on top of it for
- * stricter SDK-side input validation. Exported with a distinct name to
- * avoid clashing with the generated star re-export in `index.ts`.
+ * fractional threshold so a curator typing `tvl_drawdown_24h_max_pct: 0.00005`
+ * can't silently encode as `0n` and disable the cap. The generated
+ * `ParamsSchema` from `./params` is the canonical zod derived from
+ * `params_schema.json`; this version sits on top of it for stricter SDK-side
+ * input validation. `risk_score_floor` is excluded — it's an integer 0-100
+ * scale, not a basis-point fraction. Exported with a distinct name to avoid
+ * clashing with the generated star re-export in `index.ts`.
  */
 const isAtBasisPointPrecision = (n: number) =>
 	Math.abs(n * BASIS_POINTS - Math.round(n * BASIS_POINTS)) < Number.EPSILON;
@@ -43,7 +47,6 @@ export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>
 			"apy_z_max",
 			"tvl_drawdown_24h_max_pct",
 			"tvl_drawdown_7d_max_pct",
-			"risk_score_floor",
 		];
 		for (const field of numericFields) {
 			const value = params[field] as number;
@@ -75,7 +78,7 @@ const POLICY_PARAMS_ABI = [
 			{ name: "apyZMax", type: "uint256" },
 			{ name: "tvlDrawdown24hMaxPct", type: "uint256" },
 			{ name: "tvlDrawdown7dMaxPct", type: "uint256" },
-			{ name: "riskScoreFloor", type: "uint256" },
+			{ name: "riskScoreFloor", type: "uint16" },
 			{ name: "denyOnAllocationChange", type: "bool" },
 			{ name: "denyOnCriticalFlag", type: "bool" },
 			{ name: "denyOnCorrupted", type: "bool" },
@@ -83,13 +86,22 @@ const POLICY_PARAMS_ABI = [
 	},
 ] as const;
 
+function encodeRiskScore(n: number): number {
+	if (!Number.isInteger(n) || n < 0 || n > 100) {
+		throw new RangeError(
+			`risk_score_floor must be an integer in [0, 100]; received ${n}. The AVS-side floor compares against \`vault.scores.netScore\` which is an integer 0-100.`,
+		);
+	}
+	return n;
+}
+
 function encodeParams(params: Params): Hex {
 	return encodeAbiParameters(POLICY_PARAMS_ABI, [
 		{
 			apyZMax: toBp(params.apy_z_max),
 			tvlDrawdown24hMaxPct: toBp(params.tvl_drawdown_24h_max_pct),
 			tvlDrawdown7dMaxPct: toBp(params.tvl_drawdown_7d_max_pct),
-			riskScoreFloor: toBp(params.risk_score_floor),
+			riskScoreFloor: encodeRiskScore(params.risk_score_floor),
 			denyOnAllocationChange: params.deny_on_allocation_change,
 			denyOnCriticalFlag: params.deny_on_critical_flag,
 			denyOnCorrupted: params.deny_on_corrupted,
@@ -103,7 +115,7 @@ function decodeParams(encoded: Hex): Params {
 		apy_z_max: fromBp(decoded.apyZMax),
 		tvl_drawdown_24h_max_pct: fromBp(decoded.tvlDrawdown24hMaxPct),
 		tvl_drawdown_7d_max_pct: fromBp(decoded.tvlDrawdown7dMaxPct),
-		risk_score_floor: fromBp(decoded.riskScoreFloor),
+		risk_score_floor: decoded.riskScoreFloor,
 		deny_on_allocation_change: decoded.denyOnAllocationChange,
 		deny_on_critical_flag: decoded.denyOnCriticalFlag,
 		deny_on_corrupted: decoded.denyOnCorrupted,
@@ -126,7 +138,7 @@ function decodeParams(encoded: Hex): Params {
  *     apy_z_max: 3,
  *     tvl_drawdown_24h_max_pct: 0.05,
  *     tvl_drawdown_7d_max_pct: 0.20,
- *     risk_score_floor: 0.85,
+ *     risk_score_floor: 85, // 0-100 integer; matches AVS `vault.scores.netScore`
  *     deny_on_allocation_change: true,
  *     deny_on_critical_flag: true,
  *     deny_on_corrupted: true,

@@ -1,35 +1,11 @@
 import type { PrepareQueryArgs, PrepareQueryResult } from "@newton-xyz/policy-pack-shared";
-import { type Address, encodeAbiParameters, type Hex, keccak256 } from "viem";
 import type { WasmArgs } from "./wasm-args";
 
 /**
- * MetaMorpho's `supplyQueue` returns the ordered list of underlying market
- * IDs the vault is currently allocating into. We hash the encoded queue and
- * pass that hash as `lastKnownAllocationHash` so the AVS-side policy can
- * reject the attestation if the queue shifts between intent build and
- * on-chain submission.
- *
- * The ABI is intentionally inlined: this pack supports MetaMorpho today, and
- * any drift in the upstream Morpho ABI is a deliberate event that should
- * force a pack-side update — not something the SDK should follow silently.
+ * vaults.fyi network slugs. Keyed by viem chain id. The AVS-side `policy.js`
+ * fetches `https://api.vaults.fyi/v2/historical/<network>/<vaultAddress>`
+ * with this slug, so the SDK has to use the same map.
  */
-const METAMORPHO_SUPPLY_QUEUE_ABI = [
-	{
-		type: "function",
-		name: "supplyQueue",
-		stateMutability: "view",
-		inputs: [{ name: "index", type: "uint256" }],
-		outputs: [{ name: "", type: "bytes32" }],
-	},
-	{
-		type: "function",
-		name: "supplyQueueLength",
-		stateMutability: "view",
-		inputs: [],
-		outputs: [{ name: "", type: "uint256" }],
-	},
-] as const;
-
 const NETWORK_BY_CHAIN_ID: Readonly<Record<number, string>> = {
 	1: "mainnet",
 	8453: "base",
@@ -50,21 +26,31 @@ function networkForChain(chainId: number): string {
 }
 
 /**
- * Read the MetaMorpho supply queue from chain and produce the WASM args the
- * vaults.fyi policy expects.
+ * Build the WASM args the vaults.fyi policy expects.
  *
- * The freshness hash is also returned at the result-level so callers can
- * surface the snapshot in logs and dashboards.
+ * The AVS-side `policy.js` computes the canonical allocation hash itself
+ * (FNV-1a over `JSON.stringify({ protocol?.name, tags, fees, childrenVaults })`
+ * fetched from the vaults.fyi API). The SDK has nothing to add — the AVS is
+ * the source of truth for both the data and the hash. The SDK's only job is
+ * to thread the *previous* hash through so the AVS can compare:
  *
- * @param previousAllocationHash - The hash returned from the previous call
- *   (e.g. read from `policyData` storage or a curator-side cache). Pass
- *   `undefined` (the default) on the first call so the AVS-side
- *   `allocation_changed_since_last` branch correctly identifies the call as
- *   a first observation rather than a drift event.
+ *   - First call: pass `previousAllocationHash: undefined` (defaults to
+ *     `null` in wasmArgs). The AVS-side `allocation_changed_since_last`
+ *     branch returns `false`, so `deny_on_allocation_change` doesn't fire
+ *     on a clean first observation.
+ *   - Subsequent calls: pass the hash the AVS returned on the prior call
+ *     (typically read from `policyData` storage or a curator-side cache).
+ *     The AVS compares against its freshly-computed hash and flips
+ *     `allocation_changed_since_last` if they diverge.
+ *
+ * Earlier revisions of this function read MetaMorpho's `supplyQueue` and
+ * computed `keccak256(abi.encode(bytes32[]))` — that hash never matched the
+ * AVS's FNV-1a-over-API-metadata, so `deny_on_allocation_change: true` was
+ * effectively a coin flip. Removed.
  */
 export async function prepareQuery(
 	{ publicClient, vault }: PrepareQueryArgs,
-	options: { previousAllocationHash?: Hex } = {},
+	options: { previousAllocationHash?: string } = {},
 ): Promise<PrepareQueryResult<WasmArgs>> {
 	const chainId = publicClient.chain?.id;
 	if (chainId === undefined) {
@@ -73,45 +59,11 @@ export async function prepareQuery(
 		);
 	}
 
-	// Pin every read to the same block so an admin-driven `setSupplyQueue`
-	// landing between `supplyQueueLength()` and the per-index `supplyQueue(i)`
-	// reads can't produce an incoherent hash. This is a real TOCTOU window
-	// on MetaMorpho — `setSupplyQueue` is `onlyAllocator` but allocators are
-	// hot keys, not multisig-gated, so the queue can shift mid-prepare.
-	const blockNumber = await publicClient.getBlockNumber();
-
-	const length = await publicClient.readContract({
-		address: vault as Address,
-		abi: METAMORPHO_SUPPLY_QUEUE_ABI,
-		functionName: "supplyQueueLength",
-		blockNumber,
-	});
-
-	const queue: Hex[] = [];
-	for (let i = 0n; i < length; i++) {
-		const marketId = await publicClient.readContract({
-			address: vault as Address,
-			abi: METAMORPHO_SUPPLY_QUEUE_ABI,
-			functionName: "supplyQueue",
-			args: [i],
-			blockNumber,
-		});
-		queue.push(marketId);
-	}
-
-	const encoded = encodeAbiParameters([{ type: "bytes32[]" }], [queue]);
-	const allocationHash = keccak256(encoded);
-
 	return {
 		wasmArgs: {
 			network: networkForChain(chainId),
 			vaultAddress: vault,
-			// First-call sentinel: `null` lets the AVS-side `policy.js` short-circuit
-			// the allocation-change check rather than treating the freshly-computed
-			// hash as a drift baseline. Subsequent calls pass the previously-stored
-			// hash so the AVS can compare apples to apples.
 			lastKnownAllocationHash: options.previousAllocationHash ?? null,
 		},
-		freshnessHash: allocationHash,
 	};
 }

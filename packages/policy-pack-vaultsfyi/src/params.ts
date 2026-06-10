@@ -12,7 +12,14 @@ export const ParamsSchema = z
 			),
 		tvl_drawdown_24h_max_pct: z.number().describe("Max allowed 24h TVL drawdown percentage"),
 		tvl_drawdown_7d_max_pct: z.number().describe("Max allowed 7d TVL drawdown percentage"),
-		risk_score_floor: z.number().describe("Minimum acceptable risk score (0-1 scale)"),
+		risk_score_floor: z
+			.number()
+			.int()
+			.gte(0)
+			.lte(100)
+			.describe(
+				"Minimum acceptable risk score (0-100 integer scale; matches the AVS-side `vault.scores.netScore`). Set to 0 to effectively disable the floor.",
+			),
 		deny_on_allocation_change: z
 			.boolean()
 			.describe(
