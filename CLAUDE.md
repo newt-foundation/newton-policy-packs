@@ -10,14 +10,89 @@ Each pack lives in its own top-level directory (`balancer/`, `blockaid/`, `vault
 
 ## Key commands
 
-All commands use `newton-cli` directly. `--chain-id`, signer, RPC, and Pinata creds come from `~/.newton/newton-cli.toml` (set up by `newtup` during install).
+All commands use `newton-cli` directly. There is no `-p ./<pack>` shortcut anymore — deploy is three separate steps. There is no `policy build` or `policy scaffold` subcommand.
 
 - `newton-cli doctor` — verify tooling (jco, opa, etc.) is installed
-- `newton-cli policy simulate -p ./<name>` — test full policy (WASM + Rego); auto-resolves `<name>/configs/`
-- `newton-cli policy deploy -p ./<name>` — generate CIDs, pin to IPFS, deploy policy-data and policy contracts; writes `<name>/dist/policy_cids.json`
+- `newton-cli policy simulate ...` — test full policy (WASM + Rego); see flags below
 - `opa test ./<name>/policy.rego ./<name>/policy_test.rego -v` — run Rego unit tests
 
-There is no `policy build` or `policy scaffold` subcommand. To rebuild `policy.wasm`, use `jco componentize` directly against the pack's `policy.js` + `newton-provider.wit`. To start a new pack, copy an existing one as a template.
+### Build
+
+`jco componentize` defaults pull in `wasi:http`, which the Newton runtime rejects (`component imports instance wasi:http/types@0.2.10, but a matching implementation was not found in the linker`). Always pass `--disable http --disable random --disable fetch-event --disable stdio`:
+
+```bash
+jco componentize <name>/policy.js \
+  --wit <name>/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o <name>/dist/policy.wasm
+```
+
+Verify the build is clean: `jco print <name>/dist/policy.wasm | grep wasi:http` should print only the unused `(export "wasi:http/incoming-handler@0.2.10#handle" ...)` line — never an `(import "wasi:http/...")`.
+
+### Deploy (three steps)
+
+The CLI does **not** auto-load `[signer]`, `eth_rpc_url`, or `[pinata]` from `~/.newton/newton-cli.toml` even though they live there. Export them as env vars first, or every step will fail with `private_key is required` / `rpc_url is required`, and IPFS uploads will silently fall back to the Newton proxy (which is rate-limited and won't pin to your Pinata account):
+
+```bash
+# Pull values out of ~/.newton/newton-cli.toml
+export PRIVATE_KEY="0x..."
+export RPC_URL="https://eth-sepolia.g.alchemy.com/v2/..."
+export CHAIN_ID=11155111
+export PINATA_JWT="eyJ..."
+export PINATA_GATEWAY="https://orange-useful-booby-460.mypinata.cloud"
+```
+
+Then:
+
+```bash
+# 1. Upload all dist files to IPFS, write dist/policy_cids.json
+newton-cli policy-files generate-cids \
+  -d ./<name>/dist \
+  --entrypoint <package_name>.allow \
+  --secrets-schema-file ./<name>/secrets_schema.json \
+  -o ./<name>/dist/policy_cids.json
+
+# 2. Deploy the PolicyData contract (the on-chain pointer to the WASM)
+newton-cli policy-data deploy \
+  --policy-cids ./<name>/dist/policy_cids.json
+# → "Policy data deployed successfully at address: 0x..."
+
+# 3. Deploy the Policy contract, binding it to the PolicyData address
+newton-cli policy deploy \
+  --policy-cids ./<name>/dist/policy_cids.json \
+  --policy-data-address 0x<from-step-2> \
+  --policy-file ./<name>/policy.rego
+# → "Policy deployed successfully at address: 0x..."
+```
+
+Capture both addresses in `<name>/deployment.log` (e.g. `2>&1 | tee -a <name>/deployment.log`).
+
+### Simulate
+
+```bash
+newton-cli policy simulate \
+  --wasm-args ./<name>/configs/wasm_args.json \
+  --intent-json ./<name>/configs/intent.json \
+  --policy-params-data ./<name>/configs/params.json \
+  --policy-file ./<name>/policy.rego \
+  --wasm-file ./<name>/dist/policy.wasm
+```
+
+### Verifying a deployed PolicyData
+
+If `newt_simulatePolicy` returns `failed to execute PolicyData WASM at 0x...: component imports instance wasi:http/types@0.2.10`, the deployed WASM was built without the `--disable` flags above. Fix: rebuild + redeploy (steps 1–3). The error always names the failing PolicyData address — match it against the `policy_data_address` in your request to confirm you're hitting the new one and not an old override.
+
+### IPFS pinning
+
+`generate-cids` uploads to whichever backend `PINATA_JWT` is set for. Without `PINATA_JWT`, it falls back to "Newton IPFS proxy" — content is reachable via `https://ipfs.newt.foundation/ipfs/<cid>` but **not** pinned to your Pinata account, so your Pinata gateway will 403 it. CIDs are content-addressed, so re-pinning the same file to Pinata after the fact gives the identical CID — no redeploy needed:
+
+```bash
+curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
+  -H "Authorization: Bearer $PINATA_JWT" \
+  -F "file=@./<name>/<file>" \
+  -F 'pinataOptions={"cidVersion":1}'
+```
 
 ## Directory structure
 
@@ -44,7 +119,7 @@ There is no `policy build` or `policy scaffold` subcommand. To rebuild `policy.w
    - `data.params.*` — policy parameters set by the wallet owner on-chain
    - `input.*` — the transaction intent (from, to, value, function name, args, chain_id)
 3. The WASM is built using `jco componentize` with the `newton-provider.wit` interface.
-4. `newton-cli` handles simulation and deployment. Config (chain id, signer, RPC, Pinata) is loaded from `~/.newton/newton-cli.toml`; env vars (`CHAIN_ID`, `PRIVATE_KEY`, `RPC_URL`, `PINATA_JWT`, `PINATA_GATEWAY`) override the toml when set.
+4. `newton-cli` handles simulation and deployment. Config values (`CHAIN_ID`, `PRIVATE_KEY`, `RPC_URL`, `PINATA_JWT`, `PINATA_GATEWAY`) **must** be exported as env vars — the current CLI does not auto-load them from `~/.newton/newton-cli.toml` despite reading the file at startup.
 
 ## Environment
 

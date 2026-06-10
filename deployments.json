@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "comment": "Canonical deployed policy + policy-data addresses, keyed by pack -> chain id (decimal string). Update on every redeploy. The dashboard reads this; OPERATING.md links here.",
+  "chains": {
+    "11155111": "Ethereum Sepolia"
+  },
+  "packs": {
+    "balancer": {
+      "11155111": {
+        "policy": "0x86015c322321203BEe48B431feB4aC21C0B0bE96",
+        "policyData": "0x5C52691c666477cbBAd6bd879cEd1964DB43a8b6",
+        "wasmCid": "bafybeicstfjsh6ptfbwivdeyn2o5nzvhukq4y7imft6skaz4z3i43tiagi",
+        "policyCodeHash": "0xed638b3bfb994299dabe4c3f4c0a9d12d4ae2b2138a57bd5c395d71fceacd4d7",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "blockaid": {
+      "11155111": {
+        "policy": "0xDAE3CE926e840c37df4B22760C914Ebf28b6AAeB",
+        "policyData": "0x6e78B8B9C85af4bf55669542ed2EC06708E050Dd",
+        "wasmCid": "bafybeieptmlitpdrbhwfnrp4xvtndn27w62yf65m6bl76smchupa5lkplu",
+        "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "chainalysis": {
+      "11155111": {
+        "policy": "0x091133448400b2Eb7Ee9DFfB294aDcC96975E617",
+        "policyData": "0x01B43c7D916f1FcCCBDdA185497e5A2DB7a326fA",
+        "wasmCid": "bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m",
+        "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "guardrail": {
+      "11155111": {
+        "policy": "0x74cF1FB7324fBb0F680Fb1fB5561e19205771D73",
+        "policyData": "0x4408128a4A214DE0dd3587b8D96c5DDf5Ae24367",
+        "wasmCid": "bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly",
+        "policyCodeHash": "0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "persona": {
+      "11155111": {
+        "policy": "0x5f5e04db240313E3d0De7f5F5d91F4F21493758e",
+        "policyData": "0xC2974bb9E46D480B936288D555398243c50A5f8f",
+        "wasmCid": "bafybeid6ebcpw76j5lacos34cvitdk2bjix33u3z3qostdhku5y6jaj2ee",
+        "policyCodeHash": "0x396baab660d520e2eac79ae669828e6b44bca7d07d0ded8f401dd4d8ac758a3a",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "redstone": {
+      "11155111": {
+        "policy": "0xdc9a01c944fCA72c1513B612DC03Eef41815fF8f",
+        "policyData": "0x2Cd30c93c89acBa33Dbe0184e0E1617C94B19Ee9",
+        "wasmCid": "bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a",
+        "policyCodeHash": "0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "sumsub": {
+      "11155111": {
+        "policy": "0xdCAb384d6BF6FE895b47c3e56AbEf1e8C37c1f98",
+        "policyData": "0x2A88fbA00B35D0ae478458300496F8C6479724EB",
+        "wasmCid": "bafybeibmjxiq6ulffjnmthcbqqwkj3hdkdw4lybytdzr5k2zqndtds4ceu",
+        "policyCodeHash": "0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "vaultsfyi": {
+      "11155111": {
+        "policy": "0x14685C1769Eb6f449FeC42A48d086746F470CE4a",
+        "policyData": "0x5F8B0FC2c22c039f97D2c806B48307B9A9C288C8",
+        "wasmCid": "bafybeig6oielnnf4zorcmqkets6v26ov7t2o6ikipx6vupuzsjrxvbpkpe",
+        "policyCodeHash": "0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    },
+    "webacy": {
+      "11155111": {
+        "policy": "0x5417601b52d7C7D2dEd3F321DDeB40b19fE2e005",
+        "policyData": "0x7f593AfF1D0742DF887050FF5Af4F121328d6f8b",
+        "wasmCid": "bafybeicw3tvxacjiuuvxdmomd6rhvgasqn4yuiyczn2uco2vomcrwqrbr4",
+        "policyCodeHash": "0xdde6da598393c4281e73a4606bbf315065b2120b162f23ebee6bb693d351e0ed",
+        "deployedAt": "2026-06-09",
+        "notes": "host-secrets fix; current"
+      }
+    }
+  }
+}

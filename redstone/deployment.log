@@ -1,5 +1,4 @@
 Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
-=== Step 1: Generating CIDs ===
 ================================================
 ========== Uploading All Policy Files ==========
 ================================================
@@ -12,9 +11,9 @@ policyCodeHash: 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d9
 Uploading to Pinata IPFS path=./redstone/dist/policy.wasm
 
 === IPFS Upload Results ===
-IPFS Hash: bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
-Public IPFS Link: https://ipfs.io/ipfs/bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
+IPFS Hash: bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a
+Public IPFS Link: https://ipfs.io/ipfs/bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a
 
 ================================================
 ============== Upload policy.rego ==============
@@ -57,41 +56,48 @@ Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/baf
 Public IPFS Link: https://ipfs.io/ipfs/bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
 
 ================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./redstone/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
 ========== Created policy_cids.json ============
 ================================================
 Output file: "./redstone/dist/policy_cids.json"
 
 {
-  "wasmCid": "bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq",
+  "wasmCid": "bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a",
   "policyCid": "bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu",
   "schemaCid": "bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym",
   "entrypoint": "redstone_oracle_divergence.allow",
   "policyMetadataCid": "bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu",
   "policyDataMetadataCid": "bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha",
-  "secretsSchemaCid": "",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
   "policyCodeHash": "0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d"
 }
-
-=== Step 2: Deploying policy data (WASM) ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
 Deploying policy data:
-  wasmCid: bafybeiaalj4trtj2oqb2cw5ufsveyuaghkvaedl7tvvggxn4qsczrsykjq
-  secretsSchemaCid: 
+  wasmCid: bafybeih4cuqqqwfzd6alg2pqik74my6hloyqlsbdu4i2fm23ykfzalw66a
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
   metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
   expireAfter: 25 blocks 
 
-Policy data deployed successfully at address: 0x2389a0434Cb45b1c359ED2025384f7C48F991895
-
-=== Step 3: Deploying policy ===
+Policy data deployed successfully at address: 0x2Cd30c93c89acBa33Dbe0184e0E1617C94B19Ee9
+Policy Data Address: 0x2Cd30c93c89acBa33Dbe0184e0E1617C94B19Ee9
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Using policyCodeHash from policy_cids.json: 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d
 Pinned policyCodeHash 0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d in "./redstone/dist/policy_cids.json"
 Deploying policy:
   entrypoint: redstone_oracle_divergence.allow
   policyCid: bafkreigajg3rhm326c7cclsxrn4igzucb4tffadoabnikoq4lmkiggftsu
   schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
-  policyData: [0x2389a0434cb45b1c359ed2025384f7c48f991895]
+  policyData: [0x2cd30c93c89acba33dbe0184e0e1617c94b19ee9]
   metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
 
-Policy deployed successfully at address: 0x9F1E0B435753Cb09713216D52C5992f69e7310BE
-
-=== Deploy complete ===
+Policy deployed successfully at address: 0xdc9a01c944fCA72c1513B612DC03Eef41815fF8f

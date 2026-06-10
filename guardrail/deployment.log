@@ -1,5 +1,4 @@
 Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
-=== Step 1: Generating CIDs ===
 ================================================
 ========== Uploading All Policy Files ==========
 ================================================
@@ -12,9 +11,9 @@ policyCodeHash: 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a2665284173
 Uploading to Pinata IPFS path=./guardrail/dist/policy.wasm
 
 === IPFS Upload Results ===
-IPFS Hash: bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
-Public IPFS Link: https://ipfs.io/ipfs/bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
+IPFS Hash: bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly
 
 ================================================
 ============== Upload policy.rego ==============
@@ -57,41 +56,48 @@ Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/baf
 Public IPFS Link: https://ipfs.io/ipfs/bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
 
 ================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./guardrail/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+Public IPFS Link: https://ipfs.io/ipfs/bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+
+================================================
 ========== Created policy_cids.json ============
 ================================================
 Output file: "./guardrail/dist/policy_cids.json"
 
 {
-  "wasmCid": "bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra",
+  "wasmCid": "bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly",
   "policyCid": "bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu",
   "schemaCid": "bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44",
   "entrypoint": "guardrail_protocol_monitor.allow",
   "policyMetadataCid": "bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq",
   "policyDataMetadataCid": "bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq",
-  "secretsSchemaCid": "",
+  "secretsSchemaCid": "bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa",
   "policyCodeHash": "0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392"
 }
-
-=== Step 2: Deploying policy data (WASM) ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
 Deploying policy data:
-  wasmCid: bafybeid5j2ksy3hwi6y63y42rqcumlilm5p6aqp2lk4646sigggbdf5pra
-  secretsSchemaCid: 
+  wasmCid: bafybeiatha7peyy7mhs6btlytvfsaz6ciywo65rkkmaieqp77vusalc7ly
+  secretsSchemaCid: bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
   metadataCid: bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
   expireAfter: 25 blocks 
 
-Policy data deployed successfully at address: 0x9838Bec55DBC7b7A60e594496Ce0c113BABED32F
-
-=== Step 3: Deploying policy ===
+Policy data deployed successfully at address: 0x4408128a4A214DE0dd3587b8D96c5DDf5Ae24367
+Policy Data Address: 0x4408128a4A214DE0dd3587b8D96c5DDf5Ae24367
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Using policyCodeHash from policy_cids.json: 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392
 Pinned policyCodeHash 0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392 in "./guardrail/dist/policy_cids.json"
 Deploying policy:
   entrypoint: guardrail_protocol_monitor.allow
   policyCid: bafkreifzc3svir3x5sk4rg32nqjbax6to4reykfuywkjxky5xsaknbbagu
   schemaCid: bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
-  policyData: [0x9838bec55dbc7b7a60e594496ce0c113babed32f]
+  policyData: [0x4408128a4a214de0dd3587b8d96c5ddf5ae24367]
   metadataCid: bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq 
 
-Policy deployed successfully at address: 0xaC397a0868982844F35b34C11d859Bf15E87E0a0
-
-=== Deploy complete ===
+Policy deployed successfully at address: 0x74cF1FB7324fBb0F680Fb1fB5561e19205771D73

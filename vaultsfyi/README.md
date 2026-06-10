@@ -103,4 +103,4 @@ newton-cli policy deploy -p ./vaultsfyi
 
 ## Deployments
 
-See [deployments.json](./deployments.json) for deployed contract addresses by chain.
+See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.vaultsfyi.<chain_id>.policy` / `policyData`).

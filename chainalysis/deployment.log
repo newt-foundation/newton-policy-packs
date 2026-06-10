@@ -1,5 +1,4 @@
 Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
-=== Step 1: Generating CIDs ===
 ================================================
 ========== Uploading All Policy Files ==========
 ================================================
@@ -12,9 +11,9 @@ policyCodeHash: 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e3
 Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
 
 === IPFS Upload Results ===
-IPFS Hash: bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y
-Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y
-Public IPFS Link: https://ipfs.io/ipfs/bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y
+IPFS Hash: bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m
+Public IPFS Link: https://ipfs.io/ipfs/bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m
 
 ================================================
 ============== Upload policy.rego ==============
@@ -57,41 +56,48 @@ Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/baf
 Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
 
 ================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
 ========== Created policy_cids.json ============
 ================================================
 Output file: "./chainalysis/dist/policy_cids.json"
 
 {
-  "wasmCid": "bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y",
+  "wasmCid": "bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m",
   "policyCid": "bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe",
   "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
   "entrypoint": "chainalysis_address_screening.allow",
   "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
   "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
-  "secretsSchemaCid": "",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
   "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312"
 }
-
-=== Step 2: Deploying policy data (WASM) ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
 Deploying policy data:
-  wasmCid: bafybeiha37kgyuyaag5vkqdweg5nwgcvak27ipokkjm64oypem5cn7hc2y
-  secretsSchemaCid: 
+  wasmCid: bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
   metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
   expireAfter: 25 blocks 
 
-Policy data deployed successfully at address: 0x9109aaFFa28Ca6b1305DdD00b77A61fac2bD2dcB
-
-=== Step 3: Deploying policy ===
+Policy data deployed successfully at address: 0x01B43c7D916f1FcCCBDdA185497e5A2DB7a326fA
+Policy Data Address: 0x01B43c7D916f1FcCCBDdA185497e5A2DB7a326fA
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
 Using policyCodeHash from policy_cids.json: 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312
 Pinned policyCodeHash 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312 in "./chainalysis/dist/policy_cids.json"
 Deploying policy:
   entrypoint: chainalysis_address_screening.allow
   policyCid: bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe
   schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
-  policyData: [0x9109aaffa28ca6b1305ddd00b77a61fac2bd2dcb]
+  policyData: [0x01b43c7d916f1fcccbdda185497e5a2db7a326fa]
   metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
 
-Policy deployed successfully at address: 0x6e5a7CDc568CF4480f3F5044A3E35658733CB281
-
-=== Deploy complete ===
+Policy deployed successfully at address: 0x091133448400b2Eb7Ee9DFfB294aDcC96975E617

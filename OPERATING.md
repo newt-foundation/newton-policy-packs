@@ -43,19 +43,7 @@ newton-cli policy-client set-policy \
   --policy 0x<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>
 ```
 
-Owner-only. The `<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>` is the line at the bottom of `<pack>/deployment.log` — for example, the deployed packs in this repo:
-
-| Pack | Policy address (Sepolia) |
-|---|---|
-| balancer | `0x56cC09e66bFAE5223C5d2eCdE02dB06dEFFcf5fe` |
-| blockaid | `0x14038DBEda03a2e6AeA02e9932D216892bb4Ed0d` |
-| chainalysis | `0x6e5a7CDc568CF4480f3F5044A3E35658733CB281` |
-| guardrail | `0xaC397a0868982844F35b34C11d859Bf15E87E0a0` |
-| persona | `0x4684187DF9D0632a99Ac45e9b9088A062da2757a` |
-| redstone | `0x9F1E0B435753Cb09713216D52C5992f69e7310BE` |
-| sumsub | `0x9b619893A4751E48466d82Ec9F40c5d7AFBd988c` |
-| vaultsfyi | `0xDcf9CBe8557c2DD93e60783D3706725Efe1Ba008` |
-| webacy | `0xD2eFeAeB2B15448f73D0683Bbb347141adab3F30` |
+Owner-only. The canonical `<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>` for each pack lives in [`deployments.json`](./deployments.json) at the repo root (`packs.<name>.<chain_id>.policy`). For ad-hoc / unmerged deploys it's the last "Policy deployed successfully at address: 0x…" line in `<pack>/deployment.log`.
 
 ## 3. Set policy params
 
@@ -110,7 +98,7 @@ newton-cli secrets upload \
   --api-key             $API_KEY
 ```
 
-The `<POLICY_DATA_ADDR_FROM_DEPLOYMENT_LOG>` is from the "Policy data deployed successfully at address: 0x..." line earlier in `<pack>/deployment.log` — it's distinct from the policy address.
+The canonical `<POLICY_DATA_ADDR_FROM_DEPLOYMENT_LOG>` for each pack lives in [`deployments.json`](./deployments.json) (`packs.<name>.<chain_id>.policyData`) — distinct from the policy address. For ad-hoc deploys it's from the "Policy data deployed successfully at address: 0x…" line earlier in `<pack>/deployment.log`.
 
 ### Per-pack secret keys
 

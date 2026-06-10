@@ -1,12 +1,29 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
+import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
 const PERSONA_BASE = "https://api.withpersona.com/api/v1";
 const PERSONA_VERSION = "2023-01-05";
 
 let _secrets = {};
 
+function loadHostSecrets() {
+  try {
+    const r = getHostSecrets();
+    const resp = r?.val ?? r;
+    const bytes = resp?.value;
+    if (!bytes || bytes.length === 0) return;
+    const text = new TextDecoder().decode(new Uint8Array(bytes));
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === "object") {
+      _secrets = { ..._secrets, ...parsed };
+    }
+  } catch (_) {
+    // Host secrets unavailable (e.g. local sim without uploaded secrets) —
+    // fall through to wasm_args-based secrets.
+  }
+}
+
 function secret(name) {
-  if (typeof getSecret === "function") return getSecret(name);
   return _secrets[name];
 }
 
@@ -95,6 +112,7 @@ export function run(input) {
     const parsed = JSON.parse(input);
     const { walletAddress } = parsed;
     _secrets = parsed;
+    loadHostSecrets();
 
     if (typeof walletAddress !== "string" || walletAddress.length === 0) {
       throw new Error("walletAddress is required");
