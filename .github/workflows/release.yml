@@ -24,16 +24,17 @@ jobs:
         with:
           # Full history so changesets can compute version bumps from the commit log.
           fetch-depth: 0
-          # `RELEASE_PAT` is a fine-grained personal access token with `Pull
-          # requests: write` + `Contents: write` on this repo. Required because
-          # the parent organization (`newt-foundation`) blocks
+          # `RELEASE_PAT` is a personal access token with `Pull requests:
+          # write` + `Contents: write` on this repo. Required because the
+          # parent organization (`newt-foundation`) blocks
           # `GITHUB_TOKEN`-authenticated workflows from opening pull requests.
           # `changesets/action` opens a "Version Packages" PR on every push to
           # main — without the PAT, the action errors with "GitHub Actions is
           # not permitted to create or approve pull requests" and no PR opens.
-          # The PAT also authenticates the `git push` of the version-bump
-          # branch so it shows the PAT owner as the author rather than
-          # `github-actions[bot]`.
+          # The PAT authenticates the `git push` of the version-bump branch
+          # under the PAT owner's identity. The commit author/committer remain
+          # `github-actions[bot]` (set by changesets/action's internal `git
+          # config user.email/name`).
           token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
