@@ -2,6 +2,8 @@
 
 Example policies for the Newton Protocol. Each policy is a top-level directory that can be built, simulated, and deployed using `newton-cli`.
 
+This repo also publishes per-pack TypeScript bindings under [`packages/`](./packages/) as `@newton-xyz/policy-pack-<name>` for use with [`@newton-xyz/newton-shield-sdk`](https://github.com/newt-foundation/newton-shield/tree/main/sdk). Each pack ships independently — installing one pack does not pull in any other. See [`packages/README.md`](./packages/README.md) for layout and regen workflow.
+
 ## Prerequisites
 
 ```bash
