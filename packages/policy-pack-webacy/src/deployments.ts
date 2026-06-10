@@ -11,4 +11,4 @@ export const deployments = {
 		deployedAt: "2026-06-09",
 		notes: "host-secrets fix; current",
 	},
-} as const satisfies Record<ChainId, Deployment>;
+} as const satisfies Readonly<Partial<Record<ChainId, Deployment>>>;

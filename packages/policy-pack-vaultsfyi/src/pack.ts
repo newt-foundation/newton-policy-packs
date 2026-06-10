@@ -2,12 +2,63 @@
 // The generated `index.ts` re-exports `pack.ts` when present.
 import type { PolicyPack } from "@newton-xyz/policy-pack-shared";
 import { decodeAbiParameters, encodeAbiParameters, type Hex } from "viem";
+import { z } from "zod";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
 import { type Params, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
+
+/**
+ * The numeric thresholds in `ParamsSchema` are stored in basis points so the
+ * on-chain bytes carry only `uint256`. `apy_z_max: 1.5` becomes `15000`
+ * (1.5e4 bp); a `0.85` floor becomes `8500`. Round to integer at encode time.
+ */
+const BASIS_POINTS = 10_000;
+
+function toBp(n: number): bigint {
+	return BigInt(Math.round(n * BASIS_POINTS));
+}
+
+function fromBp(n: bigint): number {
+	return Number(n) / BASIS_POINTS;
+}
+
+/**
+ * Refined params schema with sub-basis-point precision rejection on every
+ * numeric threshold so a curator typing `risk_score_floor: 0.00005` can't
+ * silently encode as `0n` (which would disable the floor entirely). The
+ * generated `ParamsSchema` from `./params` is the AVS-side canonical zod
+ * derived from `params_schema.json`; this version sits on top of it for
+ * stricter SDK-side input validation. Exported with a distinct name to
+ * avoid clashing with the generated star re-export in `index.ts`.
+ */
+const isAtBasisPointPrecision = (n: number) =>
+	Math.abs(n * BASIS_POINTS - Math.round(n * BASIS_POINTS)) < Number.EPSILON;
+
+export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>).superRefine(
+	(params, ctx) => {
+		const numericFields: ReadonlyArray<keyof Params> = [
+			"apy_z_max",
+			"tvl_drawdown_24h_max_pct",
+			"tvl_drawdown_7d_max_pct",
+			"risk_score_floor",
+		];
+		for (const field of numericFields) {
+			const value = params[field] as number;
+			if (!isAtBasisPointPrecision(value)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: [field],
+					message: `Sub-basis-point precision is not supported. \`${field}: ${value}\` would silently encode as ${
+						Math.round(value * BASIS_POINTS) / BASIS_POINTS
+					}. Round to 4 decimal places (1bp) before passing.`,
+				});
+			}
+		}
+	},
+);
 
 /**
  * On-chain layout of `policyParams` for the vaults.fyi risk-envelope policy.
@@ -31,21 +82,6 @@ const POLICY_PARAMS_ABI = [
 		],
 	},
 ] as const;
-
-/**
- * The numeric thresholds in `ParamsSchema` are stored in basis points so the
- * on-chain bytes carry only `uint256`. `apy_z_max: 1.5` becomes `15000`
- * (1.5e4 bp); a `0.85` floor becomes `8500`. Round to integer at encode time.
- */
-const BASIS_POINTS = 10_000;
-
-function toBp(n: number): bigint {
-	return BigInt(Math.round(n * BASIS_POINTS));
-}
-
-function fromBp(n: bigint): number {
-	return Number(n) / BASIS_POINTS;
-}
 
 function encodeParams(params: Params): Hex {
 	return encodeAbiParameters(POLICY_PARAMS_ABI, [
@@ -100,7 +136,7 @@ function decodeParams(encoded: Hex): Params {
  */
 export const vaultsfyi: PolicyPack<Params, WasmArgs, Secrets> = {
 	id: `${PACK_NAME}/risk-envelope/v1`,
-	paramsSchema: ParamsSchema,
+	paramsSchema: RefinedParamsSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	encodeParams,

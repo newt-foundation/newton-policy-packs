@@ -4,3 +4,7 @@ export type {
 	PrepareQueryArgs,
 	PrepareQueryResult,
 } from "./pack";
+export {
+	getDeployment,
+	UnsupportedChainError,
+} from "./pack";

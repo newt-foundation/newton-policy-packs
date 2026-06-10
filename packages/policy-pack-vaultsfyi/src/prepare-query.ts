@@ -55,11 +55,17 @@ function networkForChain(chainId: number): string {
  *
  * The freshness hash is also returned at the result-level so callers can
  * surface the snapshot in logs and dashboards.
+ *
+ * @param previousAllocationHash - The hash returned from the previous call
+ *   (e.g. read from `policyData` storage or a curator-side cache). Pass
+ *   `undefined` (the default) on the first call so the AVS-side
+ *   `allocation_changed_since_last` branch correctly identifies the call as
+ *   a first observation rather than a drift event.
  */
-export async function prepareQuery({
-	publicClient,
-	vault,
-}: PrepareQueryArgs): Promise<PrepareQueryResult<WasmArgs>> {
+export async function prepareQuery(
+	{ publicClient, vault }: PrepareQueryArgs,
+	options: { previousAllocationHash?: Hex } = {},
+): Promise<PrepareQueryResult<WasmArgs>> {
 	const chainId = publicClient.chain?.id;
 	if (chainId === undefined) {
 		throw new Error(
@@ -67,10 +73,18 @@ export async function prepareQuery({
 		);
 	}
 
+	// Pin every read to the same block so an admin-driven `setSupplyQueue`
+	// landing between `supplyQueueLength()` and the per-index `supplyQueue(i)`
+	// reads can't produce an incoherent hash. This is a real TOCTOU window
+	// on MetaMorpho — `setSupplyQueue` is `onlyAllocator` but allocators are
+	// hot keys, not multisig-gated, so the queue can shift mid-prepare.
+	const blockNumber = await publicClient.getBlockNumber();
+
 	const length = await publicClient.readContract({
 		address: vault as Address,
 		abi: METAMORPHO_SUPPLY_QUEUE_ABI,
 		functionName: "supplyQueueLength",
+		blockNumber,
 	});
 
 	const queue: Hex[] = [];
@@ -80,6 +94,7 @@ export async function prepareQuery({
 			abi: METAMORPHO_SUPPLY_QUEUE_ABI,
 			functionName: "supplyQueue",
 			args: [i],
+			blockNumber,
 		});
 		queue.push(marketId);
 	}
@@ -91,7 +106,11 @@ export async function prepareQuery({
 		wasmArgs: {
 			network: networkForChain(chainId),
 			vaultAddress: vault,
-			lastKnownAllocationHash: allocationHash,
+			// First-call sentinel: `null` lets the AVS-side `policy.js` short-circuit
+			// the allocation-change check rather than treating the freshly-computed
+			// hash as a drift baseline. Subsequent calls pass the previously-stored
+			// hash so the AVS can compare apples to apples.
+			lastKnownAllocationHash: options.previousAllocationHash ?? null,
 		},
 		freshnessHash: allocationHash,
 	};

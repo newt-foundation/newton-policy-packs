@@ -57,8 +57,12 @@ export interface PrepareQueryResult<TWasmArgs> {
  *                       call to gather chain-state freshness inputs. Packs
  *                       that don't need this (e.g. KYC-only packs) omit it.
  * - `deployments`    — `chainId → Deployment` map sliced from the upstream
- *                       `deployments.json` for this pack only. The SDK reads
- *                       `deployments[chainId].policy` to wire the clone.
+ *                       `deployments.json` for this pack only. Typed as
+ *                       `Partial<Record<ChainId, Deployment>>` so callers
+ *                       must handle `undefined` for unsupported chains
+ *                       rather than silently reading `.policy` off nothing.
+ *                       Use `getDeployment(pack, chainId)` from this package
+ *                       for the safe lookup.
  * - `metadata`       — static identity from the pack's `policy_metadata.json`.
  */
 export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
@@ -69,7 +73,7 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 	encodeParams(params: TParams): Hex;
 	decodeParams(encoded: Hex): TParams;
 	prepareQuery?(args: PrepareQueryArgs): Promise<PrepareQueryResult<TWasmArgs>>;
-	readonly deployments: Readonly<Record<ChainId, Deployment>>;
+	readonly deployments: Readonly<Partial<Record<ChainId, Deployment>>>;
 	readonly metadata: {
 		readonly name: string;
 		readonly version: string;
@@ -77,4 +81,46 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 		readonly author?: string;
 		readonly link?: string;
 	};
+}
+
+/**
+ * Safe lookup helper. Returns the `Deployment` for `chainId` if the pack is
+ * deployed on that chain, or throws `UnsupportedChainError` with the list of
+ * chain ids the pack is known to support. Use this at every SDK callsite that
+ * reads `pack.deployments[chainId]` so unsupported-chain failures surface
+ * immediately rather than as `undefined.policy` further down.
+ */
+export function getDeployment<TParams, TWasmArgs, TSecrets>(
+	pack: PolicyPack<TParams, TWasmArgs, TSecrets>,
+	chainId: ChainId,
+): Deployment {
+	const deployment = pack.deployments[chainId];
+	if (!deployment) {
+		const supported = Object.keys(pack.deployments).sort().join(", ") || "(none)";
+		throw new UnsupportedChainError(
+			`Pack \`${pack.id}\` is not deployed on chain ${chainId}. Supported: ${supported}.`,
+			pack.id,
+			chainId,
+			Object.keys(pack.deployments),
+		);
+	}
+	return deployment;
+}
+
+/**
+ * Thrown by `getDeployment` when a pack is asked for a chain it isn't
+ * deployed on. SDK consumers can catch this specifically to surface a
+ * curator-friendly error rather than a `TypeError: Cannot read property
+ * 'policy' of undefined`.
+ */
+export class UnsupportedChainError extends Error {
+	override readonly name = "UnsupportedChainError";
+	constructor(
+		message: string,
+		readonly packId: string,
+		readonly chainId: ChainId,
+		readonly supportedChainIds: ReadonlyArray<ChainId>,
+	) {
+		super(message);
+	}
 }
