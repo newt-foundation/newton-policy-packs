@@ -24,6 +24,17 @@ jobs:
         with:
           # Full history so changesets can compute version bumps from the commit log.
           fetch-depth: 0
+          # `RELEASE_PAT` is a fine-grained personal access token with `Pull
+          # requests: write` + `Contents: write` on this repo. Required because
+          # the parent organization (`newt-foundation`) blocks
+          # `GITHUB_TOKEN`-authenticated workflows from opening pull requests.
+          # `changesets/action` opens a "Version Packages" PR on every push to
+          # main — without the PAT, the action errors with "GitHub Actions is
+          # not permitted to create or approve pull requests" and no PR opens.
+          # The PAT also authenticates the `git push` of the version-bump
+          # branch so it shows the PAT owner as the author rather than
+          # `github-actions[bot]`.
+          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
 
@@ -73,7 +84,11 @@ jobs:
           commit: "chore: version packages"
           title: "chore: version packages"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pass `RELEASE_PAT` when set (see the checkout step's `token:` block
+          # for context), falling back to `GITHUB_TOKEN`. The PAT lets the
+          # action open the version-packages PR despite the org-level block on
+          # `GITHUB_TOKEN`-authored PRs.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           # Force npm to attach OIDC provenance to every publish. With
           # `id-token: write` granted on the job, this turns the
