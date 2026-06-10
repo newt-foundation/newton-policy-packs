@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Balancer policy WASM at evaluation time",
+  "properties": {
+    "poolId": {
+      "type": "string",
+      "description": "Balancer pool identifier (the bytes32 pool id, 0x-prefixed)."
+    },
+    "chain": {
+      "type": "string",
+      "description": "Balancer GraphQL GqlChain enum value naming the network the pool lives on (e.g. 'MAINNET', 'ARBITRUM', 'BASE')."
+    },
+    "allowed_token_addresses": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional whitelist of token contract addresses (0x...). When non-empty, the Rego rule denies pools containing any token outside this set. Empty array disables the whitelist."
+    }
+  },
+  "required": ["poolId", "chain"]
+}

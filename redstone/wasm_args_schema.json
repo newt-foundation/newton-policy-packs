@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the RedStone oracle-divergence policy WASM at evaluation time",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "description": "Asset symbol the off-chain RedStone feed quotes (e.g. 'ETH', 'BTC')."
+    },
+    "provider": {
+      "type": "string",
+      "description": "RedStone provider name. Defaults to 'redstone' when omitted."
+    },
+    "rpcUrl": {
+      "type": "string",
+      "description": "Ethereum-compatible JSON-RPC endpoint used to call the on-chain comparison oracle."
+    },
+    "onchainOracle": {
+      "type": "object",
+      "description": "On-chain oracle the WASM compares the RedStone price against.",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "Oracle contract address (0x-prefixed)."
+        },
+        "selector": {
+          "type": "string",
+          "description": "4-byte function selector to call on the oracle (0x-prefixed). Typically the latest-answer accessor."
+        },
+        "decimals": {
+          "type": "integer",
+          "description": "Number of decimals the oracle's return value is scaled by. Defaults to 18 when omitted."
+        }
+      },
+      "required": ["address", "selector"]
+    },
+    "prevSnapshot": {
+      "type": ["object", "null"],
+      "description": "Optional prior divergence snapshot used to compute sustained-divergence duration. Set to null on the first evaluation.",
+      "properties": {
+        "divergenceBp": {
+          "type": "number",
+          "description": "Divergence (in basis points) recorded in the previous evaluation."
+        },
+        "timestampMs": {
+          "type": "number",
+          "description": "Unix timestamp (ms) of the previous evaluation."
+        }
+      }
+    }
+  },
+  "required": ["symbol", "rpcUrl", "onchainOracle"]
+}

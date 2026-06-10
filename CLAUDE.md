@@ -103,6 +103,7 @@ curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
 ├── policy_test.rego          # Rego unit tests
 ├── newton-provider.wit       # WIT interface (don't touch)
 ├── params_schema.json        # JSON schema for policy params
+├── wasm_args_schema.json     # JSON schema for WASM oracle inputs
 ├── policy_data_metadata.json # Metadata for the WASM component
 ├── policy_metadata.json      # Metadata for the policy
 ├── configs/                  # Local simulation configs (gitignored)

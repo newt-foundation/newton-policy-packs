@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Blockaid policy WASM at evaluation time",
+  "properties": {
+    "chain": {
+      "type": "string",
+      "description": "Blockaid chain identifier (e.g. 'ethereum', 'base', 'arbitrum')."
+    },
+    "from": {
+      "type": "string",
+      "description": "Sender / account address (0x-prefixed 20-byte address)."
+    },
+    "to": {
+      "type": "string",
+      "description": "Recipient or contract address being called (0x-prefixed)."
+    },
+    "value": {
+      "type": "string",
+      "description": "Transaction value in wei as a 0x-prefixed hex string. Defaults to '0x0' when omitted."
+    },
+    "data": {
+      "type": "string",
+      "description": "Transaction calldata as a 0x-prefixed hex string. Defaults to '0x' when omitted."
+    }
+  },
+  "required": ["chain", "from", "to"]
+}

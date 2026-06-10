@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Chainalysis policy WASM at evaluation time",
+  "properties": {
+    "address": {
+      "type": "string",
+      "description": "Wallet address (0x-prefixed) to screen against the Chainalysis sanctions and screening APIs."
+    }
+  },
+  "required": ["address"]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the vaults.fyi allocation-change policy WASM at evaluation time",
+  "properties": {
+    "network": {
+      "type": "string",
+      "description": "Blockchain network name as accepted by the vaults.fyi API (e.g. 'mainnet', 'base', 'arbitrum')."
+    },
+    "vaultAddress": {
+      "type": "string",
+      "description": "Vault contract address (0x-prefixed) to inspect."
+    },
+    "lastKnownAllocationHash": {
+      "type": ["string", "null"],
+      "description": "Hash of the previously observed allocation. Used to detect changes between evaluations. Null on the first evaluation."
+    }
+  },
+  "required": ["network", "vaultAddress"]
+}

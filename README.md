@@ -137,6 +137,7 @@ Each pack has the same shape:
 ├── policy_test.rego          # Rego unit tests
 ├── newton-provider.wit
 ├── params_schema.json
+├── wasm_args_schema.json
 ├── policy_metadata.json
 ├── policy_data_metadata.json
 ├── configs/                  # Simulation configs (gitignored)
