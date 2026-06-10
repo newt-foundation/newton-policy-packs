@@ -42,6 +42,26 @@ jobs:
       - name: Build shared
         run: pnpm --filter @newton-xyz/policy-pack-shared build
 
+      # Re-run the same gates CI ran on the PR. A direct push to main, a
+      # rebase landing post-CI, or a stale Version Packages PR could
+      # otherwise publish a tree that doesn't pass the same checks. Cheap
+      # to re-run (~30s); fail-loud beats silent bad publish.
+      - name: Verify generated bindings + format
+        run: |
+          set -euo pipefail
+          pnpm gen:bindings
+          pnpm lint:fix
+          if ! git diff --exit-code; then
+            echo "::error::Working tree is not clean after \`gen:bindings\` + \`lint:fix\`. The release commit must already be regenerated and formatted."
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Lint
+        run: pnpm lint
+
       - name: Version + publish
         uses: changesets/action@v1
         with:
@@ -55,3 +75,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Force npm to attach OIDC provenance to every publish. With
+          # `id-token: write` granted on the job, this turns the
+          # `permissions` declaration into a real cryptographic signature
+          # (npm 9.5+); without it, publishes silently fall back to
+          # token-only and the provenance promise in the comment above is
+          # cosmetic. Pair with the `registry-url` on `setup-node`.
+          NPM_CONFIG_PROVENANCE: "true"

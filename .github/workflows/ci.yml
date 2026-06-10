@@ -33,15 +33,18 @@ jobs:
         run: pnpm --filter @newton-xyz/policy-pack-shared build
 
       # Fail the PR if generated bindings drifted from the upstream pack
-      # JSON schemas. Codegen emits unformatted output by design — biome
-      # owns the canonical format — so we regen + lint:fix into a fresh
-      # workspace and `git diff --exit-code` against what's committed.
-      - name: Verify generated bindings are up to date
+      # JSON schemas, OR if any tracked file is unformatted. Codegen emits
+      # unformatted output by design (biome owns the canonical format), so
+      # we regen + lint:fix in the runner and `git diff --exit-code` over
+      # the whole tree. Scoping to `packages/` would mask `lint:fix`
+      # rewrites under `scripts/` — drift is drift, anywhere.
+      - name: Verify generated bindings + format are up to date
         run: |
+          set -euo pipefail
           pnpm gen:bindings
           pnpm lint:fix
-          if ! git diff --exit-code -- packages/; then
-            echo "::error::Generated bindings drifted from upstream pack schemas. Run \`pnpm gen:bindings && pnpm lint:fix\` and commit."
+          if ! git diff --exit-code; then
+            echo "::error::Working tree is not clean after \`gen:bindings\` + \`lint:fix\`. Run both locally and commit the diff."
             exit 1
           fi
 
