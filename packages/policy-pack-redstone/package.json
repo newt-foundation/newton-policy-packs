@@ -1,0 +1,61 @@
+{
+	"name": "@newton-xyz/policy-pack-redstone",
+	"version": "0.1.0",
+	"description": "Typed TypeScript bindings for the Newton redstone policy pack.",
+	"license": "Apache-2.0",
+	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
+	"homepage": "https://github.com/newt-foundation/newton-policy-packs/tree/main/packages/policy-pack-redstone",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/newt-foundation/newton-policy-packs.git",
+		"directory": "packages/policy-pack-redstone"
+	},
+	"bugs": {
+		"url": "https://github.com/newt-foundation/newton-policy-packs/issues"
+	},
+	"keywords": [
+		"newton",
+		"newton-protocol",
+		"policy-pack",
+		"shield",
+		"redstone"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"typecheck": "tsc --noEmit",
+		"test": "echo 'no tests yet'"
+	},
+	"peerDependencies": {
+		"@newton-xyz/policy-pack-shared": "^0.1.0",
+		"viem": "^2.0.0",
+		"zod": "^3.0.0"
+	},
+	"devDependencies": {
+		"@newton-xyz/policy-pack-shared": "workspace:*",
+		"tsup": "^8.5.1",
+		"typescript": "^5.5.0",
+		"viem": "^2.0.0",
+		"zod": "^3.23.0"
+	}
+}

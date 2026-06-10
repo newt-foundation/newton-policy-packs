@@ -1,0 +1,33 @@
+{
+  "name": "newton-policy-packs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo for Newton Protocol policy packs. Each pack lives in its own top-level directory (AVS-side artifacts: Rego + WASM + schemas). TypeScript bindings are published per-pack as @newton-xyz/policy-pack-<name> from the packages/ workspace tree.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "gen:bindings": "tsx scripts/generate-bindings.ts",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "find packages/*/src scripts -name '*.ts' -type f -print0 | xargs -0 biome check --reporter=summary",
+    "lint:fix": "find packages/*/src scripts -name '*.ts' -type f -print0 | xargs -0 biome check --write --reporter=summary",
+    "test": "pnpm -r test",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm -r build && changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
+    "@changesets/cli": "^2.27.0",
+    "@types/node": "^22.0.0",
+    "json-schema-to-zod": "^2.6.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

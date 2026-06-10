@@ -4,3 +4,8 @@
 */policy_cids.json
 */.policy_data_address
 **/.DS_Store
+
+# Node / TypeScript bindings tree (newton-policy-packs/packages/*)
+node_modules/
+packages/*/dist/
+*.tsbuildinfo

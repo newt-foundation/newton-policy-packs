@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Only one release run at a time. If a second push lands while the first is
+# building, wait — never abort an in-flight publish.
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Version + publish (changesets)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # changesets/action commits the version bump back to main
+      pull-requests: write     # opens / updates the "Version Packages" PR
+      id-token: write          # npm provenance via OIDC
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so changesets can compute version bumps from the commit log.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          # Required for npm publish provenance + the npm registry config.
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Shared has to build first so per-pack `tsup` runs can resolve
+      # `@newton-xyz/policy-pack-shared` types from its dist/.
+      - name: Build shared
+        run: pnpm --filter @newton-xyz/policy-pack-shared build
+
+      # Re-run the same gates CI ran on the PR. A direct push to main, a
+      # rebase landing post-CI, or a stale Version Packages PR could
+      # otherwise publish a tree that doesn't pass the same checks. Cheap
+      # to re-run (~30s); fail-loud beats silent bad publish.
+      - name: Verify generated bindings + format
+        run: |
+          set -euo pipefail
+          pnpm gen:bindings
+          pnpm lint:fix
+          if ! git diff --exit-code; then
+            echo "::error::Working tree is not clean after \`gen:bindings\` + \`lint:fix\`. The release commit must already be regenerated and formatted."
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Version + publish
+        uses: changesets/action@v1
+        with:
+          # When .changeset/ has pending changesets, this opens a "Version Packages" PR.
+          # When the Version Packages PR is merged (no pending changesets), this runs
+          # `pnpm release` which builds + publishes only the bumped packages.
+          version: pnpm exec changeset version
+          publish: pnpm release
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Force npm to attach OIDC provenance to every publish. With
+          # `id-token: write` granted on the job, this turns the
+          # `permissions` declaration into a real cryptographic signature
+          # (npm 9.5+); without it, publishes silently fall back to
+          # token-only and the provenance promise in the comment above is
+          # cosmetic. Pair with the `registry-url` on `setup-node`.
+          NPM_CONFIG_PROVENANCE: "true"
