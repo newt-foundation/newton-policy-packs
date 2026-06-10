@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel in-progress runs for the same PR/branch when a new commit lands.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bindings:
+    name: Bindings (typecheck + build + lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Shared has to build first so its dist/ exists for downstream packs to
+      # resolve `@newton-xyz/policy-pack-shared` at typecheck/build time.
+      - name: Build shared
+        run: pnpm --filter @newton-xyz/policy-pack-shared build
+
+      # Fail the PR if generated bindings drifted from the upstream pack
+      # JSON schemas. Codegen emits unformatted output by design — biome
+      # owns the canonical format — so we regen + lint:fix into a fresh
+      # workspace and `git diff --exit-code` against what's committed.
+      - name: Verify generated bindings are up to date
+        run: |
+          pnpm gen:bindings
+          pnpm lint:fix
+          if ! git diff --exit-code -- packages/; then
+            echo "::error::Generated bindings drifted from upstream pack schemas. Run \`pnpm gen:bindings && pnpm lint:fix\` and commit."
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Lint
+        run: pnpm lint

@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Only one release run at a time. If a second push lands while the first is
+# building, wait — never abort an in-flight publish.
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Version + publish (changesets)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # changesets/action commits the version bump back to main
+      pull-requests: write     # opens / updates the "Version Packages" PR
+      id-token: write          # npm provenance via OIDC
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so changesets can compute version bumps from the commit log.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          # Required for npm publish provenance + the npm registry config.
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Shared has to build first so per-pack `tsup` runs can resolve
+      # `@newton-xyz/policy-pack-shared` types from its dist/.
+      - name: Build shared
+        run: pnpm --filter @newton-xyz/policy-pack-shared build
+
+      - name: Version + publish
+        uses: changesets/action@v1
+        with:
+          # When .changeset/ has pending changesets, this opens a "Version Packages" PR.
+          # When the Version Packages PR is merged (no pending changesets), this runs
+          # `pnpm release` which builds + publishes only the bumped packages.
+          version: pnpm exec changeset version
+          publish: pnpm release
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
