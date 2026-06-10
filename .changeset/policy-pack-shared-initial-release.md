@@ -1,8 +1,8 @@
 ---
-"@newton-xyz/policy-pack-shared": patch
+"@newton-xyz/policy-pack-shared": minor
 ---
 
-Initial release of `@newton-xyz/policy-pack-shared`.
+Initial release of `@newton-xyz/policy-pack-shared` at version `0.1.0`.
 
 Defines the canonical typed contract every published `@newton-xyz/policy-pack-<name>` package implements:
 
@@ -14,4 +14,4 @@ Defines the canonical typed contract every published `@newton-xyz/policy-pack-<n
 
 Consumed by `@newton-xyz/newton-shield-sdk` as a peer dependency. Curators bind a `PolicyPack` to a Shield clone via the SDK's `createShield(...)`.
 
-Patch-level bump on first publish: `package.json` already carries `0.1.0` and no version has shipped to npm, so any changeset level (patch / minor) lands the same `0.1.1` first version on the registry. Patch is fine.
+Clean initial-release versioning: `package.json` is at `0.0.0`, this `minor` changeset bumps to `0.1.0` for the first npm publish. The dependent packs declare `peerDependencies: { "@newton-xyz/policy-pack-shared": "^0.1.0" }`; `changesets` updates those ranges to match the new version automatically when `changeset version` runs.
