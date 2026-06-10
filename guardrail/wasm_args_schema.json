@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Guardrail policy WASM at evaluation time. At least one of `protocolId` or `vaultAddress` is required.",
+  "properties": {
+    "protocolId": {
+      "type": "string",
+      "description": "Guardrail protocol identifier. Used as the alert/health target when no vault address is supplied."
+    },
+    "vaultAddress": {
+      "type": "string",
+      "description": "Vault contract address (0x-prefixed). Preferred target when both fields are present."
+    },
+    "chainId": {
+      "type": "integer",
+      "description": "EVM chain id of the target (e.g. 1 for mainnet). Optional; passed through to the Guardrail API as a filter."
+    }
+  },
+  "anyOf": [
+    { "required": ["protocolId"] },
+    { "required": ["vaultAddress"] }
+  ]
+}

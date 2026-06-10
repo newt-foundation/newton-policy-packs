@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Persona KYC policy WASM at evaluation time",
+  "properties": {
+    "walletAddress": {
+      "type": "string",
+      "description": "Wallet address (0x-prefixed) to look up in Persona for a KYC verification record."
+    }
+  },
+  "required": ["walletAddress"]
+}
