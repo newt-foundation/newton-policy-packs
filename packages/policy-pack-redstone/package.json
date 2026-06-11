@@ -1,8 +1,7 @@
 {
 	"name": "@newton-xyz/policy-pack-redstone",
 	"version": "0.1.0",
-	"private": true,
-	"description": "Typed TypeScript bindings for the Newton redstone policy pack.",
+	"description": "Bindings-only Newton redstone policy pack (zod schemas + deployments). No PolicyPack export yet — use with NewtonShield.guardedCall until pack.ts lands.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
 	"homepage": "https://github.com/newt-foundation/newton-policy-packs/tree/main/packages/policy-pack-redstone",
