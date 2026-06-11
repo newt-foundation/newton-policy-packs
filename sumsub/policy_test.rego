@@ -137,3 +137,11 @@ test_multiple_denies_do_not_fail_open if {
     count(deny) >= 4
     not sumsub_kyc.allow with data.params as default_params with data.wasm as d
 }
+
+test_deny_on_oracle_error if {
+    not sumsub_kyc.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+}
+
+test_deny_on_empty_payload if {
+    not sumsub_kyc.allow with data.params as default_params with data.wasm as {}
+}

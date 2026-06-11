@@ -19,4 +19,16 @@ deny contains "divergence_sustained" if {
     v.sustained_seconds >= t.deny_sustained_seconds
 }
 
-allow if count(deny) == 0
+allow if {
+    v.redstone_feed_age_seconds <= t.max_feed_age_seconds
+    v.divergence_bp < t.deny_bp
+    not divergence_sustained_blocks
+}
+
+divergence_sustained_blocks if {
+    t.enable_sustained_check
+    v.prev_snapshot_present
+    v.divergence_bp >= t.warn_bp
+    v.prev_divergence_bp >= t.warn_bp
+    v.sustained_seconds >= t.deny_sustained_seconds
+}

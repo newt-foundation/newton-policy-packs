@@ -28,4 +28,22 @@ deny contains "tvl_drawdown_7d" if {
     v.tvl_drawdown_7d_pct > t.tvl_drawdown_7d_max_pct
 }
 
-allow if count(deny) == 0
+allow if {
+    v.max_token_weight_pct <= t.max_token_weight_pct
+    count(v.non_allowlisted_tokens) == 0
+    not underlying_risk_blocks
+    v.tvl_usd >= t.min_tvl_usd
+    drawdown_24h_ok
+    drawdown_7d_ok
+}
+
+underlying_risk_blocks if {
+    t.deny_on_underlying_risk
+    v.has_boosted_tokens
+}
+
+drawdown_24h_ok if v.tvl_drawdown_24h_pct == null
+drawdown_24h_ok if v.tvl_drawdown_24h_pct <= t.tvl_drawdown_24h_max_pct
+
+drawdown_7d_ok if v.tvl_drawdown_7d_pct == null
+drawdown_7d_ok if v.tvl_drawdown_7d_pct <= t.tvl_drawdown_7d_max_pct

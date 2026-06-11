@@ -38,4 +38,31 @@ deny contains "watchlist_hit" if {
     v.watchlist_status != "passed"
 }
 
-allow if count(deny) == 0
+allow if {
+    v.has_inquiry
+    v.status in {"approved", "completed"}
+    v.age_days <= t.max_age_days
+    country_ok
+    age_years_ok
+    v.government_id_status == "passed"
+    selfie_ok
+    watchlist_ok
+}
+
+country_ok if v.country_code == null
+country_ok if v.country_code in t.allowed_countries
+
+age_years_ok if v.age_years == null
+age_years_ok if v.age_years >= t.min_age_years
+
+selfie_ok if not t.require_selfie
+selfie_ok if {
+    t.require_selfie
+    v.selfie_status == "passed"
+}
+
+watchlist_ok if not t.require_watchlist_pass
+watchlist_ok if {
+    t.require_watchlist_pass
+    v.watchlist_status == "passed"
+}

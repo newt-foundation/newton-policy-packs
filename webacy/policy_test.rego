@@ -84,3 +84,11 @@ test_multiple_denies_do_not_fail_open if {
     count(deny) >= 2
     not webacy_depositor_reputation.allow with data.params as default_params with data.wasm as d with input as clean_intent
 }
+
+test_deny_on_oracle_error if {
+    not webacy_depositor_reputation.allow with data.params as default_params with data.wasm as {"error": "oracle failed"} with input as clean_intent
+}
+
+test_deny_on_empty_payload if {
+    not webacy_depositor_reputation.allow with data.params as default_params with data.wasm as {} with input as clean_intent
+}
