@@ -3,8 +3,7 @@
 
 export * from "./deployments";
 export * from "./metadata";
+export * from "./pack";
 export * from "./params";
 export * from "./secrets";
 export * from "./wasm-args";
-// (no `pack.ts` yet — this pack ships generated bindings only. Add a hand-written `pack.ts`
-// exporting a `PolicyPack` from `@newton-xyz/policy-pack-shared` to make it usable with createShield.)
