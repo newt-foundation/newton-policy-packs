@@ -47,7 +47,7 @@
 		"test": "echo 'no tests yet'"
 	},
 	"peerDependencies": {
-		"@newton-xyz/policy-pack-shared": "^0.1.0",
+		"@newton-xyz/policy-pack-shared": "^0.1.1",
 		"viem": "^2.0.0",
 		"zod": "^3.0.0"
 	},
