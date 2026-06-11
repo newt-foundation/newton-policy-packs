@@ -1,7 +1,7 @@
 {
   "name": "webacy Wasm",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "",
   "link": "https://webacy.com",
-  "description": "Calls Webacy's address-risk endpoint and emits a normalized risk snapshot (bucket, DD score, sanctions/exploit hit counts) for the depositor wallet"
+  "description": "Calls Webacy's depeg-monitor endpoint (/rwa/{address}) and emits a depeg-risk snapshot (collapse flag, recent depeg event count, max recent deviation, consecutive days below peg, staleness) for the queried pegged token"
 }

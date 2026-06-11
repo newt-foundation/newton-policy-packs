@@ -1,4 +1,4 @@
-package webacy_depositor_reputation
+package webacy_depeg_risk
 
 import future.keywords
 
@@ -7,41 +7,33 @@ default allow := false
 t := data.params
 v := data.wasm
 
-deny contains "sanctioned" if {
-    t.deny_on_sanctioned
-    v.bucket == "sanctioned"
+deny contains "token_collapsed" if {
+    t.deny_on_collapsed
+    v.is_collapsed
 }
 
-deny contains "high_risk" if {
-    t.deny_on_high_risk
-    v.bucket == "high"
-}
+deny contains "recent_depeg_events" if v.recent_depeg_event_count > t.max_recent_depeg_events
 
-deny contains "exploit_exposure" if v.exploit_exposure_hits >= t.exploit_exposure_hits_max
+deny contains "consecutive_days_below_peg" if v.consecutive_days_below_peg > t.max_consecutive_days_below_peg
 
-deny contains "medium_risk_over_cap" if {
-    v.bucket == "medium"
-    input.deposit_amount_usd > t.medium_risk_max_deposit_usd
+deny contains "stale_oracle_data" if {
+    t.deny_on_stale_data
+    v.stale
 }
 
 allow if {
-    not sanctioned_blocks
-    not high_risk_blocks
-    v.exploit_exposure_hits < t.exploit_exposure_hits_max
-    not medium_risk_over_cap_blocks
+    not collapsed_blocks
+    v.recent_depeg_event_count <= t.max_recent_depeg_events
+    v.consecutive_days_below_peg <= t.max_consecutive_days_below_peg
+    not stale_blocks
 }
 
-sanctioned_blocks if {
-    t.deny_on_sanctioned
-    v.bucket == "sanctioned"
+collapsed_blocks if {
+    t.deny_on_collapsed
+    v.is_collapsed
 }
 
-high_risk_blocks if {
-    t.deny_on_high_risk
-    v.bucket == "high"
-}
-
-medium_risk_over_cap_blocks if {
-    v.bucket == "medium"
-    input.deposit_amount_usd > t.medium_risk_max_deposit_usd
+stale_blocks if {
+    t.deny_on_stale_data
+    v.stale
 }
