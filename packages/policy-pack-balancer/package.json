@@ -1,6 +1,7 @@
 {
 	"name": "@newton-xyz/policy-pack-balancer",
 	"version": "0.1.0",
+	"private": true,
 	"description": "Typed TypeScript bindings for the Newton balancer policy pack.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
