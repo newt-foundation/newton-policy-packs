@@ -15,22 +15,26 @@ monorepo bootstrap.
 The **changesets cascade** is the operational cost of that choice. When
 shared bumps `minor`, every dependent pack with `peerDependencies: { shared: "^X.Y.0" }`
 gets a `major` cascade because the peer-dep range bump is treated as
-breaking by `changesets/assemble-release-plan`. We have hit this twice in
-the first six months of the package:
+breaking by `changesets/assemble-release-plan`. We've hit this once so
+far:
 
-1. **NEWT-1492 — initial release** (2026-06-10). `shared@0.0.0 → 0.1.0` would
-   have cascaded major bumps across all 9 dependent packs. We dodged via
-   `patch` (`shared@0.1.0 → 0.1.1`) since the package wasn't yet on npm.
-2. **NEWT-1499 — widen `prepareQuery(args, options?)`** (2026-06-11). Same
-   cascade. Same dodge: `patch` (`shared@0.1.0 → 0.1.1`) because the
-   widening is additive and 1-arg packs satisfy the new signature via TS
-   contravariance.
+- **NEWT-1499 — widen `prepareQuery(args, options?)`** (2026-06-11).
+  Cascading the additive widening as a major across 9 dependents was
+  not the signal we wanted, so we shipped it as a `patch`
+  (`shared@0.1.0 → 0.1.1`). The widening is additive and 1-arg packs
+  satisfy the new signature via TS contravariance, so patch is
+  semantically defensible under SemVer for the exported interface.
 
-Both dodges are semantically defensible (additive change → patch is fine
-under SemVer for an exported interface), but the cascade itself is an
-architectural smell — every additive interface change forces this
-calculus, and the changelog ends up with footnotes explaining why a
-"minor-shaped" change shipped as a patch.
+For context, **NEWT-1492 (initial release, 2026-06-10)** was not a
+cascade event — `shared` shipped clean as `0.0.0 → 0.1.0` with the 9
+dependents bootstrapped pre-pinned, so no peer-dep range had to be
+rewritten and no major cascade was triggered. The patch dodge above is
+the first real instance of the operational pressure.
+
+The dodge is defensible, but the cascade itself is an architectural
+smell — every additive interface change forces this calculus, and the
+changelog ends up with footnotes explaining why a "minor-shaped" change
+shipped as a patch.
 
 ## Options considered
 
@@ -120,20 +124,25 @@ to the runtime dep otherwise.
 
 **Keep `shared` as a peer-dep (Option A).**
 
-Three reasons drove this:
+Three reasons drove this, ordered by how directly they affect the
+consumer:
 
-1. **Type identity preservation.** Option A is the only path that
+1. **Consumer install footprint.** Curators integrating multiple packs
+   should pay for shared once, not once-per-pack. Option B punishes the
+   common case to optimize the rare case. This is the most concrete
+   user-visible reason — every other consideration is downstream of
+   getting the install graph right.
+2. **Type identity preservation.** Option A is the only path that
    guarantees one `PolicyPack<T>` symbol across all packs the consumer
    imports. The other options either accept multi-copy nominal-identity
-   drift (B) or rely on consumers to manually dedupe (C).
-2. **Low frequency of the cascade cost.** We've hit it twice in 6
-   months and dodged both via patch. A change that genuinely warrants
-   a major bump on dependents should cascade — patch-bump dodges only
-   work because the changes are additive. When we have a real breaking
-   change to shared, we want the cascade.
-3. **Consumer install footprint.** Curators integrating multiple packs
-   should pay for shared once, not once-per-pack. Option B punishes the
-   common case to optimize the rare case.
+   drift (B) or rely on consumers to manually dedupe (C). The TS2719
+   "two different types with this name" failure mode is the same one
+   we already pay on the SDK side with viem peer-dep boundaries.
+3. **Low frequency of the cascade cost.** We've hit it once in the
+   first six months and dodged via patch. A change that genuinely
+   warrants a major bump on dependents should cascade — patch-bump
+   dodges only work because the changes are additive. When we have a
+   real breaking change to shared, we want the cascade.
 
 ## Operational consequences
 
@@ -150,6 +159,12 @@ Three reasons drove this:
 
 ## Revisit when
 
+- **A curator reports an install-time TS2719 between two of our packs.**
+  This is the customer-facing signal that the type-identity story is
+  failing in the wild. If a curator who installed two of our packs
+  hits "two different types with this name" on `PolicyPack<T>`, the
+  peer-dep choice has stopped paying its rent. Treat any such report
+  as a re-evaluation trigger, not a one-off support ticket.
 - A pack-pack workflow becomes load-bearing in the SDK and the type
   identity argument starts paying real dividends. (Today it's
   speculative — the MVP shape is one pack per Shield clone.)
