@@ -89,7 +89,18 @@ jobs:
           # action open the version-packages PR despite the org-level block on
           # `GITHUB_TOKEN`-authored PRs.
           GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          # `NODE_AUTH_TOKEN` is what `actions/setup-node`'s generated
+          # `_temp/.npmrc` reads via `${NODE_AUTH_TOKEN}`. `NPM_CONFIG_USERCONFIG`
+          # is exported by setup-node and points npm at that file, so the
+          # `~/.npmrc` that `changesets/action` writes from `NPM_TOKEN` is
+          # ignored at publish time. Without the alias below, the runner
+          # publishes against an unauthenticated `XXXXX-XXXXX-XXXXX-XXXXX`
+          # placeholder and npm answers `E404 Not Found - PUT ...` for any
+          # not-yet-existing package name. Set both — `NPM_TOKEN` for
+          # changesets/action's PR-creation HTTP path, `NODE_AUTH_TOKEN` for
+          # the publish path.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           # Force npm to attach OIDC provenance to every publish. With
           # `id-token: write` granted on the job, this turns the
           # `permissions` declaration into a real cryptographic signature
