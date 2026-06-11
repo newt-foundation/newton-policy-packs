@@ -1,4 +1,5 @@
 .env
+.env.*.local
 */configs/
 */dist/policy.wasm
 */policy_cids.json

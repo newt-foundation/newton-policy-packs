@@ -220,3 +220,106 @@ Deploying policy:
   metadataCid: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q 
 
 Policy deployed successfully at address: 0x14685C1769Eb6f449FeC42A48d086746F470CE4a
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./vaultsfyi/dist"
+policyCodeHash: 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+Public IPFS Link: https://ipfs.io/ipfs/bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./vaultsfyi/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4",
+  "policyCid": "bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly",
+  "schemaCid": "bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m",
+  "entrypoint": "vault_risk_rating.allow",
+  "policyMetadataCid": "bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q",
+  "policyDataMetadataCid": "bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4",
+  "secretsSchemaCid": "bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4",
+  "policyCodeHash": "0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54"
+}
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4
+  secretsSchemaCid: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x1Bbb9cC3f3028fc13eb388b50393196b0ED65B53
+Policy Data Address: 0x1Bbb9cC3f3028fc13eb388b50393196b0ED65B53
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54
+Pinned policyCodeHash 0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54 in "./vaultsfyi/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: vault_risk_rating.allow
+  policyCid: bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly
+  schemaCid: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+  policyData: [0x1bbb9cc3f3028fc13eb388b50393196b0ed65b53]
+  metadataCid: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q 
+
+Policy deployed successfully at address: 0xd6D82048985540b9Fe5Cc415955886C71596f6d8
