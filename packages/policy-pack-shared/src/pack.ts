@@ -56,12 +56,13 @@ export interface PrepareQueryResult<TWasmArgs> {
  * - `prepareQuery`   — optional. When present, the SDK invokes it on every
  *                       call to gather chain-state freshness inputs. Packs
  *                       that don't need this (e.g. KYC-only packs) omit it.
- *                       The optional second `options` argument is a typed-
- *                       per-pack escape hatch for per-call overrides — e.g.
- *                       VaultsFYI's `previousAllocationHash` for freshness
- *                       binding. Each concrete pack narrows it via its own
- *                       `prepareQuery` signature; the shared interface keeps
- *                       it `unknown` so the SDK can forward it verbatim.
+ *                       The optional second `options` argument is a
+ *                       pack-typed escape hatch for per-call overrides —
+ *                       e.g. VaultsFYI's `previousAllocationHash` for
+ *                       freshness binding. Each concrete pack narrows it
+ *                       via its own `prepareQuery` signature; the shared
+ *                       interface keeps it `unknown` so the SDK can
+ *                       forward it verbatim.
  * - `deployments`    — `chainId → Deployment` map sliced from the upstream
  *                       `deployments.json` for this pack only. Typed as
  *                       `Partial<Record<ChainId, Deployment>>` so callers
