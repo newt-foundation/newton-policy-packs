@@ -4,11 +4,11 @@ import type { ChainId, Deployment } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = {
 	"11155111": {
-		policy: "0x091133448400b2Eb7Ee9DFfB294aDcC96975E617",
-		policyData: "0x01B43c7D916f1FcCCBDdA185497e5A2DB7a326fA",
-		wasmCid: "bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m",
+		policy: "0x754bbf4c0Ef9e56864846646fb280e34c774f9ce",
+		policyData: "0x5f6c9C41e9bA99E9bED2E87435cC6903D86159DA",
+		wasmCid: "bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti",
 		policyCodeHash: "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
-		deployedAt: "2026-06-09",
-		notes: "host-secrets fix; current",
+		deployedAt: "2026-06-11",
+		notes: "fail-closed positive-allow rego",
 	},
 } as const satisfies Readonly<Partial<Record<ChainId, Deployment>>>;

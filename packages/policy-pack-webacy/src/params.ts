@@ -5,25 +5,25 @@ import { z } from "zod";
 
 export const ParamsSchema = z
 	.object({
-		deny_on_sanctioned: z
+		deny_on_collapsed: z
 			.boolean()
 			.describe(
-				"Deny when the address bucket is 'sanctioned' (any sanctions / OFAC / blocklist hit in the issues array)",
+				"Deny when Webacy reports the token as structurally collapsed (token.is_collapsed == true)",
 			),
-		deny_on_high_risk: z
+		max_recent_depeg_events: z
+			.number()
+			.describe(
+				"Maximum allowed depeg events in the lookback window. 0 means any event in the window denies.",
+			),
+		max_consecutive_days_below_peg: z
+			.number()
+			.describe(
+				"Maximum allowed consecutive days the token has been below peg. 0 means any day below peg denies.",
+			),
+		deny_on_stale_data: z
 			.boolean()
-			.describe("Deny when the address bucket is 'high' (DD score above 50)"),
-		exploit_exposure_hits_max: z
-			.number()
-			.describe(
-				"Maximum number of exploit / hack / drainer / stolen-funds tags allowed before denying. Setting to 1 means a single hit denies.",
-			),
-		medium_risk_max_deposit_usd: z
-			.number()
-			.describe(
-				"Maximum allowed deposit (in USD) for medium-risk addresses. Above this, deposit is denied.",
-			),
+			.describe("Deny when Webacy flags the response as stale (data freshness guard)."),
 	})
-	.describe("Thresholds for the Webacy depositor-reputation gate");
+	.describe("Thresholds for the Webacy depeg-risk gate");
 
 export type Params = z.infer<typeof ParamsSchema>;
