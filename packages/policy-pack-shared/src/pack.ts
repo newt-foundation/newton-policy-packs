@@ -79,10 +79,7 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 	readonly secretsSchema: z.ZodType<TSecrets>;
 	encodeParams(params: TParams): Hex;
 	decodeParams(encoded: Hex): TParams;
-	prepareQuery?(
-		args: PrepareQueryArgs,
-		options?: unknown,
-	): Promise<PrepareQueryResult<TWasmArgs>>;
+	prepareQuery?(args: PrepareQueryArgs, options?: unknown): Promise<PrepareQueryResult<TWasmArgs>>;
 	readonly deployments: Readonly<Partial<Record<ChainId, Deployment>>>;
 	readonly metadata: {
 		readonly name: string;
