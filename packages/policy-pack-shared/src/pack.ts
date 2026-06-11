@@ -49,10 +49,16 @@ export interface PrepareQueryResult<TWasmArgs> {
  *                       intent and forwards `wasmArgs` to the gateway.
  * - `secretsSchema`  — zod schema enforced at upload-time. Validates the
  *                       shape of the secrets the operator stores in the AVS.
- * - `encodeParams` / `decodeParams` — ABI round-trip for the on-chain
- *                       `policyParams` bytes. Must round-trip cleanly so the
- *                       SDK can read the on-chain value back and confirm it
- *                       matches the curator's intended config.
+ *
+ * Encoding is *not* a per-pack concern. The on-chain `policyParams` byte
+ * format is a Newton-protocol invariant — UTF-8 JSON, sorted keys —
+ * implemented once in this package as `encodePolicyParams` /
+ * `decodePolicyParams`. See `./encoding.ts`. Earlier shapes of this
+ * interface required each pack to ship its own `encodeParams` /
+ * `decodeParams`; that structurally invited drift (vaultsfyi@0.2.0 shipped
+ * ABI bytes against an AVS that reads `serde_json::from_str`, breaking
+ * every call). The interface now leaves byte-format to the protocol.
+ *
  * - `prepareQuery`   — optional. When present, the SDK invokes it on every
  *                       call to gather chain-state freshness inputs. Packs
  *                       that don't need this (e.g. KYC-only packs) omit it.
@@ -77,8 +83,6 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 	readonly paramsSchema: z.ZodType<TParams>;
 	readonly wasmArgsSchema: z.ZodType<TWasmArgs>;
 	readonly secretsSchema: z.ZodType<TSecrets>;
-	encodeParams(params: TParams): Hex;
-	decodeParams(encoded: Hex): TParams;
 	prepareQuery?(args: PrepareQueryArgs, options?: unknown): Promise<PrepareQueryResult<TWasmArgs>>;
 	readonly deployments: Readonly<Partial<Record<ChainId, Deployment>>>;
 	readonly metadata: {
