@@ -43,11 +43,15 @@ export function encodePolicyParams<T>(
  * into the pack's typed params shape. Revalidates against `paramsSchema` so a
  * stale or corrupted on-chain blob throws at the SDK boundary rather than
  * yielding a partially-valid object that crashes deeper in the call.
+ *
+ * `fatal: true` matches AVS-side `String::from_utf8` behavior — invalid UTF-8
+ * throws here rather than silently becoming U+FFFD and diverging from a path
+ * the AVS would reject.
  */
 export function decodePolicyParams<T>(
 	pack: { readonly paramsSchema: z.ZodType<T> },
 	encoded: Hex,
 ): T {
-	const json = new TextDecoder().decode(hexToBytes(encoded));
+	const json = new TextDecoder("utf-8", { fatal: true }).decode(hexToBytes(encoded));
 	return pack.paramsSchema.parse(JSON.parse(json));
 }

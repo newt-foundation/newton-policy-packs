@@ -29,6 +29,7 @@ export const ParamsSchema = z
 				"Maximum allowed 7d TVL drawdown percentage. Null oracle values fail-soft and do not trigger this rule.",
 			),
 	})
-	.describe("Composite Balancer pool risk gate thresholds");
+	.describe("Composite Balancer pool risk gate thresholds")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

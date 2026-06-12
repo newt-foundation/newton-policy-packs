@@ -24,6 +24,7 @@ export const ParamsSchema = z
 				"Maximum allowed deposit (in USD) for medium-risk addresses. Above this, deposit is denied.",
 			),
 	})
-	.describe("Thresholds for the Webacy depositor-reputation gate");
+	.describe("Thresholds for the Webacy depositor-reputation gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

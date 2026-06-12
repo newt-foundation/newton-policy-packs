@@ -9,3 +9,6 @@
 node_modules/
 packages/*/dist/
 *.tsbuildinfo
+
+# Rust build outputs (tools/avs-parity)
+tools/*/target/

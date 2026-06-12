@@ -1,6 +1,14 @@
 ---
 "@newton-xyz/policy-pack-shared": minor
+"@newton-xyz/policy-pack-balancer": major
+"@newton-xyz/policy-pack-blockaid": major
+"@newton-xyz/policy-pack-chainalysis": major
+"@newton-xyz/policy-pack-guardrail": major
+"@newton-xyz/policy-pack-persona": major
+"@newton-xyz/policy-pack-redstone": major
+"@newton-xyz/policy-pack-sumsub": major
 "@newton-xyz/policy-pack-vaultsfyi": major
+"@newton-xyz/policy-pack-webacy": major
 ---
 
 Lift `policyParams` encoding from per-pack `encodeParams` / `decodeParams` into a single canonical utility in `@newton-xyz/policy-pack-shared`. Wire format is **UTF-8 JSON with sorted keys**, which is what the AVS host already reads (`String::from_utf8 → serde_json::from_str` at `newton-prover-avs/crates/core/src/common/task.rs:402-408`). NEWT-1516.

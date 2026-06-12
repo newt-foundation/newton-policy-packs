@@ -22,6 +22,7 @@ export const ParamsSchema = z
 				"Minimum acceptable Guardrail health score. Only enforced when health_available is true.",
 			),
 	})
-	.describe("Thresholds for the Guardrail on-chain monitoring gate");
+	.describe("Thresholds for the Guardrail on-chain monitoring gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
