@@ -65,10 +65,22 @@ export function run(input) {
     const { address, chain } = parsed;
     if (!address) throw new Error("missing address");
 
-    const lookbackDaysRaw = num(parsed.lookback_days);
-    const lookbackDays = lookbackDaysRaw == null || lookbackDaysRaw <= 0
-      ? 7
-      : Math.min(lookbackDaysRaw, 30);
+    // Reject out-of-range lookback_days rather than silently clamping —
+    // a clamp hides operator misconfiguration (e.g. 100 → 30) and the
+    // policy still evaluates against a different window than the operator
+    // configured. The throw is caught below and returned as an oracle
+    // error, which rego denies via `default allow := false`.
+    let lookbackDays = 7;
+    if (parsed.lookback_days !== undefined && parsed.lookback_days !== null) {
+      const n = Number(parsed.lookback_days);
+      if (!Number.isFinite(n)) {
+        throw new Error("lookback_days must be a finite number");
+      }
+      if (n < 1 || n > 30) {
+        throw new Error(`lookback_days must be between 1 and 30 (got ${n})`);
+      }
+      lookbackDays = n;
+    }
     const hours = Math.max(1, Math.min(720, Math.floor(lookbackDays * 24)));
 
     const result = getDepegRisk(address, chain, hours);

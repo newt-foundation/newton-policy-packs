@@ -23,6 +23,11 @@ export const ParamsSchema = z
 		deny_on_stale_data: z
 			.boolean()
 			.describe("Deny when Webacy flags the response as stale (data freshness guard)."),
+		max_abs_dev_pct: z
+			.number()
+			.describe(
+				"Maximum tolerated absolute deviation from peg on the latest snapshot, expressed as a fraction (e.g. 0.005 = 0.5%). Catches tokens currently off-peg even when no discrete depeg event has been logged.",
+			),
 	})
 	.describe("Thresholds for the Webacy depeg-risk gate");
 

@@ -18,8 +18,10 @@ export const WasmArgsSchema = z
 			.optional(),
 		lookback_days: z
 			.number()
+			.gte(1)
+			.lte(30)
 			.describe(
-				"Window (in days, 1-30) over which depeg events are counted. Translated to ?hours= on the API call. Defaults to 7 if omitted or out of range.",
+				"Window (in days, 1-30 inclusive) over which depeg events are counted. Translated to ?hours= on the API call. Defaults to 7 if omitted; out-of-range values are rejected by the WASM (rego denies on oracle error).",
 			)
 			.optional(),
 	})

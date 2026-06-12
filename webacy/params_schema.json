@@ -17,12 +17,17 @@
     "deny_on_stale_data": {
       "type": "boolean",
       "description": "Deny when Webacy flags the response as stale (data freshness guard)."
+    },
+    "max_abs_dev_pct": {
+      "type": "number",
+      "description": "Maximum tolerated absolute deviation from peg on the latest snapshot, expressed as a fraction (e.g. 0.005 = 0.5%). Catches tokens currently off-peg even when no discrete depeg event has been logged."
     }
   },
   "required": [
     "deny_on_collapsed",
     "max_recent_depeg_events",
     "max_consecutive_days_below_peg",
-    "deny_on_stale_data"
+    "deny_on_stale_data",
+    "max_abs_dev_pct"
   ]
 }

@@ -7,6 +7,7 @@ default_params := {
     "max_recent_depeg_events": 0,
     "max_consecutive_days_below_peg": 1,
     "deny_on_stale_data": true,
+    "max_abs_dev_pct": 0.005,
 }
 
 clean_data := {
@@ -87,13 +88,17 @@ test_multiple_denies_do_not_fail_open if {
         "recent_depeg_event_count": 5,
         "consecutive_days_below_peg": 10,
         "stale": true,
+        "within_expected_range": false,
+        "abs_dev_clean": 0.05,
     })
     deny := webacy_depeg_risk.deny with data.params as default_params with data.wasm as d
     "token_collapsed" in deny
     "recent_depeg_events" in deny
     "consecutive_days_below_peg" in deny
     "stale_oracle_data" in deny
-    count(deny) >= 4
+    "outside_expected_range" in deny
+    "abs_dev_above_max" in deny
+    count(deny) >= 6
     not webacy_depeg_risk.allow with data.params as default_params with data.wasm as d
 }
 
@@ -103,4 +108,22 @@ test_deny_on_oracle_error if {
 
 test_deny_on_empty_payload if {
     not webacy_depeg_risk.allow with data.params as default_params with data.wasm as {}
+}
+
+test_deny_outside_expected_range if {
+    d := with_data({"within_expected_range": false})
+    "outside_expected_range" in webacy_depeg_risk.deny with data.params as default_params with data.wasm as d
+    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as d
+}
+
+test_deny_abs_dev_above_max if {
+    d := with_data({"abs_dev_clean": 0.01})
+    "abs_dev_above_max" in webacy_depeg_risk.deny with data.params as default_params with data.wasm as d
+    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as d
+}
+
+test_abs_dev_null_does_not_deny if {
+    d := with_data({"abs_dev_clean": null})
+    not "abs_dev_above_max" in webacy_depeg_risk.deny with data.params as default_params with data.wasm as d
+    webacy_depeg_risk.allow with data.params as default_params with data.wasm as d
 }
