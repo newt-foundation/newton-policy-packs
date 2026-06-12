@@ -18,12 +18,17 @@
     "min_health_score": {
       "type": "number",
       "description": "Minimum acceptable Guardrail health score. Only enforced when health_available is true."
+    },
+    "require_health": {
+      "type": "boolean",
+      "description": "When true, deny if the Guardrail health endpoint did not return a usable score (health_available == false). When false, infra-side health endpoint outages are tolerated and the policy gates only on the alert signal. Default to true to fail closed on upstream outages."
     }
   },
   "required": [
     "deny_on_active_alert",
     "deny_alert_severities",
     "max_alert_age_seconds",
-    "min_health_score"
+    "min_health_score",
+    "require_health"
   ]
 }

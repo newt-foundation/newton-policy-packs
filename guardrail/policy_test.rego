@@ -7,6 +7,7 @@ default_params := {
     "deny_alert_severities": ["critical", "high"],
     "max_alert_age_seconds": 86400,
     "min_health_score": 60,
+    "require_health": true,
 }
 
 clean_data := {
@@ -49,10 +50,18 @@ test_deny_health_below_floor if {
     not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as d
 }
 
-test_health_unavailable_does_not_deny if {
+test_health_unavailable_denies_when_required if {
     d := with_data({"health_available": false, "health_score": null})
-    not "guardrail_health_below_floor" in guardrail_protocol_monitor.deny with data.params as default_params with data.wasm as d
-    guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as d
+    "guardrail_health_unavailable" in guardrail_protocol_monitor.deny with data.params as default_params with data.wasm as d
+    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as d
+}
+
+test_health_unavailable_allowed_when_not_required if {
+    p := object.union(default_params, {"require_health": false})
+    d := with_data({"health_available": false, "health_score": null})
+    not "guardrail_health_unavailable" in guardrail_protocol_monitor.deny with data.params as p with data.wasm as d
+    not "guardrail_health_below_floor" in guardrail_protocol_monitor.deny with data.params as p with data.wasm as d
+    guardrail_protocol_monitor.allow with data.params as p with data.wasm as d
 }
 
 test_deny_stale_alert_data if {
@@ -80,4 +89,12 @@ test_multiple_denies_do_not_fail_open if {
     "guardrail_alert_stale_data" in deny
     count(deny) >= 3
     not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as d
+}
+
+test_deny_on_oracle_error if {
+    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+}
+
+test_deny_on_empty_payload if {
+    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as {}
 }

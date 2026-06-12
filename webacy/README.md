@@ -2,37 +2,30 @@
 
 ## Overview
 
-Gates vault deposits based on the **depositor's wallet reputation**. Vaults — especially permissioned RWA pools, institutional credit pools, and stablecoin issuers — face two flavors of risk from accepting deposits:
+Gates transactions touching **pegged tokens** based on whether the token has been **depegged recently**. Stablecoin issuers, RWA pools, perps backed by yield-bearing stables, and any vault that holds pegged exposure all share the same risk: the peg breaks. Detecting that early — before a slow drift turns into a collapse — keeps depositors out of a sinking ship.
 
-1. **Compliance / sanctions exposure.** A wallet on an OFAC list, downstream of a mixer, or directly tied to a named hack puts the operator in regulatory crosshairs.
-2. **Reputational / contagion exposure.** Deposits from rug-pull or exploit-proceeds wallets taint the depositor base; sophisticated allocators won't share a vault with addresses that flag as "stolen funds."
-
-Both share the same primitive: score the depositing wallet against a real-time risk database and refuse the deposit if the score is too high. Webacy's address-risk API returns a 0–100 DD Score, threat-category tags, and sanctions/exploit flags across 12+ chains.
-
-Use cases beyond vault deposits:
-- Permissioned institutional vaults (Maple, Centrifuge, RWA pools) with KYC/AML obligations.
-- DEX LPs and stablecoin issuers refusing mints/redeems from sanctioned counterparties.
-- Multisigs filtering counterparties on every outbound interaction.
+Webacy's depeg-monitor API tracks pegged-asset price vs. expected reference, surfaces structured depeg events, and flags terminal collapses. This pack queries that API for a configurable lookback window and denies when the token shows signs of recent or ongoing depeg.
 
 ## How it works
 
 ### Data Oracle (policy.js)
 
-Calls `GET https://api.webacy.com/addresses/{address}` with `x-api-key`. Emits a normalized snapshot:
+Calls `GET https://api.webacy.com/rwa/{address}?hours=N` with `x-api-key`. The lookback window is `lookback_days * 24` hours (default 7 days, capped at 30). Emits a normalized snapshot:
 
 | Field | Description |
 |-------|-------------|
-| `address` | Wallet address looked up |
+| `address` | Token contract address looked up |
 | `chain` | Chain filter passed to Webacy (or `null`) |
-| `dd_score` | 0–100 DD Score (read from `medium`/`overallRisk`/`ddScore`/`score`, whichever Webacy returns) |
-| `bucket` | One of `low` (≤23), `medium` (23–50), `high` (>50), `sanctioned` (any sanctions/OFAC/blocklist tag) |
-| `sanctions_hits` | Count of issues whose tags match `sanction|ofac|blocklist` |
-| `exploit_exposure_hits` | Count of issues whose tags match `exploit|hack|drainer|stolen` |
-| `flag_count` | Total number of issues returned |
-| `flag_categories` | Sorted, deduplicated list of all tag strings |
+| `symbol` | Token symbol from the API |
+| `is_collapsed` | True if Webacy marks the token as structurally collapsed |
+| `lookback_hours` | Window passed to the API |
+| `recent_depeg_event_count` | Length of `depegEvents[]` in the window |
+| `max_recent_deviation_pct` | Max `deviationPct` across the events (0 if none) |
+| `consecutive_days_below_peg` | From `history.consecutive_days_below_peg` |
+| `within_expected_range` | From `snapshot.within_expected_range` (defaults true if absent) |
+| `abs_dev_clean` | Current absolute deviation from peg |
+| `stale` | Webacy's data-freshness flag |
 | `timestamp` | Snapshot timestamp (ms) |
-
-The oracle reads the DD Score with `??` chains across `medium`/`overallRisk`/`ddScore`/`score` because Webacy's response field name has varied across versions.
 
 ### Policy Rules (policy.rego)
 
@@ -40,21 +33,29 @@ The Rego policy denies if **any** of these are true:
 
 | Deny Reason | Condition | What it catches |
 |-------------|-----------|-----------------|
-| `sanctioned` | `bucket == "sanctioned"` and `deny_on_sanctioned` | Wallet on a sanctions / blocklist |
-| `high_risk` | `bucket == "high"` and `deny_on_high_risk` | DD Score > 50 |
-| `exploit_exposure` | `exploit_exposure_hits >= exploit_exposure_hits_max` | Wallet associated with a hack/exploit/drainer |
-| `medium_risk_over_cap` | `bucket == "medium"` and `input.deposit_amount_usd > medium_risk_max_deposit_usd` | Medium-risk wallet trying to deposit above the soft cap |
+| `token_collapsed` | `is_collapsed == true` and `deny_on_collapsed` | Terminal collapse |
+| `recent_depeg_events` | `recent_depeg_event_count > max_recent_depeg_events` | Active or freshly-resolved depeg events |
+| `consecutive_days_below_peg` | `consecutive_days_below_peg > max_consecutive_days_below_peg` | Sustained drift below peg |
+| `stale_oracle_data` | `stale == true` and `deny_on_stale_data` | Webacy flagged the snapshot as stale |
 
-`input.deposit_amount_usd` is read from the intent, so callers must pre-compute the USD value of the deposit and include it in the intent JSON.
+`allow` is structured positively (`allow if { ...positive predicates... }`) so an oracle error / empty payload leaves `allow` at its `default false` instead of fail-opening.
 
 ### Policy Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `deny_on_sanctioned` | boolean | Deny on any sanctions/OFAC/blocklist hit |
-| `deny_on_high_risk` | boolean | Deny when bucket is `high` |
-| `exploit_exposure_hits_max` | number | Max allowed exploit-tag hits before denying (e.g. 1) |
-| `medium_risk_max_deposit_usd` | number | Soft cap (USD) for medium-risk wallets |
+| `deny_on_collapsed` | boolean | Deny when the token is structurally collapsed |
+| `max_recent_depeg_events` | number | Max depeg events tolerated in the window. 0 = any event denies |
+| `max_consecutive_days_below_peg` | number | Max streak tolerated. 0 = any day below peg denies |
+| `deny_on_stale_data` | boolean | Deny when Webacy flags `stale: true` |
+
+### WASM Args
+
+| Field | Description |
+|-------|-------------|
+| `address` | Pegged-token contract address |
+| `chain` | Optional Webacy chain identifier (`eth`, `bsc`, `polygon`, ...) |
+| `lookback_days` | 1–30 day window for depeg-event counting (default 7) |
 
 ## Prerequisites
 
@@ -64,31 +65,34 @@ newton-cli doctor
 
 Webacy requires an API key. Sign up at https://developers.webacy.co/. For sandbox runs, place the key in `configs/wasm_args.json` as `WEBACY_API_KEY`. At deploy time the runtime injects it via `getSecret("WEBACY_API_KEY")`.
 
-## Build
-
-```bash
-newton-cli policy build -p ./webacy
-```
-
 ## Test (Rego unit tests)
 
 ```bash
 opa test ./webacy/policy.rego ./webacy/policy_test.rego -v
 ```
 
+## Build
+
+```bash
+jco componentize ./webacy/policy.js \
+  --wit ./webacy/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./webacy/dist/policy.wasm
+```
+
 ## Simulate
 
 ```bash
-newton-cli policy simulate -p ./webacy
+newton-cli policy simulate \
+  --wasm-args ./webacy/configs/wasm_args.json \
+  --intent-json ./webacy/configs/intent.json \
+  --policy-params-data ./webacy/configs/params.json \
+  --policy-file ./webacy/policy.rego \
+  --wasm-file ./webacy/dist/policy.wasm
 ```
 
-Without a `WEBACY_API_KEY` set, the WASM oracle will return `{"error": "..."}` from the upstream call. Add the key to `configs/wasm_args.json` to exercise the live API.
-
-## Deploy
-
-```bash
-newton-cli policy deploy -p ./webacy
-```
+Without a `WEBACY_API_KEY` set, the WASM oracle will return `{"error": "..."}` from the upstream call and the Rego will deny — exactly as intended (fail closed on missing data).
 
 ## Deployments
 
@@ -96,5 +100,5 @@ See [`deployments.json`](../deployments.json) at the repo root for deployed cont
 
 ## Notes
 
-- API reference: https://docs.webacy.com/reference/get_addresses-address. The DD Score field name has varied between `medium` and `overallRisk`; the oracle reads both defensively.
-- Issue tag vocabulary is not fully documented; the bucketing logic uses regex matching on substrings (`/sanction|ofac|blocklist/`, `/exploit|hack|drainer|stolen/`) so it's robust to minor wording changes. Reconfirm against live responses before mainnet.
+- API reference: https://docs.webacy.com/api-reference/depeg-monitor/get-depeg-risk-detail-for-a-pegged-token
+- The lookback window is set in the WASM (because it's a query-string param on the API), and the threshold for "how many events are too many" is set in Rego params. Operators tuning sensitivity at policy-binding time edit the params; widening or narrowing the observation window itself requires updating `wasm_args`.

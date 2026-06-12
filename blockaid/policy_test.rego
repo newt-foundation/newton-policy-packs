@@ -87,3 +87,23 @@ test_multiple_denies_do_not_fail_open if {
     count(deny) >= 4
     not blockaid_tx_safety.allow with data.params as default_params with data.wasm as d
 }
+
+test_deny_on_oracle_error if {
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+}
+
+test_deny_on_empty_payload if {
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as {}
+}
+
+test_deny_unknown_classification if {
+    d := with_data({"classification": "Unknown"})
+    "blockaid_unknown_classification" in blockaid_tx_safety.deny with data.params as default_params with data.wasm as d
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as d
+}
+
+test_deny_unrecognized_classification if {
+    d := with_data({"classification": "Suspicious"})
+    "blockaid_unknown_classification" in blockaid_tx_safety.deny with data.params as default_params with data.wasm as d
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as d
+}

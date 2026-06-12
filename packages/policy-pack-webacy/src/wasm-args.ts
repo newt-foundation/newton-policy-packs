@@ -7,14 +7,24 @@ export const WasmArgsSchema = z
 	.object({
 		address: z
 			.string()
-			.describe("Wallet or contract address (0x-prefixed) to score with the Webacy risk API."),
+			.describe(
+				"Pegged-token contract address (0x-prefixed) to score with the Webacy depeg-monitor API.",
+			),
 		chain: z
 			.string()
 			.describe(
 				"Optional Webacy chain identifier (e.g. 'eth', 'bsc', 'polygon'). Defaults to the API's default chain when omitted.",
 			)
 			.optional(),
+		lookback_days: z
+			.number()
+			.gte(1)
+			.lte(30)
+			.describe(
+				"Window (in days, 1-30 inclusive) over which depeg events are counted. Translated to ?hours= on the API call. Defaults to 7 if omitted; out-of-range values are rejected by the WASM (rego denies on oracle error).",
+			)
+			.optional(),
 	})
-	.describe("Inputs passed to the Webacy address-risk policy WASM at evaluation time");
+	.describe("Inputs passed to the Webacy depeg-risk policy WASM at evaluation time");
 
 export type WasmArgs = z.infer<typeof WasmArgsSchema>;

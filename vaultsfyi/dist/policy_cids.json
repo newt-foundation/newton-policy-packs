@@ -1,10 +1,10 @@
 {
   "entrypoint": "vault_risk_rating.allow",
-  "policyCid": "bafkreicclcp64o5f6mqjdlagai4eo3ygk7tvypn6agi3gafgmh6wjihaly",
-  "policyCodeHash": "0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54",
+  "policyCid": "bafkreibjgmyhuewtncru3mpzdzdbcw4x7rpxl2wngak3ddhw2ntkff7ksu",
+  "policyCodeHash": "0x744c2021a4ecc87a633ed428c5ec3eac944e86d078a995aea0df368c1fa41919",
   "policyDataMetadataCid": "bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4",
   "policyMetadataCid": "bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q",
   "schemaCid": "bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m",
   "secretsSchemaCid": "bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4",
-  "wasmCid": "bafybeig6oielnnf4zorcmqkets6v26ov7t2o6ikipx6vupuzsjrxvbpkpe"
+  "wasmCid": "bafybeihs42odpminfsvgahi2ai2raltqeycqifocxciags5naubzu7qh7y"
 }

@@ -4,11 +4,11 @@ import type { ChainId, Deployment } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = {
 	"11155111": {
-		policy: "0x091133448400b2Eb7Ee9DFfB294aDcC96975E617",
-		policyData: "0x01B43c7D916f1FcCCBDdA185497e5A2DB7a326fA",
-		wasmCid: "bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m",
-		policyCodeHash: "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
-		deployedAt: "2026-06-09",
-		notes: "host-secrets fix; current",
+		policy: "0xB24dCDeEBB090aF4a311F1F724d632E2B44Cb3d9",
+		policyData: "0xa3E571c34E3945e982e8a22121804b6e5a404067",
+		wasmCid: "bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4",
+		policyCodeHash: "0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707",
+		deployedAt: "2026-06-12",
+		notes: "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync",
 	},
 } as const satisfies Readonly<Partial<Record<ChainId, Deployment>>>;

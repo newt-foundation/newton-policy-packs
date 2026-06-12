@@ -118,3 +118,11 @@ test_no_nrt_rule_present if {
     p := object.union(default_params, {"nrt_max_age_seconds": 300})
     vault_risk_rating.allow with data.params as p with data.wasm as d
 }
+
+test_deny_on_oracle_error if {
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+}
+
+test_deny_on_empty_payload if {
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as {}
+}

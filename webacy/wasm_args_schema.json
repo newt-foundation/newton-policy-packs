@@ -1,14 +1,20 @@
 {
   "type": "object",
-  "description": "Inputs passed to the Webacy address-risk policy WASM at evaluation time",
+  "description": "Inputs passed to the Webacy depeg-risk policy WASM at evaluation time",
   "properties": {
     "address": {
       "type": "string",
-      "description": "Wallet or contract address (0x-prefixed) to score with the Webacy risk API."
+      "description": "Pegged-token contract address (0x-prefixed) to score with the Webacy depeg-monitor API."
     },
     "chain": {
       "type": "string",
       "description": "Optional Webacy chain identifier (e.g. 'eth', 'bsc', 'polygon'). Defaults to the API's default chain when omitted."
+    },
+    "lookback_days": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 30,
+      "description": "Window (in days, 1-30 inclusive) over which depeg events are counted. Translated to ?hours= on the API call. Defaults to 7 if omitted; out-of-range values are rejected by the WASM (rego denies on oracle error)."
     }
   },
   "required": ["address"]

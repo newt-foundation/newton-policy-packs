@@ -1,10 +1,10 @@
 {
   "entrypoint": "chainalysis_address_screening.allow",
-  "policyCid": "bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe",
-  "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
+  "policyCid": "bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq",
+  "policyCodeHash": "0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707",
   "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
   "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
   "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
   "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
-  "wasmCid": "bafybeihabqf5jabjk2uc3aecf5tcy25fiu3cegs5czqz7v3nlydfmpry6m"
+  "wasmCid": "bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4"
 }
