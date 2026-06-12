@@ -101,3 +101,217 @@ Deploying policy:
   metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
 
 Policy deployed successfully at address: 0x091133448400b2Eb7Ee9DFfB294aDcC96975E617
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti",
+  "policyCid": "bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312"
+}
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x5f6c9C41e9bA99E9bED2E87435cC6903D86159DA
+Policy Data Address: 0x5f6c9C41e9bA99E9bED2E87435cC6903D86159DA
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312
+Pinned policyCodeHash 0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312 in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreiemsrpgxyvr7nt3zu32y7ldscpncxcqdkmja3yydgc5ee2osvmsoe
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x5f6c9c41e9ba99e9bed2e87435cc6903d86159da]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0x754bbf4c0Ef9e56864846646fb280e34c774f9ce
+=== Thu Jun 11 18:53:28 MDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Thu Jun 11 18:53:28 MDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4
+Public IPFS Link: https://ipfs.io/ipfs/bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4",
+  "policyCid": "bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707"
+}
+=== Thu Jun 11 18:53:38 MDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xa3E571c34E3945e982e8a22121804b6e5a404067
+Policy Data Address: 0xa3E571c34E3945e982e8a22121804b6e5a404067
+DATA_ADDR=0xa3E571c34E3945e982e8a22121804b6e5a404067
+=== Thu Jun 11 18:53:53 MDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/alec.savoy/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707
+Pinned policyCodeHash 0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707 in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreicwaapza5q2hmfkw4wmrzz7col7aqfm5nwt2fb63vgvxrqm6x3gaq
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xa3e571c34e3945e982e8a22121804b6e5a404067]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0xB24dCDeEBB090aF4a311F1F724d632E2B44Cb3d9
+=== Thu Jun 11 18:54:01 MDT 2026 :: chainalysis DONE ===
+chainalysis DATA=0xa3E571c34E3945e982e8a22121804b6e5a404067 POLICY=0xB24dCDeEBB090aF4a311F1F724d632E2B44Cb3d9
+wrote ./chainalysis/dist/last_deploy.json

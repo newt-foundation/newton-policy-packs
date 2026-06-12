@@ -1,7 +1,7 @@
 {
   "name": "webacy",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "",
   "link": "https://webacy.com",
-  "description": "Gates vault deposits based on Webacy's per-address risk score (DD Score), sanctions hits, and exploit-exposure flags"
+  "description": "Gates transactions touching pegged tokens based on Webacy's depeg-monitor: token collapse, recent depeg events in a lookback window, days-below-peg streak, and oracle staleness"
 }

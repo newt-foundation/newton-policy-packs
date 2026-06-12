@@ -21,6 +21,11 @@ export const ParamsSchema = z
 			.describe(
 				"Minimum acceptable Guardrail health score. Only enforced when health_available is true.",
 			),
+		require_health: z
+			.boolean()
+			.describe(
+				"When true, deny if the Guardrail health endpoint did not return a usable score (health_available == false). When false, infra-side health endpoint outages are tolerated and the policy gates only on the alert signal. Default to true to fail closed on upstream outages.",
+			),
 	})
 	.describe("Thresholds for the Guardrail on-chain monitoring gate")
 	.strict();

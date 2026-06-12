@@ -1,6 +1,8 @@
 .env
+.env.*.local
 */configs/
 */dist/policy.wasm
+*/dist/last_deploy.json
 */policy_cids.json
 */.policy_data_address
 **/.DS_Store

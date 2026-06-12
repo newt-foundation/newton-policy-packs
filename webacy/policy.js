@@ -44,26 +44,17 @@ function getJson(url) {
   return JSON.parse(body);
 }
 
-function getAddressRisk(address, chain) {
-  const url = `${WEBACY_BASE}/addresses/${address}${chain ? `?chain=${encodeURIComponent(chain)}` : ""}`;
-  return getJson(url);
+function getDepegRisk(address, chain, hours) {
+  const params = new URLSearchParams();
+  params.set("hours", String(hours));
+  if (chain) params.set("chain", chain);
+  return getJson(`${WEBACY_BASE}/rwa/${address}?${params.toString()}`);
 }
 
-function tagsOfIssue(issue) {
-  // Webacy issues have varied between `tags` (array of strings) and a `categories`
-  // / `tag` shape across API versions. Normalize defensively.
-  if (Array.isArray(issue?.tags)) return issue.tags.map((t) => String(t).toLowerCase());
-  if (Array.isArray(issue?.categories)) return issue.categories.map((t) => String(t).toLowerCase());
-  if (typeof issue?.tag === "string") return [issue.tag.toLowerCase()];
-  if (typeof issue?.category === "string") return [issue.category.toLowerCase()];
-  return [];
-}
-
-function bucket(score, hasSanctions) {
-  if (hasSanctions) return "sanctioned";
-  if (score > 50) return "high";
-  if (score > 23) return "medium";
-  return "low";
+function num(x) {
+  if (x == null) return null;
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
 }
 
 export function run(input) {
@@ -74,38 +65,48 @@ export function run(input) {
     const { address, chain } = parsed;
     if (!address) throw new Error("missing address");
 
-    const result = getAddressRisk(address, chain);
+    // Reject out-of-range lookback_days rather than silently clamping —
+    // a clamp hides operator misconfiguration (e.g. 100 → 30) and the
+    // policy still evaluates against a different window than the operator
+    // configured. The throw is caught below and returned as an oracle
+    // error, which rego denies via `default allow := false`.
+    let lookbackDays = 7;
+    if (parsed.lookback_days !== undefined && parsed.lookback_days !== null) {
+      const n = Number(parsed.lookback_days);
+      if (!Number.isFinite(n)) {
+        throw new Error("lookback_days must be a finite number");
+      }
+      if (n < 1 || n > 30) {
+        throw new Error(`lookback_days must be between 1 and 30 (got ${n})`);
+      }
+      lookbackDays = n;
+    }
+    const hours = Math.max(1, Math.min(720, Math.floor(lookbackDays * 24)));
 
-    // The DD score has lived under multiple field names across Webacy versions.
-    const score = Number(
-      result.medium ??
-        result.overallRisk ??
-        result.ddScore ??
-        result.score ??
-        0,
-    );
+    const result = getDepegRisk(address, chain, hours);
 
-    const issues = Array.isArray(result.issues) ? result.issues : [];
-    const allTags = issues.flatMap(tagsOfIssue);
+    const token = result?.token ?? {};
+    const snapshot = result?.snapshot ?? {};
+    const history = result?.history ?? {};
+    const events = Array.isArray(result?.depegEvents) ? result.depegEvents : [];
 
-    const sanctionsHits = issues.filter((i) =>
-      tagsOfIssue(i).some((t) => /sanction|ofac|blocklist/.test(t)),
-    ).length;
-    const exploitExposureHits = issues.filter((i) =>
-      tagsOfIssue(i).some((t) => /exploit|hack|drainer|stolen/.test(t)),
-    ).length;
-
-    const b = bucket(score, sanctionsHits > 0);
+    const deviations = events
+      .map((e) => num(e?.deviationPct))
+      .filter((x) => x != null);
+    const maxRecentDeviationPct = deviations.length > 0 ? Math.max(...deviations) : 0;
 
     return JSON.stringify({
       address,
       chain: chain ?? null,
-      dd_score: score,
-      bucket: b,
-      sanctions_hits: sanctionsHits,
-      exploit_exposure_hits: exploitExposureHits,
-      flag_count: issues.length,
-      flag_categories: Array.from(new Set(allTags)).sort(),
+      symbol: token.symbol ?? null,
+      is_collapsed: Boolean(token.is_collapsed),
+      lookback_hours: hours,
+      recent_depeg_event_count: events.length,
+      max_recent_deviation_pct: maxRecentDeviationPct,
+      consecutive_days_below_peg: num(history.consecutive_days_below_peg) ?? 0,
+      within_expected_range: snapshot.within_expected_range !== false,
+      abs_dev_clean: num(snapshot.abs_dev_clean),
+      stale: Boolean(result?.stale),
       timestamp: Date.now(),
     });
   } catch (e) {

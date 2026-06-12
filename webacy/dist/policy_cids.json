@@ -1,10 +1,10 @@
 {
-  "entrypoint": "webacy_depositor_reputation.allow",
-  "policyCid": "bafkreie33rojyfmwdi6xckjvcpsagbr325j7gvd2xe5yqpwds3tiu3yiey",
-  "policyCodeHash": "0xdde6da598393c4281e73a4606bbf315065b2120b162f23ebee6bb693d351e0ed",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyCid": "bafkreibrkuznt2typwrsi5dhf4j6r5ic3iuj2dch5me5ar256rxpb2au5a",
+  "policyCodeHash": "0x698079e40446791bcaa34cd069611141b47db1d4b661ddebdb663bb90aa834e3",
   "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
   "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
   "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
   "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
-  "wasmCid": "bafybeicw3tvxacjiuuvxdmomd6rhvgasqn4yuiyczn2uco2vomcrwqrbr4"
+  "wasmCid": "bafybeigyevjhz3ufsv3s3wadlsrtfpcpwqbc7g4qkeebexqu7of2hnkvpy"
 }
