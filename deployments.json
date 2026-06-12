@@ -7,92 +7,92 @@
   "packs": {
     "balancer": {
       "11155111": {
-        "policy": "0x0772C316d8C3A04ABF1B49d18e83927F6A221A77",
-        "policyData": "0x22D722A1c600e10696273526A7Ba182B9a93ab3c",
-        "wasmCid": "bafybeif6l6pjvqga4pn5f2gbdsz4bus5gbx7ag4z5uognyrqltew6in26m",
-        "policyCodeHash": "0xed638b3bfb994299dabe4c3f4c0a9d12d4ae2b2138a57bd5c395d71fceacd4d7",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0xA7466846004a8a77a63Ccb25e1aD25C90be0F9E8",
+        "policyData": "0xe7dDAA48c17d2b4845563385d22B9cf61c3C70DD",
+        "wasmCid": "bafybeiehctt7smwyngjvkyz55bkq2gccn2jzacjz6ujtuliopksswzkxci",
+        "policyCodeHash": "0x9bfaba0a564b4a196558dcc51b887db834e2dac7e9cf1a0327e83b2910b6fd41",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "blockaid": {
       "11155111": {
-        "policy": "0xc584141D258C103837a07bE696f0e97Db7F75657",
-        "policyData": "0x1bdd40acc1D7eA873B0A13dc5a84abB0BE3C0A65",
-        "wasmCid": "bafybeigtltqs2ahab4765g3gs2hwzsk65mo3wvqna73fwt66xcos27avtm",
-        "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0x389ADa033D00dA6b59d9aF6aBe2b2DBcDD0DDBb3",
+        "policyData": "0xFEA8a5bC90c01ca26C9b49B9288774eBbd4b06a6",
+        "wasmCid": "bafybeief35ucfgdhqek62hsrvc2ndms3qrbguuntbxs2hg4ialgu5ly7va",
+        "policyCodeHash": "0xc40c81729d42f6c642532f354aeddcb7ca950905c3a213d0449f7cf5063bc273",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "chainalysis": {
       "11155111": {
-        "policy": "0x754bbf4c0Ef9e56864846646fb280e34c774f9ce",
-        "policyData": "0x5f6c9C41e9bA99E9bED2E87435cC6903D86159DA",
-        "wasmCid": "bafybeidz7xwrjfmw2pphfyty72iuv2f45huuhfk4n7nib5w5h7hbaectti",
-        "policyCodeHash": "0x068304bb6d397b943002f4f7357b35778bba43eb30b85ec2d500c17d18c3e312",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0xB24dCDeEBB090aF4a311F1F724d632E2B44Cb3d9",
+        "policyData": "0xa3E571c34E3945e982e8a22121804b6e5a404067",
+        "wasmCid": "bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4",
+        "policyCodeHash": "0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "guardrail": {
       "11155111": {
-        "policy": "0xEeD2ba23C3af41FABAFDFb35D0d70e6CF530773c",
-        "policyData": "0x9127B2FA51eac0f253EC66fc3C398F51971246D8",
-        "wasmCid": "bafybeicln2uhdxefsm4sdl4uaon57lvd77a2aghpiwb6ux2ujao2sx4n4a",
-        "policyCodeHash": "0x0806d9a91b1aa6e7ef6da8ecd6dde4a2ef553c232f18ee02f11a266528417392",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0xE6CE1A21e2B36a7Dc1F6Bb22fD2a8660442c9eba",
+        "policyData": "0xEf224C4Cc9B57EaeEFaBc73cdE47708c7bDB59b6",
+        "wasmCid": "bafybeiaofbn5puakwzwz55f3lutde5nbftzzogqkmetouksgigyiao3bva",
+        "policyCodeHash": "0x554c7d866a6e710194aa3c49d161e4b82897de26bb9ed00f2a74bd3f900b194e",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "persona": {
       "11155111": {
-        "policy": "0x4e1DbC9efFa7b863A3ED67b91F67158aaAF862a5",
-        "policyData": "0x1E956c087677a0A9F796c39e77b58eC0A6c5C91D",
-        "wasmCid": "bafybeibcpgo7blwpz4pf37czai6tnskoozaicla32qhm7otznlalqocroy",
-        "policyCodeHash": "0x396baab660d520e2eac79ae669828e6b44bca7d07d0ded8f401dd4d8ac758a3a",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0xDF197d688426ac29182E46016bEe5f84BEB65A79",
+        "policyData": "0xF38bc16192dE633E93c60cc98D54514FaBA74332",
+        "wasmCid": "bafybeib6rithkstt6imntzyhl5mzvzl6ipj4engv7enipy6bje6kiadbjq",
+        "policyCodeHash": "0xc151d9fc12c4f3d77ba89c64ba28e8df6c780f4d36419cee6af5c9f13cc22254",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "redstone": {
       "11155111": {
-        "policy": "0x5c147Cc65CA508929e89d7af8Ec87eeC66384958",
-        "policyData": "0x952965360fd5f0bc39402B9d744113649cAbb425",
-        "wasmCid": "bafybeiev4swvfnxmrg57xh5bnorp5hltqgxgv5xk73qhsvx3li34ir3iq4",
-        "policyCodeHash": "0x73ad7eda7415e5a8754e9dbf9ca22d6f27848daae436a26f13befc056fa7d96d",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0x151cA79DaD3F1770b3A14aFF9f80c5A681bC93Ec",
+        "policyData": "0xc79175FfA08bae966Ad8c9a02052cd3D149E3844",
+        "wasmCid": "bafybeifhimnsipiddo6af2kfvdr2i63b2pphp5bd5qitpy5xwzhta4xcui",
+        "policyCodeHash": "0xec58ba87bd07fa059f1cd1d80a3d02e53651da49bda12068d269db44ca89633c",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "sumsub": {
       "11155111": {
-        "policy": "0x63B5BAc7752f819D131B0DA5a9635d520DD0D428",
-        "policyData": "0x2732e07280120CF532e3DDA0024e80130b28b691",
-        "wasmCid": "bafybeif6hccgsdeh4ybexgct4uax2buht5jkhkdhb3exmcok7zzzyt4qva",
-        "policyCodeHash": "0x35162b281b4f41cbac131f602fd9b485f9dbae9cdb411b9465132521ddcca10a",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0x2573C0B4DCd7ec40CF9eB9b4B71c5088886532ff",
+        "policyData": "0x700f4D614FE8f002C41DB517Aa675167E7AbE70f",
+        "wasmCid": "bafybeiequ725o55mlnasnacmtnslhiny5xsxlyvkr4sr4ehrqq75tlrzhm",
+        "policyCodeHash": "0xc8c9973aebf59bdc39363af9f87650fe58dba99c0ded280c8da8e0d3cec3d8de",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "vaultsfyi": {
       "11155111": {
-        "policy": "0xd6D82048985540b9Fe5Cc415955886C71596f6d8",
-        "policyData": "0x1Bbb9cC3f3028fc13eb388b50393196b0ED65B53",
-        "wasmCid": "bafybeiezlm7w6x3mgu77cv7hq4wb32g4ft77fz7ijnyxci7vwbsvrrsuw4",
-        "policyCodeHash": "0x09be97b5636da7b6e231914f47e2bfbc32fddfd3647e771d7624cea8fa2bdc54",
-        "deployedAt": "2026-06-11",
-        "notes": "fail-closed positive-allow rego"
+        "policy": "0x32c1E7Ee4A96F144E7853f089Dd09313B42549C2",
+        "policyData": "0x53F26693b89441E993c125b274F99AD033dA8EaF",
+        "wasmCid": "bafybeihs42odpminfsvgahi2ai2raltqeycqifocxciags5naubzu7qh7y",
+        "policyCodeHash": "0x744c2021a4ecc87a633ed428c5ec3eac944e86d078a995aea0df368c1fa41919",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     },
     "webacy": {
       "11155111": {
-        "policy": "0x0B91A259aD40196Fc6d392B81784660B3c94423F",
-        "policyData": "0x17A42A70c1bC28E9c5e50dfA55cf110B63B56B54",
-        "wasmCid": "bafybeiaueyrf5zxznmkwgv5hryv2wp55onifp6gmnhyq4hab7cqns6t3bi",
-        "policyCodeHash": "0xdde6da598393c4281e73a4606bbf315065b2120b162f23ebee6bb693d351e0ed",
-        "deployedAt": "2026-06-11",
-        "notes": "repurposed to depeg-risk; fail-closed positive-allow rego"
+        "policy": "0xa145B88D3F4d169700A8bE47D244fB6627a2A87e",
+        "policyData": "0x254454A26516CF0315f0521AB8a891e9EAFeCB65",
+        "wasmCid": "bafybeigyevjhz3ufsv3s3wadlsrtfpcpwqbc7g4qkeebexqu7of2hnkvpy",
+        "policyCodeHash": "0x698079e40446791bcaa34cd069611141b47db1d4b661ddebdb663bb90aa834e3",
+        "deployedAt": "2026-06-12",
+        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
       }
     }
   }

@@ -1,10 +1,10 @@
 {
   "entrypoint": "blockaid_tx_safety.allow",
-  "policyCid": "bafkreifebq7hy3umaycyqjc4vuh6xtcjw5mccgf3p3cpyulfqd5zzd66om",
-  "policyCodeHash": "0xff9d1dc67037ee072f6a0fa32854f61352156c2c61473aae7e94864c737d266b",
+  "policyCid": "bafkreiey7i2jm2vr2dgbosmadhkf7e6v62zewabnjido4dzsssicho6wfu",
+  "policyCodeHash": "0xc40c81729d42f6c642532f354aeddcb7ca950905c3a213d0449f7cf5063bc273",
   "policyDataMetadataCid": "bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe",
   "policyMetadataCid": "bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq",
   "schemaCid": "bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e",
   "secretsSchemaCid": "bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q",
-  "wasmCid": "bafybeigtltqs2ahab4765g3gs2hwzsk65mo3wvqna73fwt66xcos27avtm"
+  "wasmCid": "bafybeief35ucfgdhqek62hsrvc2ndms3qrbguuntbxs2hg4ialgu5ly7va"
 }

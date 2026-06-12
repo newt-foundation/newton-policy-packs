@@ -1,10 +1,10 @@
 {
   "entrypoint": "balancer_pool_risk.allow",
-  "policyCid": "bafkreif2mdgqx44tuwthzrs7jipetmmo7rplafbrzocbamjxt74ytyslba",
-  "policyCodeHash": "0xed638b3bfb994299dabe4c3f4c0a9d12d4ae2b2138a57bd5c395d71fceacd4d7",
+  "policyCid": "bafkreig5g5q5gnpyjgjz5lvjip52z24t6tiqynnvtfx65oebdj4vsndyoe",
+  "policyCodeHash": "0x9bfaba0a564b4a196558dcc51b887db834e2dac7e9cf1a0327e83b2910b6fd41",
   "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
   "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
   "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
   "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
-  "wasmCid": "bafybeif6l6pjvqga4pn5f2gbdsz4bus5gbx7ag4z5uognyrqltew6in26m"
+  "wasmCid": "bafybeiehctt7smwyngjvkyz55bkq2gccn2jzacjz6ujtuliopksswzkxci"
 }
