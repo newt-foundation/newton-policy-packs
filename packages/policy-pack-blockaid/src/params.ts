@@ -21,6 +21,7 @@ export const ParamsSchema = z
 				"Deny if the simulated state-diff shows the depositor receives no inbound asset (vault shares). Catches contracts that take funds without minting receipts.",
 			),
 	})
-	.describe("Thresholds for the Blockaid transaction-time exploit gate");
+	.describe("Thresholds for the Blockaid transaction-time exploit gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

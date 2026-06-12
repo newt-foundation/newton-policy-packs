@@ -29,6 +29,7 @@ export const ParamsSchema = z
 				"Whether to require a passing watchlist (sanctions/PEP) verification on the inquiry",
 			),
 	})
-	.describe("KYC envelope thresholds for permissioned vault deposit gating");
+	.describe("KYC envelope thresholds for permissioned vault deposit gating")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

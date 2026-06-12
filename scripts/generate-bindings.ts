@@ -136,10 +136,15 @@ function emitSchemaFile(
 	sourceRelPath: string,
 ): string {
 	const inner = jsonSchemaToZod(schema as Parameters<typeof jsonSchemaToZod>[0]);
+	// Top-level `ParamsSchema` rejects unknown keys at the SDK boundary so a
+	// curator typo throws in `encodePolicyParams` rather than getting silently
+	// stripped and shipping AVS-rejecting bytes. Nested objects inside `inner`
+	// are unaffected — only the outer chain gains `.strict()`.
+	const expr = zodName === "ParamsSchema" ? `${inner}.strict()` : inner;
 	return `${BANNER}// Source schema: ${sourceRelPath}
 import { z } from "zod";
 
-export const ${zodName} = ${inner};
+export const ${zodName} = ${expr};
 
 export type ${typeName} = z.infer<typeof ${zodName}>;
 `;

@@ -29,6 +29,7 @@ export const ParamsSchema = z
 				"If true, deny while the applicant's reviewStatus is one of init/pending/prechecked/queued. If false, pending applicants are not denied solely on pending state (review_status_not_passing may still deny them via review_answer).",
 			),
 	})
-	.describe("KYC gating thresholds for SumSub-backed vault deposits");
+	.describe("KYC gating thresholds for SumSub-backed vault deposits")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

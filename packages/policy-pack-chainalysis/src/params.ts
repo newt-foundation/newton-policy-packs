@@ -21,6 +21,7 @@ export const ParamsSchema = z
 				"Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])",
 			),
 	})
-	.describe("Thresholds for the Chainalysis sanctions / address-screening gate");
+	.describe("Thresholds for the Chainalysis sanctions / address-screening gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

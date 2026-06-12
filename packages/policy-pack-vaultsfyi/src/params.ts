@@ -32,6 +32,7 @@ export const ParamsSchema = z
 			.boolean()
 			.describe("Whether to deny if the vault is reported as corrupted by the data source"),
 	})
-	.describe("Risk envelope thresholds for vault deposit gating");
+	.describe("Risk envelope thresholds for vault deposit gating")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

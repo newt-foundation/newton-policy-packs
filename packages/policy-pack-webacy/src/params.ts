@@ -29,6 +29,7 @@ export const ParamsSchema = z
 				"Maximum tolerated absolute deviation from peg on the latest snapshot, expressed as a fraction (e.g. 0.005 = 0.5%). Catches tokens currently off-peg even when no discrete depeg event has been logged.",
 			),
 	})
-	.describe("Thresholds for the Webacy depeg-risk gate");
+	.describe("Thresholds for the Webacy depeg-risk gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

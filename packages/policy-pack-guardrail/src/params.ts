@@ -27,6 +27,7 @@ export const ParamsSchema = z
 				"When true, deny if the Guardrail health endpoint did not return a usable score (health_available == false). When false, infra-side health endpoint outages are tolerated and the policy gates only on the alert signal. Default to true to fail closed on upstream outages.",
 			),
 	})
-	.describe("Thresholds for the Guardrail on-chain monitoring gate");
+	.describe("Thresholds for the Guardrail on-chain monitoring gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;

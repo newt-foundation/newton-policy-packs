@@ -29,6 +29,7 @@ export const ParamsSchema = z
 				"Whether to evaluate the sustained-drift branch. Requires the caller to pass prevSnapshot in wasm_args.",
 			),
 	})
-	.describe("Thresholds for the RedStone oracle-divergence gate");
+	.describe("Thresholds for the RedStone oracle-divergence gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
