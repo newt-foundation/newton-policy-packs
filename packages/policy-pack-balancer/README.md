@@ -14,30 +14,33 @@ pnpm add @newton-xyz/policy-pack-balancer
 
 | Export | Source | Purpose |
 |---|---|---|
+| `balancer` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |
 | `ParamsSchema` (zod) + `Params` (type) | `params_schema.json` | Configuration thresholds, set at policy upload time. |
 | `deployments` | top-level `deployments.json` | `chainId → { policy, policyData, wasmCid, ... }` |
 | `PACK_NAME`, `PACK_VERSION`, `PACK_DESCRIPTION`, `PACK_LINK`, `PACK_AUTHOR` | `policy_metadata.json` | Static pack identity. |
 
-## Regeneration
-
-The `src/*` files are generated. Edit the upstream JSON schemas under [`/balancer/`](../../balancer/) and run `pnpm gen:bindings` from the repo root to regenerate.
-
-The `package.json`, `tsconfig.json`, `tsup.config.ts`, and this README are scaffolded once and not overwritten on regen — you can hand-tune them.
-
-## Limitations
-
-This package ships **typed bindings only** — `params`, `wasmArgs`, `secrets`, and `deployments`. It does **not** export a canonical `PolicyPack` object yet, so it can't be passed to `createShield(...)` from `@newton-xyz/newton-shield-sdk`.
-
-Curators using this pack today thread the bindings through `NewtonShield.guardedCall` directly:
+## Usage
 
 ```ts
-import { ParamsSchema, WasmArgsSchema, deployments } from '@newton-xyz/policy-pack-balancer';
+import { balancer } from "@newton-xyz/policy-pack-balancer";
+import { encodePolicyParams } from "@newton-xyz/policy-pack-shared";
 
-const wasmArgs = WasmArgsSchema.parse({ /* ... */ });
-await shield.guardedCall({ to, data, functionSignature, wasmArgs });
+const params = balancer.paramsSchema.parse({
+  max_token_weight_pct: 80,
+  deny_on_underlying_risk: true,
+  min_tvl_usd: 100_000,
+  tvl_drawdown_24h_max_pct: 0.1,
+  tvl_drawdown_7d_max_pct: 0.25,
+});
+
+const policyParams = encodePolicyParams(balancer, params); // UTF-8 JSON, sorted keys
 ```
 
-A hand-written `pack.ts` exporting a typed `PolicyPack<Params, WasmArgs, Secrets>` will land when the pack's ABI tuple shape is coordinated with the AVS-side host that decodes `policyParams`. Track per-pack progress in the [`newton-policy-packs` issues](https://github.com/newt-foundation/newton-policy-packs/issues).
+## Regeneration
+
+The generated `src/*` files (everything except `pack.ts`) are emitted from the upstream JSON schemas. Edit the schemas under [`/balancer/`](../../balancer/) and run `pnpm gen:bindings` from the repo root to regenerate.
+
+The hand-written `pack.ts`, `package.json`, `tsconfig.json`, `tsup.config.ts`, and this README survive regen — you can hand-tune them.
 
