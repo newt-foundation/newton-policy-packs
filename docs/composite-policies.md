@@ -6,7 +6,7 @@
 > - `wrapOutput` helper in `@newton-xyz/policy-pack-shared` for `policy.js` authors (Phase 0)
 > - `wrapping_test.rego` per-pack tests asserting namespace correctness (Phase 0)
 > - AST-lint CI guard in this repo flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput` (Phase 0). A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands
-> - `newton-cli` multi-PolicyData support — `--policy-data-addresses` flag (Phase 0 dependency on the CLI)
+> - `newton-cli` multi-PolicyData support — `--policy-data-address` repeated-flag (one invocation per PolicyData; Phase 2 prerequisite for the composite reference walkthrough deploy, NOT a Phase 0 prerequisite — Phase 0 redeploys are single-PolicyData per pack and work under the existing CLI)
 > - `OracleModule` type + `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule` (Phase 1)
 > - `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared` (Phase 2 — ships alongside the SDK guard that consumes it)
 >
@@ -177,7 +177,7 @@ The per-module sub-schemas should be a subset of (or compatible with) the publis
 
 The composite has its own `policy.rego` + `params_schema.json` + `policy_metadata.json`, but its **WASM is the existing per-pack WASMs** referenced by `policyDataAddresses[]`. You don't build a new WASM.
 
-> **CLI dependency — future support required.** Today's `newton-cli policy deploy` accepts only a singular `--policy-data-address` (one PolicyData per Policy). The composite flow needs `--policy-data-addresses` (plural, comma-separated array). This is a Phase 0 dependency on `newton-cli` itself, tracked alongside Phase 0 deploy-tool reliability work in [NEWT-1534](https://linear.app/magiclabs/issue/NEWT-1534). **Do not copy the snippet below until `newton-cli` ships multi-PolicyData support and this banner is removed.**
+> **CLI usage — repeated-flag form.** `newton-cli policy deploy` accepts `--policy-data-address` once per PolicyData (zero invocations = empty array, one = single-pack, N = composite). The flag name stays singular — clap's derive macros automatically infer repeated-flag semantics for `Vec<Address>` fields, so the same flag can appear N times in one invocation without breaking existing single-pack scripts. Tracked under [NEWT-1534](https://linear.app/magiclabs/issue/NEWT-1534).
 
 Three deploy steps from your composite directory (post-CLI-update):
 
@@ -196,14 +196,15 @@ newton-cli policy-files generate-cids \
 #    PolicyData addresses from this repo's deployments.json:
 newton-cli policy deploy \
   --policy-cids ./my_composite/dist/policy_cids.json \
-  --policy-data-addresses 0xVAULTSFYI_PD,0xCHAINALYSIS_PD \
+  --policy-data-address 0xVAULTSFYI_PD \
+  --policy-data-address 0xCHAINALYSIS_PD \
   --policy-file ./my_composite/policy.rego
 # → "Policy deployed successfully at address: 0xACME..."
 ```
 
-The exact flag names + ordering ship with the CLI release that adds multi-PolicyData support; check `newton-cli policy deploy --help` once that lands.
+The repeated-flag shape shipped in `newton-prover-avs` PR #672 (merged 2026-06-13). Run `newton-cli policy deploy --help` to confirm the flag accepts repeated invocations on your local install.
 
-Capture the deployed `0xACME...` address — that's your composite's `NewtonPolicy` address. The composite's `getPolicyData()` view returns the array you passed to `--policy-data-addresses`.
+Capture the deployed `0xACME...` address — that's your composite's `NewtonPolicy` address. The composite's `getPolicyData()` view returns the array of addresses you passed via repeated `--policy-data-address` flags, in invocation order. **Note:** order matters — `PolicyValidationLib.sol:51-57` enforces positional equality between the submitted policyData array and on-chain `INewtonPolicy.getPolicyData()`, so don't reorder by hand once deployed.
 
 ### 5. Bind on-chain via `setPolicyAddress`
 
