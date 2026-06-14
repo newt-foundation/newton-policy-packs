@@ -1,6 +1,18 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// see vaultsfyi PR #41 for the canonical pattern. PACK_ID drift enforced
+// at `pnpm test` time. Note: sumsub has THREE return paths (early
+// no-applicant, success, catch) — every one wrapped via wrapOutput.
+const PACK_ID = "sumsub";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const SUMSUB_BASE = "https://api.sumsub.com";
 
 let _secrets = {};
@@ -257,15 +269,24 @@ function ageYearsFromDob(dob) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ sumsub: {...}, vaultsfyi: {...} }`; nullish coalescing
+    // reads our slice when present, falls back to flat for legacy
+    // single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { walletAddress } = parsed;
+    const { walletAddress } = myArgs;
     if (!walletAddress) throw new Error("missing walletAddress");
 
     const applicant = getApplicantByExternalUserId(walletAddress);
 
     if (!applicant) {
-      return JSON.stringify({
+      return wrapOutput(PACK_ID, {
         has_applicant: false,
         applicant_id: null,
         review_status: null,
@@ -291,7 +312,7 @@ export function run(input) {
       reviewAnswer = status?.reviewResult?.reviewAnswer ?? null;
     }
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       has_applicant: true,
       applicant_id: applicantId,
       review_status: reviewStatus,
@@ -302,6 +323,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
