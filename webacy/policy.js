@@ -1,6 +1,17 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// see vaultsfyi PR #41 for the canonical pattern. PACK_ID drift enforced
+// at `pnpm test` time. Final Stream B pack — completes the 9-pack sweep.
+const PACK_ID = "webacy";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const WEBACY_BASE = "https://api.webacy.com";
 
 let _secrets = {};
@@ -40,6 +51,21 @@ function getJson(url) {
   if (typeof r === "string") throw new Error(`http: ${r}`);
   if (r.tag === "err") throw new Error(`http: ${r.val}`);
   const resp = r.val ?? r;
+  // The host's `fetch` (newton-prover-avs/crates/data-provider/src/wasm/executor.rs)
+  // returns Ok(HttpResponse { status, headers, body }) for any HTTP response —
+  // only network/transport errors land in `r.tag === "err"`. Without this
+  // status guard a 404/500 with a JSON error body parses cleanly, and the
+  // optional-chaining cascade in `run()` (`result?.token ?? {}`,
+  // `snapshot.within_expected_range !== false`, `?? 0`, `?? null`) collapses
+  // every field to a clean shape that policy.rego silently allows. Reject
+  // non-2xx so the catch block returns the namespaced error envelope
+  // instead. Mirrors the canonical fix vaultsfyi PR #41 added after codex
+  // caught the same fail-open shape there.
+  const status = resp.status ?? 200;
+  if (status < 200 || status >= 300) {
+    const preview = new TextDecoder().decode(new Uint8Array(resp.body)).slice(0, 200);
+    throw new Error(`webacy http ${status}: ${preview}`);
+  }
   const body = new TextDecoder().decode(new Uint8Array(resp.body));
   return JSON.parse(body);
 }
@@ -60,9 +86,18 @@ function num(x) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ webacy: {...}, vaultsfyi: {...} }`; nullish coalescing
+    // reads our slice when present, falls back to flat for legacy
+    // single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { address, chain } = parsed;
+    const { address, chain } = myArgs;
     if (!address) throw new Error("missing address");
 
     // Reject out-of-range lookback_days rather than silently clamping —
@@ -95,7 +130,7 @@ export function run(input) {
       .filter((x) => x != null);
     const maxRecentDeviationPct = deviations.length > 0 ? Math.max(...deviations) : 0;
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       address,
       chain: chain ?? null,
       symbol: token.symbol ?? null,
@@ -110,6 +145,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
