@@ -99,27 +99,22 @@ export function run(input) {
     // Phase 0 § Stream B input-unwrap shim: accept both shapes —
     //   composite envelope: { "vaultsfyi": { network, vaultAddress, ... } }
     //   legacy flat:        { network, vaultAddress, ... }
-    // The AVS will eventually pass a per-pack-keyed `wasmArgs` envelope under
-    // composite execution; today's single-pack callers still pass the flat
-    // shape. The shape check (`typeof === "object"`, non-null) avoids the
-    // failure mode where `parsed["vaultsfyi"]` is `null` / `""` / a future
-    // non-object value and we silently fall back to flat — destructuring the
-    // composite envelope's other keys instead, which would mask the bug.
-    // Falling back to `parsed` only when the namespaced slot is absent is the
-    // correct migration semantics; an explicit non-object value is a caller
-    // bug we want to surface as `network=undefined` → catch-and-error, not
-    // a silent NaN cascade.
-    const namespaced = parsed[PACK_ID];
-    const myArgs =
-      namespaced !== null && typeof namespaced === "object" ? namespaced : parsed;
+    // The AVS forwards one `wasm_args` blob to every PolicyData WASM in a
+    // policy. Composite execution will produce `{ vaultsfyi: {...},
+    // chainalysis: {...} }` so each WASM sees siblings alongside its own
+    // slot; nullish coalescing reads our slice when present, falls back to
+    // flat for legacy single-pack callers. Mirrors the ADR's `args[PACK_ID]
+    // ?? args` shape verbatim — keep the next 8 packs aligned on it.
+    const myArgs = parsed[PACK_ID] ?? parsed;
     const { network, vaultAddress, lastKnownAllocationHash } = myArgs;
-    // Secrets stay at the top level (hosts upload them per-pack via
-    // `newton-cli policy-data set-secrets`). Strip the namespaced args slot
-    // so `_secrets["vaultsfyi"]` doesn't end up holding the args object —
-    // harmless today (`secret(name)` only reads named keys) but a footgun if
-    // a future secret name collides with a pack id. Same containment for
-    // any other pack's slot if a composite caller batches them on the
-    // input — only this pack's secrets belong here.
+    // Strip our own namespaced slot from the secrets surface so
+    // `_secrets["vaultsfyi"]` doesn't shadow a same-named host secret if one
+    // ever collides with our pack id. Sibling packs' slots are intentionally
+    // left in `_secrets`: today's `secret(name)` only reads fixed named keys
+    // (e.g. `VAULTS_FYI_API_KEY`), so cross-pack args under a sibling key
+    // never resolve, and a future composite-secrets shape may legitimately
+    // share top-level keys across packs — narrowing here would pre-empt
+    // that.
     _secrets = { ...parsed };
     delete _secrets[PACK_ID];
     loadHostSecrets();
