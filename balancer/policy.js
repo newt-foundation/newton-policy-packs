@@ -1,6 +1,22 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// `policy.js` is fed straight to `jco componentize` with only the
+// `newton:provider/*` host imports wired, so a top-level npm import does
+// not resolve. See vaultsfyi PR #41 for the canonical pattern (decided
+// 2026-06-14). Indirect-return form satisfies the AST-lint guard. Keep
+// PACK_ID literal in sync with the folder name and metadata.ts PACK_NAME
+// — packages/policy-pack-balancer/src/pack-id.test.ts enforces this at
+// `pnpm test` time.
+const PACK_ID = "balancer";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const BALANCER_API = "https://api-v3.balancer.fi/";
 
 let _secrets = {};
@@ -163,9 +179,24 @@ function pickSnapshotAt(snapshots, targetTs) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. The AVS forwards one
+    // `wasm_args` blob to every PolicyData WASM in a policy
+    // (newton-prover-avs/crates/data-provider/src/lib.rs fans out a single
+    // blob via `wasm_args.clone()` per for-loop iteration). Composite
+    // execution will produce `{ balancer: {...}, vaultsfyi: {...} }` so
+    // each pack reads its own slice via the namespaced key; nullish
+    // coalescing falls back to flat for legacy single-pack callers.
+    // Mirrors ADR 0003's `args[PACK_ID] ?? args` shape verbatim.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret if a future secret name collides with our pack id.
+    // Sibling pack slots are left in place — `secret(name)` only reads
+    // fixed named keys (e.g. `BALANCER_API_KEY`), and a future composite-
+    // secrets shape may legitimately share top-level keys across packs.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { poolId, chain, allowed_token_addresses } = parsed;
+    const { poolId, chain, allowed_token_addresses } = myArgs;
 
     if (!poolId) throw new Error("missing poolId");
     if (!chain) throw new Error("missing chain");
@@ -228,7 +259,7 @@ export function run(input) {
       drawdown7d = drawdownPct(tvlUsd, tvl7d);
     }
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       pool_id: pool.id ?? poolId,
       chain: pool.chain ?? chain,
       pool_type: pool.type ?? null,
@@ -243,6 +274,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
