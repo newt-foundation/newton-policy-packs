@@ -112,6 +112,40 @@ test_namespaced_empty_pack_slot_does_not_allow if {
         with data.wasm as {"webacy": {}}
 }
 
+# 404-cascade fail-closed contract — load-bearing for frozen rule 5.
+#
+# Pre-fix, webacy's `getJson` had no HTTP status check. A 404 with a JSON
+# error body parsed cleanly, the optional-chaining cascade in run()
+# (`result?.token ?? {}`, `snapshot.within_expected_range !== false`,
+# `?? 0`, `?? null`) collapsed every field to a clean shape, `wrapOutput`
+# emitted `{webacy: {...all-clean...}}`, and Rego's `allow` conjunction
+# held — silently allowing on oracle failure.
+#
+# The fix lives in policy.js: `getJson` now throws on `status >= 400`,
+# the catch wraps the error envelope under PACK_ID, and the namespaced
+# error envelope test above (`test_namespaced_error_does_not_allow`)
+# pins the rego-side fail-closed posture.
+#
+# This test pins the OPPOSITE direction: a clean cascade SHOULD allow.
+# That's the semantic the policy.js fix relies on. If a future tightening
+# of policy.rego made the all-clean shape NOT allow, the policy.js fix
+# would still be load-bearing but this test would fail and force
+# documenting why the rego rules tightened. Locks the contract that
+# allow holds when every field is at its safe default.
+test_clean_cascade_allows if {
+    cascade_clean := {"webacy": {
+        "is_collapsed": false,
+        "recent_depeg_event_count": 0,
+        "consecutive_days_below_peg": 0,
+        "within_expected_range": true,
+        "abs_dev_clean": null,
+        "stale": false,
+    }}
+    webacy_depeg_risk.allow
+        with data.params as default_params
+        with data.wasm as cascade_clean
+}
+
 # Cross-pack composition: webacy MUST only read its own slice.
 test_other_pack_keys_do_not_interfere if {
     composite := {

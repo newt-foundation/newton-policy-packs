@@ -51,6 +51,21 @@ function getJson(url) {
   if (typeof r === "string") throw new Error(`http: ${r}`);
   if (r.tag === "err") throw new Error(`http: ${r.val}`);
   const resp = r.val ?? r;
+  // The host's `fetch` (newton-prover-avs/crates/data-provider/src/wasm/executor.rs)
+  // returns Ok(HttpResponse { status, headers, body }) for any HTTP response —
+  // only network/transport errors land in `r.tag === "err"`. Without this
+  // status guard a 404/500 with a JSON error body parses cleanly, and the
+  // optional-chaining cascade in `run()` (`result?.token ?? {}`,
+  // `snapshot.within_expected_range !== false`, `?? 0`, `?? null`) collapses
+  // every field to a clean shape that policy.rego silently allows. Reject
+  // non-2xx so the catch block returns the namespaced error envelope
+  // instead. Mirrors the canonical fix vaultsfyi PR #41 added after codex
+  // caught the same fail-open shape there.
+  const status = resp.status ?? 200;
+  if (status < 200 || status >= 300) {
+    const preview = new TextDecoder().decode(new Uint8Array(resp.body)).slice(0, 200);
+    throw new Error(`webacy http ${status}: ${preview}`);
+  }
   const body = new TextDecoder().decode(new Uint8Array(resp.body));
   return JSON.parse(body);
 }
