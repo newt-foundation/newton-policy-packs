@@ -56,3 +56,19 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      # Phase 0 § Stream C — fail any PR that introduces a raw
+      # `return JSON.stringify(...)` callsite in <pack>/policy.js NOT routed
+      # through `wrapOutput` from @newton-xyz/policy-pack-shared. Composite
+      # gating depends on every pack wrapping its WASM output under its own
+      # PACK_ID key so the AVS-side merge_jsons composes cleanly.
+      #
+      # Run the fixture test BEFORE the production lint — if the guard logic
+      # itself is broken, the fixture test produces a clearer diagnostic
+      # (good/bad fixtures with known expected violations) than the production
+      # lint failing on real-pack allowlist drift.
+      - name: Test the AST guard itself (good + bad fixtures)
+        run: pnpm lint:policy-js:test
+
+      - name: Lint policy.js (AST guard)
+        run: pnpm lint:policy-js
