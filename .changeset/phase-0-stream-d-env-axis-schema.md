@@ -44,6 +44,18 @@ Schema changes (no production consumers, clean migration):
 - `scripts/generate-bindings.ts`: `emitDeployments` outputs the new
   env-keyed shape; per-pack `src/deployments.ts` regenerated.
 
+`pnpm changeset status` will warn that the per-pack peer-dep references
+`^0.4.0` while the latest released `policy-pack-shared` is `0.3.0`. This
+is expected — the warning compares against the *published* version, not
+the pending bump in this PR. Once the changesets bot publishes the
+release PR, the warning resolves itself.
+
+The `gen:bindings` step emits files with biome-default formatting
+(2-space, double-quoted keys); committed sources use the project's
+biome config (tabs, unquoted keys where valid). The canonical
+post-codegen step is `pnpm gen:bindings && pnpm lint:fix` — running
+either in isolation produces a partial state.
+
 Out of scope:
 - Shield SDK migration to the new `getDeployment` signature → newton-shield PR.
 - Deploys for the new `(chainId, env)` cells (Sepolia/prod, Base Sepolia/stagef,
