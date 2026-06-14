@@ -23,15 +23,23 @@ clean_data := {
     "timestamp": 1700000000000,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.persona.<field>`, so test fixtures wrap the inner shape
+# under the `persona` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"persona": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    persona_kyc.allow with data.params as default_params with data.wasm as clean_data
-    count(persona_kyc.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    persona_kyc.allow with data.params as default_params with data.wasm as d
+    count(persona_kyc.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_no_inquiry if {
-    d := {
+    d := wrap({
         "has_inquiry": false,
         "status": null,
         "age_days": null,
@@ -42,7 +50,7 @@ test_deny_no_inquiry if {
         "watchlist_status": null,
         "inquiry_id": null,
         "timestamp": 1700000000000,
-    }
+    })
     "no_inquiry" in persona_kyc.deny with data.params as default_params with data.wasm as d
     not persona_kyc.allow with data.params as default_params with data.wasm as d
 }
@@ -119,7 +127,7 @@ test_age_years_null_does_not_deny if {
 # must still evaluate cleanly without crashing on missing/null downstream
 # fields (status, age_days, country_code, age_years, etc.).
 test_no_inquiry_short_circuits if {
-    d := {
+    d := wrap({
         "has_inquiry": false,
         "status": null,
         "age_days": null,
@@ -130,7 +138,7 @@ test_no_inquiry_short_circuits if {
         "watchlist_status": null,
         "inquiry_id": null,
         "timestamp": 1700000000000,
-    }
+    })
     deny := persona_kyc.deny with data.params as default_params with data.wasm as d
     "no_inquiry" in deny
     not persona_kyc.allow with data.params as default_params with data.wasm as d
@@ -149,9 +157,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not persona_kyc.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not persona_kyc.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not persona_kyc.allow with data.params as default_params with data.wasm as {}
+    not persona_kyc.allow with data.params as default_params with data.wasm as wrap({})
 }
