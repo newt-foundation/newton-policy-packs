@@ -1,6 +1,21 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// `policy.js` is fed straight to `jco componentize` with only the
+// `newton:provider/*` host imports wired. See vaultsfyi PR #41 for the
+// canonical pattern. PACK_ID drift is enforced at `pnpm test` time by
+// packages/policy-pack-persona/src/pack-id.test.ts. Note: persona has
+// THREE return paths (early no-inquiry, success, catch) — every one is
+// wrapped via wrapOutput.
+const PACK_ID = "persona";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const PERSONA_BASE = "https://api.withpersona.com/api/v1";
 const PERSONA_VERSION = "2023-01-05";
 
@@ -110,8 +125,18 @@ function findVerification(included, slug) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    const { walletAddress } = parsed;
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ persona: {...}, vaultsfyi: {...} }`; nullish coalescing
+    // reads our slice when present, falls back to flat for legacy
+    // single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    const { walletAddress } = myArgs;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place —
+    // `secret(name)` only reads fixed named keys (e.g. `PERSONA_API_KEY`).
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
 
     if (typeof walletAddress !== "string" || walletAddress.length === 0) {
@@ -122,7 +147,7 @@ export function run(input) {
     const latest = pickLatestApproved(list);
 
     if (!latest) {
-      return JSON.stringify({
+      return wrapOutput(PACK_ID, {
         has_inquiry: false,
         status: null,
         age_days: null,
@@ -158,7 +183,7 @@ export function run(input) {
     const selfie = findVerification(included, "verification/selfie");
     const watchlist = findVerification(included, "verification/watchlist");
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       has_inquiry: true,
       status: attrs.status ?? null,
       age_days: ageDays,
@@ -171,6 +196,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }

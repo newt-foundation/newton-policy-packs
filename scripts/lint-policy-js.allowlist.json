@@ -17,9 +17,6 @@
     "to strict mode (no allowlist) — see scripts/lint-policy-js.ts main()."
   ],
   "violations": [
-    { "file": "persona/policy.js", "line": 125, "column": 6 },
-    { "file": "persona/policy.js", "line": 161, "column": 4 },
-    { "file": "persona/policy.js", "line": 174, "column": 4 },
     { "file": "redstone/policy.js", "line": 119, "column": 4 },
     { "file": "redstone/policy.js", "line": 132, "column": 4 },
     { "file": "sumsub/policy.js", "line": 268, "column": 6 },
