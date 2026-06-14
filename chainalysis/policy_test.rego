@@ -17,11 +17,19 @@ clean_data := {
     "is_high_risk": false,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.chainalysis.<field>`, so test fixtures wrap the inner shape
+# under the `chainalysis` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"chainalysis": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    chainalysis_address_screening.allow with data.params as default_params with data.wasm as clean_data
-    count(chainalysis_address_screening.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    chainalysis_address_screening.allow with data.params as default_params with data.wasm as d
+    count(chainalysis_address_screening.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_chainalysis_sanctioned if {
@@ -85,9 +93,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not chainalysis_address_screening.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not chainalysis_address_screening.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not chainalysis_address_screening.allow with data.params as default_params with data.wasm as {}
+    not chainalysis_address_screening.allow with data.params as default_params with data.wasm as wrap({})
 }

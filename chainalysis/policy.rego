@@ -5,7 +5,14 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("chainalysis", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs without
+# top-level key collisions. The load-bearing case for chainalysis:
+# vaultsfyi emits `risk_score` as a number, chainalysis emits it as a
+# string — pre-namespacing these would silently clobber under last-wins.
+v := data.wasm.chainalysis
 
 deny contains "chainalysis_sanctioned" if {
     t.deny_on_sanctioned
