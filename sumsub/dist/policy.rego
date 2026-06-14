@@ -5,7 +5,11 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("sumsub", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs.
+v := data.wasm.sumsub
 
 deny contains "no_applicant" if not v.has_applicant
 

@@ -315,3 +315,114 @@ Policy deployed successfully at address: 0xDF197d688426ac29182E46016bEe5f84BEB65
 === Thu Jun 11 18:55:28 MDT 2026 :: persona DONE ===
 persona DATA=0xF38bc16192dE633E93c60cc98D54514FaBA74332 POLICY=0xDF197d688426ac29182E46016bEe5f84BEB65A79
 wrote ./persona/dist/last_deploy.json
+=== Sun Jun 14 13:19:42 PDT 2026 :: persona sync source policy.rego -> dist ===
+=== Sun Jun 14 13:19:42 PDT 2026 :: persona generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./persona/dist"
+policyCodeHash: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./persona/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+Public IPFS Link: https://ipfs.io/ipfs/bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./persona/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./persona/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe",
+  "policyCid": "bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m",
+  "schemaCid": "bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu",
+  "entrypoint": "persona_kyc.allow",
+  "policyMetadataCid": "bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la",
+  "policyDataMetadataCid": "bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq",
+  "secretsSchemaCid": "bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy",
+  "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9"
+}
+=== Sun Jun 14 13:19:57 PDT 2026 :: persona policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xa84E42526c76e12b80cc5046A8AdE9182FeEe824
+Policy Data Address: 0xa84E42526c76e12b80cc5046A8AdE9182FeEe824
+DATA_ADDR=0xa84E42526c76e12b80cc5046A8AdE9182FeEe824
+=== Sun Jun 14 13:20:12 PDT 2026 :: persona policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0xa84e42526c76e12b80cc5046a8ade9182feee824]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Policy deployed successfully at address: 0x8e8360D6F5dA98bdaf1405C952783567d385f732
+=== Sun Jun 14 13:20:27 PDT 2026 :: persona DONE ===
+persona DATA=0xa84E42526c76e12b80cc5046A8AdE9182FeEe824 POLICY=0x8e8360D6F5dA98bdaf1405C952783567d385f732
+wrote ./persona/dist/last_deploy.json

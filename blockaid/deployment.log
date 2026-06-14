@@ -315,3 +315,114 @@ Policy deployed successfully at address: 0x389ADa033D00dA6b59d9aF6aBe2b2DBcDD0DD
 === Thu Jun 11 18:53:27 MDT 2026 :: blockaid DONE ===
 blockaid DATA=0xFEA8a5bC90c01ca26C9b49B9288774eBbd4b06a6 POLICY=0x389ADa033D00dA6b59d9aF6aBe2b2DBcDD0DDBb3
 wrote ./blockaid/dist/last_deploy.json
+=== Sun Jun 14 13:17:21 PDT 2026 :: blockaid sync source policy.rego -> dist ===
+=== Sun Jun 14 13:17:21 PDT 2026 :: blockaid generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./blockaid/dist"
+policyCodeHash: 0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni
+Public IPFS Link: https://ipfs.io/ipfs/bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreic6kin2cmkf3776x2wi55f7r7g253h5nn73oimokcz3yz6edqtz74
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreic6kin2cmkf3776x2wi55f7r7g253h5nn73oimokcz3yz6edqtz74
+Public IPFS Link: https://ipfs.io/ipfs/bafkreic6kin2cmkf3776x2wi55f7r7g253h5nn73oimokcz3yz6edqtz74
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./blockaid/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./blockaid/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./blockaid/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni",
+  "policyCid": "bafkreic6kin2cmkf3776x2wi55f7r7g253h5nn73oimokcz3yz6edqtz74",
+  "schemaCid": "bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e",
+  "entrypoint": "blockaid_tx_safety.allow",
+  "policyMetadataCid": "bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq",
+  "policyDataMetadataCid": "bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe",
+  "secretsSchemaCid": "bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q",
+  "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6"
+}
+=== Sun Jun 14 13:17:35 PDT 2026 :: blockaid policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x2305EC115a0E34D3772D68912bBD85eB6C3c550d
+Policy Data Address: 0x2305EC115a0E34D3772D68912bBD85eB6C3c550d
+DATA_ADDR=0x2305EC115a0E34D3772D68912bBD85eB6C3c550d
+=== Sun Jun 14 13:17:50 PDT 2026 :: blockaid policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6
+Pinned policyCodeHash 0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6 in "./blockaid/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: blockaid_tx_safety.allow
+  policyCid: bafkreic6kin2cmkf3776x2wi55f7r7g253h5nn73oimokcz3yz6edqtz74
+  schemaCid: bafkreictkrp7jfzlvqbuupgrpmxauo4fquzzglhs72jhh7qs7gicr7557e
+  policyData: [0x2305ec115a0e34d3772d68912bbd85eb6c3c550d]
+  metadataCid: bafkreidvtznez65r4cnxzfy5se4ft7nackmqlixskio54qrutxbilatikq 
+
+Policy deployed successfully at address: 0xcBC09be770c0b220ABC5D95A49f81964B8E2da43
+=== Sun Jun 14 13:18:13 PDT 2026 :: blockaid DONE ===
+blockaid DATA=0x2305EC115a0E34D3772D68912bBD85eB6C3c550d POLICY=0xcBC09be770c0b220ABC5D95A49f81964B8E2da43
+wrote ./blockaid/dist/last_deploy.json

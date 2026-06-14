@@ -315,3 +315,114 @@ Policy deployed successfully at address: 0xE6CE1A21e2B36a7Dc1F6Bb22fD2a8660442c9
 === Thu Jun 11 18:54:41 MDT 2026 :: guardrail DONE ===
 guardrail DATA=0xEf224C4Cc9B57EaeEFaBc73cdE47708c7bDB59b6 POLICY=0xE6CE1A21e2B36a7Dc1F6Bb22fD2a8660442c9eba
 wrote ./guardrail/dist/last_deploy.json
+=== Sun Jun 14 13:18:55 PDT 2026 :: guardrail sync source policy.rego -> dist ===
+=== Sun Jun 14 13:18:55 PDT 2026 :: guardrail generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./guardrail/dist"
+policyCodeHash: 0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./guardrail/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./guardrail/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+Public IPFS Link: https://ipfs.io/ipfs/bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./guardrail/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu",
+  "policyCid": "bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu",
+  "schemaCid": "bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44",
+  "entrypoint": "guardrail_protocol_monitor.allow",
+  "policyMetadataCid": "bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq",
+  "policyDataMetadataCid": "bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq",
+  "secretsSchemaCid": "bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa",
+  "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867"
+}
+=== Sun Jun 14 13:19:16 PDT 2026 :: guardrail policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu
+  secretsSchemaCid: bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa
+  metadataCid: bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24
+Policy Data Address: 0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24
+DATA_ADDR=0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24
+=== Sun Jun 14 13:19:31 PDT 2026 :: guardrail policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867
+Pinned policyCodeHash 0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867 in "./guardrail/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: guardrail_protocol_monitor.allow
+  policyCid: bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu
+  schemaCid: bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44
+  policyData: [0x51eb9c3109dba9ebd2280c8b2a42b7d6eb798f24]
+  metadataCid: bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq 
+
+Policy deployed successfully at address: 0xF723F63Cc93b41A64fa400e413b3c08d06De8B23
+=== Sun Jun 14 13:19:39 PDT 2026 :: guardrail DONE ===
+guardrail DATA=0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24 POLICY=0xF723F63Cc93b41A64fa400e413b3c08d06De8B23
+wrote ./guardrail/dist/last_deploy.json

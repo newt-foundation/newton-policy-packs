@@ -1,10 +1,10 @@
 {
   "entrypoint": "webacy_depeg_risk.allow",
-  "policyCid": "bafkreibrkuznt2typwrsi5dhf4j6r5ic3iuj2dch5me5ar256rxpb2au5a",
-  "policyCodeHash": "0x698079e40446791bcaa34cd069611141b47db1d4b661ddebdb663bb90aa834e3",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
   "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
   "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
   "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
   "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
-  "wasmCid": "bafybeigyevjhz3ufsv3s3wadlsrtfpcpwqbc7g4qkeebexqu7of2hnkvpy"
+  "wasmCid": "bafybeidu3262maqfcfnckf3zwsf6h3zamwz3iiezmk3id4ewwa5guznrje"
 }

@@ -434,3 +434,114 @@ Policy deployed successfully at address: 0x32c1E7Ee4A96F144E7853f089Dd09313B4254
 === Thu Jun 11 18:57:43 MDT 2026 :: vaultsfyi DONE ===
 vaultsfyi DATA=0x53F26693b89441E993c125b274F99AD033dA8EaF POLICY=0x32c1E7Ee4A96F144E7853f089Dd09313B42549C2
 wrote ./vaultsfyi/dist/last_deploy.json
+=== Sun Jun 14 13:21:56 PDT 2026 :: vaultsfyi sync source policy.rego -> dist ===
+=== Sun Jun 14 13:21:56 PDT 2026 :: vaultsfyi generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./vaultsfyi/dist"
+policyCodeHash: 0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm
+Public IPFS Link: https://ipfs.io/ipfs/bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigxa566uilisid2bnt2udsz3kbyxoi5b4hx32ruq2udyaadqb2hsy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigxa566uilisid2bnt2udsz3kbyxoi5b4hx32ruq2udyaadqb2hsy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigxa566uilisid2bnt2udsz3kbyxoi5b4hx32ruq2udyaadqb2hsy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./vaultsfyi/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./vaultsfyi/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm",
+  "policyCid": "bafkreigxa566uilisid2bnt2udsz3kbyxoi5b4hx32ruq2udyaadqb2hsy",
+  "schemaCid": "bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m",
+  "entrypoint": "vault_risk_rating.allow",
+  "policyMetadataCid": "bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q",
+  "policyDataMetadataCid": "bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4",
+  "secretsSchemaCid": "bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4",
+  "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b"
+}
+=== Sun Jun 14 13:22:10 PDT 2026 :: vaultsfyi policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm
+  secretsSchemaCid: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37
+Policy Data Address: 0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37
+DATA_ADDR=0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37
+=== Sun Jun 14 13:22:18 PDT 2026 :: vaultsfyi policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b
+Pinned policyCodeHash 0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b in "./vaultsfyi/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: vault_risk_rating.allow
+  policyCid: bafkreigxa566uilisid2bnt2udsz3kbyxoi5b4hx32ruq2udyaadqb2hsy
+  schemaCid: bafkreict72rvcevhtcfmphmcxx3vdcthyhoq3iy4te7pecx5d4whg4et6m
+  policyData: [0x9242fc89033c612878e64ccdf6d1fff8b0d1fc37]
+  metadataCid: bafkreiaeu5yljk6sd2y2u72reyj74mmhuurpp2oxvmx54kvj5rhassqm7q 
+
+Policy deployed successfully at address: 0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc
+=== Sun Jun 14 13:22:26 PDT 2026 :: vaultsfyi DONE ===
+vaultsfyi DATA=0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37 POLICY=0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc
+wrote ./vaultsfyi/dist/last_deploy.json

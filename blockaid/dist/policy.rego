@@ -5,7 +5,12 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("blockaid", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs without
+# top-level key collisions on shared field names.
+v := data.wasm.blockaid
 
 deny contains "blockaid_malicious" if v.classification == "Malicious"
 

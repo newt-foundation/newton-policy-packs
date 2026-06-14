@@ -5,7 +5,11 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("redstone", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs.
+v := data.wasm.redstone
 
 deny contains "redstone_feed_stale" if v.redstone_feed_age_seconds > t.max_feed_age_seconds
 

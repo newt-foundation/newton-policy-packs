@@ -1,10 +1,10 @@
 {
   "entrypoint": "sumsub_kyc.allow",
-  "policyCid": "bafkreiamyovx53ia5mz4byckh4csnbapmqq24cos2u4agtxdti7qyfvtse",
-  "policyCodeHash": "0xc8c9973aebf59bdc39363af9f87650fe58dba99c0ded280c8da8e0d3cec3d8de",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
   "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
   "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
   "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
   "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
-  "wasmCid": "bafybeiequ725o55mlnasnacmtnslhiny5xsxlyvkr4sr4ehrqq75tlrzhm"
+  "wasmCid": "bafybeigk7pjxtkbrnlqg7yixoms3ykjogsicrrgsihh35nyvk54cgxvrla"
 }
