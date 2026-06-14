@@ -86,6 +86,10 @@ test_flat_input_fails_allow if {
     # silent-skips on undefined would still satisfy `not allow` (default
     # false) but would NOT satisfy this assertion.
     "guardrail_health_unavailable" in deny
+    # Stronger pin: ONLY this rule fires under flat input (others
+    # silent-skip on undefined `v`). A regression where another rule
+    # accidentally starts firing on undefined would change this count.
+    count(deny) == 1
     not guardrail_protocol_monitor.allow
         with data.params as default_params
         with data.wasm as flat_clean
