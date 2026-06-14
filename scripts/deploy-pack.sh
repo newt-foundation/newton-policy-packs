@@ -2,6 +2,11 @@
 # Deploy a single pack: sync source -> dist, generate-cids -> policy-data deploy -> policy deploy.
 # Captures addresses to stdout, to <pack>/deployment.log, and to <pack>/dist/last_deploy.json.
 # Fails fast on any error.
+#
+# Normally invoked by deploy-all.sh, which resolves PRIVATE_KEY,
+# PINATA_JWT, CHAIN_ID, and RPC_URL from .env.deploy.local.<env> +
+# the --chain flag. Direct invocation requires the same env vars to
+# be exported by the caller.
 
 set -euo pipefail
 
