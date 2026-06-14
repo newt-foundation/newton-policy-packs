@@ -1,6 +1,20 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// `policy.js` is fed straight to `jco componentize` with only the
+// `newton:provider/*` host imports wired, so a top-level npm import does
+// not resolve. See vaultsfyi PR #41 for the canonical pattern.
+// PACK_ID drift is enforced at `pnpm test` time by
+// packages/policy-pack-chainalysis/src/pack-id.test.ts.
+const PACK_ID = "chainalysis";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const SANCTIONS_BASE = "https://public.chainalysis.com/api/v1/address";
 const ADDRESS_SCREENING_BASE =
   "https://api.chainalysis.com/api/risk/v2/entities";
@@ -76,9 +90,20 @@ function getAddressScreening(address, apiKey) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ chainalysis: {...}, vaultsfyi: {...} }`; nullish
+    // coalescing reads our slice when present, falls back to flat for
+    // legacy single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place —
+    // `secret(name)` only reads fixed named keys (e.g.
+    // `CHAINALYSIS_SANCTIONS_KEY`, `CHAINALYSIS_SCREENING_KEY`).
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { address } = parsed;
+    const { address } = myArgs;
     if (!address) throw new Error("missing address");
 
     const sanctionsKey = secret("CHAINALYSIS_SANCTIONS_KEY");
@@ -123,7 +148,7 @@ export function run(input) {
       typeof riskScore === "string" &&
       ["high", "severe"].includes(riskScore.toLowerCase());
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       address,
       sanctioned,
       sanctions_categories: sanctionsCategories,
@@ -134,6 +159,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
