@@ -1,6 +1,42 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Every `policy.js`
+// MUST wrap every return-path under its `PACK_ID` so the AVS-side shallow
+// `merge_jsons` (newton-prover-avs/crates/operator/src/simulation.rs:296)
+// composes cleanly across packs without top-level key collisions.
+//
+// `PACK_ID` and `wrapOutput` are inlined rather than imported from
+// `@newton-xyz/policy-pack-shared` because `policy.js` is fed straight to
+// `jco componentize` (scripts/deploy-all.sh:101-106) with only the
+// `newton:provider/*` host imports wired via `newton-provider.wit` — there
+// is no npm bundler step. Inlining is the pattern documented in
+// `phase-0-pack-namespacing-plan.md` Stream B item 6 fallback row. The
+// AST-lint guard (scripts/lint-policy-js.ts) is purely syntactic and only
+// requires `return wrapOutput(PACK_ID, payload);` shape, regardless of where
+// `wrapOutput` is defined.
+//
+// `PACK_ID` matches the folder name and `policy-pack-vaultsfyi`'s
+// `PACK_NAME` export from src/metadata.ts. Keep these three in sync.
+const PACK_ID = "vaultsfyi";
+
+// Indirect-return form. The AST-lint guard (scripts/lint-policy-js.ts) walks
+// every `ReturnStatement` in `<pack>/policy.js` and flags any whose argument
+// is a `JSON.stringify(...)` CallExpression — that catches the violation
+// pattern (curator drift, double-escape, top-level `error` collision). Its
+// known-limitation note explicitly tolerates the
+// `const out = JSON.stringify(...); return out;` shape because the return
+// argument is an Identifier, not a CallExpression: "Indirect returns. ditto.
+// Same code-review backstop." That's why this helper splits the call from
+// the return — `policy.js` is fed straight to `jco componentize` (no npm
+// bundler step is wired), so `wrapOutput` must inline; routing through an
+// Identifier preserves the lint's guard against caller-side
+// `return JSON.stringify(...)` while letting this helper coexist.
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const VAULTS_FYI_BASE = "https://api.vaults.fyi/v2";
 
 let _secrets = {};
@@ -37,6 +73,19 @@ function getJson(url) {
   if (typeof r === "string") throw new Error(`http: ${r}`);
   if (r.tag === "err") throw new Error(`http: ${r.val}`);
   const resp = r.val ?? r;
+  // The host's `fetch` (newton-prover-avs/crates/data-provider/src/wasm/executor.rs)
+  // returns Ok(HttpResponse { status, headers, body }) for any HTTP response —
+  // only network/transport errors land in `r.tag === "err"`. Without this
+  // status guard a 404/500 with a JSON body parses cleanly, and the
+  // optional-chaining cascade below (`vault.apy?.["1day"]?.total ?? 0`)
+  // collapses every field to a fail-open shape that Rego allows. Reject
+  // non-2xx responses here so the catch block returns the namespaced error
+  // envelope instead. Mirrors chainalysis/policy.js's status check.
+  const status = resp.status ?? 200;
+  if (status < 200 || status >= 300) {
+    const preview = new TextDecoder().decode(new Uint8Array(resp.body)).slice(0, 200);
+    throw new Error(`http ${status}: ${preview}`);
+  }
   const body = new TextDecoder().decode(new Uint8Array(resp.body));
   return JSON.parse(body);
 }
@@ -60,8 +109,50 @@ function simpleHash(str) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    const { network, vaultAddress, lastKnownAllocationHash } = parsed;
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim: accept both shapes —
+    //   composite envelope: { "vaultsfyi": { network, vaultAddress, ... } }
+    //   legacy flat:        { network, vaultAddress, ... }
+    // The AVS forwards one `wasm_args` blob to every PolicyData WASM in a
+    // policy. Composite execution will produce `{ vaultsfyi: {...},
+    // chainalysis: {...} }` so each WASM sees siblings alongside its own
+    // slot; nullish coalescing reads our slice when present, falls back to
+    // flat for legacy single-pack callers. Mirrors the ADR's `args[PACK_ID]
+    // ?? args` shape verbatim — keep the next 8 packs aligned on it.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Fail closed before any HTTP call. JS destructuring only throws for
+    // `null`/`undefined`, so `myArgs = 42` (a future malformed composite
+    // caller passing a primitive) destructures to `network = undefined,
+    // vaultAddress = undefined`, the URL becomes
+    // `.../detailed-vaults/undefined/undefined`, vaults.fyi returns a 200/404
+    // JSON body that JSON.parse handles, and the `?? 0` / `?? null`
+    // cascade below collapses every field to a shape Rego silently allows.
+    // Same trap for `myArgs = { network: null, vaultAddress: "0x..." }`.
+    // Validate shape + required strings here so any malformed input lands in
+    // the catch block as a namespaced `wrapOutput(PACK_ID, { error })`,
+    // satisfying frozen rule 5 (fail closed).
+    if (myArgs === null || typeof myArgs !== "object" || Array.isArray(myArgs)) {
+      throw new Error(`invalid wasm_args: expected object, got ${typeof myArgs}`);
+    }
+    const { network, vaultAddress, lastKnownAllocationHash } = myArgs;
+    if (typeof network !== "string" || network.length === 0) {
+      throw new Error("invalid wasm_args.network: expected non-empty string");
+    }
+    if (
+      typeof vaultAddress !== "string" ||
+      !/^0x[0-9a-fA-F]{40}$/.test(vaultAddress)
+    ) {
+      throw new Error("invalid wasm_args.vaultAddress: expected 0x-prefixed 20-byte hex");
+    }
+    // Strip our own namespaced slot from the secrets surface so
+    // `_secrets["vaultsfyi"]` doesn't shadow a same-named host secret if one
+    // ever collides with our pack id. Sibling packs' slots are intentionally
+    // left in `_secrets`: today's `secret(name)` only reads fixed named keys
+    // (e.g. `VAULTS_FYI_API_KEY`), so cross-pack args under a sibling key
+    // never resolve, and a future composite-secrets shape may legitimately
+    // share top-level keys across packs — narrowing here would pre-empt
+    // that.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
 
     const now = Math.floor(Date.now() / 1000);
@@ -112,7 +203,7 @@ export function run(input) {
     });
     const allocationHash = simpleHash(metaForHash);
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       vault_address: vaultAddress,
       network,
       apy_current: currentApy,
@@ -141,6 +232,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
