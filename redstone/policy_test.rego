@@ -18,11 +18,17 @@ clean_data := {
     "sustained_seconds": 0,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.redstone.<field>`, so test fixtures wrap the inner shape
+# under the `redstone` key.
+wrap(inner) := {"redstone": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    redstone_oracle_divergence.allow with data.params as default_params with data.wasm as clean_data
-    count(redstone_oracle_divergence.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    redstone_oracle_divergence.allow with data.params as default_params with data.wasm as d
+    count(redstone_oracle_divergence.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_redstone_feed_stale if {
@@ -108,9 +114,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as {}
+    not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as wrap({})
 }
