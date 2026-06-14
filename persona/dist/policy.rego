@@ -5,7 +5,12 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("persona", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs without
+# top-level key collisions.
+v := data.wasm.persona
 
 deny contains "no_inquiry" if not v.has_inquiry
 

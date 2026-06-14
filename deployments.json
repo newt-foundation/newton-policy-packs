@@ -7,92 +7,92 @@
   "packs": {
     "balancer": {
       "11155111": {
-        "policy": "0xA7466846004a8a77a63Ccb25e1aD25C90be0F9E8",
-        "policyData": "0xe7dDAA48c17d2b4845563385d22B9cf61c3C70DD",
-        "wasmCid": "bafybeiehctt7smwyngjvkyz55bkq2gccn2jzacjz6ujtuliopksswzkxci",
-        "policyCodeHash": "0x9bfaba0a564b4a196558dcc51b887db834e2dac7e9cf1a0327e83b2910b6fd41",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
+        "policyData": "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
+        "wasmCid": "bafybeibb4rxzaqaolsqmc7kymnr34a3vj6bo6xfom5cggr4ouyqahlspvu",
+        "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "blockaid": {
       "11155111": {
-        "policy": "0x389ADa033D00dA6b59d9aF6aBe2b2DBcDD0DDBb3",
-        "policyData": "0xFEA8a5bC90c01ca26C9b49B9288774eBbd4b06a6",
-        "wasmCid": "bafybeief35ucfgdhqek62hsrvc2ndms3qrbguuntbxs2hg4ialgu5ly7va",
-        "policyCodeHash": "0xc40c81729d42f6c642532f354aeddcb7ca950905c3a213d0449f7cf5063bc273",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0xcBC09be770c0b220ABC5D95A49f81964B8E2da43",
+        "policyData": "0x2305EC115a0E34D3772D68912bBD85eB6C3c550d",
+        "wasmCid": "bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni",
+        "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "chainalysis": {
       "11155111": {
-        "policy": "0xB24dCDeEBB090aF4a311F1F724d632E2B44Cb3d9",
-        "policyData": "0xa3E571c34E3945e982e8a22121804b6e5a404067",
-        "wasmCid": "bafybeihkb2pipgqcg4vahye47ftfk42keoex7s5itvblbqrue4befqmiz4",
-        "policyCodeHash": "0xc8b3fca46f423889091ef53ed184a44f68963ae5703d8c29b21b2d46ed033707",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e658",
+        "policyData": "0x571f1bAfAb0c47Ae0920c60d8C0a93871abc82cF",
+        "wasmCid": "bafybeigb2te7yt7xyc34h75zndnftu6g36gaegt6evkg2ebxfefotafy6e",
+        "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "guardrail": {
       "11155111": {
-        "policy": "0xE6CE1A21e2B36a7Dc1F6Bb22fD2a8660442c9eba",
-        "policyData": "0xEf224C4Cc9B57EaeEFaBc73cdE47708c7bDB59b6",
-        "wasmCid": "bafybeiaofbn5puakwzwz55f3lutde5nbftzzogqkmetouksgigyiao3bva",
-        "policyCodeHash": "0x554c7d866a6e710194aa3c49d161e4b82897de26bb9ed00f2a74bd3f900b194e",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0xF723F63Cc93b41A64fa400e413b3c08d06De8B23",
+        "policyData": "0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24",
+        "wasmCid": "bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu",
+        "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "persona": {
       "11155111": {
-        "policy": "0xDF197d688426ac29182E46016bEe5f84BEB65A79",
-        "policyData": "0xF38bc16192dE633E93c60cc98D54514FaBA74332",
-        "wasmCid": "bafybeib6rithkstt6imntzyhl5mzvzl6ipj4engv7enipy6bje6kiadbjq",
-        "policyCodeHash": "0xc151d9fc12c4f3d77ba89c64ba28e8df6c780f4d36419cee6af5c9f13cc22254",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x8e8360D6F5dA98bdaf1405C952783567d385f732",
+        "policyData": "0xa84E42526c76e12b80cc5046A8AdE9182FeEe824",
+        "wasmCid": "bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe",
+        "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "redstone": {
       "11155111": {
-        "policy": "0x151cA79DaD3F1770b3A14aFF9f80c5A681bC93Ec",
-        "policyData": "0xc79175FfA08bae966Ad8c9a02052cd3D149E3844",
-        "wasmCid": "bafybeifhimnsipiddo6af2kfvdr2i63b2pphp5bd5qitpy5xwzhta4xcui",
-        "policyCodeHash": "0xec58ba87bd07fa059f1cd1d80a3d02e53651da49bda12068d269db44ca89633c",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x2059d650A414a2006433B9ef818a0dBaE17F1077",
+        "policyData": "0xdD956F174d2416D8a9F303A1e979016f5Dd12837",
+        "wasmCid": "bafybeicxv5qvhijhwvhqa36xmloezsmgiy74dr5we7a4y5673gr6f5ukki",
+        "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "sumsub": {
       "11155111": {
-        "policy": "0x2573C0B4DCd7ec40CF9eB9b4B71c5088886532ff",
-        "policyData": "0x700f4D614FE8f002C41DB517Aa675167E7AbE70f",
-        "wasmCid": "bafybeiequ725o55mlnasnacmtnslhiny5xsxlyvkr4sr4ehrqq75tlrzhm",
-        "policyCodeHash": "0xc8c9973aebf59bdc39363af9f87650fe58dba99c0ded280c8da8e0d3cec3d8de",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873",
+        "policyData": "0x2De2bfe212ec11D9a7E9F3125662c38e8efaA91C",
+        "wasmCid": "bafybeigk7pjxtkbrnlqg7yixoms3ykjogsicrrgsihh35nyvk54cgxvrla",
+        "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "vaultsfyi": {
       "11155111": {
-        "policy": "0x32c1E7Ee4A96F144E7853f089Dd09313B42549C2",
-        "policyData": "0x53F26693b89441E993c125b274F99AD033dA8EaF",
-        "wasmCid": "bafybeihs42odpminfsvgahi2ai2raltqeycqifocxciags5naubzu7qh7y",
-        "policyCodeHash": "0x744c2021a4ecc87a633ed428c5ec3eac944e86d078a995aea0df368c1fa41919",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc",
+        "policyData": "0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37",
+        "wasmCid": "bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm",
+        "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     },
     "webacy": {
       "11155111": {
-        "policy": "0xa145B88D3F4d169700A8bE47D244fB6627a2A87e",
-        "policyData": "0x254454A26516CF0315f0521AB8a891e9EAFeCB65",
-        "wasmCid": "bafybeigyevjhz3ufsv3s3wadlsrtfpcpwqbc7g4qkeebexqu7of2hnkvpy",
-        "policyCodeHash": "0x698079e40446791bcaa34cd069611141b47db1d4b661ddebdb663bb90aa834e3",
-        "deployedAt": "2026-06-12",
-        "notes": "round 2: tightened blockaid/guardrail/webacy allow rules; source-of-truth dist sync"
+        "policy": "0x2061f2D9808BF65a2A8686e1F0bD22dc764d54b0",
+        "policyData": "0x2AaE2E1ebbe7612D515F74BD941971c9baD6E1FA",
+        "wasmCid": "bafybeidu3262maqfcfnckf3zwsf6h3zamwz3iiezmk3id4ewwa5guznrje",
+        "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
+        "deployedAt": "2026-06-14",
+        "notes": "Phase 0 Stream D — composite namespacing redeploy"
       }
     }
   }

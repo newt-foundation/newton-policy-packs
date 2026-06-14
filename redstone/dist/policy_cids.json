@@ -1,10 +1,10 @@
 {
   "entrypoint": "redstone_oracle_divergence.allow",
-  "policyCid": "bafkreigtbwfgj5as7pybvfu2ij3zloh3tiryz5tod2rxyg55hhr4vx4xxa",
-  "policyCodeHash": "0xec58ba87bd07fa059f1cd1d80a3d02e53651da49bda12068d269db44ca89633c",
+  "policyCid": "bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq",
+  "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
   "policyDataMetadataCid": "bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha",
   "policyMetadataCid": "bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu",
   "schemaCid": "bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym",
   "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
-  "wasmCid": "bafybeifhimnsipiddo6af2kfvdr2i63b2pphp5bd5qitpy5xwzhta4xcui"
+  "wasmCid": "bafybeicxv5qvhijhwvhqa36xmloezsmgiy74dr5we7a4y5673gr6f5ukki"
 }

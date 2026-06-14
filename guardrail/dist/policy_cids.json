@@ -1,10 +1,10 @@
 {
   "entrypoint": "guardrail_protocol_monitor.allow",
-  "policyCid": "bafkreid46zvdz4gzciul2co5cj6zvhxre2fvapyqzgirausqlvukwbamau",
-  "policyCodeHash": "0x554c7d866a6e710194aa3c49d161e4b82897de26bb9ed00f2a74bd3f900b194e",
+  "policyCid": "bafkreiegnmvld7npe44wti7ke2tgnnctstoyjzmnzvj6bv735ryzci64lu",
+  "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
   "policyDataMetadataCid": "bafkreihcusgeqp2aqn6xylbur2q4ouovl6zavoq7tb7ozfqpz72ik42yqq",
   "policyMetadataCid": "bafkreihui32lbxxl5v46rdfioygsie3t7qtj3pxduy3suttn4x6442hrbq",
   "schemaCid": "bafkreiflbeiqjaq2zmzptqjl4tzzjyufc4quarqe3atwvjgbxhiiwyqv44",
   "secretsSchemaCid": "bafkreicn32g565hjmpbdn5i27qsymqi5dkv7bfrnvbja2i5c65dgpmzypa",
-  "wasmCid": "bafybeiaofbn5puakwzwz55f3lutde5nbftzzogqkmetouksgigyiao3bva"
+  "wasmCid": "bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu"
 }

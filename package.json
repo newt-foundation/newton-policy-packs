@@ -19,12 +19,17 @@
     "lint:policy-js": "tsx scripts/lint-policy-js.ts",
     "lint:policy-js:test": "node --import tsx --test scripts/lint-policy-js.test.ts",
     "test": "pnpm -r test",
+    "deploy:all": "./scripts/deploy-all.sh",
+    "deploy:pack": "./scripts/deploy-pack.sh",
+    "deploy:sync": "./scripts/sync-deployments.sh",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm -r build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
+    "@bytecodealliance/componentize-js": "^0.21.0",
+    "@bytecodealliance/jco": "^1.23.0",
     "@changesets/cli": "^2.27.0",
     "@types/node": "^22.0.0",
     "acorn": "^8.12.0",
