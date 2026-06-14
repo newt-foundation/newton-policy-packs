@@ -426,3 +426,447 @@ Policy deployed successfully at address: 0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad
 === Sun Jun 14 13:21:54 PDT 2026 :: sumsub DONE ===
 sumsub DATA=0x2De2bfe212ec11D9a7E9F3125662c38e8efaA91C POLICY=0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873
 wrote ./sumsub/dist/last_deploy.json
+=== Sun Jun 14 14:51:26 PDT 2026 :: sumsub sync source policy.rego -> dist ===
+=== Sun Jun 14 14:51:26 PDT 2026 :: sumsub generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./sumsub/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6"
+}
+=== Sun Jun 14 14:51:35 PDT 2026 :: sumsub policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x162Cbdaac3C72975CE4f03286164f2dC2398E98D
+Policy Data Address: 0x162Cbdaac3C72975CE4f03286164f2dC2398E98D
+DATA_ADDR=0x162Cbdaac3C72975CE4f03286164f2dC2398E98D
+=== Sun Jun 14 14:51:51 PDT 2026 :: sumsub policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x162cbdaac3c72975ce4f03286164f2dc2398e98d]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x08542A6e76C4C18e0f98805842b3d5664125C508
+=== Sun Jun 14 14:52:20 PDT 2026 :: sumsub DONE ===
+sumsub DATA=0x162Cbdaac3C72975CE4f03286164f2dC2398E98D POLICY=0x08542A6e76C4C18e0f98805842b3d5664125C508
+wrote ./sumsub/dist/last_deploy.json
+=== Sun Jun 14 15:02:55 PDT 2026 :: sumsub sync source policy.rego -> dist ===
+=== Sun Jun 14 15:02:55 PDT 2026 :: sumsub generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy
+Public IPFS Link: https://ipfs.io/ipfs/bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./sumsub/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6"
+}
+=== Sun Jun 14 15:03:04 PDT 2026 :: sumsub policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C
+Policy Data Address: 0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C
+DATA_ADDR=0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C
+=== Sun Jun 14 15:03:12 PDT 2026 :: sumsub policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0xd90556a2d9658c3e8669d49d94b1c8c9fd52a11c]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x8e96f5aA0a657CfBb568E3c1F85f33387ff49ba7
+=== Sun Jun 14 15:03:12 PDT 2026 :: sumsub DONE ===
+sumsub DATA=0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C POLICY=0x8e96f5aA0a657CfBb568E3c1F85f33387ff49ba7
+wrote ./sumsub/dist/last_deploy.json
+=== Sun Jun 14 15:30:56 PDT 2026 :: sumsub sync source policy.rego -> dist ===
+=== Sun Jun 14 15:30:56 PDT 2026 :: sumsub generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeie5scxkeo3zuisbbzctt5e6v5mbwlmq45yedrzhiek2npxtrgg3vm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeie5scxkeo3zuisbbzctt5e6v5mbwlmq45yedrzhiek2npxtrgg3vm
+Public IPFS Link: https://ipfs.io/ipfs/bafybeie5scxkeo3zuisbbzctt5e6v5mbwlmq45yedrzhiek2npxtrgg3vm
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./sumsub/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeie5scxkeo3zuisbbzctt5e6v5mbwlmq45yedrzhiek2npxtrgg3vm",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6"
+}
+=== Sun Jun 14 15:31:10 PDT 2026 :: sumsub policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeie5scxkeo3zuisbbzctt5e6v5mbwlmq45yedrzhiek2npxtrgg3vm
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xB0166b8cb7Adec2330d6c7f8F8229914Ca7F73Bf
+Policy Data Address: 0xB0166b8cb7Adec2330d6c7f8F8229914Ca7F73Bf
+DATA_ADDR=0xB0166b8cb7Adec2330d6c7f8F8229914Ca7F73Bf
+=== Sun Jun 14 15:31:11 PDT 2026 :: sumsub policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0xb0166b8cb7adec2330d6c7f8f8229914ca7f73bf]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "nonce too low: next nonce 2653, tx nonce 2652", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:36:41 PDT 2026 :: sumsub sync source policy.rego -> dist ===
+=== Sun Jun 14 15:36:41 PDT 2026 :: sumsub generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354
+Public IPFS Link: https://ipfs.io/ipfs/bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./sumsub/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6"
+}
+=== Sun Jun 14 15:36:52 PDT 2026 :: sumsub policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x04899bC417B42d061Dc9CDaBfBa714a4520D3756
+Policy Data Address: 0x04899bC417B42d061Dc9CDaBfBa714a4520D3756
+DATA_ADDR=0x04899bC417B42d061Dc9CDaBfBa714a4520D3756
+=== Sun Jun 14 15:36:53 PDT 2026 :: sumsub policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x04899bc417b42d061dc9cdabfba714a4520d3756]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x122D98305F1c56509d678eB14184dE4cc9c01770
+=== Sun Jun 14 15:36:54 PDT 2026 :: sumsub DONE ===
+sumsub DATA=0x04899bC417B42d061Dc9CDaBfBa714a4520D3756 POLICY=0x122D98305F1c56509d678eB14184dE4cc9c01770
+wrote ./sumsub/dist/last_deploy.json

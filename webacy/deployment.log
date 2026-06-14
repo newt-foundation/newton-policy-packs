@@ -426,3 +426,669 @@ Policy deployed successfully at address: 0x2061f2D9808BF65a2A8686e1F0bD22dc764d5
 === Sun Jun 14 13:23:17 PDT 2026 :: webacy DONE ===
 webacy DATA=0x2AaE2E1ebbe7612D515F74BD941971c9baD6E1FA POLICY=0x2061f2D9808BF65a2A8686e1F0bD22dc764d54b0
 wrote ./webacy/dist/last_deploy.json
+=== Sun Jun 14 14:54:42 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 14:54:42 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti
+Public IPFS Link: https://ipfs.io/ipfs/bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 14:54:55 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xc6DDEe4D4585518f3Aa4bB24FFF79Ab222396a9e
+Policy Data Address: 0xc6DDEe4D4585518f3Aa4bB24FFF79Ab222396a9e
+DATA_ADDR=0xc6DDEe4D4585518f3Aa4bB24FFF79Ab222396a9e
+=== Sun Jun 14 14:55:03 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xc6ddee4d4585518f3aa4bb24fff79ab222396a9e]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0xa5Eb0DAabC80924aE74c0A33b135b538c857F57a
+=== Sun Jun 14 14:55:18 PDT 2026 :: webacy DONE ===
+webacy DATA=0xc6DDEe4D4585518f3Aa4bB24FFF79Ab222396a9e POLICY=0xa5Eb0DAabC80924aE74c0A33b135b538c857F57a
+wrote ./webacy/dist/last_deploy.json
+=== Sun Jun 14 15:05:12 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 15:05:12 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeifzgjtfwnwpexdpc7my7qlk6hgxuc7vbrqehxhdz4dreym4xpdicy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeifzgjtfwnwpexdpc7my7qlk6hgxuc7vbrqehxhdz4dreym4xpdicy
+Public IPFS Link: https://ipfs.io/ipfs/bafybeifzgjtfwnwpexdpc7my7qlk6hgxuc7vbrqehxhdz4dreym4xpdicy
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeifzgjtfwnwpexdpc7my7qlk6hgxuc7vbrqehxhdz4dreym4xpdicy",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 15:05:24 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifzgjtfwnwpexdpc7my7qlk6hgxuc7vbrqehxhdz4dreym4xpdicy
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xA3c21e27C8D3567c029F0d0D6BA2d901c7b6f2A9
+Policy Data Address: 0xA3c21e27C8D3567c029F0d0D6BA2d901c7b6f2A9
+DATA_ADDR=0xA3c21e27C8D3567c029F0d0D6BA2d901c7b6f2A9
+=== Sun Jun 14 15:05:24 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xa3c21e27c8d3567c029f0d0d6ba2d901c7b6f2a9]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:16:52 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 15:16:52 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq
+Public IPFS Link: https://ipfs.io/ipfs/bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 15:17:04 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xa4a600768cd2032F1E888c2f4a981e4E23C7f5C3
+Policy Data Address: 0xa4a600768cd2032F1E888c2f4a981e4E23C7f5C3
+DATA_ADDR=0xa4a600768cd2032F1E888c2f4a981e4E23C7f5C3
+=== Sun Jun 14 15:17:12 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xa4a600768cd2032f1e888c2f4a981e4e23c7f5c3]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0x58f63D2722f780d65A6fb07d2D7727a2616b0CeA
+=== Sun Jun 14 15:17:13 PDT 2026 :: webacy DONE ===
+webacy DATA=0xa4a600768cd2032F1E888c2f4a981e4E23C7f5C3 POLICY=0x58f63D2722f780d65A6fb07d2D7727a2616b0CeA
+wrote ./webacy/dist/last_deploy.json
+=== Sun Jun 14 15:33:31 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 15:33:31 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiejvqzcv3wnbvyrwaietgjy5mtuojdbtakg7e4ekvkto3vqyy7qbe
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeiejvqzcv3wnbvyrwaietgjy5mtuojdbtakg7e4ekvkto3vqyy7qbe
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiejvqzcv3wnbvyrwaietgjy5mtuojdbtakg7e4ekvkto3vqyy7qbe
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiejvqzcv3wnbvyrwaietgjy5mtuojdbtakg7e4ekvkto3vqyy7qbe",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 15:33:43 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiejvqzcv3wnbvyrwaietgjy5mtuojdbtakg7e4ekvkto3vqyy7qbe
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xD287F29beF39CE2dDB36634c89b3e91c12A9f2d8
+Policy Data Address: 0xD287F29beF39CE2dDB36634c89b3e91c12A9f2d8
+DATA_ADDR=0xD287F29beF39CE2dDB36634c89b3e91c12A9f2d8
+=== Sun Jun 14 15:33:44 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xd287f29bef39ce2ddb36634c89b3e91c12a9f2d8]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:39:44 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 15:39:44 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeihtcljf65dbtpicmljhvvhxmb2knlaxha7tzvokomfalsezocr77y
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeihtcljf65dbtpicmljhvvhxmb2knlaxha7tzvokomfalsezocr77y
+Public IPFS Link: https://ipfs.io/ipfs/bafybeihtcljf65dbtpicmljhvvhxmb2knlaxha7tzvokomfalsezocr77y
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeihtcljf65dbtpicmljhvvhxmb2knlaxha7tzvokomfalsezocr77y",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 15:39:56 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeihtcljf65dbtpicmljhvvhxmb2knlaxha7tzvokomfalsezocr77y
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x621d22D7834FF1E01fe2145C9a43d91813D423EA
+Policy Data Address: 0x621d22D7834FF1E01fe2145C9a43d91813D423EA
+DATA_ADDR=0x621d22D7834FF1E01fe2145C9a43d91813D423EA
+=== Sun Jun 14 15:39:57 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0x621d22d7834ff1e01fe2145c9a43d91813d423ea]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "nonce too low: next nonce 2663, tx nonce 2662", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:44:46 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Sun Jun 14 15:44:46 PDT 2026 :: webacy generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Sun Jun 14 15:45:01 PDT 2026 :: webacy policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108
+Policy Data Address: 0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108
+DATA_ADDR=0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108
+=== Sun Jun 14 15:45:09 PDT 2026 :: webacy policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xa1c0cb602d2a337f6ebdaa8fba4d92918689e108]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0x31b4B8Bd0334ae3c92e9920EEE6ac8AE8992ec2c
+=== Sun Jun 14 15:45:17 PDT 2026 :: webacy DONE ===
+webacy DATA=0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108 POLICY=0x31b4B8Bd0334ae3c92e9920EEE6ac8AE8992ec2c
+wrote ./webacy/dist/last_deploy.json

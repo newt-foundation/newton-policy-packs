@@ -2,10 +2,29 @@
   "schemaVersion": 2,
   "comment": "Canonical deployed policy + policy-data addresses, keyed by pack -> chainId (decimal string) -> env. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell now has separate stagef/prod sub-records since the same pack may have distinct policy addresses on the same chain under different AVS envs.",
   "chains": {
-    "11155111": "Ethereum Sepolia"
+    "11155111": "Ethereum Sepolia",
+    "84532": "Base Sepolia"
   },
   "packs": {
     "balancer": {
+      "84532": {
+        "stagef": {
+          "policy": "0x3B7ae794350Ce2e9866DE3e334d226ef62B16E75",
+          "policyData": "0xCFaD228c0997F8bdf5B9d351321538A89c1353b5",
+          "wasmCid": "bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi",
+          "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x844C7278eAB2138C791Bf008FB6de7d58E5df9D7",
+          "policyData": "0x747FDd8db8b4D0706c8C1b010582EA70D18090A9",
+          "wasmCid": "bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu",
+          "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
@@ -14,10 +33,36 @@
           "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0x24703607D632616DdA58ef26F97dBda9876a54d4",
+          "policyData": "0x65E13469586d26Dca3cD0a8173afE07E689c859d",
+          "wasmCid": "bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium",
+          "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "blockaid": {
+      "84532": {
+        "stagef": {
+          "policy": "0x2DfC58315De3e43F365449aF68202fC4AA3CC0a3",
+          "policyData": "0xB03321c6E4905c399ED5E7aAeDA8A180dEfC175b",
+          "wasmCid": "bafybeidp2gyreu3e7qhflnwlhcrboug6bj4wzayythtd4efnr6reyyxe2e",
+          "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x16B61ba697eeD838Ca7E09154289781EebbdC7f2",
+          "policyData": "0x3F14D8a7780153c32200829B4E7eE64D9e21550C",
+          "wasmCid": "bafybeicqujyqanpoh3lserei46d5yrwcqjzvbs3uof45xipkvoyqgrxv74",
+          "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0xcBC09be770c0b220ABC5D95A49f81964B8E2da43",
@@ -26,10 +71,36 @@
           "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0x992bc96446B048FE0bD7DAA11E741A4e9e709777",
+          "policyData": "0x6A245Fca1FFF1197D6692944639971891B09Ee21",
+          "wasmCid": "bafybeicf2rj3zdinteuji6zb2oh3rshcojh2y36qvev2gggtenajkspw5e",
+          "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "chainalysis": {
+      "84532": {
+        "stagef": {
+          "policy": "0x7369d512c804A8433af7d4ECca6f40825079016a",
+          "policyData": "0x6a0b31599b2494591d697Fc22C6Cd81e627aDE1A",
+          "wasmCid": "bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay",
+          "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0xC29Dc9C293c5a3f0B9037ac81bf009C0CBcdd4b5",
+          "policyData": "0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7",
+          "wasmCid": "bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe",
+          "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e658",
@@ -38,10 +109,36 @@
           "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0xb7DFa7E202EA39d4756529aa892043146F078BA0",
+          "policyData": "0x39c217a97809118aBc3C89FfcF54F21993493BE7",
+          "wasmCid": "bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e",
+          "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "guardrail": {
+      "84532": {
+        "stagef": {
+          "policy": "0x3613A2941Ea3B2cac62A2808b0A1061964CE5d7d",
+          "policyData": "0x8470Bb8eF82247C1D9E65B08E2A9254A4E7c6Ef2",
+          "wasmCid": "bafybeien53frjux2b5ipy3tohfh2k2nqnejoxeaem4v55nlgelajortofq",
+          "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0xfe3963Ba56638Bb9AE3c65e7aCb7BE9D487c3D5c",
+          "policyData": "0xcA2F1AE9C85cA61C374f4d104D73106a2FF8Af81",
+          "wasmCid": "bafybeig5jz2yyl5rhdnm4hbq7rodhpqm554kpjgpwomml6eo4sfp53kwqy",
+          "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0xF723F63Cc93b41A64fa400e413b3c08d06De8B23",
@@ -50,10 +147,36 @@
           "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0xE0448639e3ddfE391DCBFf2B9175a13fc23551f7",
+          "policyData": "0x1BBE772AB98101ff46ee03067280909E347539d3",
+          "wasmCid": "bafybeicvb3tozyu54rptld2n3wu64ak6g6wlnf4rgqqtirztp5w25jkg7a",
+          "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "persona": {
+      "84532": {
+        "stagef": {
+          "policy": "0xE678C260260FA263bC49eD649479312fe5eb2BD9",
+          "policyData": "0x4BF5817B4bCbBE2A1aDfAB6bF608c63C2dE89d79",
+          "wasmCid": "bafybeico573bzbbjhjmbgmfluqyib7gmdsumtygesqxruglr547kkqfcci",
+          "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x4A1C9f173500579df4cdD8D8fe565b237E49ee22",
+          "policyData": "0x5fA39453b7F2B25151bEDBCfB47FCDc42fAac6B4",
+          "wasmCid": "bafybeidg6hhydw4h2b2p5k4hnz3maxjqvafc2qnjdees5otuufizuiea3q",
+          "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x8e8360D6F5dA98bdaf1405C952783567d385f732",
@@ -62,10 +185,36 @@
           "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0x6b659BF2e98A11dc48368d8eBde48A029A539227",
+          "policyData": "0x6763f421119850d93a43a2875B3350b51e2806C1",
+          "wasmCid": "bafybeidmehpw5gusr5ee5xvhxoerxo3xueniaqofvue2vocutpftvbk74m",
+          "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "redstone": {
+      "84532": {
+        "stagef": {
+          "policy": "0x0DE9E40A7C1803bC80A053db96e811d6C39a261B",
+          "policyData": "0xE1b1b5F4a22Aa53eCf2403BB650e33d38D431801",
+          "wasmCid": "bafybeidk5o6m4lnxwf3ozfxeokwgkc2kqmio6zfo7hoz4al7mtqi6vwvye",
+          "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x15cBF6118cdA95e900550ebBcC3ECe56742efA63",
+          "policyData": "0x6C9068e1213fD6dba4Eb8A9767dEb5bD320a6885",
+          "wasmCid": "bafybeih7le4d3o75bldcvehgerfpeadp5nm3lihxc4ng6t4zz63g7yzrfy",
+          "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x2059d650A414a2006433B9ef818a0dBaE17F1077",
@@ -74,10 +223,36 @@
           "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0x97C7E16846A9Ef13aBC2492A2FeE5a5957e08d41",
+          "policyData": "0xEF57d7C9641c8687A193F96A425966207fa7c9b1",
+          "wasmCid": "bafybeieuu4y7cqq6yppvjffichnvdayoba6loakklfrxv6fowyijsmjr34",
+          "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "sumsub": {
+      "84532": {
+        "stagef": {
+          "policy": "0x8e96f5aA0a657CfBb568E3c1F85f33387ff49ba7",
+          "policyData": "0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C",
+          "wasmCid": "bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy",
+          "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x122D98305F1c56509d678eB14184dE4cc9c01770",
+          "policyData": "0x04899bC417B42d061Dc9CDaBfBa714a4520D3756",
+          "wasmCid": "bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354",
+          "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873",
@@ -86,10 +261,36 @@
           "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0x08542A6e76C4C18e0f98805842b3d5664125C508",
+          "policyData": "0x162Cbdaac3C72975CE4f03286164f2dC2398E98D",
+          "wasmCid": "bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i",
+          "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "vaultsfyi": {
+      "84532": {
+        "stagef": {
+          "policy": "0x6ce77A9D43296221Bccd4FD8980d37bcc9700E01",
+          "policyData": "0xd3D4C653c2228160A1A867Ee93d71295bc1FAa64",
+          "wasmCid": "bafybeic2rngfgrbj3util355lrfel7obw4eskhntdnq2bnfrrudwgo25ei",
+          "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x8E70c8CDC30017833825043ECB143796109c839e",
+          "policyData": "0xCb047e80808112E51e0DcAA866311D7CC56D4e35",
+          "wasmCid": "bafybeigsj7m7rqepu6wjhbrd7ubihh2fndkkdv3i4slkkifc4j4vjr32lm",
+          "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc",
@@ -98,10 +299,36 @@
           "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0xdd4ceC58b872D84751FbFa8fb07844D4f8c53e1C",
+          "policyData": "0xb89d568393f3e4d1f2A48B7E979d095E5A82160c",
+          "wasmCid": "bafybeihynjunfenccq6wnr6mqpz6cswv4aq234a6pk7mnsi2ne4k4ljfmy",
+          "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     },
     "webacy": {
+      "84532": {
+        "stagef": {
+          "policy": "0x58f63D2722f780d65A6fb07d2D7727a2616b0CeA",
+          "policyData": "0xa4a600768cd2032F1E888c2f4a981e4E23C7f5C3",
+          "wasmCid": "bafybeies4dfwswc5zptav3ejulakpbby2bfv6egpzace4dtpu2jwb3hniq",
+          "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)"
+        },
+        "prod": {
+          "policy": "0x31b4B8Bd0334ae3c92e9920EEE6ac8AE8992ec2c",
+          "policyData": "0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108",
+          "wasmCid": "bafybeiaqgr4nfflpzxzznuplpkhvjwbc43ccokilnmgzkiyvk7g364a6ve",
+          "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)"
+        }
+      },
       "11155111": {
         "stagef": {
           "policy": "0x2061f2D9808BF65a2A8686e1F0bD22dc764d54b0",
@@ -110,6 +337,14 @@
           "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
           "deployedAt": "2026-06-14",
           "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        },
+        "prod": {
+          "policy": "0xa5Eb0DAabC80924aE74c0A33b135b538c857F57a",
+          "policyData": "0xc6DDEe4D4585518f3Aa4bB24FFF79Ab222396a9e",
+          "wasmCid": "bafybeigjmpjdensb2ojhvb3abm4tygnh3zl3tea6jpkurxnrdg2owaljti",
+          "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)"
         }
       }
     }
