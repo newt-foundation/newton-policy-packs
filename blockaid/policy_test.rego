@@ -18,11 +18,19 @@ clean_data := {
     "simulation_succeeded": true,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.blockaid.<field>`, so test fixtures wrap the inner shape
+# under the `blockaid` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"blockaid": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    blockaid_tx_safety.allow with data.params as default_params with data.wasm as clean_data
-    count(blockaid_tx_safety.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    blockaid_tx_safety.allow with data.params as default_params with data.wasm as d
+    count(blockaid_tx_safety.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_blockaid_malicious if {
@@ -89,11 +97,11 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as {}
+    not blockaid_tx_safety.allow with data.params as default_params with data.wasm as wrap({})
 }
 
 test_deny_unknown_classification if {
