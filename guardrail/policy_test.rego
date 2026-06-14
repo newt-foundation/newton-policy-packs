@@ -18,11 +18,19 @@ clean_data := {
     "health_score": 95,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.guardrail.<field>`, so test fixtures wrap the inner shape
+# under the `guardrail` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"guardrail": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as clean_data
-    count(guardrail_protocol_monitor.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as d
+    count(guardrail_protocol_monitor.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_active_critical_alert if {
@@ -92,9 +100,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as {}
+    not guardrail_protocol_monitor.allow with data.params as default_params with data.wasm as wrap({})
 }

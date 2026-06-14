@@ -1,6 +1,19 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// `policy.js` is fed straight to `jco componentize` with only the
+// `newton:provider/*` host imports wired. See vaultsfyi PR #41 for the
+// canonical pattern. PACK_ID drift is enforced at `pnpm test` time by
+// packages/policy-pack-guardrail/src/pack-id.test.ts.
+const PACK_ID = "guardrail";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 // Guardrail.so does not publish a stable, public REST API spec. The base URL
 // and path here are best-guess placeholders; reconfirm against the live
 // dashboard's network calls or with the Guardrail team before mainnet use.
@@ -76,9 +89,19 @@ function fetchHealth(target, chainId) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ guardrail: {...}, vaultsfyi: {...} }`; nullish
+    // coalescing reads our slice when present, falls back to flat for
+    // legacy single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place —
+    // `secret(name)` only reads fixed named keys (e.g. `GUARDRAIL_API_KEY`).
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { protocolId, vaultAddress, chainId } = parsed;
+    const { protocolId, vaultAddress, chainId } = myArgs;
     const target = vaultAddress ?? protocolId;
     if (!target) throw new Error("missing protocolId or vaultAddress");
 
@@ -119,7 +142,7 @@ export function run(input) {
       return acc == null || a.ageSeconds > acc ? a.ageSeconds : acc;
     }, null);
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       target,
       chain_id: chainId ?? null,
       active_alert_count: normalized.length,
@@ -131,6 +154,6 @@ export function run(input) {
       timestamp: nowMs,
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
