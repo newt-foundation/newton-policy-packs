@@ -9,3 +9,4 @@ export {
 	getDeployment,
 	UnsupportedChainError,
 } from "./pack";
+export { wrapOutput } from "./wrap";
