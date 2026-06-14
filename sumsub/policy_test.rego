@@ -20,15 +20,21 @@ clean_data := {
     "age_years": 35,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.sumsub.<field>`, so test fixtures wrap the inner shape
+# under the `sumsub` key.
+wrap(inner) := {"sumsub": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    sumsub_kyc.allow with data.params as default_params with data.wasm as clean_data
-    count(sumsub_kyc.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    sumsub_kyc.allow with data.params as default_params with data.wasm as d
+    count(sumsub_kyc.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_no_applicant if {
-    d := {
+    d := wrap({
         "has_applicant": false,
         "applicant_id": null,
         "review_status": null,
@@ -36,7 +42,7 @@ test_deny_no_applicant if {
         "applicant_age_days": null,
         "country_code": null,
         "age_years": null,
-    }
+    })
     "no_applicant" in sumsub_kyc.deny with data.params as default_params with data.wasm as d
     not sumsub_kyc.allow with data.params as default_params with data.wasm as d
 }
@@ -96,7 +102,7 @@ test_no_applicant_short_circuits if {
     # When there is no applicant, only no_applicant fires — none of the
     # detail-level rules (kyc_stale, country, underage, pending) should
     # trigger off null fields.
-    d := {
+    d := wrap({
         "has_applicant": false,
         "applicant_id": null,
         "review_status": null,
@@ -104,7 +110,7 @@ test_no_applicant_short_circuits if {
         "applicant_age_days": null,
         "country_code": null,
         "age_years": null,
-    }
+    })
     deny := sumsub_kyc.deny with data.params as default_params with data.wasm as d
     "no_applicant" in deny
     not "kyc_stale" in deny
@@ -139,9 +145,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not sumsub_kyc.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not sumsub_kyc.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not sumsub_kyc.allow with data.params as default_params with data.wasm as {}
+    not sumsub_kyc.allow with data.params as default_params with data.wasm as wrap({})
 }
