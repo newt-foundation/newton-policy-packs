@@ -1,5 +1,70 @@
 # @newton-xyz/policy-pack-webacy
 
+## 2.0.0
+
+### Major Changes
+
+- d5d8465: feat(webacy)!: pack-side namespacing for composite-policy-packs (NEWT-1539 Phase 0 Stream B — FINAL)
+
+  **Final** Stream B per-pack PR. Replicates the pattern locked in
+  [#41 (vaultsfyi)](https://github.com/newt-foundation/newton-policy-packs/pull/41).
+  Closes the 9-pack Stream B sweep.
+
+  What changed in `webacy/`:
+
+  - `policy.js` wraps both return paths under `PACK_ID = "webacy"` via
+    inline `wrapOutput`. Input-unwrap shim. `_secrets` cleanup.
+  - `policy.rego` reads from `data.wasm.webacy.<field>`.
+  - New `wrapping_test.rego` (TDD-first) — webacy uses pure silent-skip
+    (every deny rule has explicit precondition or comparison that
+    fails-skip on undefined). Same shape as
+    vaultsfyi/balancer/chainalysis/redstone. Flat-input assertion is
+    `count(deny) == 0`.
+  - `policy_test.rego` (existing 13 tests) wraps fixtures.
+  - New `packages/policy-pack-webacy/src/pack-id.test.ts`.
+  - `scripts/lint-policy-js.allowlist.json` drops webacy's 2 grandfathered
+    entries (lines 98, 113). Allowlist contains only vaultsfyi entries
+    (lines 115, 144) — those land in PR #41 (vaultsfyi).
+
+  Out of scope:
+
+  - WASM rebuild → Stream D. npm publish → Stream E.
+  - HTTP status check is NOT yet present in webacy's `getJson`. Tracked
+    as part of the cross-pack input-validation hardening sweep
+    (separately, NEWT-1539 follow-up).
+  - `OracleModule` / manifest / `defineComposite` → Phases 1, 1.5, 2.
+
+### Patch Changes
+
+- c9b1566: chore: Stream D Sepolia redeploy for namespaced WASM (NEWT-1539 Phase 0 Stream D)
+
+  On-chain follow-up to the Stream B per-pack source rewrites
+  ([#41–#49](https://github.com/newt-foundation/newton-policy-packs/pulls?q=is%3Apr+NEWT-1539+is%3Amerged)).
+  Re-componentizes each `policy.js` (now namespaced under `PACK_ID`) and
+  deploys fresh `INewtonPolicy` + `INewtonPolicyData` pairs on Ethereum
+  Sepolia (chain id 11155111). Bindings (`packages/policy-pack-<pack>/src/deployments.ts`)
+  and the canonical `deployments.json` are updated to point at the new
+  addresses; old pre-namespacing addresses are dropped from the registry
+  per ADR 0003 force-migration.
+
+  Per-pack address changes are visible in `deployments.json`. WASM CIDs
+  and `policyCodeHash` values are also updated since the post-namespacing
+  WASM bytes hash differently.
+
+  No SDK API changes. Existing consumers on `@^1.x` will resolve to the
+  new `Deployment` constants on upgrade — `createShield(...)` continues to
+  work without code changes on the curator side.
+
+  Out of scope:
+
+  - npm publish of the patch bump → PR #40 (Stream E auto-publish).
+  - `OracleModule` interface + per-pack export → Phase 1 (NEWT-1540).
+  - Composite manifest format + decode helpers → Phase 1.5 (NEWT-1541).
+  - `defineComposite` builder + Shield SDK migration → Phase 2 (NEWT-1542).
+
+- Updated dependencies [ac73d21]
+  - @newton-xyz/policy-pack-shared@0.3.0
+
 ## 1.0.0
 
 ### Major Changes
