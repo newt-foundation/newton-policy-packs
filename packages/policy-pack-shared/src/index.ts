@@ -1,4 +1,4 @@
-export type { ChainId, Deployment } from "./deployment";
+export type { ChainId, Deployment, GatewayEnv } from "./deployment";
 export { decodePolicyParams, encodePolicyParams } from "./encoding";
 export type {
 	PolicyPack,
@@ -8,5 +8,6 @@ export type {
 export {
 	getDeployment,
 	UnsupportedChainError,
+	UnsupportedEnvError,
 } from "./pack";
 export { wrapOutput } from "./wrap";

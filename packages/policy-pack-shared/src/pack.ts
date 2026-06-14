@@ -1,6 +1,6 @@
 import type { Address, Hex, PublicClient } from "viem";
 import type { z } from "zod";
-import type { ChainId, Deployment } from "./deployment";
+import type { ChainId, Deployment, GatewayEnv } from "./deployment";
 
 /**
  * Inputs that a pack's `prepareQuery` reads at intent-build time.
@@ -69,13 +69,14 @@ export interface PrepareQueryResult<TWasmArgs> {
  *                       via its own `prepareQuery` signature; the shared
  *                       interface keeps it `unknown` so the SDK can
  *                       forward it verbatim.
- * - `deployments`    — `chainId → Deployment` map sliced from the upstream
- *                       `deployments.json` for this pack only. Typed as
- *                       `Partial<Record<ChainId, Deployment>>` so callers
- *                       must handle `undefined` for unsupported chains
- *                       rather than silently reading `.policy` off nothing.
- *                       Use `getDeployment(pack, chainId)` from this package
- *                       for the safe lookup.
+ * - `deployments`    — `chainId → env → Deployment` map sliced from the
+ *                       upstream `deployments.json` for this pack only.
+ *                       Typed as `Partial<Record<ChainId, Partial<Record<GatewayEnv,
+ *                       Deployment>>>>` so callers must handle `undefined`
+ *                       both for unsupported chains and for chains where
+ *                       only one env has been deployed. Use
+ *                       `getDeployment(pack, chainId, env)` from this
+ *                       package for the safe lookup.
  * - `metadata`       — static identity from the pack's `policy_metadata.json`.
  */
 export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
@@ -84,7 +85,9 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 	readonly wasmArgsSchema: z.ZodType<TWasmArgs>;
 	readonly secretsSchema: z.ZodType<TSecrets>;
 	prepareQuery?(args: PrepareQueryArgs, options?: unknown): Promise<PrepareQueryResult<TWasmArgs>>;
-	readonly deployments: Readonly<Partial<Record<ChainId, Deployment>>>;
+	readonly deployments: Readonly<
+		Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>
+	>;
 	readonly metadata: {
 		readonly name: string;
 		readonly version: string;
@@ -95,24 +98,37 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 }
 
 /**
- * Safe lookup helper. Returns the `Deployment` for `chainId` if the pack is
- * deployed on that chain, or throws `UnsupportedChainError` with the list of
- * chain ids the pack is known to support. Use this at every SDK callsite that
- * reads `pack.deployments[chainId]` so unsupported-chain failures surface
+ * Safe lookup helper. Returns the `Deployment` for `(chainId, env)` if the
+ * pack is deployed there, or throws — `UnsupportedChainError` if the chain
+ * itself has no entry, `UnsupportedEnvError` if the chain has at least one
+ * env but not the one requested. Use this at every SDK callsite that reads
+ * `pack.deployments[chainId][env]` so unsupported-cell failures surface
  * immediately rather than as `undefined.policy` further down.
  */
 export function getDeployment<TParams, TWasmArgs, TSecrets>(
 	pack: PolicyPack<TParams, TWasmArgs, TSecrets>,
 	chainId: ChainId,
+	env: GatewayEnv,
 ): Deployment {
-	const deployment = pack.deployments[chainId];
-	if (!deployment) {
-		const supported = Object.keys(pack.deployments).sort().join(", ") || "(none)";
+	const perEnv = pack.deployments[chainId];
+	if (!perEnv) {
+		const supportedChains = Object.keys(pack.deployments).sort().join(", ") || "(none)";
 		throw new UnsupportedChainError(
-			`Pack \`${pack.id}\` is not deployed on chain ${chainId}. Supported: ${supported}.`,
+			`Pack \`${pack.id}\` is not deployed on chain ${chainId}. Supported: ${supportedChains}.`,
 			pack.id,
 			chainId,
 			Object.keys(pack.deployments),
+		);
+	}
+	const deployment = perEnv[env];
+	if (!deployment) {
+		const supportedEnvs = Object.keys(perEnv).sort().join(", ") || "(none)";
+		throw new UnsupportedEnvError(
+			`Pack \`${pack.id}\` is deployed on chain ${chainId} but not in env "${env}". Supported envs on this chain: ${supportedEnvs}.`,
+			pack.id,
+			chainId,
+			env,
+			Object.keys(perEnv) as GatewayEnv[],
 		);
 	}
 	return deployment;
@@ -131,6 +147,26 @@ export class UnsupportedChainError extends Error {
 		readonly packId: string,
 		readonly chainId: ChainId,
 		readonly supportedChainIds: ReadonlyArray<ChainId>,
+	) {
+		super(message);
+	}
+}
+
+/**
+ * Thrown by `getDeployment` when a pack is deployed on the requested chain
+ * but not in the requested env. Distinct from `UnsupportedChainError`
+ * because the recovery is different: the curator either picks a different
+ * env (typo / wrong gateway) or the AVS team needs to deploy the pack into
+ * the requested env.
+ */
+export class UnsupportedEnvError extends Error {
+	override readonly name = "UnsupportedEnvError";
+	constructor(
+		message: string,
+		readonly packId: string,
+		readonly chainId: ChainId,
+		readonly env: GatewayEnv,
+		readonly supportedEnvs: ReadonlyArray<GatewayEnv>,
 	) {
 		super(message);
 	}

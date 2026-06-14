@@ -1,99 +1,121 @@
 {
-  "schemaVersion": 1,
-  "comment": "Canonical deployed policy + policy-data addresses, keyed by pack -> chain id (decimal string). Update on every redeploy. The dashboard reads this; OPERATING.md links here.",
+  "schemaVersion": 2,
+  "comment": "Canonical deployed policy + policy-data addresses, keyed by pack -> chainId (decimal string) -> env. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell now has separate stagef/prod sub-records since the same pack may have distinct policy addresses on the same chain under different AVS envs.",
   "chains": {
     "11155111": "Ethereum Sepolia"
   },
   "packs": {
     "balancer": {
       "11155111": {
-        "policy": "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
-        "policyData": "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
-        "wasmCid": "bafybeibb4rxzaqaolsqmc7kymnr34a3vj6bo6xfom5cggr4ouyqahlspvu",
-        "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
+          "policyData": "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
+          "wasmCid": "bafybeibb4rxzaqaolsqmc7kymnr34a3vj6bo6xfom5cggr4ouyqahlspvu",
+          "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "blockaid": {
       "11155111": {
-        "policy": "0xcBC09be770c0b220ABC5D95A49f81964B8E2da43",
-        "policyData": "0x2305EC115a0E34D3772D68912bBD85eB6C3c550d",
-        "wasmCid": "bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni",
-        "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0xcBC09be770c0b220ABC5D95A49f81964B8E2da43",
+          "policyData": "0x2305EC115a0E34D3772D68912bBD85eB6C3c550d",
+          "wasmCid": "bafybeia2ci3xamxzjontcqv22zlv3cv7lk5nrwnlgcf5oriwhsw5pc6vni",
+          "policyCodeHash": "0xb95ee22e1aeda1008947322959dcd2b42dddeea426a63e3a28c4530f5f02eea6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "chainalysis": {
       "11155111": {
-        "policy": "0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e658",
-        "policyData": "0x571f1bAfAb0c47Ae0920c60d8C0a93871abc82cF",
-        "wasmCid": "bafybeigb2te7yt7xyc34h75zndnftu6g36gaegt6evkg2ebxfefotafy6e",
-        "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e658",
+          "policyData": "0x571f1bAfAb0c47Ae0920c60d8C0a93871abc82cF",
+          "wasmCid": "bafybeigb2te7yt7xyc34h75zndnftu6g36gaegt6evkg2ebxfefotafy6e",
+          "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "guardrail": {
       "11155111": {
-        "policy": "0xF723F63Cc93b41A64fa400e413b3c08d06De8B23",
-        "policyData": "0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24",
-        "wasmCid": "bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu",
-        "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0xF723F63Cc93b41A64fa400e413b3c08d06De8B23",
+          "policyData": "0x51eB9C3109DbA9EbD2280c8b2a42b7d6EB798f24",
+          "wasmCid": "bafybeihjc2sgrsd4kjqvjjx3x7uryfqkrcbb6bee6a66vdjgv27fl5jdeu",
+          "policyCodeHash": "0xff0b820d4e8d4f039822455c3403ec2a78a330873d3e9e81f464ff2d86b77867",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "persona": {
       "11155111": {
-        "policy": "0x8e8360D6F5dA98bdaf1405C952783567d385f732",
-        "policyData": "0xa84E42526c76e12b80cc5046A8AdE9182FeEe824",
-        "wasmCid": "bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe",
-        "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x8e8360D6F5dA98bdaf1405C952783567d385f732",
+          "policyData": "0xa84E42526c76e12b80cc5046A8AdE9182FeEe824",
+          "wasmCid": "bafybeidbremhstsa3vmjseekseia4allt6n2aq2vnmgcbemlrin7v447xe",
+          "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "redstone": {
       "11155111": {
-        "policy": "0x2059d650A414a2006433B9ef818a0dBaE17F1077",
-        "policyData": "0xdD956F174d2416D8a9F303A1e979016f5Dd12837",
-        "wasmCid": "bafybeicxv5qvhijhwvhqa36xmloezsmgiy74dr5we7a4y5673gr6f5ukki",
-        "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x2059d650A414a2006433B9ef818a0dBaE17F1077",
+          "policyData": "0xdD956F174d2416D8a9F303A1e979016f5Dd12837",
+          "wasmCid": "bafybeicxv5qvhijhwvhqa36xmloezsmgiy74dr5we7a4y5673gr6f5ukki",
+          "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "sumsub": {
       "11155111": {
-        "policy": "0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873",
-        "policyData": "0x2De2bfe212ec11D9a7E9F3125662c38e8efaA91C",
-        "wasmCid": "bafybeigk7pjxtkbrnlqg7yixoms3ykjogsicrrgsihh35nyvk54cgxvrla",
-        "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873",
+          "policyData": "0x2De2bfe212ec11D9a7E9F3125662c38e8efaA91C",
+          "wasmCid": "bafybeigk7pjxtkbrnlqg7yixoms3ykjogsicrrgsihh35nyvk54cgxvrla",
+          "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "vaultsfyi": {
       "11155111": {
-        "policy": "0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc",
-        "policyData": "0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37",
-        "wasmCid": "bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm",
-        "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x7eC92AfEdcf2DB90222f04044C47ce0Efd7ccbcc",
+          "policyData": "0x9242fc89033C612878e64CcDF6d1Fff8b0d1fC37",
+          "wasmCid": "bafybeibiqon7wsceuet2lumtsu6364vnbe6ezwwwtjlnpusclorai3s5nm",
+          "policyCodeHash": "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     },
     "webacy": {
       "11155111": {
-        "policy": "0x2061f2D9808BF65a2A8686e1F0bD22dc764d54b0",
-        "policyData": "0x2AaE2E1ebbe7612D515F74BD941971c9baD6E1FA",
-        "wasmCid": "bafybeidu3262maqfcfnckf3zwsf6h3zamwz3iiezmk3id4ewwa5guznrje",
-        "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
-        "deployedAt": "2026-06-14",
-        "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        "stagef": {
+          "policy": "0x2061f2D9808BF65a2A8686e1F0bD22dc764d54b0",
+          "policyData": "0x2AaE2E1ebbe7612D515F74BD941971c9baD6E1FA",
+          "wasmCid": "bafybeidu3262maqfcfnckf3zwsf6h3zamwz3iiezmk3id4ewwa5guznrje",
+          "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
+          "deployedAt": "2026-06-14",
+          "notes": "Phase 0 Stream D — composite namespacing redeploy"
+        }
       }
     }
+  },
+  "envs": {
+    "stagef": "Newton AVS — Stagef (testnet gateway)",
+    "prod": "Newton AVS — Prod (mainnet-style gateway, also fronts testnet chains)"
   }
 }

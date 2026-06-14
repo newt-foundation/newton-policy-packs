@@ -11,6 +11,15 @@ import type { Address, Hex } from "viem";
 export type ChainId = string;
 
 /**
+ * Newton AVS environment. Mirrors `@newton-xyz/newton-shield-sdk`'s
+ * `GatewayEnv`. The same `(chainId)` may have separate deployments under
+ * each env — distinct gateways, distinct TaskManager addresses, distinct
+ * registered operators. A pack policy deployed under `stagef` will not be
+ * evaluated by `prod` operators and vice versa.
+ */
+export type GatewayEnv = "stagef" | "prod";
+
+/**
  * On-chain address pair + content addressing for a deployed Newton policy
  * on a given chain. Mirrors the per-pack-per-chain entries in the upstream
  * `deployments.json`.
