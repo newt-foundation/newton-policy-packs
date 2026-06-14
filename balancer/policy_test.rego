@@ -24,11 +24,19 @@ clean_data := {
     "underlying_protocols": [],
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.balancer.<field>`, so test fixtures wrap the inner shape under
+# the `balancer` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"balancer": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    balancer_pool_risk.allow with data.params as default_params with data.wasm as clean_data
-    count(balancer_pool_risk.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    balancer_pool_risk.allow with data.params as default_params with data.wasm as d
+    count(balancer_pool_risk.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_token_weight_drift if {
@@ -104,9 +112,9 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not balancer_pool_risk.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not balancer_pool_risk.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not balancer_pool_risk.allow with data.params as default_params with data.wasm as {}
+    not balancer_pool_risk.allow with data.params as default_params with data.wasm as wrap({})
 }
