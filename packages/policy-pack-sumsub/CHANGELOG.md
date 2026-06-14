@@ -1,5 +1,72 @@
 # @newton-xyz/policy-pack-sumsub
 
+## 2.0.0
+
+### Major Changes
+
+- 24c09e7: feat(sumsub)!: pack-side namespacing for composite-policy-packs (NEWT-1539 Phase 0 Stream B)
+
+  Eighth Stream B per-pack PR. Replicates the pattern locked in
+  [#41 (vaultsfyi)](https://github.com/newt-foundation/newton-policy-packs/pull/41).
+
+  What changed in `sumsub/`:
+
+  - `policy.js` wraps **all THREE return paths** under `PACK_ID = "sumsub"`
+    via inline `wrapOutput` (early no-applicant, success, catch). Same
+    multi-return-path shape as persona #46.
+  - Input-unwrap shim and `_secrets` cleanup follow the canonical pattern.
+  - `policy.rego` reads from `data.wasm.sumsub.<field>`.
+  - New `wrapping_test.rego` (TDD-first) — sumsub uses the MIXED
+    negative-shape pattern (like persona/guardrail). `no_applicant` has
+    the bare `not v.has_applicant` shape — fires on undefined `v`. Other
+    rules silent-skip. Flat-input assertion pins
+    `"no_applicant" in deny` + `count(deny) == 1` + `not allow`.
+  - `policy_test.rego` (existing 13 tests) wraps fixtures under the
+    `sumsub` key — including the two inline-fixture tests
+    (`test_deny_no_applicant`, `test_no_applicant_short_circuits`) that
+    bypass `with_data`.
+  - New `packages/policy-pack-sumsub/src/pack-id.test.ts`.
+  - `scripts/lint-policy-js.allowlist.json` drops sumsub's 3
+    grandfathered entries (lines 268, 294, 305).
+
+  Out of scope:
+
+  - WASM rebuild → Stream D. npm publish → Stream E.
+  - HTTP status check is already present in sumsub's `sumsubGet` (line 218
+    throws on `status >= 400`); no per-pack input hardening needed.
+  - `OracleModule` / manifest / `defineComposite` → Phases 1, 1.5, 2.
+
+### Patch Changes
+
+- c9b1566: chore: Stream D Sepolia redeploy for namespaced WASM (NEWT-1539 Phase 0 Stream D)
+
+  On-chain follow-up to the Stream B per-pack source rewrites
+  ([#41–#49](https://github.com/newt-foundation/newton-policy-packs/pulls?q=is%3Apr+NEWT-1539+is%3Amerged)).
+  Re-componentizes each `policy.js` (now namespaced under `PACK_ID`) and
+  deploys fresh `INewtonPolicy` + `INewtonPolicyData` pairs on Ethereum
+  Sepolia (chain id 11155111). Bindings (`packages/policy-pack-<pack>/src/deployments.ts`)
+  and the canonical `deployments.json` are updated to point at the new
+  addresses; old pre-namespacing addresses are dropped from the registry
+  per ADR 0003 force-migration.
+
+  Per-pack address changes are visible in `deployments.json`. WASM CIDs
+  and `policyCodeHash` values are also updated since the post-namespacing
+  WASM bytes hash differently.
+
+  No SDK API changes. Existing consumers on `@^1.x` will resolve to the
+  new `Deployment` constants on upgrade — `createShield(...)` continues to
+  work without code changes on the curator side.
+
+  Out of scope:
+
+  - npm publish of the patch bump → PR #40 (Stream E auto-publish).
+  - `OracleModule` interface + per-pack export → Phase 1 (NEWT-1540).
+  - Composite manifest format + decode helpers → Phase 1.5 (NEWT-1541).
+  - `defineComposite` builder + Shield SDK migration → Phase 2 (NEWT-1542).
+
+- Updated dependencies [ac73d21]
+  - @newton-xyz/policy-pack-shared@0.3.0
+
 ## 1.0.0
 
 ### Major Changes
