@@ -1,6 +1,17 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// see vaultsfyi PR #41 for the canonical pattern. PACK_ID drift enforced
+// at `pnpm test` time by packages/policy-pack-redstone/src/pack-id.test.ts.
+const PACK_ID = "redstone";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const REDSTONE_BASE = "https://api.redstone.finance/prices";
 
 let _secrets = {};
@@ -82,9 +93,18 @@ function getOnchainOraclePrice(rpcUrl, oracleAddress, selector, decimals) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ redstone: {...}, vaultsfyi: {...} }`; nullish
+    // coalescing reads our slice when present, falls back to flat for
+    // legacy single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { symbol, provider, rpcUrl, onchainOracle, prevSnapshot } = parsed;
+    const { symbol, provider, rpcUrl, onchainOracle, prevSnapshot } = myArgs;
 
     if (!symbol) throw new Error("missing symbol");
     if (!rpcUrl) throw new Error("missing rpcUrl");
@@ -116,7 +136,7 @@ export function run(input) {
       sustainedSeconds = Math.max(0, (nowMs - Number(prevSnapshot.timestampMs)) / 1000);
     }
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       symbol,
       provider: provider ?? "redstone",
       redstone_price: redstonePrice,
@@ -129,6 +149,6 @@ export function run(input) {
       timestamp: nowMs,
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
