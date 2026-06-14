@@ -73,6 +73,19 @@ function getJson(url) {
   if (typeof r === "string") throw new Error(`http: ${r}`);
   if (r.tag === "err") throw new Error(`http: ${r.val}`);
   const resp = r.val ?? r;
+  // The host's `fetch` (newton-prover-avs/crates/data-provider/src/wasm/executor.rs)
+  // returns Ok(HttpResponse { status, headers, body }) for any HTTP response —
+  // only network/transport errors land in `r.tag === "err"`. Without this
+  // status guard a 404/500 with a JSON body parses cleanly, and the
+  // optional-chaining cascade below (`vault.apy?.["1day"]?.total ?? 0`)
+  // collapses every field to a fail-open shape that Rego allows. Reject
+  // non-2xx responses here so the catch block returns the namespaced error
+  // envelope instead. Mirrors chainalysis/policy.js's status check.
+  const status = resp.status ?? 200;
+  if (status < 200 || status >= 300) {
+    const preview = new TextDecoder().decode(new Uint8Array(resp.body)).slice(0, 200);
+    throw new Error(`http ${status}: ${preview}`);
+  }
   const body = new TextDecoder().decode(new Uint8Array(resp.body));
   return JSON.parse(body);
 }
@@ -106,7 +119,30 @@ export function run(input) {
     // flat for legacy single-pack callers. Mirrors the ADR's `args[PACK_ID]
     // ?? args` shape verbatim — keep the next 8 packs aligned on it.
     const myArgs = parsed[PACK_ID] ?? parsed;
+    // Fail closed before any HTTP call. JS destructuring only throws for
+    // `null`/`undefined`, so `myArgs = 42` (a future malformed composite
+    // caller passing a primitive) destructures to `network = undefined,
+    // vaultAddress = undefined`, the URL becomes
+    // `.../detailed-vaults/undefined/undefined`, vaults.fyi returns a 200/404
+    // JSON body that JSON.parse handles, and the `?? 0` / `?? null`
+    // cascade below collapses every field to a shape Rego silently allows.
+    // Same trap for `myArgs = { network: null, vaultAddress: "0x..." }`.
+    // Validate shape + required strings here so any malformed input lands in
+    // the catch block as a namespaced `wrapOutput(PACK_ID, { error })`,
+    // satisfying frozen rule 5 (fail closed).
+    if (myArgs === null || typeof myArgs !== "object" || Array.isArray(myArgs)) {
+      throw new Error(`invalid wasm_args: expected object, got ${typeof myArgs}`);
+    }
     const { network, vaultAddress, lastKnownAllocationHash } = myArgs;
+    if (typeof network !== "string" || network.length === 0) {
+      throw new Error("invalid wasm_args.network: expected non-empty string");
+    }
+    if (
+      typeof vaultAddress !== "string" ||
+      !/^0x[0-9a-fA-F]{40}$/.test(vaultAddress)
+    ) {
+      throw new Error("invalid wasm_args.vaultAddress: expected 0x-prefixed 20-byte hex");
+    }
     // Strip our own namespaced slot from the secrets surface so
     // `_secrets["vaultsfyi"]` doesn't shadow a same-named host secret if one
     // ever collides with our pack id. Sibling packs' slots are intentionally

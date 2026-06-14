@@ -126,6 +126,28 @@ test_namespaced_error_does_not_allow if {
         with data.wasm as {"vaultsfyi": {"error": "oracle failed"}}
 }
 
+# Fail-closed under malformed input. policy.js validates wasm_args shape
+# (network non-empty string, vaultAddress 0x-prefixed 20-byte hex) and a
+# missing/invalid input lands in the catch block, emitting the namespaced
+# error envelope. Pin the Rego-side: an envelope that's missing the
+# required wasm fields (i.e. only the `error` key, or arbitrary keys
+# without the deny-relevant ones) MUST NOT allow. Locks frozen rule 5
+# (fail closed) at the policy boundary.
+test_namespaced_invalid_input_error_envelope_does_not_allow if {
+    not vault_risk_rating.allow
+        with data.params as default_params
+        with data.wasm as {"vaultsfyi": {"error": "invalid wasm_args.network: expected non-empty string"}}
+}
+
+test_namespaced_empty_pack_slot_does_not_allow if {
+    # Defense-in-depth: even if a future bug routes around the catch and
+    # emits an empty-but-namespaced output, the allow conjunction must
+    # still fail because the deny-relevant fields are undefined under Rego.
+    not vault_risk_rating.allow
+        with data.params as default_params
+        with data.wasm as {"vaultsfyi": {}}
+}
+
 # Cross-pack composition smoke: when `data.wasm` carries multiple packs
 # under different top-level keys, vaultsfyi's rules MUST only read its
 # own slice. Stuff `chainalysis` keys alongside vaultsfyi's — they must
