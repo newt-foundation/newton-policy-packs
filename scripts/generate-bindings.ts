@@ -70,11 +70,14 @@ interface DeploymentEntry {
 	notes?: string;
 }
 
+type GatewayEnv = "stagef" | "prod";
+
 interface DeploymentsFile {
 	schemaVersion: number;
 	comment?: string;
 	chains: Record<string, string>;
-	packs: Record<string, Record<string, DeploymentEntry>>;
+	envs?: Record<GatewayEnv, string>;
+	packs: Record<string, Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>>>;
 }
 
 interface PackMetadata {
@@ -159,12 +162,14 @@ export const PACK_AUTHOR = ${jsLiteral(meta.author ?? "")} as const;
 `;
 }
 
-function emitDeployments(perChain: Record<string, DeploymentEntry>): string {
-	return `${BANNER}import type { ChainId, Deployment } from "@newton-xyz/policy-pack-shared";
+function emitDeployments(
+	perChain: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>>,
+): string {
+	return `${BANNER}import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = ${jsLiteral(
 		perChain,
-	)} as const satisfies Readonly<Partial<Record<ChainId, Deployment>>>;
+	)} as const satisfies Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>>;
 `;
 }
 
@@ -280,7 +285,7 @@ pnpm add @newton-xyz/policy-pack-${packName}
 | \`WasmArgsSchema\` (zod) + \`WasmArgs\` (type) | \`wasm_args_schema.json\` | Inputs the pack's WASM receives at evaluation time. |
 | \`SecretsSchema\` (zod) + \`Secrets\` (type) | \`secrets_schema.json\` | API credentials uploaded before run/sim. |
 | \`ParamsSchema\` (zod) + \`Params\` (type) | \`params_schema.json\` | Configuration thresholds, set at policy upload time. |
-| \`deployments\` | top-level \`deployments.json\` | \`chainId → { policy, policyData, wasmCid, ... }\` |
+| \`deployments\` | top-level \`deployments.json\` | \`chainId → env → { policy, policyData, wasmCid, ... }\` (env keys: \`stagef\`, \`prod\`) |
 | \`PACK_NAME\`, \`PACK_VERSION\`, \`PACK_DESCRIPTION\`, \`PACK_LINK\`, \`PACK_AUTHOR\` | \`policy_metadata.json\` | Static pack identity. |
 
 ## Regeneration
