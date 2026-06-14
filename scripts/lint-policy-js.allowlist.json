@@ -17,8 +17,6 @@
     "to strict mode (no allowlist) — see scripts/lint-policy-js.ts main()."
   ],
   "violations": [
-    { "file": "guardrail/policy.js", "line": 122, "column": 4 },
-    { "file": "guardrail/policy.js", "line": 134, "column": 4 },
     { "file": "persona/policy.js", "line": 125, "column": 6 },
     { "file": "persona/policy.js", "line": 161, "column": 4 },
     { "file": "persona/policy.js", "line": 174, "column": 4 },
