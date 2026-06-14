@@ -34,7 +34,13 @@ What changed in `persona/`:
 Out of scope:
 
 - WASM rebuild → Stream D. npm publish → Stream E.
-- HTTP status check is NOT yet present in persona's `getJson`. Tracked
-  as part of the cross-pack input-validation hardening sweep
-  (separately, NEWT-1539 follow-up).
+- HTTP status check is NOT yet present in persona's `getJson`. Of the
+  six packs migrated so far, chainalysis and guardrail already gate on
+  `status >= 400`; vaultsfyi/balancer/blockaid/persona do not. The
+  cross-pack input-validation hardening sweep is tracked as a separate
+  NEWT-1539 follow-up — Stream B is namespacing only. Persona's gap
+  is structurally mitigated by the rego layer: a 404 JSON body parses
+  to `list = { error: ... }` shape, `pickLatestApproved` returns null,
+  the early no-inquiry branch emits `has_inquiry: false`, and
+  `not v.has_inquiry` fires deny.
 - `OracleModule` / manifest / `defineComposite` → Phases 1, 1.5, 2.
