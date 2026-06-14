@@ -101,12 +101,27 @@ export function run(input) {
     //   legacy flat:        { network, vaultAddress, ... }
     // The AVS will eventually pass a per-pack-keyed `wasmArgs` envelope under
     // composite execution; today's single-pack callers still pass the flat
-    // shape. The `?? parsedArgs` fallback keeps both working through the
-    // migration window. Secrets stay at the top level either way (hosts
-    // upload them per-pack via `newton-cli policy-data set-secrets`).
-    const myArgs = parsed[PACK_ID] ?? parsed;
+    // shape. The shape check (`typeof === "object"`, non-null) avoids the
+    // failure mode where `parsed["vaultsfyi"]` is `null` / `""` / a future
+    // non-object value and we silently fall back to flat — destructuring the
+    // composite envelope's other keys instead, which would mask the bug.
+    // Falling back to `parsed` only when the namespaced slot is absent is the
+    // correct migration semantics; an explicit non-object value is a caller
+    // bug we want to surface as `network=undefined` → catch-and-error, not
+    // a silent NaN cascade.
+    const namespaced = parsed[PACK_ID];
+    const myArgs =
+      namespaced !== null && typeof namespaced === "object" ? namespaced : parsed;
     const { network, vaultAddress, lastKnownAllocationHash } = myArgs;
-    _secrets = parsed;
+    // Secrets stay at the top level (hosts upload them per-pack via
+    // `newton-cli policy-data set-secrets`). Strip the namespaced args slot
+    // so `_secrets["vaultsfyi"]` doesn't end up holding the args object —
+    // harmless today (`secret(name)` only reads named keys) but a footgun if
+    // a future secret name collides with a pack id. Same containment for
+    // any other pack's slot if a composite caller batches them on the
+    // input — only this pack's secrets belong here.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
 
     const now = Math.floor(Date.now() / 1000);
