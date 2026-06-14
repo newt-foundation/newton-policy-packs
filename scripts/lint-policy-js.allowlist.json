@@ -17,8 +17,6 @@
     "to strict mode (no allowlist) — see scripts/lint-policy-js.ts main()."
   ],
   "violations": [
-    { "file": "blockaid/policy.js", "line": 106, "column": 4 },
-    { "file": "blockaid/policy.js", "line": 117, "column": 4 },
     { "file": "chainalysis/policy.js", "line": 126, "column": 4 },
     { "file": "chainalysis/policy.js", "line": 137, "column": 4 },
     { "file": "guardrail/policy.js", "line": 122, "column": 4 },

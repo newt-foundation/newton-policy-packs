@@ -1,6 +1,21 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// `policy.js` is fed straight to `jco componentize` with only the
+// `newton:provider/*` host imports wired, so a top-level npm import does
+// not resolve. See vaultsfyi PR #41 for the canonical pattern. Keep
+// PACK_ID literal in sync with the folder name and metadata.ts PACK_NAME
+// — packages/policy-pack-blockaid/src/pack-id.test.ts enforces this at
+// `pnpm test` time.
+const PACK_ID = "blockaid";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const BLOCKAID_BASE = "https://api.blockaid.io";
 
 let _secrets = {};
@@ -60,9 +75,23 @@ function scanEvmTransaction({ chain, from, to, value, data }) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy
+    // (newton-prover-avs/crates/data-provider/src/lib.rs). Composite
+    // execution will produce `{ blockaid: {...}, vaultsfyi: {...} }`
+    // so each pack reads its slice via the namespaced key; nullish
+    // coalescing falls back to flat for legacy single-pack callers.
+    // Mirrors ADR 0003's `args[PACK_ID] ?? args` shape verbatim.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place —
+    // `secret(name)` only reads fixed named keys (e.g. `BLOCKAID_API_KEY`),
+    // and a future composite-secrets shape may legitimately share
+    // top-level keys across packs.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { chain, from, to, value, data } = parsed;
+    const { chain, from, to, value, data } = myArgs;
     if (!chain) throw new Error("missing chain");
     if (!from) throw new Error("missing from");
     if (!to) throw new Error("missing to");
@@ -103,7 +132,7 @@ export function run(input) {
       outboundInboundRatio = expectedOutUsd / expectedInUsd;
     }
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       classification,
       features,
       expected_inbound_value_usd: expectedInUsd,
@@ -114,6 +143,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
