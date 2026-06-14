@@ -5,7 +5,12 @@ import future.keywords
 default allow := false
 
 t := data.params
-v := data.wasm
+
+# Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("vaultsfyi", ...)` so the
+# AVS-side shallow `merge_jsons` composes cleanly across packs without
+# top-level key collisions. Read this pack's slice via `.vaultsfyi`.
+v := data.wasm.vaultsfyi
 
 deny contains "apy_spike" if v.apy_z_score > t.apy_z_max
 

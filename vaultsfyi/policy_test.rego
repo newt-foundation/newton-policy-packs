@@ -22,11 +22,19 @@ clean_data := {
     "allocation_changed_since_last": false,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.vaultsfyi.<field>`, so test fixtures wrap the inner shape under
+# the `vaultsfyi` key. `wrapping_test.rego` covers the cross-pack
+# composition surface; this file keeps the pre-existing rule-by-rule
+# coverage intact under the new namespacing.
+wrap(inner) := {"vaultsfyi": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    vault_risk_rating.allow with data.params as default_params with data.wasm as clean_data
-    count(vault_risk_rating.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    vault_risk_rating.allow with data.params as default_params with data.wasm as d
+    count(vault_risk_rating.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_apy_spike if {
@@ -114,15 +122,15 @@ test_multiple_denies_do_not_fail_open if {
 # so the rule was dead. Guard against accidental re-introduction without a
 # matching policy.js change.
 test_no_nrt_rule_present if {
-    d := object.union(clean_data, {"nrt_age_seconds": 999999})
+    d := wrap(object.union(clean_data, {"nrt_age_seconds": 999999}))
     p := object.union(default_params, {"nrt_max_age_seconds": 300})
     vault_risk_rating.allow with data.params as p with data.wasm as d
 }
 
 test_deny_on_oracle_error if {
-    not vault_risk_rating.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not vault_risk_rating.allow with data.params as default_params with data.wasm as {}
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as wrap({})
 }

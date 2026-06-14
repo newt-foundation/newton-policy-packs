@@ -1,6 +1,42 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Every `policy.js`
+// MUST wrap every return-path under its `PACK_ID` so the AVS-side shallow
+// `merge_jsons` (newton-prover-avs/crates/operator/src/simulation.rs:296)
+// composes cleanly across packs without top-level key collisions.
+//
+// `PACK_ID` and `wrapOutput` are inlined rather than imported from
+// `@newton-xyz/policy-pack-shared` because `policy.js` is fed straight to
+// `jco componentize` (scripts/deploy-all.sh:101-106) with only the
+// `newton:provider/*` host imports wired via `newton-provider.wit` — there
+// is no npm bundler step. Inlining is the pattern documented in
+// `phase-0-pack-namespacing-plan.md` Stream B item 6 fallback row. The
+// AST-lint guard (scripts/lint-policy-js.ts) is purely syntactic and only
+// requires `return wrapOutput(PACK_ID, payload);` shape, regardless of where
+// `wrapOutput` is defined.
+//
+// `PACK_ID` matches the folder name and `policy-pack-vaultsfyi`'s
+// `PACK_NAME` export from src/metadata.ts. Keep these three in sync.
+const PACK_ID = "vaultsfyi";
+
+// Indirect-return form. The AST-lint guard (scripts/lint-policy-js.ts) walks
+// every `ReturnStatement` in `<pack>/policy.js` and flags any whose argument
+// is a `JSON.stringify(...)` CallExpression — that catches the violation
+// pattern (curator drift, double-escape, top-level `error` collision). Its
+// known-limitation note explicitly tolerates the
+// `const out = JSON.stringify(...); return out;` shape because the return
+// argument is an Identifier, not a CallExpression: "Indirect returns. ditto.
+// Same code-review backstop." That's why this helper splits the call from
+// the return — `policy.js` is fed straight to `jco componentize` (no npm
+// bundler step is wired), so `wrapOutput` must inline; routing through an
+// Identifier preserves the lint's guard against caller-side
+// `return JSON.stringify(...)` while letting this helper coexist.
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const VAULTS_FYI_BASE = "https://api.vaults.fyi/v2";
 
 let _secrets = {};
@@ -60,7 +96,16 @@ function simpleHash(str) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    const { network, vaultAddress, lastKnownAllocationHash } = parsed;
+    // Phase 0 § Stream B input-unwrap shim: accept both shapes —
+    //   composite envelope: { "vaultsfyi": { network, vaultAddress, ... } }
+    //   legacy flat:        { network, vaultAddress, ... }
+    // The AVS will eventually pass a per-pack-keyed `wasmArgs` envelope under
+    // composite execution; today's single-pack callers still pass the flat
+    // shape. The `?? parsedArgs` fallback keeps both working through the
+    // migration window. Secrets stay at the top level either way (hosts
+    // upload them per-pack via `newton-cli policy-data set-secrets`).
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    const { network, vaultAddress, lastKnownAllocationHash } = myArgs;
     _secrets = parsed;
     loadHostSecrets();
 
@@ -112,7 +157,7 @@ export function run(input) {
     });
     const allocationHash = simpleHash(metaForHash);
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       vault_address: vaultAddress,
       network,
       apy_current: currentApy,
@@ -141,6 +186,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
