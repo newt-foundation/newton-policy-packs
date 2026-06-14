@@ -624,3 +624,877 @@ Policy deployed successfully at address: 0x9EE0B769E62aEEa3282396ee7a4D5B16119De
 === Sun Jun 14 13:17:19 PDT 2026 :: balancer DONE ===
 balancer DATA=0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c POLICY=0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C
 wrote ./balancer/dist/last_deploy.json
+=== Sun Jun 14 14:41:21 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 14:41:21 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeig3zieod3zdmkmz5tug2t5i4z52u5pkehisagycusgkbmvnskvmky
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeig3zieod3zdmkmz5tug2t5i4z52u5pkehisagycusgkbmvnskvmky
+Public IPFS Link: https://ipfs.io/ipfs/bafybeig3zieod3zdmkmz5tug2t5i4z52u5pkehisagycusgkbmvnskvmky
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeig3zieod3zdmkmz5tug2t5i4z52u5pkehisagycusgkbmvnskvmky",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 14:41:30 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeig3zieod3zdmkmz5tug2t5i4z52u5pkehisagycusgkbmvnskvmky
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x8cb1A1e199Cb38ff9f1213f9287640e3c4a913BA
+Policy Data Address: 0x8cb1A1e199Cb38ff9f1213f9287640e3c4a913BA
+DATA_ADDR=0x8cb1A1e199Cb38ff9f1213f9287640e3c4a913BA
+=== Sun Jun 14 14:41:39 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x8cb1a1e199cb38ff9f1213f9287640e3c4a913ba]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 14:42:21 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 14:42:21 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiadchryfydl7kehf5q3c36v4qsjofz2nkceyhlxdc2p7pobuxdr7q
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeiadchryfydl7kehf5q3c36v4qsjofz2nkceyhlxdc2p7pobuxdr7q
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiadchryfydl7kehf5q3c36v4qsjofz2nkceyhlxdc2p7pobuxdr7q
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiadchryfydl7kehf5q3c36v4qsjofz2nkceyhlxdc2p7pobuxdr7q",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 14:42:33 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiadchryfydl7kehf5q3c36v4qsjofz2nkceyhlxdc2p7pobuxdr7q
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Error: Failed to deploy policy data: Alloy provider error: TransportError(NullResp)
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Sun Jun 14 14:43:33 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 14:43:33 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeie7wjienq6c5ybjbdyrjgmv67xunqkpdbl4wtlincuoeylbgafqyu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeie7wjienq6c5ybjbdyrjgmv67xunqkpdbl4wtlincuoeylbgafqyu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeie7wjienq6c5ybjbdyrjgmv67xunqkpdbl4wtlincuoeylbgafqyu
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeie7wjienq6c5ybjbdyrjgmv67xunqkpdbl4wtlincuoeylbgafqyu",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 14:43:46 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeie7wjienq6c5ybjbdyrjgmv67xunqkpdbl4wtlincuoeylbgafqyu
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x298FE0009e53466ced4Ba4e50C7EA5356fE50E1b
+Policy Data Address: 0x298FE0009e53466ced4Ba4e50C7EA5356fE50E1b
+DATA_ADDR=0x298FE0009e53466ced4Ba4e50C7EA5356fE50E1b
+=== Sun Jun 14 14:44:15 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x298fe0009e53466ced4ba4e50c7ea5356fe50e1b]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0x715a28159131288019536a2cBe0496D95E1214bB
+=== Sun Jun 14 14:44:30 PDT 2026 :: balancer DONE ===
+balancer DATA=0x298FE0009e53466ced4Ba4e50C7EA5356fE50E1b POLICY=0x715a28159131288019536a2cBe0496D95E1214bB
+wrote ./balancer/dist/last_deploy.json
+=== Sun Jun 14 14:45:19 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 14:45:19 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium
+Public IPFS Link: https://ipfs.io/ipfs/bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 14:45:32 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeibqtd2awtbtfjseh5zfl5fuyeayojyzxufx23unt7jvxrpqc4bium
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x65E13469586d26Dca3cD0a8173afE07E689c859d
+Policy Data Address: 0x65E13469586d26Dca3cD0a8173afE07E689c859d
+DATA_ADDR=0x65E13469586d26Dca3cD0a8173afE07E689c859d
+=== Sun Jun 14 14:45:55 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x65e13469586d26dca3cd0a8173afe07e689c859d]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0x24703607D632616DdA58ef26F97dBda9876a54d4
+=== Sun Jun 14 14:46:03 PDT 2026 :: balancer DONE ===
+balancer DATA=0x65E13469586d26Dca3cD0a8173afE07E689c859d POLICY=0x24703607D632616DdA58ef26F97dBda9876a54d4
+wrote ./balancer/dist/last_deploy.json
+=== Sun Jun 14 14:56:32 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 14:56:32 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeifo3de7au5xvu5tjhqnn7ws7dmt2qs3djoj4my4bt3d5gsozmzx5e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeifo3de7au5xvu5tjhqnn7ws7dmt2qs3djoj4my4bt3d5gsozmzx5e
+Public IPFS Link: https://ipfs.io/ipfs/bafybeifo3de7au5xvu5tjhqnn7ws7dmt2qs3djoj4my4bt3d5gsozmzx5e
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeifo3de7au5xvu5tjhqnn7ws7dmt2qs3djoj4my4bt3d5gsozmzx5e",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 14:56:42 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifo3de7au5xvu5tjhqnn7ws7dmt2qs3djoj4my4bt3d5gsozmzx5e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xcee80922941b4F80E9027aDA264354C4A7F86F7D
+Policy Data Address: 0xcee80922941b4F80E9027aDA264354C4A7F86F7D
+DATA_ADDR=0xcee80922941b4F80E9027aDA264354C4A7F86F7D
+=== Sun Jun 14 14:56:43 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0xcee80922941b4f80e9027ada264354c4a7f86f7d]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:07:21 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 15:07:21 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiah2fce2ddj5ynazqx73b2a6rgattlae3ta3y5h6igiepntbpa73a
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeiah2fce2ddj5ynazqx73b2a6rgattlae3ta3y5h6igiepntbpa73a
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiah2fce2ddj5ynazqx73b2a6rgattlae3ta3y5h6igiepntbpa73a
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiah2fce2ddj5ynazqx73b2a6rgattlae3ta3y5h6igiepntbpa73a",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 15:07:34 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiah2fce2ddj5ynazqx73b2a6rgattlae3ta3y5h6igiepntbpa73a
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x53f7fAB7A0a47e9789083C4fB1C213C4D215b70C
+Policy Data Address: 0x53f7fAB7A0a47e9789083C4fB1C213C4D215b70C
+DATA_ADDR=0x53f7fAB7A0a47e9789083C4fB1C213C4D215b70C
+=== Sun Jun 14 15:07:35 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x53f7fab7a0a47e9789083c4fb1c213c4d215b70c]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0xBe5DF5c96ED84656aB1A3b8d1cdBe2655A229A9f
+=== Sun Jun 14 15:07:36 PDT 2026 :: balancer DONE ===
+balancer DATA=0x53f7fAB7A0a47e9789083C4fB1C213C4D215b70C POLICY=0xBe5DF5c96ED84656aB1A3b8d1cdBe2655A229A9f
+wrote ./balancer/dist/last_deploy.json
+=== Sun Jun 14 15:12:23 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 15:12:23 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 15:12:36 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeidrs5dwpqajrhzvxhvwmqf3k3zkej3vxfsn3rhl5qw73eb5z753pi
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xCFaD228c0997F8bdf5B9d351321538A89c1353b5
+Policy Data Address: 0xCFaD228c0997F8bdf5B9d351321538A89c1353b5
+DATA_ADDR=0xCFaD228c0997F8bdf5B9d351321538A89c1353b5
+=== Sun Jun 14 15:12:37 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0xcfad228c0997f8bdf5b9d351321538a89c1353b5]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0x3B7ae794350Ce2e9866DE3e334d226ef62B16E75
+=== Sun Jun 14 15:12:38 PDT 2026 :: balancer DONE ===
+balancer DATA=0xCFaD228c0997F8bdf5B9d351321538A89c1353b5 POLICY=0x3B7ae794350Ce2e9866DE3e334d226ef62B16E75
+wrote ./balancer/dist/last_deploy.json
+=== Sun Jun 14 15:22:30 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Sun Jun 14 15:22:30 PDT 2026 :: balancer generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Sun Jun 14 15:22:38 PDT 2026 :: balancer policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeidhfrirex7kqydvzb2cng2lw2bpmvxryt5ejbtwi6j32unpqoyyqu
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x747FDd8db8b4D0706c8C1b010582EA70D18090A9
+Policy Data Address: 0x747FDd8db8b4D0706c8C1b010582EA70D18090A9
+DATA_ADDR=0x747FDd8db8b4D0706c8C1b010582EA70D18090A9
+=== Sun Jun 14 15:22:47 PDT 2026 :: balancer policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x747fdd8db8b4d0706c8c1b010582ea70d18090a9]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0x844C7278eAB2138C791Bf008FB6de7d58E5df9D7
+=== Sun Jun 14 15:22:55 PDT 2026 :: balancer DONE ===
+balancer DATA=0x747FDd8db8b4D0706c8C1b010582EA70D18090A9 POLICY=0x844C7278eAB2138C791Bf008FB6de7d58E5df9D7
+wrote ./balancer/dist/last_deploy.json

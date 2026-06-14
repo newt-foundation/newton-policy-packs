@@ -426,3 +426,669 @@ Policy deployed successfully at address: 0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e
 === Sun Jun 14 13:18:52 PDT 2026 :: chainalysis DONE ===
 chainalysis DATA=0x571f1bAfAb0c47Ae0920c60d8C0a93871abc82cF POLICY=0xA1DE5A07dAb34Bd545C58b6e18A9009A8428e658
 wrote ./chainalysis/dist/last_deploy.json
+=== Sun Jun 14 14:46:57 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 14:46:57 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e
+Public IPFS Link: https://ipfs.io/ipfs/bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 14:47:10 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeigemomvvrvkfnilzxvn2666uf2xcb6psctcpsz4dx2tofyfz4nu6e
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x39c217a97809118aBc3C89FfcF54F21993493BE7
+Policy Data Address: 0x39c217a97809118aBc3C89FfcF54F21993493BE7
+DATA_ADDR=0x39c217a97809118aBc3C89FfcF54F21993493BE7
+=== Sun Jun 14 14:47:26 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x39c217a97809118abc3c89ffcf54f21993493be7]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0xb7DFa7E202EA39d4756529aa892043146F078BA0
+=== Sun Jun 14 14:47:41 PDT 2026 :: chainalysis DONE ===
+chainalysis DATA=0x39c217a97809118aBc3C89FfcF54F21993493BE7 POLICY=0xb7DFa7E202EA39d4756529aa892043146F078BA0
+wrote ./chainalysis/dist/last_deploy.json
+=== Sun Jun 14 14:58:35 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 14:58:35 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidnqjoxvtmxe77ofkdmjwj54jckr36j4uzmda3wu2sw5rswuncs6y
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeidnqjoxvtmxe77ofkdmjwj54jckr36j4uzmda3wu2sw5rswuncs6y
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidnqjoxvtmxe77ofkdmjwj54jckr36j4uzmda3wu2sw5rswuncs6y
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidnqjoxvtmxe77ofkdmjwj54jckr36j4uzmda3wu2sw5rswuncs6y",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 14:58:49 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeidnqjoxvtmxe77ofkdmjwj54jckr36j4uzmda3wu2sw5rswuncs6y
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xE34Bf70c3Be9dBd5DDC3c2F12e0e83C4bdf3AA58
+Policy Data Address: 0xE34Bf70c3Be9dBd5DDC3c2F12e0e83C4bdf3AA58
+DATA_ADDR=0xE34Bf70c3Be9dBd5DDC3c2F12e0e83C4bdf3AA58
+=== Sun Jun 14 14:58:50 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xe34bf70c3be9dbd5ddc3c2f12e0e83c4bdf3aa58]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:10:00 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 15:10:00 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeice3pvgktloukovvsmnjqi55hbo35g4op24n25g23u2utpta4vjnu
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeice3pvgktloukovvsmnjqi55hbo35g4op24n25g23u2utpta4vjnu
+Public IPFS Link: https://ipfs.io/ipfs/bafybeice3pvgktloukovvsmnjqi55hbo35g4op24n25g23u2utpta4vjnu
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeice3pvgktloukovvsmnjqi55hbo35g4op24n25g23u2utpta4vjnu",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 15:10:11 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeice3pvgktloukovvsmnjqi55hbo35g4op24n25g23u2utpta4vjnu
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xBDDa14C54623411A807045Cac8eda99B9f8EaCdb
+Policy Data Address: 0xBDDa14C54623411A807045Cac8eda99B9f8EaCdb
+DATA_ADDR=0xBDDa14C54623411A807045Cac8eda99B9f8EaCdb
+=== Sun Jun 14 15:10:12 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xbdda14c54623411a807045cac8eda99b9f8eacdb]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:13:56 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 15:13:56 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay
+Public IPFS Link: https://ipfs.io/ipfs/bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 15:14:06 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeia3ioez564d67ywfn2esqpm4iflklykfhvz6gpvfbpbvgkycbozay
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x6a0b31599b2494591d697Fc22C6Cd81e627aDE1A
+Policy Data Address: 0x6a0b31599b2494591d697Fc22C6Cd81e627aDE1A
+DATA_ADDR=0x6a0b31599b2494591d697Fc22C6Cd81e627aDE1A
+=== Sun Jun 14 15:14:14 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x6a0b31599b2494591d697fc22c6cd81e627ade1a]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0x7369d512c804A8433af7d4ECca6f40825079016a
+=== Sun Jun 14 15:14:22 PDT 2026 :: chainalysis DONE ===
+chainalysis DATA=0x6a0b31599b2494591d697Fc22C6Cd81e627aDE1A POLICY=0x7369d512c804A8433af7d4ECca6f40825079016a
+wrote ./chainalysis/dist/last_deploy.json
+=== Sun Jun 14 15:25:30 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 15:25:30 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeifqmchyk66nmgymst24elb6bjdhu53ia6f3jefrprgmgu5u5vccly
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeifqmchyk66nmgymst24elb6bjdhu53ia6f3jefrprgmgu5u5vccly
+Public IPFS Link: https://ipfs.io/ipfs/bafybeifqmchyk66nmgymst24elb6bjdhu53ia6f3jefrprgmgu5u5vccly
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeifqmchyk66nmgymst24elb6bjdhu53ia6f3jefrprgmgu5u5vccly",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 15:25:42 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifqmchyk66nmgymst24elb6bjdhu53ia6f3jefrprgmgu5u5vccly
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xbe01c8362C43a8345477cA17e8D65a21b7346e33
+Policy Data Address: 0xbe01c8362C43a8345477cA17e8D65a21b7346e33
+DATA_ADDR=0xbe01c8362C43a8345477cA17e8D65a21b7346e33
+=== Sun Jun 14 15:25:44 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xbe01c8362c43a8345477ca17e8d65a21b7346e33]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Sun Jun 14 15:33:13 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Sun Jun 14 15:33:13 PDT 2026 :: chainalysis generate-cids ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe
+Public IPFS Link: https://ipfs.io/ipfs/bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Sun Jun 14 15:33:24 PDT 2026 :: chainalysis policy-data deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeihy2zvdtmqzc5ikqo5gihphkh64nluqbcizow6d2jupcsntobhyoe
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7
+Policy Data Address: 0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7
+DATA_ADDR=0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7
+=== Sun Jun 14 15:33:32 PDT 2026 :: chainalysis policy deploy ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x90ee95f6aaf91fce2538218e58d8df1809e14aa7]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0xC29Dc9C293c5a3f0B9037ac81bf009C0CBcdd4b5
+=== Sun Jun 14 15:33:41 PDT 2026 :: chainalysis DONE ===
+chainalysis DATA=0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7 POLICY=0xC29Dc9C293c5a3f0B9037ac81bf009C0CBcdd4b5
+wrote ./chainalysis/dist/last_deploy.json

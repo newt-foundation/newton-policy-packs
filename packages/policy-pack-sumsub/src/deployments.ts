@@ -3,6 +3,24 @@
 import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = {
+	"84532": {
+		stagef: {
+			policy: "0x8e96f5aA0a657CfBb568E3c1F85f33387ff49ba7",
+			policyData: "0xD90556a2D9658C3e8669d49D94B1C8c9FD52a11C",
+			wasmCid: "bafybeic2aitx2iq2ikfjetvch3j3ltbmjig6bvooot3fccoxtrva3vgsdy",
+			policyCodeHash: "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+			deployedAt: "2026-06-14",
+			notes: "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)",
+		},
+		prod: {
+			policy: "0x122D98305F1c56509d678eB14184dE4cc9c01770",
+			policyData: "0x04899bC417B42d061Dc9CDaBfBa714a4520D3756",
+			wasmCid: "bafybeieu7cl4m5hntdh3lb6s5qbvnz425ffvrvfyh7ax76h5hn42uwi354",
+			policyCodeHash: "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+			deployedAt: "2026-06-14",
+			notes: "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)",
+		},
+	},
 	"11155111": {
 		stagef: {
 			policy: "0x005bC8ddF9a27DbC7b2Fa250c413a5E794cad873",
@@ -11,6 +29,14 @@ export const deployments = {
 			policyCodeHash: "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
 			deployedAt: "2026-06-14",
 			notes: "Phase 0 Stream D — composite namespacing redeploy",
+		},
+		prod: {
+			policy: "0x08542A6e76C4C18e0f98805842b3d5664125C508",
+			policyData: "0x162Cbdaac3C72975CE4f03286164f2dC2398E98D",
+			wasmCid: "bafybeiakcv6giozppqaudc7z7f2sz6x2frcgv564zqmu5ls7lbfiwx3n4i",
+			policyCodeHash: "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6",
+			deployedAt: "2026-06-14",
+			notes: "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)",
 		},
 	},
 } as const satisfies Readonly<
