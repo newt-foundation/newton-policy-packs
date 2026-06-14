@@ -85,6 +85,24 @@ test_namespaced_deny_unknown_classification if {
 # policy reads through `v := data.wasm.blockaid` so allow MUST fail.
 test_flat_input_fails_allow if {
     flat_clean := clean_inner
+    deny := blockaid_tx_safety.deny
+        with data.params as default_params
+        with data.wasm as flat_clean
+    # Pin the deny shape, not just the absence of allow. A future drift
+    # where every deny rule silent-skips on undefined would still satisfy
+    # `not allow` (default false), but it would NOT satisfy these
+    # assertions — they lock the load-bearing claim that blockaid's
+    # bare `not v.<field>` rules fire when the namespace slot is missing,
+    # which is the documented fail-closed posture. Note: only the bare
+    # boolean-field rules fire on undefined-`v`. The `not v.classification
+    # in {set}` rule (`blockaid_unknown_classification`) does NOT fire
+    # because `<undefined> in {...}` makes the whole expression
+    # ungroundable rather than returning false. That's why this assertion
+    # pins the two boolean rules specifically — strengthening the test
+    # without misclaiming the classification-check pattern.
+    "simulation_failed" in deny
+    "no_shares_received" in deny
+    count(deny) >= 2
     not blockaid_tx_safety.allow
         with data.params as default_params
         with data.wasm as flat_clean
