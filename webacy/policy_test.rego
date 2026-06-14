@@ -24,11 +24,17 @@ clean_data := {
     "stale": false,
 }
 
-with_data(overrides) := object.union(clean_data, overrides)
+# Phase 0 § Stream B namespacing: `policy.rego` now reads from
+# `data.wasm.webacy.<field>`, so test fixtures wrap the inner shape
+# under the `webacy` key.
+wrap(inner) := {"webacy": inner}
+
+with_data(overrides) := wrap(object.union(clean_data, overrides))
 
 test_allow_when_all_clean if {
-    webacy_depeg_risk.allow with data.params as default_params with data.wasm as clean_data
-    count(webacy_depeg_risk.deny) == 0 with data.params as default_params with data.wasm as clean_data
+    d := wrap(clean_data)
+    webacy_depeg_risk.allow with data.params as default_params with data.wasm as d
+    count(webacy_depeg_risk.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
 test_deny_token_collapsed if {
@@ -103,11 +109,11 @@ test_multiple_denies_do_not_fail_open if {
 }
 
 test_deny_on_oracle_error if {
-    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as {"error": "oracle failed"}
+    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as wrap({"error": "oracle failed"})
 }
 
 test_deny_on_empty_payload if {
-    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as {}
+    not webacy_depeg_risk.allow with data.params as default_params with data.wasm as wrap({})
 }
 
 test_deny_outside_expected_range if {

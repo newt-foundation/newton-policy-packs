@@ -1,6 +1,17 @@
 import { fetch as httpFetch } from "newton:provider/http@0.2.0";
 import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 
+// Phase 0 § Stream B (NEWT-1539): pack-side namespacing. Inlined `PACK_ID`
+// and `wrapOutput` mirror @newton-xyz/policy-pack-shared/src/wrap.ts —
+// see vaultsfyi PR #41 for the canonical pattern. PACK_ID drift enforced
+// at `pnpm test` time. Final Stream B pack — completes the 9-pack sweep.
+const PACK_ID = "webacy";
+
+function wrapOutput(packId, valueOrError) {
+  const out = JSON.stringify({ [packId]: valueOrError });
+  return out;
+}
+
 const WEBACY_BASE = "https://api.webacy.com";
 
 let _secrets = {};
@@ -60,9 +71,18 @@ function num(x) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    _secrets = parsed;
+    // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
+    // blob to every PolicyData WASM in a policy. Composite execution
+    // produces `{ webacy: {...}, vaultsfyi: {...} }`; nullish coalescing
+    // reads our slice when present, falls back to flat for legacy
+    // single-pack callers.
+    const myArgs = parsed[PACK_ID] ?? parsed;
+    // Strip our own slot from `_secrets` so it can't shadow a same-named
+    // host secret. Sibling pack slots are intentionally left in place.
+    _secrets = { ...parsed };
+    delete _secrets[PACK_ID];
     loadHostSecrets();
-    const { address, chain } = parsed;
+    const { address, chain } = myArgs;
     if (!address) throw new Error("missing address");
 
     // Reject out-of-range lookback_days rather than silently clamping —
@@ -95,7 +115,7 @@ export function run(input) {
       .filter((x) => x != null);
     const maxRecentDeviationPct = deviations.length > 0 ? Math.max(...deviations) : 0;
 
-    return JSON.stringify({
+    return wrapOutput(PACK_ID, {
       address,
       chain: chain ?? null,
       symbol: token.symbol ?? null,
@@ -110,6 +130,6 @@ export function run(input) {
       timestamp: Date.now(),
     });
   } catch (e) {
-    return JSON.stringify({ error: String(e) });
+    return wrapOutput(PACK_ID, { error: String(e) });
   }
 }
