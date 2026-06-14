@@ -1,0 +1,41 @@
+{
+  "$schema": "./lint-policy-js.allowlist.schema.json",
+  "_comment": [
+    "Grandfathered violations from before Phase 0 § Stream B (NEWT-1539) per-pack edits.",
+    "",
+    "The lint guard ratchet: this allowlist can only SHRINK, never grow.",
+    "  - Any NEW violation (not in this list) fails CI.",
+    "  - Any STALE entry (no longer firing) fails CI — forces deletion.",
+    "  - As each Stream B per-pack PR migrates a pack to wrapOutput, it",
+    "    removes that pack's entries from this file in the same commit.",
+    "",
+    "Format: file path relative to repo root + 1-indexed line + 0-indexed column.",
+    "Line numbers MUST match the AST-lint output (acorn 1-indexed lines).",
+    "",
+    "Baseline (2026-06-13): 20 violations across 9 packs. Each Stream B PR",
+    "removes its pack's block. When this list is empty, flip the lint guard",
+    "to strict mode (no allowlist) — see scripts/lint-policy-js.ts main()."
+  ],
+  "violations": [
+    { "file": "balancer/policy.js", "line": 231, "column": 4 },
+    { "file": "balancer/policy.js", "line": 246, "column": 4 },
+    { "file": "blockaid/policy.js", "line": 106, "column": 4 },
+    { "file": "blockaid/policy.js", "line": 117, "column": 4 },
+    { "file": "chainalysis/policy.js", "line": 126, "column": 4 },
+    { "file": "chainalysis/policy.js", "line": 137, "column": 4 },
+    { "file": "guardrail/policy.js", "line": 122, "column": 4 },
+    { "file": "guardrail/policy.js", "line": 134, "column": 4 },
+    { "file": "persona/policy.js", "line": 125, "column": 6 },
+    { "file": "persona/policy.js", "line": 161, "column": 4 },
+    { "file": "persona/policy.js", "line": 174, "column": 4 },
+    { "file": "redstone/policy.js", "line": 119, "column": 4 },
+    { "file": "redstone/policy.js", "line": 132, "column": 4 },
+    { "file": "sumsub/policy.js", "line": 268, "column": 6 },
+    { "file": "sumsub/policy.js", "line": 294, "column": 4 },
+    { "file": "sumsub/policy.js", "line": 305, "column": 4 },
+    { "file": "vaultsfyi/policy.js", "line": 115, "column": 4 },
+    { "file": "vaultsfyi/policy.js", "line": 144, "column": 4 },
+    { "file": "webacy/policy.js", "line": 98, "column": 4 },
+    { "file": "webacy/policy.js", "line": 113, "column": 4 }
+  ]
+}
