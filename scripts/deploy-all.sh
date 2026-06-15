@@ -6,6 +6,14 @@
 #       deploy packs whose source has changed since the last successful
 #       snapshot for the (chain, env) cell.
 #   --force                deploy all 9 packs unconditionally.
+#   --force-componentize   regenerate WASM bytes (breaks CREATE2 collisions
+#                          but ALSO breaks cross-cell wasmCid stability;
+#                          use --pre-componentize for sweeps instead).
+#   --pre-componentize     STAND-ALONE: rebuild WASM for each selected pack
+#                          and exit (no deploy, no env/chain required).
+#                          Run BEFORE a multi-cell sweep so cells 1-4 share
+#                          one WASM bytes / one wasmCid per pack. Honors
+#                          --only / positional pack names.
 #   --only <pack>          deploy a single pack (repeatable).
 #   <pack> <pack> …        deploy a chosen subset by name.
 #   --env-file <path>      override the auto-resolved env file.
@@ -60,6 +68,7 @@ env_file=""
 force=0
 force_componentize=0
 allow_mainnet=0
+pre_componentize_only=0
 selected=()
 
 while [[ $# -gt 0 ]]; do
@@ -72,14 +81,55 @@ while [[ $# -gt 0 ]]; do
       chain_id="${2:?--chain requires a chainId}"; chain_set=1; shift 2 ;;
     --force) force=1; shift ;;
     --force-componentize) force_componentize=1; shift ;;
+    --pre-componentize) pre_componentize_only=1; force_componentize=1; shift ;;
     --allow-mainnet) allow_mainnet=1; shift ;;
     --env-file) env_file="${2:?--env-file requires a path}"; shift 2 ;;
     --only) selected+=("$2"); shift 2 ;;
-    -h|--help) sed -n '2,32p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,45p' "$0"; exit 0 ;;
     --*) echo "unknown flag: $1" >&2; exit 2 ;;
     *) selected+=("$1"); shift ;;
   esac
 done
+
+# --pre-componentize is a stand-alone build mode: run `jco componentize` once
+# per selected pack (force-rebuild) and exit. Used to prime the WASM cache
+# stamps BEFORE a multi-cell sweep, so cells 1-4 of each pack share a single
+# WASM-bytes / wasmCid (frozen rule 7). No deploys, no mainnet gate, no env
+# file required. The jco invocation itself doesn't touch the network.
+if [[ "$pre_componentize_only" -eq 1 ]]; then
+  echo "[--pre-componentize] priming WASM cache for selected packs (no deploy)"
+  if [[ ${#selected[@]} -eq 0 ]]; then
+    selected=("${ALL_PACKS[@]%%:*}")
+  fi
+  for name in "${selected[@]}"; do
+    found=""
+    for entry in "${ALL_PACKS[@]}"; do
+      [[ "${entry%%:*}" == "$name" ]] && { found="$entry"; break; }
+    done
+    [[ -z "$found" ]] && { echo "ERROR: unknown pack '$name'" >&2; exit 2; }
+    pack="${found%%:*}"
+    wasm="$pack/dist/policy.wasm"
+    stamp="$pack/dist/policy.wasm.stamp"
+    mkdir -p "$pack/dist"
+    rm -f "$wasm" "$stamp"
+    echo "==> $pack: jco componentize (forced rebuild)"
+    jco componentize "$pack/policy.js" \
+      --wit "$pack/newton-provider.wit" \
+      -n newton-provider \
+      --disable http --disable random --disable fetch-event --disable stdio \
+      -o "$wasm"
+    # Compute and write the stamp inline so subsequent deploy-all.sh runs hit
+    # the cache without re-componentizing. Mirrors wasm_cache_stamp() below.
+    {
+      shasum -a 256 "$pack/policy.js" "$pack/newton-provider.wit" 2>/dev/null
+      jco --version 2>/dev/null
+      echo "componentize-flags: --disable http --disable random --disable fetch-event --disable stdio"
+    } | shasum -a 256 | awk '{print $1}' > "$stamp"
+    echo "    wrote $wasm + $stamp"
+  done
+  echo "done — selected packs cached. Run deploy-all per-cell to deploy with stable wasmCid."
+  exit 0
+fi
 
 if [[ -z "$env" ]]; then
   echo "ERROR: --env is required (stagef|prod)" >&2
