@@ -20,7 +20,6 @@
     "lint:policy-js:test": "node --import tsx --test scripts/lint-policy-js.test.ts",
     "test": "pnpm -r test",
     "deploy:all": "./scripts/deploy-all.sh",
-    "deploy:pack": "./scripts/deploy-pack.sh",
     "deploy:sync": "./scripts/sync-deployments.sh",
     "changeset": "changeset",
     "version": "changeset version",
