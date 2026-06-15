@@ -3,10 +3,12 @@
 # Captures addresses to stdout, to <pack>/deployment.log, and to <pack>/dist/last_deploy.json.
 # Fails fast on any error.
 #
-# Normally invoked by deploy-all.sh, which resolves PRIVATE_KEY,
-# PINATA_JWT, CHAIN_ID, and RPC_URL from .env.deploy.local.<env> +
-# the --chain flag. Direct invocation requires the same env vars to
-# be exported by the caller.
+# This is an INTERNAL script — invoke via `pnpm run deploy:all` rather
+# than directly. The npm wrapper for `deploy:pack` was intentionally
+# removed in PR F (NEWT-1539) to close the bypass path that let direct
+# invocation skip the mainnet deploy gate. Direct invocation is still
+# possible (`bash scripts/deploy-pack.sh <pack> <pkg>`) but the same
+# mainnet gate fires here too — see below.
 
 set -euo pipefail
 
@@ -14,6 +16,29 @@ set -euo pipefail
 : "${RPC_URL:?RPC_URL env var required}"
 : "${CHAIN_ID:?CHAIN_ID env var required}"
 : "${PINATA_JWT:?PINATA_JWT env var required (otherwise IPFS uploads silently fall back to the rate-limited Newton proxy)}"
+
+# Mainnet deploy gate — duplicated from deploy-all.sh so direct invocation
+# (e.g. `bash scripts/deploy-pack.sh ...` or a CI job that bypasses
+# deploy-all.sh) cannot deploy to Ethereum mainnet (1) or Base mainnet
+# (8453) without both --allow-mainnet semantics provided via env:
+# NEWTON_ALLOW_MAINNET_DEPLOY=1 AND NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1.
+# Two distinct env vars (not just one) keeps defense-in-depth: a stray
+# CI job exporting one accidentally still cannot deploy. Reject leading
+# zeros on CHAIN_ID before the case match — `01` and `1` are different
+# strings to bash's pattern-match.
+if ! [[ "$CHAIN_ID" =~ ^(0|[1-9][0-9]*)$ ]]; then
+  echo "ERROR: CHAIN_ID must be a canonical decimal chainId (no leading zeros), got: $CHAIN_ID" >&2
+  exit 2
+fi
+case "$CHAIN_ID" in
+  1|8453)
+    if [[ "${NEWTON_ALLOW_MAINNET_DEPLOY:-}" != "1" || "${NEWTON_ALLOW_MAINNET_DEPLOY_FLAG:-}" != "1" ]]; then
+      echo "ERROR: chain $CHAIN_ID is mainnet — refusing to deploy without NEWTON_ALLOW_MAINNET_DEPLOY=1 AND NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1 (deploy-all.sh sets both when --allow-mainnet is passed)" >&2
+      echo "       Mainnet deploys are gated on the Shield audit (NEWT-1419) clearing." >&2
+      exit 2
+    fi
+    ;;
+esac
 
 if [[ $# -ne 2 ]]; then
   echo "usage: $0 <pack> <rego_package>" >&2

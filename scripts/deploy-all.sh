@@ -93,8 +93,11 @@ if [[ -z "$chain_id" ]]; then
   echo "ERROR: --chain <chainId> is required (decimal, e.g. 11155111)" >&2
   exit 2
 fi
-if ! [[ "$chain_id" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: --chain must be a decimal chainId, got: $chain_id" >&2
+# Reject leading zeros (other than literal "0") so `01` and `08453` cannot
+# slip past the mainnet gate as different string-form values that bash's
+# `case` pattern-match would treat as distinct from `1` and `8453`.
+if ! [[ "$chain_id" =~ ^(0|[1-9][0-9]*)$ ]]; then
+  echo "ERROR: --chain must be a canonical decimal chainId (no leading zeros), got: $chain_id" >&2
   exit 2
 fi
 
@@ -111,6 +114,14 @@ case "$chain_id" in
       echo "       Mainnet deploys are gated on the Shield audit (NEWT-1419) clearing. Until then, only testnets (11155111, 84532) are allowed." >&2
       exit 2
     fi
+    # Forward --allow-mainnet to deploy-pack.sh as a process-env signal.
+    # deploy-pack.sh fires its own mainnet gate that requires BOTH
+    # NEWTON_ALLOW_MAINNET_DEPLOY=1 (env, already set) AND
+    # NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1 (this var, set only by
+    # deploy-all.sh after --allow-mainnet is parsed). Keeps the
+    # downstream gate honest against direct deploy-pack.sh invocations
+    # that lack the CLI flag.
+    export NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1
     echo "WARNING: deploying to mainnet (chain $chain_id). Press Ctrl+C in the next 5 seconds to abort." >&2
     sleep 5
     ;;
@@ -183,19 +194,43 @@ needs_redeploy() {
   return 1
 }
 
+# Compute a content-addressed cache stamp for the WASM artifact.
+# Inputs: policy.js bytes, newton-provider.wit bytes, jco version, and
+# componentize flag set. SHA-256 over the concatenation. Used in lieu
+# of file mtimes (which are easily lied to: `git checkout` can land
+# new policy.js content with old timestamps; `touch` can fake fresh
+# timestamps without content change).
+wasm_cache_stamp() {
+  local pack=$1
+  {
+    shasum -a 256 "$pack/policy.js" "$pack/newton-provider.wit" 2>/dev/null
+    jco --version 2>/dev/null
+    # Hash includes the jco flag set, so a flag change invalidates the
+    # cache even if source bytes are unchanged.
+    echo "componentize-flags: --disable http --disable random --disable fetch-event --disable stdio"
+  } | shasum -a 256 | awk '{print $1}'
+}
+
 build_and_deploy() {
   local pack=$1 pkg=$2
   local wasm="$pack/dist/policy.wasm"
-  local wasm_stale=0
+  local stamp_file="$pack/dist/policy.wasm.stamp"
+  local current_stamp wasm_stale=0
 
-  # WASM is stale if it doesn't exist OR policy.js / newton-provider.wit is
-  # newer than it. jco componentize is non-deterministic across invocations
-  # (timestamps + version metadata embed into the binary), so re-running it
-  # produces a different IPFS CID for byte-identical source. Caching the
-  # artifact keeps the wasmCid stable across (chainId, env) cells.
+  # WASM is stale if it doesn't exist OR the stamp file is missing OR
+  # the recomputed stamp differs from the recorded one. jco componentize
+  # is non-deterministic across invocations (timestamps + version
+  # metadata embed into the binary), so re-running it produces a
+  # different IPFS CID for byte-identical source. Caching the artifact
+  # keeps wasmCid stable across (chainId, env) cells. The stamp is
+  # content-addressed (not mtime-based) to survive `git checkout` and
+  # other operations that touch timestamps without changing content.
+  current_stamp=$(wasm_cache_stamp "$pack")
   if [[ ! -f "$wasm" ]]; then
     wasm_stale=1
-  elif [[ "$pack/policy.js" -nt "$wasm" || "$pack/newton-provider.wit" -nt "$wasm" ]]; then
+  elif [[ ! -f "$stamp_file" ]]; then
+    wasm_stale=1
+  elif [[ "$current_stamp" != "$(cat "$stamp_file")" ]]; then
     wasm_stale=1
   fi
 
@@ -206,8 +241,9 @@ build_and_deploy() {
       -n newton-provider \
       --disable http --disable random --disable fetch-event --disable stdio \
       -o "$wasm"
+    echo "$current_stamp" > "$stamp_file"
   else
-    echo "==> $pack ($pkg): policy.wasm is up-to-date — reusing for stable wasmCid"
+    echo "==> $pack ($pkg): policy.wasm is up-to-date (cache stamp matches) — reusing for stable wasmCid"
   fi
 
   echo "==> $pack: deploy-pack.sh"
