@@ -27,17 +27,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-ALL_PACKS=(
-  "balancer:balancer_pool_risk"
-  "blockaid:blockaid_tx_safety"
-  "chainalysis:chainalysis_address_screening"
-  "guardrail:guardrail_protocol_monitor"
-  "persona:persona_kyc"
-  "redstone:redstone_oracle_divergence"
-  "sumsub:sumsub_kyc"
-  "vaultsfyi:vault_risk_rating"
-  "webacy:webacy_depeg_risk"
-)
+# shellcheck source=lib/packs.sh
+source "$(dirname "$0")/lib/packs.sh"
 
 env=""
 env_set=0
@@ -91,14 +82,7 @@ if ! [[ "$chain_id" =~ ^(0|[1-9][0-9]*)$ ]]; then
 fi
 
 # Resolve pack -> rego_package.
-pkg=""
-for entry in "${ALL_PACKS[@]}"; do
-  if [[ "${entry%%:*}" == "$pack" ]]; then
-    pkg="${entry##*:}"
-    break
-  fi
-done
-if [[ -z "$pkg" ]]; then
+if ! pkg=$(resolve_pkg "$pack"); then
   echo "ERROR: unknown pack '$pack'. Known: ${ALL_PACKS[*]%%:*}" >&2
   exit 2
 fi
@@ -106,13 +90,26 @@ fi
 # Mainnet deploy gate. Pre-audit, both Ethereum mainnet (1) and Base mainnet
 # (8453) are off-limits. The Shield contract is non-upgradeable and any
 # mainnet deploy is irreversible, so failing closed here is the only safe
-# default. Both --allow-mainnet AND NEWTON_ALLOW_MAINNET_DEPLOY=1 are
-# required — neither alone is sufficient (defense in depth against stray
-# flag/env mistakes).
+# default.
+#
+# THREE distinct signals required for a mainnet deploy. Defense-in-depth so
+# that a stray CI job, single forgotten environment variable, or accidentally-
+# quoted flag can't slip a deploy through:
+#   1. --allow-mainnet flag         (CLI, intentional operator action)
+#   2. NEWTON_ALLOW_MAINNET_DEPLOY=1      (env, set by the operator)
+#   3. NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1 (env, set by the operator)
+#
+# Both env vars are required at the gate boundary. Setting only one is the
+# common accident vector; setting both deliberately is the operator's
+# explicit acknowledgement. Preserves the two-env-var contract from PR #57
+# across the pre-PR-#60 script split (now collapsed into one deploy.sh).
 case "$chain_id" in
   1|8453)
-    if [[ "$allow_mainnet" -ne 1 || "${NEWTON_ALLOW_MAINNET_DEPLOY:-}" != "1" ]]; then
-      echo "ERROR: chain $chain_id is mainnet — refusing to deploy without --allow-mainnet AND NEWTON_ALLOW_MAINNET_DEPLOY=1" >&2
+    if [[ "$allow_mainnet" -ne 1 ]] || \
+       [[ "${NEWTON_ALLOW_MAINNET_DEPLOY:-}" != "1" ]] || \
+       [[ "${NEWTON_ALLOW_MAINNET_DEPLOY_FLAG:-}" != "1" ]]; then
+      echo "ERROR: chain $chain_id is mainnet — refusing to deploy. Mainnet requires ALL THREE:" >&2
+      echo "       --allow-mainnet (CLI), NEWTON_ALLOW_MAINNET_DEPLOY=1 (env), NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1 (env)." >&2
       echo "       Mainnet deploys are gated on the Shield audit (NEWT-1419) clearing. Until then, only testnets (11155111, 84532) are allowed." >&2
       exit 2
     fi

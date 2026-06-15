@@ -5,7 +5,8 @@
 #
 # Usage:
 #   pnpm run upload <pack>
-#   pnpm run upload <pack> --force        # rebuild WASM even if cache stamp matches
+#   pnpm run upload <pack> --force                # rebuild WASM even if cache stamp matches
+#   pnpm run upload <pack> --env-file <path>      # explicit env file for PINATA_JWT
 #
 # Run ONCE per pack at the start of a deploy session. The resulting
 # policy_cids.json is reused by `pnpm run deploy <pack> --env <env> --chain <chainId>`
@@ -25,25 +26,17 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# pack:rego_package — single source of truth across upload.sh and deploy.sh.
-ALL_PACKS=(
-  "balancer:balancer_pool_risk"
-  "blockaid:blockaid_tx_safety"
-  "chainalysis:chainalysis_address_screening"
-  "guardrail:guardrail_protocol_monitor"
-  "persona:persona_kyc"
-  "redstone:redstone_oracle_divergence"
-  "sumsub:sumsub_kyc"
-  "vaultsfyi:vault_risk_rating"
-  "webacy:webacy_depeg_risk"
-)
+# shellcheck source=lib/packs.sh
+source "$(dirname "$0")/lib/packs.sh"
 
 force=0
+env_file=""
 pack=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --force) force=1; shift ;;
-    -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+    --env-file) env_file="${2:?--env-file requires a path}"; shift 2 ;;
+    -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
     --*) echo "unknown flag: $1" >&2; exit 2 ;;
     *)
       [[ -n "$pack" ]] && { echo "ERROR: only one pack at a time. Got: $pack and $1" >&2; exit 2; }
@@ -57,29 +50,40 @@ if [[ -z "$pack" ]]; then
   exit 2
 fi
 
-pkg=""
-for entry in "${ALL_PACKS[@]}"; do
-  if [[ "${entry%%:*}" == "$pack" ]]; then
-    pkg="${entry##*:}"
-    break
-  fi
-done
-if [[ -z "$pkg" ]]; then
+if ! pkg=$(resolve_pkg "$pack"); then
   echo "ERROR: unknown pack '$pack'. Known: ${ALL_PACKS[*]%%:*}" >&2
   exit 2
 fi
 
-# We need PINATA_JWT for IPFS uploads. Source the user's preferred env file
-# if one exists. The user typically runs `pnpm run upload` once per pack at
-# the start of a session, so we accept any of the gitignored env files —
-# the upload step doesn't care about chainId or env.
-for envfile in .env.deploy.local.stagef .env.deploy.local.prod .env.deploy.local; do
-  if [[ -f "$envfile" ]]; then
-    # shellcheck disable=SC1090
-    set -a; . "$envfile"; set +a
-    break
+# We need PINATA_JWT for IPFS uploads. Source the operator's chosen env file.
+# Upload doesn't care about chainId or AVS env semantics, but the env file is
+# the only place PINATA_JWT lives. If the operator passed --env-file, use it
+# verbatim; otherwise discover the candidate files and require exactly one.
+# Refusing on >1 candidates avoids picking a "wrong" PINATA_JWT silently when
+# the operator has multiple distinct gitignored env files on disk.
+if [[ -n "$env_file" ]]; then
+  if [[ ! -f "$env_file" ]]; then
+    echo "ERROR: --env-file path does not exist: $env_file" >&2
+    exit 1
   fi
-done
+  # shellcheck disable=SC1090
+  set -a; . "$env_file"; set +a
+else
+  candidates=()
+  for envfile in .env.deploy.local.stagef .env.deploy.local.prod .env.deploy.local; do
+    [[ -f "$envfile" ]] && candidates+=("$envfile")
+  done
+  if [[ ${#candidates[@]} -eq 0 ]]; then
+    echo "ERROR: no env file found. Create .env.deploy.local.{stagef|prod} with PINATA_JWT, or pass --env-file <path>" >&2
+    exit 1
+  elif [[ ${#candidates[@]} -gt 1 ]]; then
+    echo "ERROR: multiple env files found: ${candidates[*]}" >&2
+    echo "       Pass --env-file <path> to disambiguate. Refusing to silently pick one." >&2
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  set -a; . "${candidates[0]}"; set +a
+fi
 
 : "${PINATA_JWT:?PINATA_JWT env var required (otherwise IPFS uploads silently fall back to the rate-limited Newton proxy). Set it in .env.deploy.local.<env>.}"
 
