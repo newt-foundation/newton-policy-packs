@@ -65,6 +65,36 @@ dep.packs = dep.packs || {};
 
 const dateOnly = (iso) => (iso || "").slice(0, 10);
 
+// Validate every snapshot's `env` matches the requested --env BEFORE merging
+// any of them. A mismatch means deploy-all.sh ran the pack against a
+// different env, then someone called sync with the wrong --env (or a
+// stale `<pack>/dist/last_deploy.json` from a prior cell got picked up
+// without being overwritten by a successful deploy on the requested env).
+// Fail-closed protects deployments.json from cross-env corruption.
+const mismatches = [];
+const missingEnv = [];
+for (const path of snapPaths) {
+  const s = JSON.parse(fs.readFileSync(path, "utf8"));
+  if (!s.env) {
+    missingEnv.push(`${path} (snapshot has no \`env\` field — was it written by an old deploy-pack.sh?)`);
+    continue;
+  }
+  if (s.env !== env) {
+    mismatches.push(`${path}: snapshot env="${s.env}" but --env="${env}"`);
+  }
+}
+if (mismatches.length || missingEnv.length) {
+  console.error("ERROR: snapshot/--env validation failed:");
+  for (const m of mismatches) console.error(`  ${m}`);
+  for (const m of missingEnv) console.error(`  ${m}`);
+  console.error();
+  console.error("Refusing to merge — would corrupt deployments.json under cross-env writes.");
+  console.error("Fix: re-run \`pnpm run deploy:all --env <correct-env> --chain <chainId>\`");
+  console.error("for the affected packs so their snapshot is rewritten under the right env,");
+  console.error("then re-run \`pnpm run deploy:sync --env <correct-env>\`.");
+  process.exit(2);
+}
+
 for (const path of snapPaths) {
   const s = JSON.parse(fs.readFileSync(path, "utf8"));
   const { pack, chainId, policy, policyData, policyCids, deployedAt } = s;

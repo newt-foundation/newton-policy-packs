@@ -15,7 +15,12 @@ set -euo pipefail
 : "${PRIVATE_KEY:?PRIVATE_KEY env var required (export from ~/.newton/newton-cli.toml)}"
 : "${RPC_URL:?RPC_URL env var required}"
 : "${CHAIN_ID:?CHAIN_ID env var required}"
+: "${DEPLOYMENT_ENV:?DEPLOYMENT_ENV env var required (set to stagef|prod by deploy-all.sh)}"
 : "${PINATA_JWT:?PINATA_JWT env var required (otherwise IPFS uploads silently fall back to the rate-limited Newton proxy)}"
+if [[ "$DEPLOYMENT_ENV" != "stagef" && "$DEPLOYMENT_ENV" != "prod" ]]; then
+  echo "ERROR: DEPLOYMENT_ENV must be 'stagef' or 'prod', got: $DEPLOYMENT_ENV" >&2
+  exit 2
+fi
 
 # Mainnet deploy gate — duplicated from deploy-all.sh so direct invocation
 # (e.g. `bash scripts/deploy-pack.sh ...` or a CI job that bypasses
@@ -112,12 +117,12 @@ echo "$pack DATA=$DATA_ADDR POLICY=$POLICY_ADDR" | tee -a "$log"
 deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 git_commit=$(git rev-parse HEAD 2>/dev/null || echo "")
 snapshot="./$pack/dist/last_deploy.json"
-node - "$pack" "$pkg" "$CHAIN_ID" "$POLICY_ADDR" "$DATA_ADDR" \
+node - "$pack" "$pkg" "$CHAIN_ID" "$DEPLOYMENT_ENV" "$POLICY_ADDR" "$DATA_ADDR" \
   "./$pack/dist/policy_cids.json" "$deployed_at" "$git_commit" "$snapshot" <<'NODE'
 const fs = require("fs");
-const [pack, pkg, chainId, policy, policyData, cidsPath, deployedAt, txCommit, out] = process.argv.slice(2);
+const [pack, pkg, chainId, env, policy, policyData, cidsPath, deployedAt, txCommit, out] = process.argv.slice(2);
 const cids = JSON.parse(fs.readFileSync(cidsPath, "utf8"));
-const snap = { pack, package: pkg, chainId, policy, policyData, policyCids: cids, deployedAt, txCommit };
+const snap = { pack, package: pkg, chainId, env, policy, policyData, policyCids: cids, deployedAt, txCommit };
 fs.writeFileSync(out, JSON.stringify(snap, null, 2) + "\n");
 NODE
 echo "wrote $snapshot" | tee -a "$log"

@@ -183,6 +183,19 @@ needs_redeploy() {
   local pack=$1
   local snap="./$pack/dist/last_deploy.json"
   [[ -f "$snap" ]] || return 0
+  # Cell-aware skip: snapshot is only "up-to-date" for the CURRENT (chain, env)
+  # cell. A snapshot for a different cell — e.g. cell 1 (Sepolia stagef)
+  # leftover when the user is now running cell 3 (Base Sepolia stagef) — must
+  # NOT short-circuit the deploy, even if no source file changed. Without this
+  # check, a multi-cell workflow silently no-ops on cells 2/3/4 (their stale
+  # snapshots are newer than source) and `pnpm run deploy:sync --env <env>`
+  # then fails the env-validation gate with no obvious recovery.
+  local snap_env snap_chain
+  snap_env=$(node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1])); process.stdout.write(s.env || "")' "$snap" 2>/dev/null || echo "")
+  snap_chain=$(node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1])); process.stdout.write(String(s.chainId || ""))' "$snap" 2>/dev/null || echo "")
+  if [[ "$snap_env" != "$env" || "$snap_chain" != "$chain_id" ]]; then
+    return 0
+  fi
   # Any source file newer than the snapshot → redeploy.
   local src
   for src in "./$pack/policy.js" "./$pack/policy.rego" \
