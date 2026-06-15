@@ -91,6 +91,27 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Compute a content-addressed cache stamp for the WASM artifact.
+# Inputs: policy.js bytes, newton-provider.wit bytes, jco version, and
+# componentize flag set. SHA-256 over the concatenation. Used in lieu
+# of file mtimes (which are easily lied to: `git checkout` can land
+# new policy.js content with old timestamps; `touch` can fake fresh
+# timestamps without content change).
+#
+# Defined here (above --pre-componentize) so the standalone build path
+# AND the deploy-time cache-validation path share one source of truth
+# for stamp content. Future changes to the formula land in one place.
+wasm_cache_stamp() {
+  local pack=$1
+  {
+    shasum -a 256 "$pack/policy.js" "$pack/newton-provider.wit" 2>/dev/null
+    jco --version 2>/dev/null
+    # Hash includes the jco flag set, so a flag change invalidates the
+    # cache even if source bytes are unchanged.
+    echo "componentize-flags: --disable http --disable random --disable fetch-event --disable stdio"
+  } | shasum -a 256 | awk '{print $1}'
+}
+
 # --pre-componentize is a stand-alone build mode: run `jco componentize` once
 # per selected pack (force-rebuild) and exit. Used to prime the WASM cache
 # stamps BEFORE a multi-cell sweep, so cells 1-4 of each pack share a single
@@ -118,13 +139,7 @@ if [[ "$pre_componentize_only" -eq 1 ]]; then
       -n newton-provider \
       --disable http --disable random --disable fetch-event --disable stdio \
       -o "$wasm"
-    # Compute and write the stamp inline so subsequent deploy-all.sh runs hit
-    # the cache without re-componentizing. Mirrors wasm_cache_stamp() below.
-    {
-      shasum -a 256 "$pack/policy.js" "$pack/newton-provider.wit" 2>/dev/null
-      jco --version 2>/dev/null
-      echo "componentize-flags: --disable http --disable random --disable fetch-event --disable stdio"
-    } | shasum -a 256 | awk '{print $1}' > "$stamp"
+    wasm_cache_stamp "$pack" > "$stamp"
     echo "    wrote $wasm + $stamp"
   done
   echo "done — selected packs cached. Run deploy-all per-cell to deploy with stable wasmCid."
@@ -255,23 +270,6 @@ needs_redeploy() {
     if [[ "$src" -nt "$snap" ]]; then return 0; fi
   done
   return 1
-}
-
-# Compute a content-addressed cache stamp for the WASM artifact.
-# Inputs: policy.js bytes, newton-provider.wit bytes, jco version, and
-# componentize flag set. SHA-256 over the concatenation. Used in lieu
-# of file mtimes (which are easily lied to: `git checkout` can land
-# new policy.js content with old timestamps; `touch` can fake fresh
-# timestamps without content change).
-wasm_cache_stamp() {
-  local pack=$1
-  {
-    shasum -a 256 "$pack/policy.js" "$pack/newton-provider.wit" 2>/dev/null
-    jco --version 2>/dev/null
-    # Hash includes the jco flag set, so a flag change invalidates the
-    # cache even if source bytes are unchanged.
-    echo "componentize-flags: --disable http --disable random --disable fetch-event --disable stdio"
-  } | shasum -a 256 | awk '{print $1}'
 }
 
 build_and_deploy() {
