@@ -71,7 +71,7 @@ data.params.chainalysis.deny_on_sanctioned # bool
 
 ### 1. Pick the modules
 
-Read [`deployments.json`](../deployments.json) for the canonical `(policy, policyData, wasmCid)` per pack per chain. Pick the modules you want.
+Read [`deployments.json`](../deployments.json) for the canonical `(policyData, wasmCid)` oracle per pack per chain. Pick the modules you want — you reference their `policyData` addresses from your composite.
 
 For each module, also note the typed schemas in its TypeScript binding under [`packages/policy-pack-<name>/src/`](../packages):
 

@@ -100,7 +100,7 @@ newton-cli policy deploy -p ./redstone
 
 ## Deployments
 
-See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.redstone.<chain_id>.policy` / `policyData`).
+See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.redstone.<chain_id>.<env>.policyData` — the reusable oracle; you deploy your own policy referencing it).
 
 ## Notes
 

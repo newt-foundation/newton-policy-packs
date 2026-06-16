@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "comment": "Canonical deployed policy + policy-data addresses, keyed by pack -> chainId (decimal string) -> env. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell now has separate stagef/prod sub-records since the same pack may have distinct policy addresses on the same chain under different AVS envs.",
+  "comment": "Canonical deployed PolicyData (oracle) addresses + wasmCid, keyed by pack -> chainId (decimal string) -> env. A pack ships a reusable oracle, not a blessed NewtonPolicy — curators deploy their own policy (single-pack or composite) referencing these policyData addresses. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell has separate stagef/prod sub-records since the same pack may have distinct oracle addresses on the same chain under different AVS envs.",
   "chains": {
     "84532": "Base Sepolia",
     "11155111": "Ethereum Sepolia"
