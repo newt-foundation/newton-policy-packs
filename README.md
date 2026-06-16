@@ -118,7 +118,7 @@ The `.env.stagef` / `.env.prod` files are starter templates — they are **not**
 newton-policy-packs/
 ├── vaultsfyi/             # Vault risk-rating gate (vaults.fyi)
 ├── redstone/              # Oracle-divergence gate
-├── webacy/                # Depositor-reputation gate
+├── webacy/                # Pegged-token depeg-risk gate
 ├── chainalysis/           # Sanctions / address-screening gate
 ├── blockaid/              # Transaction-time exploit gate
 ├── guardrail/             # On-chain monitoring gate
@@ -181,7 +181,7 @@ Oracle-divergence gate. Compares [RedStone](https://redstone.finance) median pri
 
 ### webacy
 
-Depositor-reputation gate using [Webacy](https://webacy.com) — DD-score buckets (low/medium/high/sanctioned), exploit-exposure flags, tiered deposit caps for medium-risk wallets. See [webacy/README.md](./webacy/README.md).
+Pegged-token depeg-risk gate using [Webacy](https://webacy.com)'s depeg-monitor API — denies on token collapse, recent depeg events in a lookback window, sustained days-below-peg streaks, or stale upstream data. See [webacy/README.md](./webacy/README.md).
 
 ### chainalysis
 
