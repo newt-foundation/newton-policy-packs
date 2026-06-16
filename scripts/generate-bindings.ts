@@ -62,7 +62,6 @@ function resolveSharedPeerVersion(): string {
 }
 
 interface DeploymentEntry {
-	policy: string;
 	policyData: string;
 	wasmCid: string;
 	policyCodeHash: string;
@@ -357,7 +356,7 @@ pnpm add @newton-xyz/policy-pack-${packName}
 | \`WasmArgsSchema\` (zod) + \`WasmArgs\` (type) | \`wasm_args_schema.json\` | Inputs the pack's WASM receives at evaluation time. |
 | \`SecretsSchema\` (zod) + \`Secrets\` (type) | \`secrets_schema.json\` | API credentials uploaded before run/sim. |
 | \`ParamsSchema\` (zod) + \`Params\` (type) | \`params_schema.json\` | Configuration thresholds, set at policy upload time. |
-| \`deployments\` | top-level \`deployments.json\` | \`chainId → env → { policy, policyData, wasmCid, ... }\` (env keys: \`stagef\`, \`prod\`) |
+| \`deployments\` | top-level \`deployments.json\` | \`chainId → env → { policyData, wasmCid, policyCodeHash, deployedAt }\` (env keys: \`stagef\`, \`prod\`) — the reusable oracle; curators deploy their own policy referencing it |
 | \`PACK_NAME\`, \`PACK_VERSION\`, \`PACK_DESCRIPTION\`, \`PACK_LINK\`, \`PACK_AUTHOR\` | \`policy_metadata.json\` | Static pack identity. |
 
 ## Regeneration

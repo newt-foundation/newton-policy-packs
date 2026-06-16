@@ -93,20 +93,22 @@ if (mismatches.length || missingEnv.length) {
 
 for (const path of snapPaths) {
   const s = JSON.parse(fs.readFileSync(path, "utf8"));
-  const { pack, chainId, policy, policyData, policyCids, deployedAt } = s;
+  const { pack, chainId, policyData, policyCids, deployedAt } = s;
   const cidsBlock = policyCids || {};
   dep.packs[pack] = dep.packs[pack] || {};
   dep.packs[pack][chainId] = dep.packs[pack][chainId] || {};
   const prev = dep.packs[pack][chainId][env] || {};
+  // A pack records its reusable oracle (policyData + wasmCid + policyCodeHash),
+  // NOT a blessed NewtonPolicy. Curators deploy their own policy from the
+  // reference Rego. See docs/writing-composite-policies.md.
   const next = {
-    policy,
     policyData,
     wasmCid: cidsBlock.wasmCid,
     policyCodeHash: cidsBlock.policyCodeHash,
     deployedAt: dateOnly(deployedAt) || prev.deployedAt,
   };
   dep.packs[pack][chainId][env] = next;
-  console.error(`  merged ${pack}@${chainId}/${env}: policy=${policy} data=${policyData}`);
+  console.error(`  merged ${pack}@${chainId}/${env}: policyData=${policyData}`);
 }
 
 const tmp = depPath + ".tmp";

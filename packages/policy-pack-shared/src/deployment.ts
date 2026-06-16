@@ -20,18 +20,25 @@ export type ChainId = string;
 export type GatewayEnv = "stagef" | "prod";
 
 /**
- * On-chain address pair + content addressing for a deployed Newton policy
- * on a given chain. Mirrors the per-pack-per-chain entries in the upstream
- * `deployments.json`.
+ * On-chain identity + content addressing for a pack's deployed oracle
+ * (`NewtonPolicyData`) on a given chain. Mirrors the per-pack-per-chain
+ * entries in the upstream `deployments.json`.
  *
- * - `policy`       — the `NewtonPolicy` contract address. The Shield clone's
- *                    `setPolicyAddress(policy)` argument.
- * - `policyData`   — the `NewtonPolicyData` contract address. Holds the
- *                    on-chain `policyParams` blob the SDK encodes via the
- *                    pack's `ParamsSchema`.
+ * A pack ships a reusable **oracle** (`NewtonPolicyData`), NOT a blessed
+ * policy. There is no `policy` (`NewtonPolicy`) field: the pack's `policy.rego`
+ * is a *reference* that curators copy and deploy as their own `NewtonPolicy`
+ * — single-pack (one `policyData`) or composite (N `policyData`). The
+ * reusable, verifiable artifacts a curator references are `policyData` +
+ * `wasmCid`; see `docs/writing-composite-policies.md`.
+ *
+ * - `policyData`   — the `NewtonPolicyData` contract address. The reusable
+ *                    oracle. A curator's `NewtonPolicy` references one (or
+ *                    more, for composites) of these via
+ *                    `--policy-data-address`.
  * - `wasmCid`      — IPFS CID of the compiled WASM oracle. Pinned by Pinata
  *                    in production; serves as the WASM identity in the
- *                    Newton AVS evaluation contract.
+ *                    Newton AVS evaluation contract, and the value a
+ *                    depositor verifies against `INewtonPolicyData.getWasmCid()`.
  * - `policyCodeHash` — keccak hash of the deployed `policy.rego` source plus
  *                      WASM bytecode. The AVS uses this to refuse
  *                      attestations against an unverified pack version.
@@ -39,7 +46,6 @@ export type GatewayEnv = "stagef" | "prod";
  *                    no time of day; redeploys overwrite).
  */
 export interface Deployment {
-	readonly policy: Address;
 	readonly policyData: Address;
 	readonly wasmCid: string;
 	readonly policyCodeHash: Hex;

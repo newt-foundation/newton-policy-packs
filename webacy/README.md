@@ -96,7 +96,7 @@ Without a `WEBACY_API_KEY` set, the WASM oracle will return `{"error": "..."}` f
 
 ## Deployments
 
-See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.webacy.<chain_id>.policy` / `policyData`).
+See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.webacy.<chain_id>.<env>.policyData` — the reusable oracle; you deploy your own policy referencing it).
 
 ## Notes
 

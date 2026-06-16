@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Deploy a single pack on-chain to a specific (chainId, env) cell.
 # Reads the existing <pack>/dist/policy_cids.json (written by upload.sh).
-# Runs newton-cli policy-data deploy + policy deploy.
-# Writes <pack>/dist/last_deploy.json snapshot.
+# Runs newton-cli policy-data deploy (the reusable oracle only — a pack does
+# NOT deploy a blessed single-pack NewtonPolicy; curators deploy their own
+# from the reference policy.rego). Writes <pack>/dist/last_deploy.json snapshot.
 #
 # Usage:
 #   pnpm run deploy <pack> --env <stagef|prod> --chain <chainId>
@@ -222,20 +223,15 @@ if [[ -z "${DATA_ADDR:-}" ]]; then
 fi
 echo "DATA_ADDR=$DATA_ADDR" | tee -a "$log"
 
-echo "=== $(date) :: $pack policy deploy ($env/$chain_id) ===" | tee -a "$log"
-run newton-cli policy deploy \
-  --policy-cids "$cids" \
-  --policy-data-address "$DATA_ADDR" \
-  --policy-file "./$pack/policy.rego"
-
-POLICY_ADDR=$(grep -Eo "Policy deployed successfully at address: 0x[a-fA-F0-9]+" "$LAST_RUN_OUT" | awk '{print $NF}')
-if [[ -z "${POLICY_ADDR:-}" ]]; then
-  echo "ERROR: failed to extract POLICY_ADDR from current invocation output" >&2
-  exit 1
-fi
+# A pack ships only the reusable oracle (NewtonPolicyData). We do NOT deploy a
+# per-pack single-pack NewtonPolicy: the pack's policy.rego is a *reference*
+# that curators copy and deploy as their own NewtonPolicy (single-pack with
+# one --policy-data-address, or composite with N). deployments.json records
+# the oracle (policyData + wasmCid + policyCodeHash), not a blessed policy.
+# See docs/writing-composite-policies.md.
 
 echo "=== $(date) :: $pack DEPLOY DONE ($env/$chain_id) ===" | tee -a "$log"
-echo "$pack DATA=$DATA_ADDR POLICY=$POLICY_ADDR" | tee -a "$log"
+echo "$pack DATA=$DATA_ADDR" | tee -a "$log"
 
 # Emit a machine-readable snapshot so sync-deployments.sh can rebuild
 # deployments.json without re-running deploys. Snapshot carries env so
@@ -244,10 +240,10 @@ echo "$pack DATA=$DATA_ADDR POLICY=$POLICY_ADDR" | tee -a "$log"
 deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 git_commit=$(git rev-parse HEAD 2>/dev/null || echo "")
 snapshot="./$pack/dist/last_deploy.json"
-node - "$pack" "$pkg" "$CHAIN_ID" "$DEPLOYMENT_ENV" "$POLICY_ADDR" "$DATA_ADDR" \
+node - "$pack" "$pkg" "$CHAIN_ID" "$DEPLOYMENT_ENV" "$DATA_ADDR" \
   "$cids" "$deployed_at" "$git_commit" "${expire_after_blocks:-}" "$snapshot" <<'NODE'
 const fs = require("fs");
-const [pack, pkg, chainId, env, policy, policyData, cidsPath, deployedAt, txCommit, expireAfterBlocksStr, out] = process.argv.slice(2);
+const [pack, pkg, chainId, env, policyData, cidsPath, deployedAt, txCommit, expireAfterBlocksStr, out] = process.argv.slice(2);
 const cids = JSON.parse(fs.readFileSync(cidsPath, "utf8"));
 // expireAfterBlocks is part of the PolicyData CREATE2 salt
 // (newton-prover-avs/contracts/src/core/NewtonPolicyDataFactory.sol:131).
@@ -257,7 +253,7 @@ const cids = JSON.parse(fs.readFileSync(cidsPath, "utf8"));
 // applied its own block-time-derived default; the actual deployed value
 // is recoverable from on-chain).
 const expireAfterBlocks = expireAfterBlocksStr ? Number(expireAfterBlocksStr) : null;
-const snap = { pack, package: pkg, chainId, env, policy, policyData, policyCids: cids, expireAfterBlocks, deployedAt, txCommit };
+const snap = { pack, package: pkg, chainId, env, policyData, policyCids: cids, expireAfterBlocks, deployedAt, txCommit };
 fs.writeFileSync(out, JSON.stringify(snap, null, 2) + "\n");
 NODE
 echo "wrote $snapshot" | tee -a "$log"

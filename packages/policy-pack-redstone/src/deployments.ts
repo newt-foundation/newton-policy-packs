@@ -5,14 +5,12 @@ import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-sh
 export const deployments = {
 	"84532": {
 		stagef: {
-			policy: "0x40bC21AdB139f1125F658dbC26d908e6763A58ff",
 			policyData: "0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1",
 			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
 			deployedAt: "2026-06-16",
 		},
 		prod: {
-			policy: "0x004af8d849F7aB9e883Ad0F95b236D9D7347bfab",
 			policyData: "0xDbfE2fea061e71109e65e511CD11D070f49A187d",
 			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
@@ -21,14 +19,12 @@ export const deployments = {
 	},
 	"11155111": {
 		stagef: {
-			policy: "0x6aD94d9F83804B050961C318d2e4C92aA0cB424B",
 			policyData: "0xf30394EbB11B74dd701eC3592d58dC3d62926f00",
 			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
 			deployedAt: "2026-06-16",
 		},
 		prod: {
-			policy: "0x10Be3038bb02986afCab89E6231e5125dE802d72",
 			policyData: "0x6621D7F739a3682054ac974D772AEEBb8548b1BF",
 			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",

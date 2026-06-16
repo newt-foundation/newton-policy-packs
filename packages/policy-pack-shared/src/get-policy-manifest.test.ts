@@ -17,7 +17,6 @@ const POLICY: Address = "0x8888888888888888888888888888888888888888";
 const POLICY_ID: Hex = ("0x" + "ab".repeat(32)) as Hex;
 
 const DEPLOYMENT: Deployment = {
-	policy: "0xAaaa000000000000000000000000000000000001",
 	policyData: "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
 	wasmCid: "bafytest",
 	policyCodeHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

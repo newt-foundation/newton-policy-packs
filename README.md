@@ -84,7 +84,7 @@ The above only registers the Policy + PolicyData contracts. To wire them into a 
 
 ## Deployed addresses
 
-The canonical Policy + PolicyData address for every pack on every chain lives in [`deployments.json`](./deployments.json). Update it as part of every redeploy — the dashboard, OPERATING.md, and per-pack READMEs all read from this file.
+The canonical **PolicyData** (oracle) address + `wasmCid` for every pack on every chain lives in [`deployments.json`](./deployments.json). A pack ships a reusable oracle, not a blessed `NewtonPolicy` — there is no per-pack `policy` address. Curators deploy their own `NewtonPolicy` (single-pack or composite) referencing these `policyData` addresses; see [`docs/writing-composite-policies.md`](./docs/writing-composite-policies.md). Update `deployments.json` as part of every oracle redeploy — the dashboard, OPERATING.md, and per-pack READMEs all read from this file.
 
 ## Creating a New Policy
 
