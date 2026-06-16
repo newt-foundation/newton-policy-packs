@@ -37,7 +37,7 @@ The on-chain `policyParams` blob for a composite is **a single UTF-8 JSON object
     ...
   ],
   "params": {
-    "<module-id>": { /* params for that module */ },
+    "<short-pack-id>": { /* params for that module */ },
     ...
   }
 }
@@ -81,7 +81,7 @@ Ordered array — position-significant. Each entry:
 
 | Field | Type | Source |
 |---|---|---|
-| `id` | string | `OracleModule.id` (e.g. `"vaultsfyi/risk-envelope/v1"`). Used for namespace lookups in `params`, e.g. `params[id]`. |
+| `id` | string | `OracleModule.id` (e.g. `"vaultsfyi/risk-envelope/v1"`). Used for traceability in introspection. The `params` map is keyed by the SHORT pack id derived from this — see "params" section below. |
 | `policyDataAddress` | EIP-55-checksummed address string | `getDeployment(module, chainId, env).policyData`. EIP-55 is the wire format we emit; equality comparisons MUST normalize both sides via `getAddress(...)` (or lowercase) before checking, since solidity returns 20-byte address values that any ABI decoder may format differently. The byte form in the JSON manifest stays EIP-55 for grep-ability. |
 | `wasmCid` | string (CIDv1, base32-lower) | `getDeployment(module, chainId, env).wasmCid`. Used by depositors against `INewtonPolicyData(addr).getWasmCid()` (returns `string memory` per [`INewtonPolicyData.sol:37`](https://github.com/newt-foundation/newton-prover-avs/blob/main/contracts/src/interfaces/INewtonPolicyData.sol#L37)). |
 
@@ -109,7 +109,7 @@ Each value is the params object the AVS host forwards to that module's WASM. The
 
 The encoder (`encodeCompositeParams`) rejects packs where two modules derive the same short id — that would make `data.params.<shortId>` ambiguous in Rego. `KNOWN_PACK_IDS` in Phase 2 will mechanically enforce uniqueness across the published-pack universe.
 
-`encodeCompositeParams` validates each `params[id]` against the corresponding module's `paramsSchema` (zod) before emitting bytes. Schema mismatch throws `CompositeParamsValidationError` with the offending module + zod issue list.
+`encodeCompositeParams` validates each `params[shortId]` against the corresponding module's `paramsSchema` (zod) before emitting bytes. Schema mismatch throws `CompositeParamsValidationError` with the offending module + zod issue list.
 
 ## Canonical-form encoding
 
@@ -214,7 +214,7 @@ All errors thrown by `decodeManifest`, `introspectComposite`, and `encodeComposi
 | `BadManifestMagicError` | `_manifest.magic !== "NPM1"` | Bytes were written by an unrelated tool — surface to user; don't auto-recover |
 | `UnsupportedManifestVersionError` | `_manifest.version > MAX_SUPPORTED` | Upgrade the SDK; older SDKs cannot read newer manifests |
 | `MalformedManifestError` | post-magic structural validation failed | Fix the writer — usually a `defineComposite` bug |
-| `CompositeParamsValidationError` | one of `params[id]` failed its module's `paramsSchema` (zod) — thrown by `encodeCompositeParams` before bytes are emitted | Fix the offending params; `err.moduleId` + `err.zodIssues` carry context |
+| `CompositeParamsValidationError` | one of `params[shortId]` failed its module's `paramsSchema` (zod) — thrown by `encodeCompositeParams` before bytes are emitted | Fix the offending params; `err.moduleId` + `err.zodIssues` carry context |
 
 ## Implementation plan
 
@@ -230,7 +230,7 @@ The actual code lands in a follow-up PR (Phase 1.5 implementation). Two scope op
 
 ### Option B — read + write paired in Phase 1.5
 
-Same as Option A plus `encodeCompositeParams(pack, params)` (the byte producer, no on-chain calls) so the test suite can exercise round-trip identity. Signature: `pack` is a `CompositePolicyPack` (the type Phase 2's `defineComposite` produces) carrying both the typed `modules` array AND each module's `paramsSchema` — needed because the encoder validates `params[id]` against `pack.modules[i].paramsSchema` before emitting bytes. The single-arg shape mirrors `encodePolicyParams(pack, params)` for single-pack params (see [`packages/policy-pack-shared/src/encoding.ts`](../packages/policy-pack-shared/src/encoding.ts)).
+Same as Option A plus `encodeCompositeParams(pack, params)` (the byte producer, no on-chain calls) so the test suite can exercise round-trip identity. Signature: `pack` is a `CompositePolicyPack` (the type Phase 2's `defineComposite` produces) carrying both the typed `modules` array AND each module's `paramsSchema` — needed because the encoder validates `params[shortId]` against `pack.modules[i].paramsSchema` before emitting bytes (`shortId = shortPackIdFromModuleId(module.id)`). The single-arg shape mirrors `encodePolicyParams(pack, params)` for single-pack params (see [`packages/policy-pack-shared/src/encoding.ts`](../packages/policy-pack-shared/src/encoding.ts)).
 
 For Phase 1.5, the implementation defines a minimal `CompositePolicyPack` shape (just `modules: ReadonlyArray<OracleModule<...>>`) so `encodeCompositeParams` can run before Phase 2's `defineComposite` builder lands. Phase 2 fills in the rest of `CompositePolicyPack` (e.g. cached on-chain `getPolicyData()` snapshot for invariants, `prepareQuery` aggregation across modules) without changing the encoder's signature.
 
@@ -248,7 +248,7 @@ These are flagged for review on this design PR:
 - **`policyDataAddress` casing.** EIP-55 checksummed (preserves bytewise comparison against viem-formatted addresses) vs all-lowercase (smaller, simpler equality). **Recommendation:** EIP-55, since most viem call returns are checksummed.
 - **`wasmCid` form.** CIDv1 base32-lower (the form `policy_cids.json` writes today) vs CIDv0 base58. **Recommendation:** CIDv1 base32-lower — matches what the AVS-side `INewtonPolicyData.getWasmCid()` returns and what the upload pipeline pins to Pinata.
 - **Should `_manifest` carry `chainId` and `env` fields?** Pro: depositors can sanity-check they're verifying against the right cell. Con: the cell is implied by the on-chain Shield they're querying. **Recommendation:** Skip for v1. Add in v2 if a real failure mode surfaces.
-- **What happens if `params[id]` is missing for a module in `modules[]`?** Either the module's WASM gets `{}` as params (lenient) or `decodeManifest` throws `MalformedManifestError` (strict). **Recommendation:** Strict — every module declared in `modules[]` MUST have a corresponding `params[id]` entry, even if the entry is `{}`. Catches a class of partial-write bugs.
+- **What happens if `params[shortId]` is missing for a module in `modules[]`?** Either the module's WASM gets `{}` as params (lenient) or `decodeManifest` throws `MalformedManifestError` (strict). **Recommendation:** Strict — every module declared in `modules[]` MUST have a corresponding `params[shortId]` entry, even if the entry is `{}`. Catches a class of partial-write bugs.
 
 ## See also
 

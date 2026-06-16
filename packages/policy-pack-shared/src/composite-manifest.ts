@@ -52,8 +52,24 @@ export const MANIFEST_MAX_SUPPORTED_VERSION = 1 as const;
  * uses to look up each module's published artifacts.
  */
 export function shortPackIdFromModuleId(moduleId: string): string {
+	if (typeof moduleId !== "string" || moduleId.length === 0) {
+		throw new MalformedManifestError(
+			`module id must be a non-empty string, got ${JSON.stringify(moduleId)}`,
+		);
+	}
+	if (moduleId.startsWith("/")) {
+		throw new MalformedManifestError(
+			`module id must not start with "/", got ${JSON.stringify(moduleId)}`,
+		);
+	}
 	const slash = moduleId.indexOf("/");
-	return slash === -1 ? moduleId : moduleId.slice(0, slash);
+	const shortId = slash === -1 ? moduleId : moduleId.slice(0, slash);
+	if (shortId.length === 0) {
+		throw new MalformedManifestError(
+			`derived short pack id is empty for module id ${JSON.stringify(moduleId)}`,
+		);
+	}
+	return shortId;
 }
 
 export interface CompositeManifest {

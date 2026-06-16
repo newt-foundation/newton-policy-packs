@@ -21,7 +21,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -497,8 +497,9 @@ function main(): void {
 }
 
 // Only auto-execute when run as a script (e.g. `pnpm gen:bindings`), NOT when
-// imported by a test (e.g. `findManifestKeyViolation` self-test). Compares the
-// resolved file URL of this module against `process.argv[1]`'s file URL.
-if (import.meta.url === `file://${process.argv[1]}`) {
+// imported by a test (e.g. `findManifestKeyViolation` self-test). `pathToFileURL`
+// handles Windows backslashes and spaces in paths, which a manual
+// `file://${argv[1]}` concatenation would mangle.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
 	main();
 }

@@ -412,6 +412,35 @@ describe("canonical-form encoding", () => {
 	});
 });
 
+describe("shortPackIdFromModuleId validation", () => {
+	it("derives short id from full module id", async () => {
+		const { shortPackIdFromModuleId } = await import("./composite-manifest");
+		assert.equal(shortPackIdFromModuleId("vaultsfyi/risk-envelope/v1"), "vaultsfyi");
+		assert.equal(shortPackIdFromModuleId("chainalysis/screening/v1"), "chainalysis");
+	});
+
+	it("accepts module id without slash (returns it as-is)", async () => {
+		const { shortPackIdFromModuleId } = await import("./composite-manifest");
+		assert.equal(shortPackIdFromModuleId("balancer"), "balancer");
+	});
+
+	it("throws on empty module id", async () => {
+		const { shortPackIdFromModuleId } = await import("./composite-manifest");
+		assert.throws(
+			() => shortPackIdFromModuleId(""),
+			(err: unknown) => err instanceof MalformedManifestError,
+		);
+	});
+
+	it("throws on module id starting with slash (would derive empty short id)", async () => {
+		const { shortPackIdFromModuleId } = await import("./composite-manifest");
+		assert.throws(
+			() => shortPackIdFromModuleId("/foo/bar"),
+			(err: unknown) => err instanceof MalformedManifestError,
+		);
+	});
+});
+
 describe("CompositeManifest type assertion", () => {
 	it("decoded manifest is structurally a CompositeManifest", () => {
 		const bytes = encodeCompositeParams(PACK, {
