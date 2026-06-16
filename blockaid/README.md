@@ -62,7 +62,11 @@ Blockaid requires an API key. For sandbox runs, place it in `configs/wasm_args.j
 ## Build
 
 ```bash
-newton-cli policy build -p ./blockaid
+jco componentize ./blockaid/policy.js \
+  --wit ./blockaid/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./blockaid/dist/policy.wasm
 ```
 
 ## Test (Rego unit tests)
@@ -74,14 +78,17 @@ opa test ./blockaid/policy.rego ./blockaid/policy_test.rego -v
 ## Simulate
 
 ```bash
-newton-cli policy simulate -p ./blockaid
+newton-cli policy simulate \
+  --wasm-args ./blockaid/configs/wasm_args.json \
+  --intent-json ./blockaid/configs/intent.json \
+  --policy-params-data ./blockaid/configs/params.json \
+  --policy-file ./blockaid/policy.rego \
+  --wasm-file ./blockaid/dist/policy.wasm
 ```
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./blockaid
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 

@@ -50,7 +50,11 @@ newton-cli doctor
 ## Build
 
 ```bash
-newton-cli policy build -p ./guardrail
+jco componentize ./guardrail/policy.js \
+  --wit ./guardrail/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./guardrail/dist/policy.wasm
 ```
 
 ## Test (Rego unit tests)
@@ -62,14 +66,17 @@ opa test ./guardrail/policy.rego ./guardrail/policy_test.rego -v
 ## Simulate
 
 ```bash
-newton-cli policy simulate -p ./guardrail
+newton-cli policy simulate \
+  --wasm-args ./guardrail/configs/wasm_args.json \
+  --intent-json ./guardrail/configs/intent.json \
+  --policy-params-data ./guardrail/configs/params.json \
+  --policy-file ./guardrail/policy.rego \
+  --wasm-file ./guardrail/dist/policy.wasm
 ```
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./guardrail
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 
