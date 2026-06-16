@@ -78,8 +78,17 @@ interface DefineCompositeArgs {
    * the historical composite is fine. Pass `expectedPolicyDataAddresses`
    * (one per module, in pack-order) to pin to historical addresses; the
    * builder validates against THAT array instead of `module.deployments`.
+   *
+   * `expectedWasmCids` MUST accompany `expectedPolicyDataAddresses` — the
+   * builder reads each pinned PolicyData's on-chain `getWasmCid()` and
+   * verifies it matches `expectedWasmCids[i]`. This binds each pinned
+   * address to a module identity: a curator can't pair module A's
+   * id+schemas with module B's PolicyData by passing B's address in A's
+   * slot — the wasmCid would mismatch. Required because `module.deployments`
+   * is bypassed in the historical-pin path.
    */
   readonly expectedPolicyDataAddresses?: ReadonlyArray<Address>;
+  readonly expectedWasmCids?: ReadonlyArray<string>;
 }
 
 interface CompositePolicyPack {
@@ -126,12 +135,21 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 
 1. `args.modules.length === 0` — `CompositeBuilderError("modules must be non-empty")`.
 2. `args.policyAddress === "0x0000...0000"` — `CompositeBuilderError("policyAddress is the zero address")`.
-3. `args.publicClient.chain?.id` is set and doesn't match `args.chainId` — `ChainMismatchError(args.chainId, publicClient.chain.id)`. Caught up front because mismatched chain context produces correct-looking but cross-chain-unsafe results.
+3. `args.publicClient.chain?.id` is set and doesn't match `args.chainId` — `ChainMismatchError(args.chainId, publicClient.chain.id)`. Caught up front because mismatched chain context produces correct-looking but cross-chain-unsafe results. When `publicClient.chain` is `undefined` (a custom transport configuration), the check is skipped — `defineComposite` trusts the RPC endpoint and validates correctness via on-chain `getPolicyData()` + (optionally) `getWasmCid()` mismatches. Curators using `chain: undefined` are responsible for the chain context their RPC speaks.
 4. Two modules in `args.modules` derive the same short pack id — `CompositeBuilderError("duplicate short pack id <X>")` (matches encoder's check, but caught earlier with a more curator-friendly path).
 5. Any short pack id is NOT in `KNOWN_PACK_IDS` — `UnknownPackIdError(shortId)`. Catches typos and packs that haven't been published.
 6. `INewtonPolicy(args.policyAddress).getPolicyData()` length doesn't match `args.modules.length` — `PolicyDataLengthMismatchError(onChainLen, providedLen)`.
 7. Positional mismatch: `expectedAddrs[i] !== onChainPolicyData[i]` (after `getAddress(...)` normalization on both sides) — `PolicyDataOrderingMismatchError(moduleIndex, expected, actual)`. The expected addresses come from `args.expectedPolicyDataAddresses` if provided, otherwise from `getDeployment(args.modules[i], args.chainId, args.env).policyData`. If the default lookup fires a mismatch, the error message includes a hint: "*if this composite was deployed before a recent pack redeploy, pass `expectedPolicyDataAddresses` with the historical addresses to pin to the on-chain composite*".
 8. Any module's deployment for `(args.chainId, args.env)` is missing AND `expectedPolicyDataAddresses` was NOT provided — re-throws the existing `UnsupportedChainError` / `UnsupportedEnvError` from `getDeployment`. With `expectedPolicyDataAddresses` set, deployment lookup is skipped — historical composites can outlive a pack's current cell.
+9. **Identity check on pinned PolicyData (historical path only).** When `expectedPolicyDataAddresses` is provided, `expectedWasmCids` MUST also be provided (else `CompositeBuilderError("expectedWasmCids is required when expectedPolicyDataAddresses is provided")`). For each `i`, the builder reads `INewtonPolicyData(expectedPolicyDataAddresses[i]).getWasmCid()` and compares against `expectedWasmCids[i]`. Mismatch throws `PinnedWasmCidMismatchError(moduleIndex, moduleId, expected, actual)`. Without this check, a curator could pair module A's `id`/schemas with module B's on-chain PolicyData by passing B's address in A's slot — the wasmCid identity check binds each pinned address to a module identity at construction time. The `getWasmCid()` reads batch via multicall when `client.chain.contracts.multicall3` is set; otherwise N sequential calls (same fallback semantics as `introspectComposite`).
+
+### Encoder propagation in the historical-pin path
+
+When `defineComposite` succeeds with `expectedPolicyDataAddresses`/`expectedWasmCids`, the resulting `CompositePolicyPack`'s `modules[]` carries the same `PolicyPack` references the curator passed in, but the encoder MUST emit the **pinned** historical addresses + wasmCids in `manifest.modules[].policyDataAddress` and `manifest.modules[].wasmCid` — NOT the values `module.deployments[chainId][env]` would currently return.
+
+This requires a small Phase 2 update to `encodeCompositeParams`: it accepts an optional `historicalBindings?: ReadonlyArray<{ policyDataAddress: Address; wasmCid: string }>` parameter that overrides the default `module.deployments` lookup when present. Phase 1.5 callers (no historical pin) keep using the default path. The `CompositePolicyPack` returned from `defineComposite` carries the pinned arrays as a private field consumed by the encoder via a new `encodeCompositePolicyPack(pack, params)` convenience that wraps `encodeCompositeParams` with the right bindings — keeps the curator's call site simple (`encodeCompositePolicyPack(compositePack, params)`).
+
+Without this propagation, a historical composite passes `defineComposite` then encodes a manifest with the NEW redeployed address, reintroducing the same drift mismatch downstream — defeats the whole `expectedPolicyDataAddresses` mechanism.
 
 ### Why async
 
@@ -232,6 +250,16 @@ const result = await compositePack.prepareQuery!(
 
 The Shield SDK's composite-aware `createShield(...)` will likely wrap this so curators don't construct the options bag manually — but the underlying composite `prepareQuery` accepts it generically.
 
+### Options type narrowing — the trade-off
+
+`CompositePrepareQueryOptions` is intentionally `Record<string, unknown>` rather than a typed mapped type. Three reasons:
+
+1. Each pack's `PolicyPack.prepareQuery` declares its own options shape (`PrepareQueryOptions` per pack — Chainalysis has `address`, RedStone has `symbol/rpcUrl/onchainOracle/...`, etc.). The shapes don't share a base type beyond `unknown`.
+2. A typed `CompositePrepareQueryOptions<Modules>` parameterized by the modules tuple would require Phase 2 to derive the per-module options type from each `PolicyPack`. The Phase 1 `PolicyPack` interface doesn't expose options as a generic — extracting it requires either a new `OptionsSchema` field on `PolicyPack` (which becomes a breaking shared bump) or per-pack ergonomic helpers in newton-shield's `createShield(...)` wrapper.
+3. The Shield SDK is the typed-narrowing layer. It accepts a tuple of packs, derives the options shape from each, and presents curators with a typed bag. Phase 2's job here is to ship a generic enough core that newton-shield can wrap.
+
+Curators using `defineComposite` directly (without the Shield SDK wrapper) construct the options bag with `as` casts where needed. Acceptable for v1; v2 may revisit when the typed-narrowing surface proves load-bearing.
+
 ### Failure semantics: fail-fast
 
 If any module's `prepareQuery` rejects, the aggregated `prepareQuery` rejects with that module's error wrapped in a `CompositePrepareQueryError`:
@@ -243,6 +271,8 @@ class CompositePrepareQueryError extends Error {
   readonly cause: unknown;         // the original error from module.prepareQuery
 }
 ```
+
+When the underlying `cause` is an `Error`, `CompositePrepareQueryError.message` is `<shortPackId>: <cause.message>`. When `cause` is a non-`Error` throw (string, plain object, undefined), the wrapper normalizes via `String(cause)` for the message but preserves the original value on `.cause` for callers who need the raw shape. Deterministic + debuggable regardless of what the failing module threw.
 
 `Promise.all` semantics: the first rejection settles the aggregated promise with that error, but the other modules' promises continue (their results are discarded). Partial `wasmArgs` would let Rego evaluate against missing namespaces, which is worse than failing the whole intent — fail-fast is the right default.
 
@@ -308,11 +338,12 @@ Single PR — Phase 2 implementation:
 
 1. `packages/policy-pack-shared/src/known-pack-ids.ts` — `KNOWN_PACK_IDS` constant + `KnownPackId` type
 2. `packages/policy-pack-shared/src/known-pack-ids.test.ts` — unit tests + cross-check that every existing `<name>OracleModule.id` (Phase 1 export) derives a short id present in `KNOWN_PACK_IDS`
-3. `packages/policy-pack-shared/src/composite-pack.ts` — `defineComposite`, `CompositePolicyPack`, error classes (`CompositeBuilderError`, `UnknownPackIdError`, `PolicyDataLengthMismatchError`, `PolicyDataOrderingMismatchError`, `ChainMismatchError`, `CompositePrepareQueryError`), the aggregated `prepareQuery` builder, the `expectedPolicyDataAddresses` historical-pinning path
-4. `packages/policy-pack-shared/src/composite-pack.test.ts` — fake `PublicClient`-driven tests covering every invariant check (zero-address, chain mismatch, duplicate short ids, unknown short ids, length mismatch, ordering mismatch with and without historical pinning), prepareQuery aggregation (per-module options threading, fail-fast on rejection, modules without `prepareQuery`), registry-rejection
-5. `packages/policy-pack-shared/src/get-policy-manifest.ts` — `getPolicyManifest` discriminated dispatch + `SinglePackParamsValidationError` + tests covering single-pack happy path, composite happy path, NotJsonError surfacing, BadManifestMagicError / UnsupportedManifestVersionError / MalformedManifestError surfacing, single-pack params schema validation failure
-6. `scripts/generate-bindings.ts` — cross-check `KNOWN_PACK_IDS` against discovered packs at regen time; fail on missing or extra entries
-7. Re-exports from `packages/policy-pack-shared/src/index.ts`
+3. `packages/policy-pack-shared/src/composite-pack.ts` — `defineComposite`, `CompositePolicyPack`, `encodeCompositePolicyPack` (the convenience that wraps `encodeCompositeParams` with the historical bindings carried on `CompositePolicyPack`), error classes (`CompositeBuilderError`, `UnknownPackIdError`, `PolicyDataLengthMismatchError`, `PolicyDataOrderingMismatchError`, `ChainMismatchError`, `CompositePrepareQueryError`, `PinnedWasmCidMismatchError`), the aggregated `prepareQuery` builder, the `expectedPolicyDataAddresses` + `expectedWasmCids` historical-pinning path with on-chain `getWasmCid()` identity check (multicall when supported, sequential fallback)
+4. `packages/policy-pack-shared/src/composite-pack.test.ts` — fake `PublicClient`-driven tests covering every invariant check (zero-address, chain mismatch, duplicate short ids, unknown short ids, length mismatch, ordering mismatch with and without historical pinning, wasmCid identity mismatch, missing `expectedWasmCids` when `expectedPolicyDataAddresses` is set), prepareQuery aggregation (per-module options threading, fail-fast on rejection, modules without `prepareQuery`, non-Error cause normalization), registry-rejection, `encodeCompositePolicyPack` emits pinned addresses+CIDs when historical bindings are present
+5. `packages/policy-pack-shared/src/composite-manifest.ts` — extend `encodeCompositeParams` to accept an optional `historicalBindings?: ReadonlyArray<{ policyDataAddress: Address; wasmCid: string }>` parameter that overrides the default `module.deployments` lookup. Phase 1.5 callers (no historical pin) keep using the default path.
+6. `packages/policy-pack-shared/src/get-policy-manifest.ts` — `getPolicyManifest` discriminated dispatch + `SinglePackParamsValidationError` + tests covering single-pack happy path, composite happy path, NotJsonError surfacing, BadManifestMagicError / UnsupportedManifestVersionError / MalformedManifestError surfacing, single-pack params schema validation failure
+7. `scripts/generate-bindings.ts` — cross-check `KNOWN_PACK_IDS` against discovered packs at regen time; fail on missing or extra entries
+8. Re-exports from `packages/policy-pack-shared/src/index.ts`
 
 After this lands, `composite-policies.md` Phase 2 status moves from "in progress" to done, and the four-phase composite-policy rollout closes.
 

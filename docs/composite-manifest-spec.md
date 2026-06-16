@@ -255,4 +255,4 @@ These are flagged for review on this design PR:
 - [`composite-policies.md`](./composite-policies.md) — the curator-facing rollout doc that motivates this format
 - [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516) — the AVS-side `policyParams` decoder (UTF-8 JSON, sorted keys) this spec inherits from
 - [`packages/policy-pack-shared/src/encoding.ts`](../packages/policy-pack-shared/src/encoding.ts) — `encodePolicyParams` / `decodePolicyParams` for single-pack params, the canonical-form ancestor of this spec
-- [`packages/policy-pack-shared/src/oracle-module.ts`](../packages/policy-pack-shared/src/oracle-module.ts) — Phase 1's `OracleModule` type, what `defineComposite` (Phase 2) consumes when building manifests
+- [`packages/policy-pack-shared/src/oracle-module.ts`](../packages/policy-pack-shared/src/oracle-module.ts) — Phase 1's `OracleModule` type, the manifest-layer subset of `PolicyPack`. `defineComposite` (Phase 2) consumes the runtime `PolicyPack` form for `prepareQuery` aggregation; `encodeCompositeParams` accepts the lighter `OracleModule` shape via `MinimalCompositePack`.
