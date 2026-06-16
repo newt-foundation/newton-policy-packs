@@ -342,6 +342,23 @@ function main(): void {
 		const wasmArgsSchema = readJson<unknown>(path.join(packSrcDir, "wasm_args_schema.json"));
 		const secretsSchema = readJson<unknown>(path.join(packSrcDir, "secrets_schema.json"));
 		const paramsSchema = readJson<unknown>(path.join(packSrcDir, "params_schema.json"));
+		// `_manifest` is reserved for the composite-policy manifest discriminator
+		// (NEWT-1541, see `docs/composite-manifest-spec.md`). A pack declaring
+		// `_manifest` at the top level of `params_schema.json` would collide with
+		// the discriminator and break depositor verification. Codegen rejects it
+		// here so the violation surfaces at PR time, not at production
+		// `decodeManifest(...)` time.
+		if (
+			paramsSchema &&
+			typeof paramsSchema === "object" &&
+			"properties" in paramsSchema &&
+			(paramsSchema as { properties?: Record<string, unknown> }).properties &&
+			"_manifest" in ((paramsSchema as { properties?: Record<string, unknown> }).properties ?? {})
+		) {
+			fail(
+				`pack \`${packName}\` declares a top-level \`_manifest\` property in params_schema.json — that key is reserved for the composite-policy manifest discriminator (see docs/composite-manifest-spec.md). Rename the property or remove it.`,
+			);
+		}
 		const meta = readJson<PackMetadata>(path.join(packSrcDir, "policy_metadata.json"));
 
 		writeFile(

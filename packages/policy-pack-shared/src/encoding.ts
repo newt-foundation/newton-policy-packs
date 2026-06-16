@@ -11,7 +11,7 @@ import type { z } from "zod";
  * `getPolicyConfig().policyParams`, which would otherwise depend on JS
  * `JSON.stringify` insertion order.
  */
-function sortKeysDeep(value: unknown): unknown {
+export function sortKeysDeep(value: unknown): unknown {
 	if (Array.isArray(value)) return value.map(sortKeysDeep);
 	if (value && typeof value === "object") {
 		const obj = value as Record<string, unknown>;
