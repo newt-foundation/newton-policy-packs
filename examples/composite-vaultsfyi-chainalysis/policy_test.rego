@@ -127,6 +127,18 @@ test_fail_closed_on_empty_payload if {
 	not vaultsfyi_chainalysis_gate.allow with data.params as default_params with data.wasm as {"vaultsfyi": {}, "chainalysis": {}}
 }
 
+# Robustness: even a partial payload that carries an `error` key ALONGSIDE
+# well-formed fields must NOT allow. Guards against a future oracle that
+# emits both. (Today's policy.js only ever returns `{error}` alone, but the
+# `not vf.error` guard in allow makes this hold regardless.)
+test_fail_closed_on_partial_error_payload if {
+	d := {
+		"vaultsfyi": object.union(clean_vaultsfyi, {"error": "degraded"}),
+		"chainalysis": clean_chainalysis,
+	}
+	not vaultsfyi_chainalysis_gate.allow with data.params as default_params with data.wasm as d
+}
+
 # --- nullable risk_score legitimately does NOT deny ---
 
 test_vaultsfyi_null_risk_score_does_not_deny if {

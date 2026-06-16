@@ -41,16 +41,22 @@ opa test policy.rego policy_test.rego -v
 
 No new WASM build. Reuse the published `policyData` addresses from the repo-root [`deployments.json`](../../deployments.json). On Sepolia / stagef:
 
+Addresses (Sepolia / stagef, from `deployments.json`):
+- vaultsfyi PolicyData: `0x347c9151177bCcFd7ABE70196c4790a2dCae528b`
+- chainalysis PolicyData: `0x223F563c3CfD087cB1857851629b4d8CE7738448`
+
 ```bash
 newton-cli policy deploy \
   --policy-cids ./dist/policy_cids.json \
-  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \  # vaultsfyi
-  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \  # chainalysis
+  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \
+  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \
   --policy-file ./policy.rego
 # → "Policy deployed successfully at address: 0xYOUR_COMPOSITE..."
 ```
 
-**Order is significant.** The on-chain `getPolicyData()` array preserves flag order, and `PolicyValidationLib.sol` enforces positional equality. Keep the same `[vaultsfyi, chainalysis]` order in your TypeScript.
+(No inline comments inside the command — a `\` line-continuation followed by a `#` comment is not a continuation in bash, so the address legend lives above the block.)
+
+**Order is significant.** The on-chain `getPolicyData()` array preserves flag order, and `PolicyValidationLib.sol` enforces positional equality. Pass the flags in the same order you list `modules` to `defineComposite` — vaultsfyi first, then chainalysis.
 
 ## 3. Wire it up in TypeScript
 

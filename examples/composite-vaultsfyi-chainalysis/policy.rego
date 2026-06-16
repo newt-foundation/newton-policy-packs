@@ -90,6 +90,14 @@ deny contains "chainalysis:risk_category_blocklisted" if {
 # ---------------------------------------------------------------------------
 
 allow if {
+	# neither oracle reported an error. Today's policy.js only ever returns
+	# `{ "<pack>": { "error": "..." } }` on a thrown error (so the
+	# well-formedness probes below would already fail), but guarding the
+	# `error` key explicitly makes the invariant robust against a future
+	# oracle that emits a partial payload alongside an error field.
+	not vf.error
+	not ca.error
+
 	# vaultsfyi well-formed
 	is_number(vf.apy_z_score)
 	is_number(vf.tvl_drawdown_24h_pct)

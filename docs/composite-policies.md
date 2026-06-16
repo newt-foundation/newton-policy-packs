@@ -150,7 +150,7 @@ The composite's params schema covers BOTH the per-module params AND any top-leve
       "required": ["risk_score_floor", "tvl_drawdown_24h_max_pct"],
       "properties": {
         "risk_score_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "tvl_drawdown_24h_max_pct": { "type": "number", "minimum": 0, "maximum": 1 }
+        "tvl_drawdown_24h_max_pct": { "type": "number", "minimum": 0, "maximum": 100 }
       }
     },
     "chainalysis": {

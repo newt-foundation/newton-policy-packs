@@ -78,6 +78,9 @@ Structure `allow` so it requires every oracle's fields to be **well-formed** AND
 
 ```rego
 allow if {
+    # no oracle reported an error
+    not vf.error
+    not ca.error
     # well-formedness probes — undefined on an error payload, so allow stays false
     is_number(vf.apy_z_score)
     is_boolean(ca.sanctioned)
@@ -87,7 +90,7 @@ allow if {
 }
 ```
 
-Exclude legitimately-nullable fields (like vaultsfyi's `risk_score`) from the probe and guard them in the deny rule instead (`vf.risk_score != null`).
+The explicit `not vf.error` guards harden the invariant against a future oracle that emits an `error` field *alongside* well-formed data — the probes alone would let that through. Exclude legitimately-nullable fields (like vaultsfyi's `risk_score`) from the probe and guard them in the deny rule instead (`vf.risk_score != null`).
 
 ## Step 3 — Test with OPA
 
@@ -103,11 +106,14 @@ opa test my_vault_gate/policy.rego my_vault_gate/policy_test.rego -v
 
 No new WASM build. Upload your Rego + schemas, then deploy a single `NewtonPolicy` referencing the reused `policyData` addresses — one `--policy-data-address` flag per oracle:
 
+Addresses below are vaultsfyi + chainalysis on Sepolia / stagef (from `deployments.json`). Keep the inline comments OUT of the command — a `\` line-continuation followed by a `#` comment breaks the continuation in bash.
+
 ```bash
+# --policy-data-address order: vaultsfyi, then chainalysis
 newton-cli policy deploy \
   --policy-cids ./my_vault_gate/dist/policy_cids.json \
-  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \  # vaultsfyi
-  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \  # chainalysis
+  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \
+  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \
   --policy-file ./my_vault_gate/policy.rego
 # → "Policy deployed successfully at address: 0xYOUR_COMPOSITE..."
 ```

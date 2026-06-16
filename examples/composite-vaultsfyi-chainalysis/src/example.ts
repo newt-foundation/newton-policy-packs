@@ -63,8 +63,10 @@ export async function encodeParams() {
 	return encodeCompositePolicyPack(composite, {
 		vaultsfyi: {
 			apy_z_max: 4,
-			tvl_drawdown_24h_max_pct: 0.25,
-			tvl_drawdown_7d_max_pct: 0.5,
+			// drawdown caps are PERCENT POINTS (the vaultsfyi oracle emits
+			// `((old - current) / old) * 100`), so 25 = 25%, NOT 0.25.
+			tvl_drawdown_24h_max_pct: 25,
+			tvl_drawdown_7d_max_pct: 50,
 			risk_score_floor: 80,
 			deny_on_allocation_change: true,
 			deny_on_critical_flag: true,
