@@ -10,8 +10,6 @@ export const deployments = {
 			wasmCid: "bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here",
 			policyCodeHash: "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
 			deployedAt: "2026-06-16",
-			notes:
-				"Phase 0 PR E2 — Stream D5 canonical sweep cell 3 (expire=400, balancer expire-recovery)",
 		},
 		prod: {
 			policy: "0x65423D1AD2B00735b8ed0dCb11C5B03649fb96D3",
@@ -19,8 +17,6 @@ export const deployments = {
 			wasmCid: "bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here",
 			policyCodeHash: "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
 			deployedAt: "2026-06-16",
-			notes:
-				"Phase 0 PR E2 — Stream D5 canonical sweep cell 4 (expire=420, chainalysis/persona/webacy expire-recovery)",
 		},
 	},
 	"11155111": {
@@ -30,7 +26,6 @@ export const deployments = {
 			wasmCid: "bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here",
 			policyCodeHash: "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
 			deployedAt: "2026-06-16",
-			notes: "Phase 0 PR E2 — sumsub cell 1 recovery via expire-after-blocks",
 		},
 		prod: {
 			policy: "0x18C851b54c0B6e0FA17E73EeF88E8Fe118F9a273",
@@ -38,8 +33,6 @@ export const deployments = {
 			wasmCid: "bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here",
 			policyCodeHash: "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9",
 			deployedAt: "2026-06-16",
-			notes:
-				"Phase 0 PR E2 — Stream D5 canonical sweep cell 2 (expire=120, guardrail expire-recovery)",
 		},
 	},
 } as const satisfies Readonly<

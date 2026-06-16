@@ -10,7 +10,6 @@ const STAGEF_BALANCER: Deployment = {
 	wasmCid: "bafybeibb4rxzaqaolsqmc7kymnr34a3vj6bo6xfom5cggr4ouyqahlspvu",
 	policyCodeHash: "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
 	deployedAt: "2026-06-14",
-	notes: "Phase 0 Stream D",
 };
 
 const PROD_BALANCER: Deployment = {
@@ -19,7 +18,6 @@ const PROD_BALANCER: Deployment = {
 	wasmCid: "bafybeiprodprodprodprodprodprodprodprodprodprodprodprod",
 	policyCodeHash: "0x3333333333333333333333333333333333333333333333333333333333333333",
 	deployedAt: "2026-06-14",
-	notes: "synthetic prod fixture",
 };
 
 function makePack(

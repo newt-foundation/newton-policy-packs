@@ -4,8 +4,7 @@
 # if a deploy half-finished.
 #
 # Usage:
-#   ./scripts/sync-deployments.sh --env stagef                  # required: which env this batch targets
-#   ./scripts/sync-deployments.sh --env prod --notes "msg ..."  # also overwrite the `notes` field
+#   ./scripts/sync-deployments.sh --env stagef    # required: which env this batch targets
 #
 # The env arg is REQUIRED — `deployments.json` is keyed by (pack, chainId, env)
 # and there's no safe default. If a deploy run targeted Sepolia + stagef, pass
@@ -16,12 +15,10 @@
 set -euo pipefail
 
 env=""
-notes=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --env) env="${2:?--env requires a value (stagef|prod)}"; shift 2 ;;
-    --notes) notes="${2:?--notes requires a message}"; shift 2 ;;
-    -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
     *) echo "unknown flag: $1" >&2; exit 2 ;;
   esac
 done
@@ -55,10 +52,9 @@ fi
 echo "merging ${#snapshots[@]} snapshot(s) into $deployments_path under env=$env"
 for s in "${snapshots[@]}"; do echo "  - $s"; done
 
-node - "$deployments_path" "$env" "$notes" "${snapshots[@]}" <<'NODE'
+node - "$deployments_path" "$env" "${snapshots[@]}" <<'NODE'
 const fs = require("fs");
-const [, , depPath, env, notesArg, ...snapPaths] = process.argv;
-const notes = notesArg || "";
+const [, , depPath, env, ...snapPaths] = process.argv;
 
 const dep = JSON.parse(fs.readFileSync(depPath, "utf8"));
 dep.packs = dep.packs || {};
@@ -108,7 +104,6 @@ for (const path of snapPaths) {
     wasmCid: cidsBlock.wasmCid,
     policyCodeHash: cidsBlock.policyCodeHash,
     deployedAt: dateOnly(deployedAt) || prev.deployedAt,
-    notes: notes || prev.notes || "",
   };
   dep.packs[pack][chainId][env] = next;
   console.error(`  merged ${pack}@${chainId}/${env}: policy=${policy} data=${policyData}`);

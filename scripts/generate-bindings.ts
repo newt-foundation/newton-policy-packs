@@ -67,7 +67,6 @@ interface DeploymentEntry {
 	wasmCid: string;
 	policyCodeHash: string;
 	deployedAt: string;
-	notes?: string;
 }
 
 type GatewayEnv = "stagef" | "prod";
