@@ -5,7 +5,7 @@
 This spec answers: what bytes does `encodeCompositeParams(pack, params)` produce, and what does `decodeManifest(bytes)` reverse? It is the contract between three audiences:
 
 - **Curators** building composites via `defineComposite(...)` in Phase 2 — they shouldn't need to know byte details, but the format must be encodeable from the typed inputs they hand the builder.
-- **Depositors** verifying a composite policy on-chain — they call `decodeManifest(bytes)` on `INewtonPolicy.policyParams()` and validate `modules[*].policy_data_address` against `INewtonPolicy.getPolicyData()` and `modules[*].wasm_cid` against `INewtonPolicyData.getWasmCid()`.
+- **Depositors** verifying a composite policy on-chain — they call `decodeManifest(bytes)` on `INewtonPolicy(policyAddress).getPolicyConfig(policyId).policyParams` (bytes), and validate `modules[*].policyDataAddress` against `INewtonPolicy(policyAddress).getPolicyData()` AND `modules[*].wasmCid` against `INewtonPolicyData(<each-policy-data-address>).getWasmCid()` (returns `string memory`). Verified against [`newton-prover-avs/contracts/src/interfaces/INewtonPolicy.sol`](https://github.com/newt-foundation/newton-prover-avs/blob/main/contracts/src/interfaces/INewtonPolicy.sol) and `INewtonPolicyData.sol` — the spec uses the actual accessor names, not invented ones.
 - **The AVS host** evaluating policies — already reads `policyParams: bytes` as UTF-8 JSON per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516) (`newton-prover-avs/crates/core/src/common/task.rs:402-408` calls `String::from_utf8` → `serde_json::from_str` → `validate_schema`). The composite manifest must remain a valid JSON document that the AVS can parse and forward to the merged Rego evaluator without protocol-level changes.
 
 ## Goals
@@ -82,10 +82,10 @@ Ordered array — position-significant. Each entry:
 | Field | Type | Source |
 |---|---|---|
 | `id` | string | `OracleModule.id` (e.g. `"vaultsfyi/risk-envelope/v1"`). Used for namespace lookups in `params`, e.g. `params[id]`. |
-| `policyDataAddress` | EIP-55-checksummed address | `getDeployment(module, chainId, env).policyData`. Lowercased + EIP-55 to enable byte-equality comparison against `INewtonPolicy.getPolicyData()` returns. |
-| `wasmCid` | string (CIDv1, base32-lower) | `getDeployment(module, chainId, env).wasmCid`. Used by depositors against `INewtonPolicyData.getWasmCid()`. |
+| `policyDataAddress` | EIP-55-checksummed address string | `getDeployment(module, chainId, env).policyData`. EIP-55 is the wire format we emit; equality comparisons MUST normalize both sides via `getAddress(...)` (or lowercase) before checking, since solidity returns 20-byte address values that any ABI decoder may format differently. The byte form in the JSON manifest stays EIP-55 for grep-ability. |
+| `wasmCid` | string (CIDv1, base32-lower) | `getDeployment(module, chainId, env).wasmCid`. Used by depositors against `INewtonPolicyData(addr).getWasmCid()` (returns `string memory` per [`INewtonPolicyData.sol:37`](https://github.com/newt-foundation/newton-prover-avs/blob/main/contracts/src/interfaces/INewtonPolicyData.sol#L37)). |
 
-**Ordering invariant.** `modules[i].policyDataAddress` MUST equal `INewtonPolicy.getPolicyData()[i]` for every `i`. `PolicyValidationLib.sol:51-57` enforces this on-chain — submitting a composite execution with a re-ordered `policyData` array reverts. `defineComposite(...)` in Phase 2 reads `getPolicyData()` at construction time and validates the curator's modules array against it before encoding.
+**Ordering invariant.** `modules[i].policyDataAddress` MUST equal `INewtonPolicy.getPolicyData()[i]` (after normalization) for every `i`. [`PolicyValidationLib.sol:51-57`](https://github.com/newt-foundation/newton-prover-avs/blob/main/contracts/src/libraries/PolicyValidationLib.sol#L48) enforces this on-chain — submitting a composite execution with a re-ordered `policyData` array reverts. `defineComposite(...)` in Phase 2 reads `getPolicyData()` at construction time and validates the curator's modules array against it before encoding.
 
 `decodeManifest(bytes)` does NOT make on-chain calls; it returns the modules array as-is. `introspectComposite(bytes, { publicClient, policyAddress })` is the on-chain-validating helper — see below.
 
@@ -114,7 +114,9 @@ The exact byte form `encodeCompositeParams` produces:
 2. `JSON.stringify` with **recursively sorted keys** at every level — same canonicalizer as `encodePolicyParams` for single-pack params.
 3. UTF-8 encode → `bytes`.
 
-This guarantees `encodeCompositeParams(pack, p1)` and `encodeCompositeParams(pack, p2)` produce byte-identical output iff `p1` and `p2` are deeply equal. `decodeManifest(encodeCompositeParams(x))` round-trips structurally.
+This guarantees `encodeCompositeParams(pack, p1)` and `encodeCompositeParams(pack, p2)` produce byte-identical output **iff `p1` and `p2` are deeply equal as JS values** (i.e. `JSON.stringify` of canonical-key form is deterministic per JS-value identity).
+
+**Numeric canonicalization caveat.** Sorted-key form does NOT solve floating-point equivalence. Two callers passing logically-equivalent thresholds via different arithmetic (`0.3` vs `0.1 + 0.2`) will produce byte-different manifests because the underlying `number` values differ. Pack `paramsSchema` definitions SHOULD use integer / fixed-point units (e.g. basis points) to dodge this — vaultsfyi already enforces basis-point precision on its fractional fields via a `superRefine` for exactly this reason. The spec's "canonical form" claim covers JS-value identity, not logical equivalence; pack authors carrying numeric tolerance shoulder the canonicalization themselves.
 
 ## Decoder API
 
@@ -170,11 +172,11 @@ interface IntrospectedComposite {
 The helper:
 
 1. Calls `decodeManifest(bytes)`.
-2. Reads `INewtonPolicy(policyAddress).getPolicyData()` and verifies positional equality of `policyDataAddress` values.
+2. Reads `INewtonPolicy(policyAddress).getPolicyData()` and verifies positional equality of `policyDataAddress` values (after `getAddress(...)` normalization on both sides).
 3. For each module, reads `INewtonPolicyData(modules[i].policyDataAddress).getWasmCid()` and verifies it equals `modules[i].wasmCid`.
 4. Returns the full report — does NOT throw on mismatch. Depositor UIs decide how to surface failures.
 
-Network calls are batched via viem's multicall when supported.
+**RPC batching.** When `client.chain.contracts.multicall3` is configured, the helper uses viem's `multicall` to fan out steps 2 and 3 in a single RPC. When multicall is unavailable (no `multicall3` address on the chain config), it falls back to N+1 sequential `readContract` calls (1 for `getPolicyData()`, N for each `getWasmCid()`). Both supported testnets (Sepolia chain `11155111`, Base Sepolia chain `84532`) have multicall3 deployed at the canonical address, so the fallback is rare in practice — but it's a hard requirement, not a "best-effort" path. Implementations MUST exercise both branches in tests.
 
 ## Single-pack manifests
 
@@ -196,22 +198,33 @@ All errors thrown by `decodeManifest` and `introspectComposite` are typed and na
 
 | Error | When | Recovery |
 |---|---|---|
-| `NotAManifestError` | bytes lack `_manifest` key | Probably a single-pack params blob — call `pack.paramsSchema.parse(JSON.parse(bytes))` instead |
+| `NotAManifestError` | bytes parse as JSON but lack `_manifest` key | Probably a single-pack params blob — call `pack.paramsSchema.parse(parsedJson)` (the parsed value is exposed on `err.parsedJson` so the recovery doesn't re-invoke `JSON.parse` on bytes that may already have failed). If the bytes weren't JSON in the first place, a different error is thrown — see below. |
+| `NotJsonError` | bytes don't parse as UTF-8 JSON at all | Bytes were written by an unrelated tool (maybe ABI-encoded params from a pre-NEWT-1516 SDK, or random binary) — surface to user. Distinct from `NotAManifestError` so the "try single-pack" recovery hint doesn't crash on non-JSON input. |
 | `BadManifestMagicError` | `_manifest.magic !== "NPM1"` | Bytes were written by an unrelated tool — surface to user; don't auto-recover |
 | `UnsupportedManifestVersionError` | `_manifest.version > MAX_SUPPORTED` | Upgrade the SDK; older SDKs cannot read newer manifests |
 | `MalformedManifestError` | post-magic structural validation failed | Fix the writer — usually a `defineComposite` bug |
 
 ## Implementation plan
 
-The actual code lands in a follow-up PR (Phase 1.5 implementation):
+The actual code lands in a follow-up PR (Phase 1.5 implementation). Two scope options to nail down before that PR opens:
 
-1. `packages/policy-pack-shared/src/composite-manifest.ts` — type + `decodeManifest` + `isCompositeManifest` + error classes
-2. `packages/policy-pack-shared/src/composite-manifest.test.ts` — round-trip + version mismatch + magic mismatch + malformed cases
+### Option A — read path only, fixture-based tests
+
+1. `packages/policy-pack-shared/src/composite-manifest.ts` — type + `decodeManifest` + `isCompositeManifest` + error classes (`NotAManifestError`, `NotJsonError`, `BadManifestMagicError`, `UnsupportedManifestVersionError`, `MalformedManifestError`)
+2. `packages/policy-pack-shared/src/composite-manifest.test.ts` — fixture-decode tests (hand-rolled byte fixtures), version mismatch, magic mismatch, malformed cases. **No round-trip tests** — those require the encoder, which lands in Phase 2 with `defineComposite`.
 3. `packages/policy-pack-shared/src/composite-introspect.ts` — `introspectComposite` (depends on `viem` peer-dep for `PublicClient`)
-4. `packages/policy-pack-shared/src/composite-introspect.test.ts` — uses a mock `PublicClient` to exercise the on-chain verification paths
+4. `packages/policy-pack-shared/src/composite-introspect.test.ts` — uses a mock `PublicClient` to exercise both the multicall path and the sequential-fallback path
 5. Re-exports from `packages/policy-pack-shared/src/index.ts`
 
-`encodeCompositeParams` is part of Phase 2's `defineComposite` work — it depends on the `OracleModule` array + the curator's typed params, which is the builder's surface. Phase 1.5 ships only the read path so depositors and tools can introspect manifests without waiting for Phase 2.
+### Option B — read + write paired in Phase 1.5
+
+Same as Option A plus `encodeCompositeParams(modules, params)` (the byte producer, no on-chain calls) so the test suite can exercise round-trip identity. The Phase 2 `defineComposite` builder then wraps `encodeCompositeParams` with the `(publicClient, policyAddress)` lookup that produces the typed `modules` array.
+
+**Recommendation: Option B.** Putting encoder + decoder in the same module is the standard pattern (see `encoding.ts` for single-pack), tests are stronger, and `defineComposite` becomes a pure builder — no byte logic. The cost is one extra function in Phase 1.5, which is small.
+
+### `_manifest` key reservation enforcement
+
+Codegen-time check in `scripts/generate-bindings.ts`: when reading each pack's `params_schema.json`, fail if the schema declares a top-level `_manifest` property. This is mechanical enforcement of the spec's reservation — without it, a future pack author could accidentally collide with the discriminator. Lands as part of the Phase 1.5 implementation PR.
 
 ## Open questions
 
