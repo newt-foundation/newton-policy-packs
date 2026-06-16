@@ -1,6 +1,6 @@
 {
 	"name": "@newton-xyz/policy-pack-shared",
-	"version": "0.4.3",
+	"version": "0.4.4",
 	"description": "Shared TypeScript contract for Newton policy packs. Defines the PolicyPack<Params, WasmArgs, Secrets> interface that @newton-xyz/newton-shield-sdk consumes.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
