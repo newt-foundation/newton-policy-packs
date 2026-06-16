@@ -294,7 +294,7 @@ Once your pack ships:
 - The pack exports a `PolicyPack<Params, WasmArgs, Secrets>` shape consumed by `@newton-xyz/newton-shield-sdk`
 - Curators set per-vault params via `Shield.setPolicy(...)` (the SDK encodes them as UTF-8 JSON with sorted keys per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516))
 - Curators upload encrypted secrets (your API keys) via `newton-cli secrets upload` — see [`OPERATING.md`](../OPERATING.md)
-- Composites (forward-looking): curators will stack your pack with others via `defineComposite(...)` from `@newton-xyz/policy-pack-shared`. The builder + `OracleModule` exports + `KNOWN_PACK_IDS` registry are tracked under Phase 1/2 of the composite rollout in [`docs/composite-policies.md`](./composite-policies.md). Today's packs already namespace their WASM outputs under `PACK_ID` (Phase 0 — done), so a pack you ship now is composite-ready when those phases land.
+- Composites: curators stack your pack with others via `defineComposite(...)` from `@newton-xyz/policy-pack-shared` (shipped — see [`docs/writing-composite-policies.md`](./writing-composite-policies.md)). Because your pack already namespaces its WASM output under `PACK_ID` and exports a `<name>OracleModule`, it's composable from day one — a curator can drop it into a multi-oracle policy with no extra work on your side.
 
 ## Reviewing your pack against existing ones
 
@@ -305,6 +305,7 @@ Once your pack ships:
 | `chainalysis` | Two API keys (sanctions + screening) with conditional-key fallback |
 | `redstone` | Keyless service (public RedStone cluster), oracle-divergence math in Rego |
 | `balancer` | Multi-signal pack pulling token weights, allowlists, TVL, and yield-source health from a public GraphQL into one `data.wasm` blob |
+| `examples/composite-vaultsfyi-chainalysis/` | Composing two packs into one policy — Rego namespacing, fail-closed `allow`, deploy recipe, `defineComposite` wiring |
 
 ## Getting help
 

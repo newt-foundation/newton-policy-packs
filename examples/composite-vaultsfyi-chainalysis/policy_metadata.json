@@ -1,0 +1,7 @@
+{
+  "name": "vaultsfyi-chainalysis-gate",
+  "version": "0.1.0",
+  "author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
+  "link": "https://github.com/newt-foundation/newton-policy-packs/tree/main/examples/composite-vaultsfyi-chainalysis",
+  "description": "Worked example: a composite policy gating vault deposits on both vaultsfyi's risk envelope and chainalysis's sanctions screening, in one NewtonPolicy referencing two reused PolicyData oracles."
+}

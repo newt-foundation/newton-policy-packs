@@ -27,10 +27,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Shared has to build first so its dist/ exists for downstream packs to
-      # resolve `@newton-xyz/policy-pack-shared` at typecheck/build time.
-      - name: Build shared
-        run: pnpm --filter @newton-xyz/policy-pack-shared build
+      # Build every package up front so each one's dist/ + .d.ts exist before
+      # `pnpm -r typecheck`. Downstream packs resolve
+      # `@newton-xyz/policy-pack-shared` from its dist, and the worked example
+      # under examples/ resolves the per-pack packages it imports
+      # (@newton-xyz/policy-pack-vaultsfyi, -chainalysis) the same way. pnpm
+      # builds in topological order, so shared lands before its dependents.
+      - name: Build
+        run: pnpm -r build
 
       # Fail the PR if generated bindings drifted from the upstream pack
       # JSON schemas, OR if any tracked file is unformatted. Codegen emits
@@ -50,9 +54,6 @@ jobs:
 
       - name: Typecheck
         run: pnpm -r typecheck
-
-      - name: Build
-        run: pnpm -r build
 
       - name: Lint
         run: pnpm lint

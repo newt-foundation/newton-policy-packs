@@ -126,7 +126,7 @@ Notes:
 
 - Each pack's reference `policy.rego` (e.g. [`vaultsfyi/policy.rego`](../vaultsfyi/policy.rego), [`chainalysis/policy.rego`](../chainalysis/policy.rego)) is the starting template for the deny rules over THAT module's outputs. The bundled per-pack templates already reference `data.wasm.<pack-id>.<field>` (e.g. `v := data.wasm.vaultsfyi`) so copy-as-is into a composite works.
 - Errors are namespaced too (post-Phase-0). `data.wasm.vaultsfyi.error` is set when vaultsfyi's WASM hit an exception; you decide whether to deny on it. The bundled per-pack reference Rego documents each module's error semantics.
-- Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data — see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The exact merge convention for composite-author top-level params lands with the reference walkthrough at `examples/composite-vaultsfyi-chainalysis/`; verify against your composite's simulation output before relying on it.
+- Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data — see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) walkthrough shows the merge convention in practice; verify against your composite's simulation output before relying on it.
 
 Run `opa test` against your Rego before deploying:
 
@@ -150,7 +150,7 @@ The composite's params schema covers BOTH the per-module params AND any top-leve
       "required": ["risk_score_floor", "tvl_drawdown_24h_max_pct"],
       "properties": {
         "risk_score_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "tvl_drawdown_24h_max_pct": { "type": "number", "minimum": 0, "maximum": 1 }
+        "tvl_drawdown_24h_max_pct": { "type": "number", "minimum": 0, "maximum": 100 }
       }
     },
     "chainalysis": {
@@ -257,10 +257,12 @@ deny contains msg if { v.<field> < data.params.<your-pack-id>.<threshold>; ... }
 
 3. Publish a `<your-pack>OracleModule` export from `packages/policy-pack-<your-pack>/src/index.ts` (via `oracleModuleFromPack(<your-pack>)`) with `paramsSchema` + `wasmArgsSchema` + `secretsSchema` derived from the schema files. `OracleModule` is the manifest-only subset (no `prepareQuery`); `defineComposite(...)` consumes the **runtime** `PolicyPack` form (so it can call each module's `prepareQuery` per intent), while the manifest-encoding layer (`encodeCompositeParams`) accepts the lighter `OracleModule` shape. Pack packages export both — your pack PR ships a `pack.ts` that defines both the runtime `<name>: PolicyPack<...>` and the manifest `<name>OracleModule = oracleModuleFromPack(<name>)`. The `OracleModule` type ships in `@newton-xyz/policy-pack-shared` post-Phase-1.
 
-The reference walkthrough at `examples/composite-vaultsfyi-chainalysis/` (post-Phase-2) is the worked example showing the full `<name>OracleModule` export wiring end-to-end.
+The reference walkthrough at [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) is the worked example showing the full composite path end-to-end (Rego + OPA tests + deploy recipe + TypeScript).
 
 ## See also
 
+- [`writing-composite-policies.md`](./writing-composite-policies.md) — the step-by-step developer how-to for composing multiple oracles into one policy.
+- [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) — complete copy-paste composite example.
 - [`README.md`](../README.md) — repo overview, single-pack deploy flow, environment setup.
 - [`OPERATING.md`](../OPERATING.md) — post-deploy lifecycle (PolicyClient + secrets).
 - [`deployments.json`](../deployments.json) — canonical PolicyData addresses per pack per chain.
