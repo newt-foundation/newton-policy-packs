@@ -23,8 +23,8 @@ import { sepolia } from "viem/chains";
 // ---------------------------------------------------------------------------
 // 0. Inputs the curator supplies. The composite NewtonPolicy address comes
 //    from `newton-cli policy deploy` with one --policy-data-address flag per
-//    module (see README § Deploy). The module ORDER here must match the flag
-//    order, which must match the on-chain getPolicyData() order.
+//    module (see README § Deploy). You can list the modules below in ANY order
+//    — defineComposite aligns them to the on-chain getPolicyData() order.
 // ---------------------------------------------------------------------------
 
 const COMPOSITE_POLICY_ADDRESS: Address = "0xYOUR_COMPOSITE_POLICY"; // from `newton-cli policy deploy`
@@ -36,13 +36,14 @@ const publicClient = createPublicClient({ chain: sepolia, transport: http() });
 
 // ---------------------------------------------------------------------------
 // 1. Build the composite. defineComposite reads getPolicyData() on-chain and
-//    asserts the curator's module order matches it positionally — a
-//    mis-ordered modules array throws here, never reaching setPolicy.
+//    reorders the modules array to match it — order-independent. A module whose
+//    oracle isn't in the on-chain policy throws here (set mismatch), never
+//    reaching setPolicy.
 // ---------------------------------------------------------------------------
 
 export async function buildComposite() {
 	return defineComposite({
-		modules: [vaultsfyi, chainalysis], // SAME order as the deploy flags
+		modules: [vaultsfyi, chainalysis], // any order — aligned to on-chain getPolicyData()
 		chainId: "11155111",
 		env: "stagef",
 		publicClient,

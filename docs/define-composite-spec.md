@@ -7,7 +7,7 @@ This spec answers: how does a curator build a composite policy in TypeScript, an
 ## Goals
 
 1. **One builder call** produces a `CompositePolicyPack` ready to drop into the Shield SDK's `createShield(...)` (or whatever its composite-aware analog ends up being).
-2. **Position-significant invariant enforced at construction time.** `defineComposite` reads the deployed `INewtonPolicy.getPolicyData()` array and validates the curator's `modules[]` against it, byte-equal and in order. A mis-ordered curator argument fails before any bytes are ever encoded — long before they could land on-chain.
+2. **On-chain order is authoritative; `defineComposite` aligns to it at construction time.** The builder reads the deployed `INewtonPolicy.getPolicyData()` array and reorders the curator's `modules[]` to match it by address membership — so the emitted manifest is always position-correct (`PolicyValidationLib.sol` enforces positional equality on-chain). The curator's input order is free; only the module **set** must match. A genuine set mismatch (an on-chain oracle no module covers) fails before any bytes are ever encoded — long before they could land on-chain.
 3. **`KNOWN_PACK_IDS` mechanically enforces short-id uniqueness** across the published-pack universe. A new pack added to `@newton-xyz/policy-pack-<name>` MUST add its short id to the registry; the codegen rejects PRs that don't.
 4. **Discriminated-union dispatch** for tools that need to handle both single-pack and composite shapes — `getPolicyManifest(bytes)` returns either `{ kind: "single-pack", params }` or `{ kind: "composite", manifest }`.
 5. **`prepareQuery` aggregation.** Each module's `prepareQuery` runs at intent-build time; the composite's aggregated `prepareQuery` calls every module's helper and merges the results into one `wasmArgs` blob keyed by short pack id (symmetric with how `data.wasm.<shortId>` is composed AVS-side).
@@ -30,10 +30,11 @@ This spec answers: how does a curator build a composite policy in TypeScript, an
 ```ts
 interface DefineCompositeArgs {
   /**
-   * The PolicyPack list, in the EXACT order the curator's deployed
-   * NewtonPolicy carries them on-chain. defineComposite verifies positional
-   * equality against `INewtonPolicy.getPolicyData()` at construction time.
-   * Mis-ordered modules fail here — never reach setPolicy.
+   * The PolicyPack list, in ANY order. defineComposite reads
+   * `INewtonPolicy.getPolicyData()` at construction time and reorders these to
+   * match it by address membership — the curator never has to mirror the
+   * on-chain order. A module whose oracle isn't in the on-chain policy fails
+   * here (CompositeModuleSetMismatchError) — never reaches setPolicy.
    *
    * `PolicyPack` (not `OracleModule`) because the composite's runtime path
    * needs `prepareQuery` from each module — `OracleModule` is the
@@ -73,11 +74,11 @@ interface DefineCompositeArgs {
    *
    * If a pack redeploys (its (chainId, env) cell rolls over to a new
    * policyData address), an EXISTING composite stays valid on-chain — its
-   * `getPolicyData()` still returns the OLD addresses. The default
-   * comparison would throw `PolicyDataOrderingMismatchError` even though
-   * the historical composite is fine. Pass `expectedPolicyDataAddresses`
-   * (one per module, in pack-order) to pin to historical addresses; the
-   * builder validates against THAT array instead of `module.deployments`.
+   * `getPolicyData()` still returns the OLD addresses, which no longer match
+   * `module.deployments` — a set mismatch (`CompositeModuleSetMismatchError`).
+   * Pass `expectedPolicyDataAddresses` (paired with each module) to pin to the
+   * historical addresses; the builder resolves + reorders against THAT array
+   * instead of `module.deployments`.
    *
    * `expectedWasmCids` MUST accompany `expectedPolicyDataAddresses` — the
    * builder reads each pinned PolicyData's on-chain `getWasmCid()` and
@@ -94,7 +95,7 @@ interface DefineCompositeArgs {
 interface CompositePolicyPack {
   readonly kind: "composite";
 
-  /** The same array passed in, validated against on-chain ordering. */
+  /** The modules, reordered to match the on-chain `getPolicyData()` order. */
   readonly modules: ReadonlyArray<PolicyPack<unknown, unknown, unknown>>;
 
   readonly chainId: ChainId;
@@ -139,7 +140,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 4. Two modules in `args.modules` derive the same short pack id — `CompositeBuilderError("duplicate short pack id <X>")` (matches encoder's check, but caught earlier with a more curator-friendly path).
 5. Any short pack id is NOT in `KNOWN_PACK_IDS` — `UnknownPackIdError(shortId)`. Catches typos and packs that haven't been published.
 6. `INewtonPolicy(args.policyAddress).getPolicyData()` length doesn't match `args.modules.length` — `PolicyDataLengthMismatchError(onChainLen, providedLen)`.
-7. Positional mismatch: `expectedAddrs[i] !== onChainPolicyData[i]` (after `getAddress(...)` normalization on both sides) — `PolicyDataOrderingMismatchError(moduleIndex, expected, actual)`. The expected addresses come from `args.expectedPolicyDataAddresses` if provided, otherwise from `getDeployment(args.modules[i], args.chainId, args.env).policyData`. If the default lookup fires a mismatch, the error message includes a hint: "*if this composite was deployed before a recent pack redeploy, pass `expectedPolicyDataAddresses` with the historical addresses to pin to the on-chain composite*".
+7. Set mismatch: some `onChainPolicyData[i]` (after `getAddress(...)` normalization) matches none of the modules' resolved addresses — `CompositeModuleSetMismatchError(onChainIndex, onChainAddress, providedAddresses, usingHistoricalPin)`. Each module's address comes from `args.expectedPolicyDataAddresses` if provided, otherwise from `getDeployment(args.modules[i], args.chainId, args.env).policyData`. The builder reorders modules to the on-chain order by membership, so a pure permutation of a correct set never errors — only a genuinely missing/foreign oracle does. (Two modules resolving to the same address, or the on-chain array listing one address twice, throw `CompositeBuilderError`.) The legacy `PolicyDataOrderingMismatchError` is retained as an exported symbol for API stability but is no longer thrown.
 8. Any module's deployment for `(args.chainId, args.env)` is missing AND `expectedPolicyDataAddresses` was NOT provided — re-throws the existing `UnsupportedChainError` / `UnsupportedEnvError` from `getDeployment`. With `expectedPolicyDataAddresses` set, deployment lookup is skipped — historical composites can outlive a pack's current cell.
 9. **Identity check on pinned PolicyData (historical path only).** When `expectedPolicyDataAddresses` is provided, `expectedWasmCids` MUST also be provided (else `CompositeBuilderError("expectedWasmCids is required when expectedPolicyDataAddresses is provided")`). For each `i`, the builder reads `INewtonPolicyData(expectedPolicyDataAddresses[i]).getWasmCid()` and compares against `expectedWasmCids[i]`. Mismatch throws `PinnedWasmCidMismatchError(moduleIndex, moduleId, expected, actual)`. Without this check, a curator could pair module A's `id`/schemas with module B's on-chain PolicyData by passing B's address in A's slot — the wasmCid identity check binds each pinned address to a module identity at construction time. The `getWasmCid()` reads batch via multicall when `client.chain.contracts.multicall3` is set; otherwise N sequential calls (same fallback semantics as `introspectComposite`).
 

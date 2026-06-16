@@ -56,7 +56,7 @@ newton-cli policy deploy \
 
 (No inline comments inside the command — a `\` line-continuation followed by a `#` comment is not a continuation in bash, so the address legend lives above the block.)
 
-**Order is significant.** The on-chain `getPolicyData()` array preserves flag order, and `PolicyValidationLib.sol` enforces positional equality. Pass the flags in the same order you list `modules` to `defineComposite` — vaultsfyi first, then chainalysis.
+**On-chain order is significant, but the SDK aligns to it.** The `getPolicyData()` array preserves your `--policy-data-address` flag order, and `PolicyValidationLib.sol` enforces positional equality on every execution. You don't have to match that order when you list `modules` for `defineComposite` — it reorders your array to the on-chain order automatically.
 
 ## 3. Wire it up in TypeScript
 
@@ -68,7 +68,7 @@ import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 
 const composite = await defineComposite({
-  modules: [vaultsfyi, chainalysis],   // same order as the deploy flags
+  modules: [vaultsfyi, chainalysis],   // any order — aligned to on-chain getPolicyData()
   chainId: "11155111",
   env: "stagef",
   publicClient,
@@ -84,7 +84,7 @@ await shield.setPolicyAddress("0xYOUR_COMPOSITE...");
 await shield.setPolicy(policyParams, expireAfter);
 ```
 
-`defineComposite` reads `getPolicyData()` on-chain and throws if your module order doesn't match — a mis-ordered array never reaches `setPolicy`.
+`defineComposite` reads `getPolicyData()` on-chain and reorders your `modules` to match it — pass them in any order. It throws only if the module **set** doesn't match the deployed oracles (`CompositeModuleSetMismatchError`), before any `setPolicy`.
 
 ## 4. Per-call + verification
 

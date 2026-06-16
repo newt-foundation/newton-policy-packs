@@ -102,14 +102,22 @@ export interface CompositePolicyPack {
 }
 
 /**
- * Async builder for a composite policy. Reads on-chain state to enforce the
- * positional-ordering invariant from the spec: `modules[i].deployments[chainId][env].policyData`
- * must equal `INewtonPolicy(policyAddress).getPolicyData()[i]`.
+ * Async builder for a composite policy. Reads the deployed
+ * `INewtonPolicy(policyAddress).getPolicyData()` array and aligns the curator's
+ * `modules` to it: each on-chain policyData address is matched to the module
+ * that resolves to it, by membership — NOT by input position. The returned
+ * `modules`, `onChainPolicyData`, and `historicalBindings` are all in on-chain
+ * order, so the emitted manifest matches the deployed array positionally
+ * (`PolicyValidationLib.sol` enforces that on-chain). The curator therefore does
+ * not have to pass `modules` in the same order as the `--policy-data-address`
+ * deploy flags — a correct composite never fails just because its TypeScript
+ * module list is ordered differently. A module SET that doesn't match the
+ * deployed oracle set still fails (`CompositeModuleSetMismatchError`).
  *
  * For fresh composites: pass only `{ modules, chainId, env, publicClient, policyAddress }`.
  * For historical composites (deployed before a pack redeploy): also pass
- * `expectedPolicyDataAddresses` + `expectedWasmCids` to pin to the
- * on-chain snapshot.
+ * `expectedPolicyDataAddresses` + `expectedWasmCids` to pin to the on-chain
+ * snapshot (still matched to on-chain order by membership, not position).
  *
  * Throws typed errors at construction time — see `docs/define-composite-spec.md`
  * § "Invariant checks at construction time".
@@ -160,29 +168,57 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		}
 	}
 
-	// Resolve expected addresses (historical pin OR module.deployments lookup).
+	// Resolve each module's expected policyData address. Fresh path: from
+	// `module.deployments[chainId][env]`. Historical-pin path: from the
+	// curator-supplied `expectedPolicyDataAddresses` (paired positionally with
+	// `modules` and `expectedWasmCids`).
 	const usingHistoricalPin = !!args.expectedPolicyDataAddresses;
-	const expectedAddrs: Address[] = [];
+	type ModuleEntry = {
+		readonly module: PolicyPack<unknown, unknown, unknown>;
+		readonly expectedAddr: Address;
+		readonly expectedCid?: string;
+	};
+	const entries: ModuleEntry[] = [];
 	for (let i = 0; i < args.modules.length; i++) {
 		// biome-ignore lint/style/noNonNullAssertion: bounds checked
 		const module = args.modules[i]!;
+		let expectedAddr: Address;
 		if (usingHistoricalPin) {
 			// biome-ignore lint/style/noNonNullAssertion: length verified above
-			expectedAddrs.push(getAddress(args.expectedPolicyDataAddresses![i]!));
-			continue;
+			expectedAddr = getAddress(args.expectedPolicyDataAddresses![i]!);
+		} else {
+			// Spec § "Invariant checks at construction time" #8: re-throw the
+			// existing UnsupportedChainError / UnsupportedEnvError from getDeployment
+			// so consumers can catch the canonical error classes (the same ones
+			// curator-side single-pack flows already handle via getDeployment).
+			// Wrap the module shape that getDeployment expects (it needs `id` +
+			// `deployments` per the structural type at pack.ts:106).
+			const deployment = getDeployment(
+				{ id: module.id, deployments: module.deployments },
+				args.chainId,
+				args.env,
+			);
+			expectedAddr = getAddress(deployment.policyData);
 		}
-		// Spec § "Invariant checks at construction time" #8: re-throw the
-		// existing UnsupportedChainError / UnsupportedEnvError from getDeployment
-		// so consumers can catch the canonical error classes (the same ones
-		// curator-side single-pack flows already handle via getDeployment).
-		// Wrap the module shape that getDeployment expects (it needs `id` +
-		// `deployments` per the structural type at pack.ts:106).
-		const deployment = getDeployment(
-			{ id: module.id, deployments: module.deployments },
-			args.chainId,
-			args.env,
-		);
-		expectedAddrs.push(getAddress(deployment.policyData));
+		entries.push({
+			module,
+			expectedAddr,
+			// biome-ignore lint/style/noNonNullAssertion: pin shape verified above
+			expectedCid: usingHistoricalPin ? args.expectedWasmCids![i]! : undefined,
+		});
+	}
+
+	// Index entries by expected policyData address. Distinct packs publish
+	// distinct oracles, so two modules resolving to the same policyData is a
+	// configuration error — the on-chain slot would be ambiguous to reorder to.
+	const entryByAddr = new Map<Address, ModuleEntry>();
+	for (const entry of entries) {
+		if (entryByAddr.has(entry.expectedAddr)) {
+			throw new CompositeBuilderError(
+				`two modules resolve to the same policyData address ${entry.expectedAddr} — a composite must reference distinct oracles`,
+			);
+		}
+		entryByAddr.set(entry.expectedAddr, entry);
 	}
 
 	// On-chain getPolicyData() — required to verify ordering against expectedAddrs.
@@ -197,33 +233,50 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		throw new PolicyDataLengthMismatchError(onChainPolicyData.length, args.modules.length);
 	}
 
+	// Align modules to the on-chain order. Match each on-chain policyData
+	// address to the module that resolves to it, by membership — so the curator
+	// may pass `modules` in ANY order. A correct composite never fails merely
+	// because its TypeScript list is ordered differently than the deployed
+	// `--policy-data-address` flags. A genuine mismatch (an on-chain oracle no
+	// provided module covers) still fails, as a set error not an ordering error.
+	const reordered: ModuleEntry[] = [];
+	const used = new Set<ModuleEntry>();
 	for (let i = 0; i < onChainPolicyData.length; i++) {
 		// biome-ignore lint/style/noNonNullAssertion: length checked
-		if (onChainPolicyData[i]! !== expectedAddrs[i]!) {
-			const recoveryHint = usingHistoricalPin
-				? ""
-				: " (if this composite was deployed before a recent pack redeploy, pass `expectedPolicyDataAddresses` + `expectedWasmCids` with the historical addresses to pin to the on-chain composite)";
-			throw new PolicyDataOrderingMismatchError(
+		const addr = onChainPolicyData[i]!;
+		const entry = entryByAddr.get(addr);
+		if (entry === undefined) {
+			throw new CompositeModuleSetMismatchError(
 				i,
-				expectedAddrs[i]!,
-				onChainPolicyData[i]!,
-				recoveryHint,
+				addr,
+				entries.map((e) => e.expectedAddr),
+				usingHistoricalPin,
 			);
 		}
+		if (used.has(entry)) {
+			throw new CompositeBuilderError(
+				`on-chain getPolicyData() lists ${addr} more than once — a composite must reference distinct oracles`,
+			);
+		}
+		used.add(entry);
+		reordered.push(entry);
 	}
+	// length-equal + every on-chain address matched a distinct entry ⇒ every
+	// entry is used exactly once (pigeonhole); no unused-module case remains.
+	const orderedModules = reordered.map((e) => e.module);
 
 	// Historical-pin path: verify each pinned PolicyData's on-chain getWasmCid()
-	// against expectedWasmCids[i]. Binds each pinned address to a module
-	// identity — without this, a curator could pair module A's id+schemas with
-	// module B's PolicyData by passing B's address in A's slot.
+	// against the curator's expectedWasmCids — read at the on-chain-ordered
+	// addresses. Binds each pinned address to a module identity — without this, a
+	// curator could pair module A's id+schemas with module B's PolicyData by
+	// passing B's address in A's slot.
 	if (usingHistoricalPin) {
-		// biome-ignore lint/style/noNonNullAssertion: usingHistoricalPin guards
-		const expectedCids = args.expectedWasmCids!;
+		const orderedAddrs = reordered.map((e) => e.expectedAddr);
 		const useMulticall = !!args.publicClient.chain?.contracts?.multicall3?.address;
 		let actualCids: string[];
 		if (useMulticall) {
 			actualCids = (await args.publicClient.multicall({
-				contracts: expectedAddrs.map((addr) => ({
+				contracts: orderedAddrs.map((addr) => ({
 					address: addr,
 					abi: POLICY_DATA_ABI,
 					functionName: "getWasmCid" as const,
@@ -232,7 +285,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 			})) as string[];
 		} else {
 			actualCids = await Promise.all(
-				expectedAddrs.map(
+				orderedAddrs.map(
 					(addr) =>
 						args.publicClient.readContract({
 							address: addr,
@@ -242,37 +295,43 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 				),
 			);
 		}
-		for (let i = 0; i < expectedCids.length; i++) {
+		for (let i = 0; i < reordered.length; i++) {
 			// biome-ignore lint/style/noNonNullAssertion: length checked
-			if (actualCids[i]! !== expectedCids[i]!) {
+			const entry = reordered[i]!;
+			// biome-ignore lint/style/noNonNullAssertion: length checked
+			if (actualCids[i]! !== entry.expectedCid!) {
 				throw new PinnedWasmCidMismatchError(
 					i,
-					args.modules[i]!.id,
-					expectedCids[i]!,
+					entry.module.id,
+					// biome-ignore lint/style/noNonNullAssertion: pin path guarantees a cid
+					entry.expectedCid!,
+					// biome-ignore lint/style/noNonNullAssertion: length checked
 					actualCids[i]!,
 				);
 			}
 		}
 	}
 
-	// All invariants verified — build the runtime CompositePolicyPack.
+	// All invariants verified — build the runtime CompositePolicyPack. modules,
+	// onChainPolicyData, and historicalBindings are all in on-chain order so the
+	// emitted manifest matches the deployed getPolicyData() positionally.
 	const historicalBindings = usingHistoricalPin
-		? args.expectedPolicyDataAddresses!.map((addr, i) => ({
-				policyDataAddress: getAddress(addr),
-				// biome-ignore lint/style/noNonNullAssertion: usingHistoricalPin guards
-				wasmCid: args.expectedWasmCids![i]!,
+		? reordered.map((e) => ({
+				policyDataAddress: e.expectedAddr,
+				// biome-ignore lint/style/noNonNullAssertion: pin path guarantees a cid
+				wasmCid: e.expectedCid!,
 			}))
 		: undefined;
 
 	return {
 		kind: "composite",
-		modules: args.modules,
+		modules: orderedModules,
 		chainId: args.chainId,
 		env: args.env,
 		policyAddress: getAddress(args.policyAddress),
 		onChainPolicyData,
 		historicalBindings,
-		prepareQuery: makeAggregatedPrepareQuery(args.modules),
+		prepareQuery: makeAggregatedPrepareQuery(orderedModules),
 	};
 }
 
@@ -397,6 +456,13 @@ export class PolicyDataLengthMismatchError extends Error {
 }
 
 /**
+ * @deprecated Superseded by auto-reordering in `defineComposite`, which now
+ * aligns the curator's `modules` to the on-chain `getPolicyData()` order
+ * automatically — a pure ordering difference is no longer an error. Retained as
+ * an exported symbol for API stability; `defineComposite` no longer throws it. A
+ * genuine module-set mismatch throws {@link CompositeModuleSetMismatchError}
+ * instead. Slated for removal in the next major.
+ *
  * Positional mismatch between the expected policy-data address (from
  * `module.deployments` OR `expectedPolicyDataAddresses`) and the on-chain
  * `getPolicyData()[i]` value. The recovery hint suggests the historical-pin
@@ -412,6 +478,32 @@ export class PolicyDataOrderingMismatchError extends Error {
 	) {
 		super(
 			`policyData[${moduleIndex}]: expected ${expected} but on-chain returned ${actual}${recoveryHint}`,
+		);
+	}
+}
+
+/**
+ * On-chain `getPolicyData()` returned a policyData address that none of the
+ * provided modules resolves to. The curator's module SET doesn't match the
+ * deployed composite's oracle set: a wrong `policyAddress`, a wrong
+ * `(chainId, env)`, a missing module, or — on the historical-pin path — a wrong
+ * `expectedPolicyDataAddresses` entry. Order-independent: `defineComposite`
+ * reorders modules to the on-chain order, so only a genuine set mismatch (not a
+ * permutation) reaches this error.
+ */
+export class CompositeModuleSetMismatchError extends Error {
+	override readonly name = "CompositeModuleSetMismatchError";
+	constructor(
+		readonly onChainIndex: number,
+		readonly onChainAddress: Address,
+		readonly providedAddresses: ReadonlyArray<Address>,
+		usingHistoricalPin: boolean,
+	) {
+		const hint = usingHistoricalPin
+			? " — check that expectedPolicyDataAddresses match the on-chain getPolicyData()"
+			: " — check policyAddress, chainId/env, and that every on-chain oracle has a corresponding module";
+		super(
+			`on-chain getPolicyData()[${onChainIndex}] = ${onChainAddress} matches none of the provided modules (which resolve to ${providedAddresses.join(", ")})${hint}`,
 		);
 	}
 }

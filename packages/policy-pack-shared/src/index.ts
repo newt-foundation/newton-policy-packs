@@ -30,6 +30,7 @@ export type {
 export {
 	ChainMismatchError,
 	CompositeBuilderError,
+	CompositeModuleSetMismatchError,
 	CompositePrepareQueryError,
 	defineComposite,
 	encodeCompositePolicyPack,
