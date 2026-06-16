@@ -1,5 +1,6 @@
 .env
 .env.*.local
+.env.deploy.local*
 */configs/
 */dist/policy.wasm
 */dist/policy.wasm.stamp
@@ -15,3 +16,6 @@ packages/*/dist/
 
 # Rust build outputs (tools/avs-parity)
 tools/*/target/
+
+# Local agent/tooling caches (never committed)
+.serena/
