@@ -90,6 +90,19 @@ interface DefineCompositeArgs {
    */
   readonly expectedPolicyDataAddresses?: ReadonlyArray<Address>;
   readonly expectedWasmCids?: ReadonlyArray<string>;
+
+  /**
+   * Opt out of the `KNOWN_PACK_IDS` membership gate (default `false`). When
+   * `true`, a module whose short id isn't a published pack id no longer throws
+   * `UnknownPackIdError` — for curators composing a bespoke or unpublished
+   * pack (e.g. the Shield SDK's composite-of-one path, which routes every
+   * single pack through `defineComposite([pack])`). The flag relaxes ONLY the
+   * registry gate: the duplicate-short-id guard and every on-chain check
+   * (`getPolicyData()` set-match, historical-pin `getWasmCid()` identity) still
+   * run. Leave it off for the published packs so typos and registry desync are
+   * still caught.
+   */
+  readonly allowUnknownPackIds?: boolean;
 }
 
 interface CompositePolicyPack {
@@ -138,7 +151,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 2. `args.policyAddress === "0x0000...0000"` — `CompositeBuilderError("policyAddress is the zero address")`.
 3. `args.publicClient.chain?.id` is set and doesn't match `args.chainId` — `ChainMismatchError(args.chainId, publicClient.chain.id)`. Caught up front because mismatched chain context produces correct-looking but cross-chain-unsafe results. When `publicClient.chain` is `undefined` (a custom transport configuration), the check is skipped — `defineComposite` trusts the RPC endpoint and validates correctness via on-chain `getPolicyData()` + (optionally) `getWasmCid()` mismatches. Curators using `chain: undefined` are responsible for the chain context their RPC speaks.
 4. Two modules in `args.modules` derive the same short pack id — `CompositeBuilderError("duplicate short pack id <X>")` (matches encoder's check, but caught earlier with a more curator-friendly path).
-5. Any short pack id is NOT in `KNOWN_PACK_IDS` — `UnknownPackIdError(shortId)`. Catches typos and packs that haven't been published.
+5. Any short pack id is NOT in `KNOWN_PACK_IDS` — `UnknownPackIdError(shortId)`. Catches typos and packs that haven't been published. **Skipped when `args.allowUnknownPackIds === true`** — the opt-out for bespoke/unpublished packs (e.g. the Shield SDK's composite-of-one path). The flag relaxes ONLY this membership check; the duplicate-short-id guard (#4) and every on-chain check below still run.
 6. `INewtonPolicy(args.policyAddress).getPolicyData()` length doesn't match `args.modules.length` — `PolicyDataLengthMismatchError(onChainLen, providedLen)`.
 7. Set mismatch: some `onChainPolicyData[i]` (after `getAddress(...)` normalization) matches none of the modules' resolved addresses — `CompositeModuleSetMismatchError(onChainIndex, onChainAddress, providedAddresses, usingHistoricalPin)`. Each module's address comes from `args.expectedPolicyDataAddresses` if provided, otherwise from `getDeployment(args.modules[i], args.chainId, args.env).policyData`. The builder reorders modules to the on-chain order by membership, so a pure permutation of a correct set never errors — only a genuinely missing/foreign oracle does. (Two modules resolving to the same address, or the on-chain array listing one address twice, throw `CompositeBuilderError`.) The legacy `PolicyDataOrderingMismatchError` is retained as an exported symbol for API stability but is no longer thrown.
 8. Any module's deployment for `(args.chainId, args.env)` is missing AND `expectedPolicyDataAddresses` was NOT provided — re-throws the existing `UnsupportedChainError` / `UnsupportedEnvError` from `getDeployment`. With `expectedPolicyDataAddresses` set, deployment lookup is skipped — historical composites can outlive a pack's current cell.
@@ -169,8 +182,9 @@ A composite's `NewtonPolicy` address is NOT predictable from its modules — it'
  * Canonical registry of every published @newton-xyz/policy-pack-<name>
  * package's short pack id. Order doesn't matter; presence does.
  *
- * defineComposite rejects modules whose short pack id isn't here. Catches
- * typos, abandoned-but-not-unpublished packs, and registry desync.
+ * defineComposite rejects modules whose short pack id isn't here (unless the
+ * caller passes `allowUnknownPackIds: true` to opt out for a bespoke pack).
+ * Catches typos, abandoned-but-not-unpublished packs, and registry desync.
  *
  * Adding a new pack: add its short id here in the same PR that adds the
  * pack code. CI fails on uncommitted regen drift.

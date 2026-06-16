@@ -194,6 +194,73 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 		);
 	});
 
+	it("allows an unregistered short id when allowUnknownPackIds is true", async () => {
+		const ROGUE_PD: Address = "0xCcCc000000000000000000000000000000000000";
+		const ROGUE = makePack("rogue/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: ROGUE_PD });
+		const fake = makeFakeClient({ onChainPolicyData: [ROGUE_PD] });
+		const result = await defineComposite({
+			modules: [ROGUE],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+			allowUnknownPackIds: true,
+		});
+		assert.equal(result.kind, "composite");
+		assert.equal(result.modules.length, 1);
+	});
+
+	it("still throws CompositeBuilderError on duplicate short ids even with allowUnknownPackIds", async () => {
+		// Both derive shortId="rogue" — the duplicate guard is independent of the
+		// registry gate, so relaxing membership must not relax uniqueness.
+		const ROGUE_V1 = makePack("rogue/v1", {
+			...VAULTSFYI_DEPLOYMENT,
+			policyData: "0xCcCc000000000000000000000000000000000000",
+		});
+		const ROGUE_V2 = makePack("rogue/v2", {
+			...CHAINALYSIS_DEPLOYMENT,
+			policyData: "0xDdDd000000000000000000000000000000000000",
+		});
+		const fake = makeFakeClient();
+		await assert.rejects(
+			defineComposite({
+				modules: [ROGUE_V1, ROGUE_V2],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+				allowUnknownPackIds: true,
+			}),
+			(err: unknown) =>
+				err instanceof CompositeBuilderError &&
+				/duplicate short pack id/.test((err as Error).message),
+		);
+	});
+
+	it("still enforces the on-chain set-match with allowUnknownPackIds (flag relaxes only the registry gate)", async () => {
+		const ROGUE_PD: Address = "0xCcCc000000000000000000000000000000000000";
+		const ROGUE = makePack("rogue/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: ROGUE_PD });
+		// on-chain getPolicyData() returns a DIFFERENT address → the set-match
+		// must still fire even though the registry gate is relaxed.
+		const fake = makeFakeClient({
+			onChainPolicyData: ["0xEeEe000000000000000000000000000000000000"],
+		});
+		await assert.rejects(
+			defineComposite({
+				modules: [ROGUE],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+				allowUnknownPackIds: true,
+			}),
+			(err: unknown) => err instanceof CompositeModuleSetMismatchError,
+		);
+	});
+
 	it("throws CompositeBuilderError on duplicate short pack ids", async () => {
 		// Two vaultsfyi modules — both derive shortId="vaultsfyi"
 		const VAULTSFYI_V2 = makePack("vaultsfyi/risk-envelope/v2", VAULTSFYI_DEPLOYMENT);
@@ -599,6 +666,36 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 			expectedWasmCids: [CHAINALYSIS_DEPLOYMENT.wasmCid],
 		});
 		assert.equal(result.kind, "composite");
+	});
+
+	it("allowUnknownPackIds relaxes only the registry gate — historical-pin wasmCid check still fires", async () => {
+		// A bespoke pack (short id not in KNOWN_PACK_IDS) on the historical-pin
+		// path. allowUnknownPackIds lets it past the membership gate, but the
+		// pinned-address getWasmCid() identity check (a) must STILL fire: here the
+		// pinned address serves a different cid than the curator declared, so it
+		// throws PinnedWasmCidMismatchError despite the relaxed gate.
+		const BESPOKE_ADDR: Address = "0x7777777777777777777777777777777777777777";
+		const bespoke = makePack("bespoke/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: BESPOKE_ADDR });
+		const fake = makeFakeClient({
+			onChainPolicyData: [BESPOKE_ADDR],
+			wasmCidsByPolicyData: { [BESPOKE_ADDR.toLowerCase()]: "bafyactualbespoke" },
+		});
+		await assert.rejects(
+			defineComposite({
+				modules: [bespoke],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+				allowUnknownPackIds: true,
+				expectedPolicyDataAddresses: [BESPOKE_ADDR],
+				expectedWasmCids: ["bafydeclaredbutwrong"],
+			}),
+			(err: unknown) =>
+				err instanceof PinnedWasmCidMismatchError &&
+				(err as PinnedWasmCidMismatchError).actualWasmCid === "bafyactualbespoke",
+		);
 	});
 });
 

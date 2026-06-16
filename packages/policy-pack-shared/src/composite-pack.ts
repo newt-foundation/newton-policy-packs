@@ -79,6 +79,16 @@ export interface DefineCompositeArgs {
 	readonly policyAddress: Address;
 	readonly expectedPolicyDataAddresses?: ReadonlyArray<Address>;
 	readonly expectedWasmCids?: ReadonlyArray<string>;
+	/**
+	 * Opt out of the `KNOWN_PACK_IDS` membership gate (default `false`). When
+	 * `true`, a module whose short id isn't a published pack id no longer throws
+	 * `UnknownPackIdError` — for curators composing a bespoke or unpublished
+	 * pack. The duplicate-short-id guard and every on-chain check
+	 * (`getPolicyData()` set-match, `getWasmCid()` identity) still run; this flag
+	 * relaxes ONLY the registry gate. Leave it off for the published packs so
+	 * typos and registry desync are still caught.
+	 */
+	readonly allowUnknownPackIds?: boolean;
 }
 
 export interface CompositePolicyPack {
@@ -134,7 +144,9 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		throw new ChainMismatchError(args.chainId, String(onChainChainId));
 	}
 
-	// Short-id collision + KNOWN_PACK_IDS membership.
+	// Short-id collision + KNOWN_PACK_IDS membership. The duplicate guard is
+	// unconditional; the membership gate is skipped when `allowUnknownPackIds`
+	// is set (bespoke/unpublished packs). On-chain checks below run regardless.
 	const shortIds: string[] = [];
 	for (const module of args.modules) {
 		const shortId = shortPackIdFromModuleId(module.id);
@@ -143,7 +155,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 				`duplicate short pack id \`${shortId}\` derived from module id \`${module.id}\``,
 			);
 		}
-		if (!isKnownPackId(shortId)) {
+		if (!args.allowUnknownPackIds && !isKnownPackId(shortId)) {
 			throw new UnknownPackIdError(shortId, module.id);
 		}
 		shortIds.push(shortId);
