@@ -388,6 +388,47 @@ function main(): void {
 	console.log(`generate-bindings: discovered ${packs.length} pack(s):`);
 	for (const p of packs) console.log(`  - ${p}`);
 
+	// Cross-check the discovered pack list against KNOWN_PACK_IDS. The registry
+	// in @newton-xyz/policy-pack-shared MUST list every published pack's short
+	// id; defineComposite (Phase 2) rejects modules whose short id isn't there.
+	// A pack PR that adds the directory + schemas but forgets to update the
+	// registry would deploy code that no composite could consume.
+	//
+	// We don't import the registry from policy-pack-shared at codegen time
+	// (avoid a build-time circular dep on the package this codegen is part of).
+	// Instead, parse the `KNOWN_PACK_IDS = [...] as const satisfies ...` literal
+	// out of the source file directly.
+	const knownIdsSrc = readFileSync(path.join(SHARED_PACKAGE_DIR, "src/known-pack-ids.ts"), "utf8");
+	const knownIdsMatch = knownIdsSrc.match(/export const KNOWN_PACK_IDS = \[([\s\S]*?)\] as const/);
+	if (!knownIdsMatch) {
+		fail(
+			"could not parse KNOWN_PACK_IDS from policy-pack-shared/src/known-pack-ids.ts — registry shape changed?",
+		);
+	}
+	const registry = new Set(
+		// biome-ignore lint/style/noNonNullAssertion: regex matched above
+		Array.from(knownIdsMatch[1]!.matchAll(/"([^"]+)"/g), (m) => m[1] as string),
+	);
+	const discoveredSet = new Set(packs);
+	const missingFromRegistry = [...discoveredSet].filter((p) => !registry.has(p));
+	const stalRegistryEntries = [...registry].filter((p) => !discoveredSet.has(p));
+	if (missingFromRegistry.length || stalRegistryEntries.length) {
+		const lines = [
+			"KNOWN_PACK_IDS registry drift detected — Phase 2 composite verification depends on it.",
+		];
+		if (missingFromRegistry.length) {
+			lines.push(
+				`  Missing from registry (add these to policy-pack-shared/src/known-pack-ids.ts): ${missingFromRegistry.map((p) => `"${p}"`).join(", ")}`,
+			);
+		}
+		if (stalRegistryEntries.length) {
+			lines.push(
+				`  Stale registry entries (no matching pack directory at repo root): ${stalRegistryEntries.map((p) => `"${p}"`).join(", ")}`,
+			);
+		}
+		fail(lines.join("\n"));
+	}
+
 	for (const packName of packs) {
 		const packSrcDir = path.join(REPO_ROOT, packName);
 		const packageDir = path.join(PACKAGES_DIR, `policy-pack-${packName}`);
