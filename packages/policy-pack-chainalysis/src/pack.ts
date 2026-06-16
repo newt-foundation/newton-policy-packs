@@ -1,6 +1,10 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import type { PolicyPack } from "@newton-xyz/policy-pack-shared";
+import {
+	type OracleModule,
+	oracleModuleFromPack,
+	type PolicyPack,
+} from "@newton-xyz/policy-pack-shared";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
 import { type Params, ParamsSchema } from "./params";
@@ -36,3 +40,12 @@ export const chainalysis: PolicyPack<Params, WasmArgs, Secrets> = {
 		link: PACK_LINK || undefined,
 	},
 };
+
+/**
+ * Composite-policy view of the chainalysis pack. Pass to
+ * `defineComposite(...)` (Phase 2 — see `docs/composite-policies.md`) when
+ * stacking chainalysis with other packs in one Shield. Strict subset of the
+ * `PolicyPack` above — shares the same `id`, schemas, and deployments.
+ */
+export const chainalysisOracleModule: OracleModule<Params, WasmArgs, Secrets> =
+	oracleModuleFromPack(chainalysis);
