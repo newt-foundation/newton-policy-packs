@@ -118,7 +118,7 @@ The `.env.stagef` / `.env.prod` files are starter templates — they are **not**
 newton-policy-packs/
 ├── vaultsfyi/             # Vault risk-rating gate (vaults.fyi)
 ├── redstone/              # Oracle-divergence gate
-├── webacy/                # Depositor-reputation gate
+├── webacy/                # Pegged-token depeg-risk gate
 ├── chainalysis/           # Sanctions / address-screening gate
 ├── blockaid/              # Transaction-time exploit gate
 ├── guardrail/             # On-chain monitoring gate
@@ -181,7 +181,7 @@ Oracle-divergence gate. Compares [RedStone](https://redstone.finance) median pri
 
 ### webacy
 
-Depositor-reputation gate using [Webacy](https://webacy.com) — DD-score buckets (low/medium/high/sanctioned), exploit-exposure flags, tiered deposit caps for medium-risk wallets. See [webacy/README.md](./webacy/README.md).
+Pegged-token depeg-risk gate using [Webacy](https://webacy.com)'s depeg-monitor API — denies on token collapse, recent depeg events in a lookback window, sustained days-below-peg streaks, or stale upstream data. See [webacy/README.md](./webacy/README.md).
 
 ### chainalysis
 
@@ -207,7 +207,14 @@ KYC/applicant gate using [SumSub](https://sumsub.com). Same shape as the Persona
 
 Composite Balancer pool-risk gate (public API, no key). Token-weight drift, non-allowlisted tokens in pool, optional underlying-yield-source check, TVL floor + 24h/7d drawdowns. See [balancer/README.md](./balancer/README.md).
 
+## Contributing a new pack
+
+Partners and external developers integrating a new data service should follow the step-by-step guide in [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md). It covers naming conventions, the file inventory a pack ships, OPA tests, the four-cell deploy flow, and the npm publish path.
+
 ## Reference
 
 - [Newton Developer Docs](https://docs.newton.xyz/developers/overview/core-concepts)
 - [Policy Lifecycle Guide](https://github.com/newt-foundation/newton-prover-avs/blob/main/bin/newton-cli/docs/policy-lifecycle.md)
+- [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) — adding a new policy pack
+- [`docs/composite-policies.md`](./docs/composite-policies.md) — stacking multiple packs into one composite policy
+- [`OPERATING.md`](./OPERATING.md) — post-deploy lifecycle (PolicyClient + secrets)

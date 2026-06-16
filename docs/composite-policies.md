@@ -1,16 +1,16 @@
 # Composite policies
 
-> **Status:** Proposed. None of the following are in place today; they ship across coordinated `@newton-xyz/policy-pack-<name>`, `@newton-xyz/policy-pack-shared`, and `@newton-xyz/newton-shield-sdk` releases. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper; Phase 1 = `OracleModule` exports per pack; Phase 1.5 = on-chain manifest format + decode helpers; Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers — and shipping artifacts include:
+> **Status:** Phase 0 done; Phase 1/1.5/2 in progress. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (in progress); Phase 1.5 = on-chain manifest format + decode helpers (in progress); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (in progress) — and shipping artifacts include:
 >
-> - Pack-side namespacing convention — `PACK_ID` wrapper in every pack's `policy.js` (input AND output namespacing — packs unwrap `args.<pack-id>` if present), `data.wasm.<pack-id>.*` references in every pack's `policy.rego` (Phase 0)
-> - `wrapOutput` helper in `@newton-xyz/policy-pack-shared` for `policy.js` authors (Phase 0)
-> - `wrapping_test.rego` per-pack tests asserting namespace correctness (Phase 0)
-> - AST-lint CI guard in this repo flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput` (Phase 0). A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands
-> - `newton-cli` multi-PolicyData support — `--policy-data-address` repeated-flag (one invocation per PolicyData; Phase 2 prerequisite for the composite reference walkthrough deploy, NOT a Phase 0 prerequisite — Phase 0 redeploys are single-PolicyData per pack and work under the existing CLI)
-> - `OracleModule` type + `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule` (Phase 1)
-> - `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared` (Phase 2 — ships alongside the SDK guard that consumes it)
+> - **Phase 0 (done)** — Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing — `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo now namespaces correctly; copy-as-is into a composite works.
+> - **Phase 0 (done)** — `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.
+> - **Phase 0 (done)** — `wrapping_test.rego` per-pack tests asserting namespace correctness, present in all 9 packs.
+> - **Phase 0 (done)** — AST-lint CI guard (`scripts/lint-policy-js.ts`) flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput`. A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands.
+> - **Phase 2 prerequisite (forward-looking)** — `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData). NOT required for Phase 0 single-pack redeploys.
+> - **Phase 1 (in progress)** — `OracleModule` type + `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule`.
+> - **Phase 2 (forward-looking)** — `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared`, shipping alongside the SDK guard that consumes it.
 >
-> This doc describes the workflow that goes live when those phases land. **Until then, the per-pack Rego templates use bare `data.wasm.<field>` and copying them into a composite without rewriting will produce broken Rego.**
+> The composite-deploy workflow below describes the end state. The namespacing claims are accurate today; the `defineComposite(...)`, `OracleModule`, and `KNOWN_PACK_IDS` references describe the API after Phase 1/2 land.
 
 Authoring one Newton policy that consumes **multiple oracle modules** under one auditable on-chain artifact. This is how a vault curator gates a single action (say, MetaMorpho `reallocate`) with risk + sanctions + oracle-divergence simultaneously, while preserving "one policy address per vault" for depositor verification.
 
@@ -58,7 +58,7 @@ data.wasm.chainalysis.sanctioned    # bool
 data.wasm.redstone.divergence_pct   # number
 ```
 
-**Status today:** packs in this repo emit flat outputs (`{ score, risk_score, ... }`) and reference bare `data.wasm.<field>` in Rego. The namespacing convention above is what every pack WILL look like post-Phase-0 — see status banner at the top of this doc. The Phase 0 migration is a one-shot backwards-incompatible bump; afterward, every published pack in this repo will follow the convention, and new packs MUST adopt it (your `policy.js` MUST wrap its return value the same way, and your `policy.rego` MUST reference `data.wasm.<pack-id>.*` not bare `data.wasm.*`).
+**Status today:** every pack in this repo emits namespaced outputs (`{ <pack-id>: { score, risk_score, ... } }`) via `wrapOutput("<pack-id>", ...)` and references `data.wasm.<pack-id>.*` in Rego. Phase 0 landed across all 9 packs. New packs MUST adopt the same convention — `policy.js` MUST wrap its return value via `wrapOutput`, and `policy.rego` MUST reference `data.wasm.<pack-id>.*`. The AST-lint CI guard (`scripts/lint-policy-js.ts`) and per-pack `wrapping_test.rego` enforce both halves on PRs.
 
 Params follow the same convention:
 
@@ -124,7 +124,7 @@ deny contains msg if {
 
 Notes:
 
-- Each pack's reference `policy.rego` (e.g. [`vaultsfyi/policy.rego`](../vaultsfyi/policy.rego), [`chainalysis/policy.rego`](../chainalysis/policy.rego)) is the starting template for the deny rules over THAT module's outputs. **Pre-Phase-0 caveat:** today's per-pack Rego references bare `data.wasm.<field>` (e.g. `v := data.wasm`); when copying into a composite, rewrite every reference to `data.wasm.<pack-id>.<field>` (e.g. `v := data.wasm.vaultsfyi`). Post-Phase-0, the bundled templates will already be namespaced and copy-as-is works.
+- Each pack's reference `policy.rego` (e.g. [`vaultsfyi/policy.rego`](../vaultsfyi/policy.rego), [`chainalysis/policy.rego`](../chainalysis/policy.rego)) is the starting template for the deny rules over THAT module's outputs. The bundled per-pack templates already reference `data.wasm.<pack-id>.<field>` (e.g. `v := data.wasm.vaultsfyi`) so copy-as-is into a composite works.
 - Errors are namespaced too (post-Phase-0). `data.wasm.vaultsfyi.error` is set when vaultsfyi's WASM hit an exception; you decide whether to deny on it. The bundled per-pack reference Rego documents each module's error semantics.
 - Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data — see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The exact merge convention for composite-author top-level params lands with the reference walkthrough at `examples/composite-vaultsfyi-chainalysis/`; verify against your composite's simulation output before relying on it.
 
