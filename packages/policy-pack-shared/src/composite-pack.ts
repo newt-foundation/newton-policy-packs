@@ -267,9 +267,11 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 
 	// Historical-pin path: verify each pinned PolicyData's on-chain getWasmCid()
 	// against the curator's expectedWasmCids — read at the on-chain-ordered
-	// addresses. Binds each pinned address to a module identity — without this, a
-	// curator could pair module A's id+schemas with module B's PolicyData by
-	// passing B's address in A's slot.
+	// addresses. This catches a pin whose on-chain WASM doesn't match the cid the
+	// curator claimed for it (e.g. claiming module A's cid for module B's
+	// address). It does NOT independently prove the claimed cid is the named
+	// module's historical WASM — there is no per-module historical-cid metadata
+	// to check against, so that (address, cid) pairing is the curator's assertion.
 	if (usingHistoricalPin) {
 		const orderedAddrs = reordered.map((e) => e.expectedAddr);
 		const useMulticall = !!args.publicClient.chain?.contracts?.multicall3?.address;
@@ -510,9 +512,11 @@ export class CompositeModuleSetMismatchError extends Error {
 
 /**
  * Pinned PolicyData's on-chain `getWasmCid()` doesn't match the curator's
- * `expectedWasmCids[i]`. Binds each pinned address to a module identity —
- * without this check, a curator could pair module A's id+schemas with
- * module B's PolicyData by passing B's address in A's slot.
+ * `expectedWasmCids[i]` — the pinned address doesn't serve the WASM the curator
+ * claimed for it. Catches claiming module A's cid for module B's address; it
+ * does NOT independently verify the claimed cid is the named module's historical
+ * WASM (no per-module historical-cid metadata exists to check that — the curator
+ * asserts the pairing).
  */
 export class PinnedWasmCidMismatchError extends Error {
 	override readonly name = "PinnedWasmCidMismatchError";
