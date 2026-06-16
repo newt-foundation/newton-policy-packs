@@ -12,6 +12,7 @@
   "packageManager": "pnpm@10.0.0",
   "scripts": {
     "gen:bindings": "tsx scripts/generate-bindings.ts",
+    "gen:bindings:test": "node --import tsx --test scripts/generate-bindings.test.ts",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "lint": "find packages/*/src scripts -name '*.ts' -type f -print0 | xargs -0 biome check --reporter=summary",
