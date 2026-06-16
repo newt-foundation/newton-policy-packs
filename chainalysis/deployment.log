@@ -1092,3 +1092,278 @@ Policy deployed successfully at address: 0xC29Dc9C293c5a3f0B9037ac81bf009C0CBcdd
 === Sun Jun 14 15:33:41 PDT 2026 :: chainalysis DONE ===
 chainalysis DATA=0x90eE95F6aaF91fCe2538218e58d8df1809E14Aa7 POLICY=0xC29Dc9C293c5a3f0B9037ac81bf009C0CBcdd4b5
 wrote ./chainalysis/dist/last_deploy.json
+=== Mon Jun 15 18:49:47 PDT 2026 :: chainalysis policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:49:47 PDT 2026 :: chainalysis sync source policy.rego -> dist ===
+=== Mon Jun 15 18:49:47 PDT 2026 :: chainalysis generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./chainalysis/dist"
+policyCodeHash: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+Public IPFS Link: https://ipfs.io/ipfs/bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./chainalysis/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./chainalysis/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./chainalysis/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
+  "policyCid": "bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy",
+  "schemaCid": "bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m",
+  "entrypoint": "chainalysis_address_screening.allow",
+  "policyMetadataCid": "bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m",
+  "policyDataMetadataCid": "bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm",
+  "secretsSchemaCid": "bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm",
+  "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a"
+}
+=== Mon Jun 15 18:50:00 PDT 2026 :: chainalysis UPLOAD DONE ===
+wrote ./chainalysis/dist/policy_cids.json
+=== Mon Jun 15 18:52:42 PDT 2026 :: chainalysis policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0x223F563c3CfD087cB1857851629b4d8CE7738448
+Policy Data Address: 0x223F563c3CfD087cB1857851629b4d8CE7738448
+DATA_ADDR=0x223F563c3CfD087cB1857851629b4d8CE7738448
+=== Mon Jun 15 18:52:51 PDT 2026 :: chainalysis policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x223f563c3cfd087cb1857851629b4d8ce7738448]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0x396F77Da4EC90d1406Cf3A9b67Ced727C47d58A1
+=== Mon Jun 15 18:53:06 PDT 2026 :: chainalysis DEPLOY DONE (stagef/11155111) ===
+chainalysis DATA=0x223F563c3CfD087cB1857851629b4d8CE7738448 POLICY=0x396F77Da4EC90d1406Cf3A9b67Ced727C47d58A1
+wrote ./chainalysis/dist/last_deploy.json
+=== Mon Jun 15 19:02:09 PDT 2026 :: chainalysis policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x226d196d565b92952669701Fb6cb85B586706996
+Policy Data Address: 0x226d196d565b92952669701Fb6cb85B586706996
+DATA_ADDR=0x226d196d565b92952669701Fb6cb85B586706996
+=== Mon Jun 15 19:02:17 PDT 2026 :: chainalysis policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x226d196d565b92952669701fb6cb85b586706996]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0x099a8DCEC398d35c3Cd89354644d0d023490E92C
+=== Mon Jun 15 19:02:26 PDT 2026 :: chainalysis DEPLOY DONE (prod/11155111) ===
+chainalysis DATA=0x226d196d565b92952669701Fb6cb85B586706996 POLICY=0x099a8DCEC398d35c3Cd89354644d0d023490E92C
+wrote ./chainalysis/dist/last_deploy.json
+=== Mon Jun 15 19:09:00 PDT 2026 :: chainalysis policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0xf2d4918eeCD7C761eed719451559A17f47434681
+Policy Data Address: 0xf2d4918eeCD7C761eed719451559A17f47434681
+DATA_ADDR=0xf2d4918eeCD7C761eed719451559A17f47434681
+=== Mon Jun 15 19:09:09 PDT 2026 :: chainalysis policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xf2d4918eecd7c761eed719451559a17f47434681]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0x69EE0f11059eE0dE4a26f644ddb0D0205CFf7a2d
+=== Mon Jun 15 19:09:10 PDT 2026 :: chainalysis DEPLOY DONE (stagef/84532) ===
+chainalysis DATA=0xf2d4918eeCD7C761eed719451559A17f47434681 POLICY=0x69EE0f11059eE0dE4a26f644ddb0D0205CFf7a2d
+wrote ./chainalysis/dist/last_deploy.json
+=== Mon Jun 15 19:11:27 PDT 2026 :: chainalysis policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x26e26310B0A0dD6f54d493Fc7405ec6ea4Bfd6c0
+Policy Data Address: 0x26e26310B0A0dD6f54d493Fc7405ec6ea4Bfd6c0
+DATA_ADDR=0x26e26310B0A0dD6f54d493Fc7405ec6ea4Bfd6c0
+=== Mon Jun 15 19:11:28 PDT 2026 :: chainalysis policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x26e26310b0a0dd6f54d493fc7405ec6ea4bfd6c0]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:11:40 PDT 2026 :: chainalysis policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:11:51 PDT 2026 :: chainalysis policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:31 PDT 2026 :: chainalysis policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 425 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 425 blocks 
+
+Policy data deployed successfully at address: 0x4a837D4b8802740c0213Fae50156CA9b5530a14A
+Policy Data Address: 0x4a837D4b8802740c0213Fae50156CA9b5530a14A
+DATA_ADDR=0x4a837D4b8802740c0213Fae50156CA9b5530a14A
+=== Mon Jun 15 19:14:32 PDT 2026 :: chainalysis policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0x4a837d4b8802740c0213fae50156ca9b5530a14a]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:14:43 PDT 2026 :: chainalysis policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 430 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 430 blocks 
+
+Policy data deployed successfully at address: 0xdC2e9d30B8e415F907e39f0bfe22974B9894740F
+Policy Data Address: 0xdC2e9d30B8e415F907e39f0bfe22974B9894740F
+DATA_ADDR=0xdC2e9d30B8e415F907e39f0bfe22974B9894740F
+=== Mon Jun 15 19:14:52 PDT 2026 :: chainalysis policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a
+Pinned policyCodeHash 0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a in "./chainalysis/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: chainalysis_address_screening.allow
+  policyCid: bafkreif5e4yprfflshlc2jwxyjp2mgblclnu3z6aeueo2cunoey5dssrmy
+  schemaCid: bafkreib3ab27s5gbavtzsbgzogb72ojpilsavu2c6ai7ca5xnri4vxta4m
+  policyData: [0xdc2e9d30b8e415f907e39f0bfe22974b9894740f]
+  metadataCid: bafkreigllynwu6bw4w6dmsj544exn2mjpvfynywyuuaejoce7btb4h4h5m 
+
+Policy deployed successfully at address: 0xAA7405a0522D07C4a16334bd1E5B7Cf4DE64B690
+=== Mon Jun 15 19:15:00 PDT 2026 :: chainalysis DEPLOY DONE (prod/84532) ===
+chainalysis DATA=0xdC2e9d30B8e415F907e39f0bfe22974B9894740F POLICY=0xAA7405a0522D07C4a16334bd1E5B7Cf4DE64B690
+wrote ./chainalysis/dist/last_deploy.json

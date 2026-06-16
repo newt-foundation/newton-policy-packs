@@ -1092,3 +1092,304 @@ Policy deployed successfully at address: 0x4A1C9f173500579df4cdD8D8fe565b237E49e
 === Sun Jun 14 15:28:37 PDT 2026 :: persona DONE ===
 persona DATA=0x5fA39453b7F2B25151bEDBCfB47FCDc42fAac6B4 POLICY=0x4A1C9f173500579df4cdD8D8fe565b237E49ee22
 wrote ./persona/dist/last_deploy.json
+=== Mon Jun 15 18:50:14 PDT 2026 :: persona policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:50:14 PDT 2026 :: persona sync source policy.rego -> dist ===
+=== Mon Jun 15 18:50:14 PDT 2026 :: persona generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./persona/dist"
+policyCodeHash: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+Public IPFS Link: https://ipfs.io/ipfs/bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./persona/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+Public IPFS Link: https://ipfs.io/ipfs/bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./persona/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./persona/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./persona/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64",
+  "policyCid": "bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m",
+  "schemaCid": "bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu",
+  "entrypoint": "persona_kyc.allow",
+  "policyMetadataCid": "bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la",
+  "policyDataMetadataCid": "bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq",
+  "secretsSchemaCid": "bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy",
+  "policyCodeHash": "0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9"
+}
+=== Mon Jun 15 18:50:30 PDT 2026 :: persona UPLOAD DONE ===
+wrote ./persona/dist/policy_cids.json
+=== Mon Jun 15 18:53:31 PDT 2026 :: persona policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0xC8fB6a529ad401bC97CF689473C16237eAA3717d
+Policy Data Address: 0xC8fB6a529ad401bC97CF689473C16237eAA3717d
+DATA_ADDR=0xC8fB6a529ad401bC97CF689473C16237eAA3717d
+=== Mon Jun 15 18:53:39 PDT 2026 :: persona policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0xc8fb6a529ad401bc97cf689473c16237eaa3717d]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Policy deployed successfully at address: 0xFb3e7720F38F70815dA6f65AB0A52aeaf92de92b
+=== Mon Jun 15 18:54:16 PDT 2026 :: persona DEPLOY DONE (stagef/11155111) ===
+persona DATA=0xC8fB6a529ad401bC97CF689473C16237eAA3717d POLICY=0xFb3e7720F38F70815dA6f65AB0A52aeaf92de92b
+wrote ./persona/dist/last_deploy.json
+=== Mon Jun 15 19:04:16 PDT 2026 :: persona policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10
+Policy Data Address: 0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10
+DATA_ADDR=0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10
+=== Mon Jun 15 19:04:31 PDT 2026 :: persona policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0x87c4aff01d7babacac791af4e9b2fb44637cfe10]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Policy deployed successfully at address: 0xeaC546b5437050Db74f7ca07f94Caf54Aa402c84
+=== Mon Jun 15 19:04:39 PDT 2026 :: persona DEPLOY DONE (prod/11155111) ===
+persona DATA=0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10 POLICY=0xeaC546b5437050Db74f7ca07f94Caf54Aa402c84
+wrote ./persona/dist/last_deploy.json
+=== Mon Jun 15 19:09:20 PDT 2026 :: persona policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0x6222614b39088DA6460bc14f8436d16655fea704
+Policy Data Address: 0x6222614b39088DA6460bc14f8436d16655fea704
+DATA_ADDR=0x6222614b39088DA6460bc14f8436d16655fea704
+=== Mon Jun 15 19:09:29 PDT 2026 :: persona policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0x6222614b39088da6460bc14f8436d16655fea704]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Policy deployed successfully at address: 0x30EcB6A575c4969B0f60C49EEBE79D9881135d2B
+=== Mon Jun 15 19:09:30 PDT 2026 :: persona DEPLOY DONE (stagef/84532) ===
+persona DATA=0x6222614b39088DA6460bc14f8436d16655fea704 POLICY=0x30EcB6A575c4969B0f60C49EEBE79D9881135d2B
+wrote ./persona/dist/last_deploy.json
+=== Mon Jun 15 19:12:19 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0xaFe28b8d44c50Bd257763435A3cBD27f8673B79f
+Policy Data Address: 0xaFe28b8d44c50Bd257763435A3cBD27f8673B79f
+DATA_ADDR=0xaFe28b8d44c50Bd257763435A3cBD27f8673B79f
+=== Mon Jun 15 19:12:20 PDT 2026 :: persona policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0xafe28b8d44c50bd257763435a3cbd27f8673b79f]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:12:32 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:12:44 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:32 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 435 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 435 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:44 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 445 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 445 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:55 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 455 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 455 blocks 
+
+Policy data deployed successfully at address: 0x4D823F6B536717AB4b40b644078754de7a54fc5e
+Policy Data Address: 0x4D823F6B536717AB4b40b644078754de7a54fc5e
+DATA_ADDR=0x4D823F6B536717AB4b40b644078754de7a54fc5e
+=== Mon Jun 15 19:14:56 PDT 2026 :: persona policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0x4d823f6b536717ab4b40b644078754de7a54fc5e]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:15:08 PDT 2026 :: persona policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 465 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 465 blocks 
+
+Policy data deployed successfully at address: 0xA3aDce2bcAf62dfd945D627cCfD563158e09eC53
+Policy Data Address: 0xA3aDce2bcAf62dfd945D627cCfD563158e09eC53
+DATA_ADDR=0xA3aDce2bcAf62dfd945D627cCfD563158e09eC53
+=== Mon Jun 15 19:15:09 PDT 2026 :: persona policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9
+Pinned policyCodeHash 0x1d80727aa3b7b1595463fe4afe36aab8fc56ce72fffe637487b37b5f940baed9 in "./persona/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: persona_kyc.allow
+  policyCid: bafkreif2en6yp7x4pzvzwnnncw6emsrbpzbcrsiqjfkqsaobvpuphpbc3m
+  schemaCid: bafkreibasc2ztyae7ayrgxo7pyhiyltdrnmqp4ewnsubqe2lsjvsbj7jsu
+  policyData: [0xa3adce2bcaf62dfd945d627ccfd563158e09ec53]
+  metadataCid: bafkreianhqso5np4zpjjp34ulri6fefocshzr6vmdwzg6bwugtcot7a6la 
+
+Policy deployed successfully at address: 0x48C6BD3E31b69fD81b0EDd8579E46b0603f0119a
+=== Mon Jun 15 19:15:17 PDT 2026 :: persona DEPLOY DONE (prod/84532) ===
+persona DATA=0xA3aDce2bcAf62dfd945D627cCfD563158e09eC53 POLICY=0x48C6BD3E31b69fD81b0EDd8579E46b0603f0119a
+wrote ./persona/dist/last_deploy.json

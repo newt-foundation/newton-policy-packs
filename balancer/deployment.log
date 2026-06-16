@@ -1498,3 +1498,251 @@ Policy deployed successfully at address: 0x844C7278eAB2138C791Bf008FB6de7d58E5df
 === Sun Jun 14 15:22:55 PDT 2026 :: balancer DONE ===
 balancer DATA=0x747FDd8db8b4D0706c8C1b010582EA70D18090A9 POLICY=0x844C7278eAB2138C791Bf008FB6de7d58E5df9D7
 wrote ./balancer/dist/last_deploy.json
+=== Mon Jun 15 18:49:21 PDT 2026 :: balancer policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:49:21 PDT 2026 :: balancer sync source policy.rego -> dist ===
+=== Mon Jun 15 18:49:21 PDT 2026 :: balancer generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./balancer/dist"
+policyCodeHash: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./balancer/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+Public IPFS Link: https://ipfs.io/ipfs/bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./balancer/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./balancer/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci",
+  "policyCid": "bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq",
+  "schemaCid": "bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24",
+  "entrypoint": "balancer_pool_risk.allow",
+  "policyMetadataCid": "bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e",
+  "policyDataMetadataCid": "bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29"
+}
+=== Mon Jun 15 18:49:33 PDT 2026 :: balancer UPLOAD DONE ===
+wrote ./balancer/dist/policy_cids.json
+=== Mon Jun 15 18:51:54 PDT 2026 :: balancer policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0xF07f060703C75C8d8f2a276816C1E8AFf5b6DaE9
+Policy Data Address: 0xF07f060703C75C8d8f2a276816C1E8AFf5b6DaE9
+DATA_ADDR=0xF07f060703C75C8d8f2a276816C1E8AFf5b6DaE9
+=== Mon Jun 15 18:52:02 PDT 2026 :: balancer policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0xf07f060703c75c8d8f2a276816c1e8aff5b6dae9]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0xB1AF84b64Ee9980222B5c0b292424911B87B0087
+=== Mon Jun 15 18:52:18 PDT 2026 :: balancer DEPLOY DONE (stagef/11155111) ===
+balancer DATA=0xF07f060703C75C8d8f2a276816C1E8AFf5b6DaE9 POLICY=0xB1AF84b64Ee9980222B5c0b292424911B87B0087
+wrote ./balancer/dist/last_deploy.json
+=== Mon Jun 15 19:01:00 PDT 2026 :: balancer policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0xA9562499f32BC3570f234fF184B6D90585D0d02F
+Policy Data Address: 0xA9562499f32BC3570f234fF184B6D90585D0d02F
+DATA_ADDR=0xA9562499f32BC3570f234fF184B6D90585D0d02F
+=== Mon Jun 15 19:01:15 PDT 2026 :: balancer policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0xa9562499f32bc3570f234ff184b6d90585d0d02f]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0xed8471bC854f237365C3A98b7F083B7f094370e9
+=== Mon Jun 15 19:01:31 PDT 2026 :: balancer DEPLOY DONE (prod/11155111) ===
+balancer DATA=0xA9562499f32BC3570f234fF184B6D90585D0d02F POLICY=0xed8471bC854f237365C3A98b7F083B7f094370e9
+wrote ./balancer/dist/last_deploy.json
+=== Mon Jun 15 19:08:01 PDT 2026 :: balancer policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0x7af5f2e98906a4D1319c1a743Cf8aa39533e78f6
+Policy Data Address: 0x7af5f2e98906a4D1319c1a743Cf8aa39533e78f6
+DATA_ADDR=0x7af5f2e98906a4D1319c1a743Cf8aa39533e78f6
+=== Mon Jun 15 19:08:03 PDT 2026 :: balancer policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x7af5f2e98906a4d1319c1a743cf8aa39533e78f6]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "nonce too low: next nonce 2877, tx nonce 2876", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:08:14 PDT 2026 :: balancer policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 400 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:08:26 PDT 2026 :: balancer policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 400 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:10:30 PDT 2026 :: balancer policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 410 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 410 blocks 
+
+Policy data deployed successfully at address: 0xfd170720fe6B55cB30c0ee64e0Ea0F9e7C203EB1
+Policy Data Address: 0xfd170720fe6B55cB30c0ee64e0Ea0F9e7C203EB1
+DATA_ADDR=0xfd170720fe6B55cB30c0ee64e0Ea0F9e7C203EB1
+=== Mon Jun 15 19:10:31 PDT 2026 :: balancer policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0xfd170720fe6b55cb30c0ee64e0ea0f9e7c203eb1]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0xe3E524D88ccF89E744527661dAc68CA5259FC307
+=== Mon Jun 15 19:10:32 PDT 2026 :: balancer DEPLOY DONE (stagef/84532) ===
+balancer DATA=0xfd170720fe6B55cB30c0ee64e0Ea0F9e7C203EB1 POLICY=0xe3E524D88ccF89E744527661dAc68CA5259FC307
+wrote ./balancer/dist/last_deploy.json
+=== Mon Jun 15 19:11:00 PDT 2026 :: balancer policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x245819bE9518a4282D8EA72c82ca853131a87d4c
+Policy Data Address: 0x245819bE9518a4282D8EA72c82ca853131a87d4c
+DATA_ADDR=0x245819bE9518a4282D8EA72c82ca853131a87d4c
+=== Mon Jun 15 19:11:09 PDT 2026 :: balancer policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29
+Pinned policyCodeHash 0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29 in "./balancer/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: balancer_pool_risk.allow
+  policyCid: bafkreig7phh5abgmsf7njafhtl5rg4vn3ati35kwvxu3mmslxnvphhi2oq
+  schemaCid: bafkreib4sk42u7kymzsu4eb466pv6g6vwldsbbf6cwpjay2dz6hk2ytt24
+  policyData: [0x245819be9518a4282d8ea72c82ca853131a87d4c]
+  metadataCid: bafkreieyb6xecvghflonjge2edqp63itllzr3acveroobvsekfmdzvex7e 
+
+Policy deployed successfully at address: 0x935F55cA3c91f4D86F99Ada4Bbf3c3c01dC138A7
+=== Mon Jun 15 19:11:10 PDT 2026 :: balancer DEPLOY DONE (prod/84532) ===
+balancer DATA=0x245819bE9518a4282D8EA72c82ca853131a87d4c POLICY=0x935F55cA3c91f4D86F99Ada4Bbf3c3c01dC138A7
+wrote ./balancer/dist/last_deploy.json
