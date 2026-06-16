@@ -48,10 +48,16 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Shared has to build first so per-pack `tsup` runs can resolve
-      # `@newton-xyz/policy-pack-shared` types from its dist/.
-      - name: Build shared
-        run: pnpm --filter @newton-xyz/policy-pack-shared build
+      # Build every package up front so each one's dist/ + .d.ts exist before
+      # `pnpm -r typecheck`. Downstream packs resolve
+      # `@newton-xyz/policy-pack-shared` from its dist, and the worked example
+      # under examples/ resolves the per-pack packages it imports
+      # (@newton-xyz/policy-pack-vaultsfyi, -chainalysis) the same way. pnpm
+      # builds in topological order, so shared lands before its dependents.
+      # (ci.yml does the same; release.yml had drifted and only built shared,
+      # which failed `pnpm -r typecheck` on the example since #75.)
+      - name: Build
+        run: pnpm -r build
 
       # Re-run the same gates CI ran on the PR. A direct push to main, a
       # rebase landing post-CI, or a stale Version Packages PR could
