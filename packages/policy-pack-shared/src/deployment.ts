@@ -48,6 +48,19 @@ export type GatewayEnv = "stagef" | "prod";
 export interface Deployment {
 	readonly policyData: Address;
 	readonly wasmCid: string;
+	/**
+	 * WASM cids this pack's oracle previously served on this `(chainId, env)`
+	 * cell, before redeploys superseded them. Recorded by
+	 * `scripts/sync-deployments.sh` on each redeploy (the superseded `wasmCid` is
+	 * appended). The composite builder's historical-pin path treats
+	 * `{wasmCid} ∪ priorWasmCids` as this module's attested cid set, so a curator
+	 * pinning a genuinely-historical address can only claim a cid the module
+	 * actually produced — this is what binds a pinned `(address, cid)` to the
+	 * module's identity. Absent on cells that have never been redeployed (there
+	 * is nothing to attest yet, and the historical-pin path falls back to
+	 * curator-asserted trust for such modules).
+	 */
+	readonly priorWasmCids?: readonly string[];
 	readonly policyCodeHash: Hex;
 	readonly deployedAt: string;
 }

@@ -265,13 +265,13 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 	// entry is used exactly once (pigeonhole); no unused-module case remains.
 	const orderedModules = reordered.map((e) => e.module);
 
-	// Historical-pin path: verify each pinned PolicyData's on-chain getWasmCid()
-	// against the curator's expectedWasmCids — read at the on-chain-ordered
-	// addresses. This catches a pin whose on-chain WASM doesn't match the cid the
-	// curator claimed for it (e.g. claiming module A's cid for module B's
-	// address). It does NOT independently prove the claimed cid is the named
-	// module's historical WASM — there is no per-module historical-cid metadata
-	// to check against, so that (address, cid) pairing is the curator's assertion.
+	// Historical-pin path: two checks per module. (a) the pinned address really
+	// serves the claimed cid (on-chain getWasmCid() === expectedWasmCids[i]); and
+	// (b) the claimed cid belongs to the module — when the pack records a
+	// `priorWasmCids` history for the cell, the cid must be one the module
+	// actually produced. Together these bind the pinned (address, cid) to the
+	// module's identity. A cell with no recorded history falls back to
+	// curator-asserted trust for (b) (nothing to attest against).
 	if (usingHistoricalPin) {
 		const orderedAddrs = reordered.map((e) => e.expectedAddr);
 		const useMulticall = !!args.publicClient.chain?.contracts?.multicall3?.address;
@@ -300,16 +300,30 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		for (let i = 0; i < reordered.length; i++) {
 			// biome-ignore lint/style/noNonNullAssertion: length checked
 			const entry = reordered[i]!;
+			// biome-ignore lint/style/noNonNullAssertion: pin path guarantees a cid
+			const pinnedCid = entry.expectedCid!;
+			// (a) the pinned address actually serves the claimed cid.
 			// biome-ignore lint/style/noNonNullAssertion: length checked
-			if (actualCids[i]! !== entry.expectedCid!) {
+			if (actualCids[i]! !== pinnedCid) {
 				throw new PinnedWasmCidMismatchError(
 					i,
 					entry.module.id,
-					// biome-ignore lint/style/noNonNullAssertion: pin path guarantees a cid
-					entry.expectedCid!,
+					pinnedCid,
 					// biome-ignore lint/style/noNonNullAssertion: length checked
 					actualCids[i]!,
 				);
+			}
+			// (b) the claimed cid belongs to THIS module. When the pack records a
+			// `priorWasmCids` history, `{wasmCid} ∪ priorWasmCids` is the set of
+			// cids the module has legitimately produced; a pin claiming any other
+			// cid pairs this module's id/schemas with a foreign oracle. Opt-in: a
+			// cell with no recorded history falls back to curator-asserted trust.
+			const cell = entry.module.deployments?.[args.chainId]?.[args.env];
+			if (cell?.priorWasmCids !== undefined) {
+				const knownCids = [cell.wasmCid, ...cell.priorWasmCids];
+				if (!knownCids.includes(pinnedCid)) {
+					throw new PinnedWasmCidNotInModuleHistoryError(i, entry.module.id, pinnedCid, knownCids);
+				}
 			}
 		}
 	}
@@ -513,10 +527,9 @@ export class CompositeModuleSetMismatchError extends Error {
 /**
  * Pinned PolicyData's on-chain `getWasmCid()` doesn't match the curator's
  * `expectedWasmCids[i]` — the pinned address doesn't serve the WASM the curator
- * claimed for it. Catches claiming module A's cid for module B's address; it
- * does NOT independently verify the claimed cid is the named module's historical
- * WASM (no per-module historical-cid metadata exists to check that — the curator
- * asserts the pairing).
+ * claimed for it (check (a) of the historical-pin path). The companion
+ * {@link PinnedWasmCidNotInModuleHistoryError} enforces check (b): that the
+ * claimed cid also belongs to the named module.
  */
 export class PinnedWasmCidMismatchError extends Error {
 	override readonly name = "PinnedWasmCidMismatchError";
@@ -528,6 +541,29 @@ export class PinnedWasmCidMismatchError extends Error {
 	) {
 		super(
 			`pinned policyData for module \`${moduleId}\` (index ${moduleIndex}): expected wasmCid="${expectedWasmCid}" but on-chain getWasmCid()="${actualWasmCid}" — the pinned address belongs to a different module`,
+		);
+	}
+}
+
+/**
+ * Historical-pin only: the curator's `expectedWasmCids[i]` is not in module
+ * `i`'s attested cid set (`{wasmCid} ∪ priorWasmCids` from the pack's deployment
+ * record). The pinned address may serve that WASM, but the WASM was never
+ * produced by the module the curator named — i.e. the pin pairs this module's
+ * id/schemas with a foreign oracle. Only enforced for cells that record a
+ * `priorWasmCids` history; modules without one fall back to curator-asserted
+ * trust.
+ */
+export class PinnedWasmCidNotInModuleHistoryError extends Error {
+	override readonly name = "PinnedWasmCidNotInModuleHistoryError";
+	constructor(
+		readonly moduleIndex: number,
+		readonly moduleId: string,
+		readonly pinnedWasmCid: string,
+		readonly knownWasmCids: ReadonlyArray<string>,
+	) {
+		super(
+			`pinned wasmCid "${pinnedWasmCid}" for module \`${moduleId}\` (index ${moduleIndex}) is not in the module's attested cid set [${knownWasmCids.join(", ")}] — the pin claims a WASM this module never produced`,
 		);
 	}
 }

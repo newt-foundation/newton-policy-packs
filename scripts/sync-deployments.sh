@@ -98,12 +98,23 @@ for (const path of snapPaths) {
   dep.packs[pack] = dep.packs[pack] || {};
   dep.packs[pack][chainId] = dep.packs[pack][chainId] || {};
   const prev = dep.packs[pack][chainId][env] || {};
+  const newWasmCid = cidsBlock.wasmCid;
   // A pack records its reusable oracle (policyData + wasmCid + policyCodeHash),
   // NOT a blessed NewtonPolicy. Curators deploy their own policy from the
   // reference Rego. See docs/writing-composite-policies.md.
+  //
+  // Carry the cell's superseded-cid history forward, and when this deploy
+  // changes the wasmCid, record the one it replaced (newest first, deduped).
+  // The composite builder's historical-pin path reads this set to bind a pinned
+  // (address, cid) to a module's identity — see composite-pack.ts.
+  const priorWasmCids = Array.isArray(prev.priorWasmCids) ? [...prev.priorWasmCids] : [];
+  if (prev.wasmCid && prev.wasmCid !== newWasmCid && !priorWasmCids.includes(prev.wasmCid)) {
+    priorWasmCids.unshift(prev.wasmCid);
+  }
   const next = {
     policyData,
-    wasmCid: cidsBlock.wasmCid,
+    wasmCid: newWasmCid,
+    ...(priorWasmCids.length ? { priorWasmCids } : {}),
     policyCodeHash: cidsBlock.policyCodeHash,
     deployedAt: dateOnly(deployedAt) || prev.deployedAt,
   };

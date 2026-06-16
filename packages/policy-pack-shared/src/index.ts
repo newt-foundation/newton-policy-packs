@@ -35,6 +35,7 @@ export {
 	defineComposite,
 	encodeCompositePolicyPack,
 	PinnedWasmCidMismatchError,
+	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,
 	PolicyDataOrderingMismatchError,
 	UnknownPackIdError,

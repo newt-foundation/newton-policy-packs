@@ -11,6 +11,7 @@ import {
 	defineComposite,
 	encodeCompositePolicyPack,
 	PinnedWasmCidMismatchError,
+	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,
 	UnknownPackIdError,
 } from "./composite-pack";
@@ -34,6 +35,10 @@ const CHAINALYSIS_DEPLOYMENT: Deployment = {
 	policyCodeHash: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 	deployedAt: "2026-06-16",
 };
+
+// A cid vaultsfyi served before a (hypothetical) redeploy — used by the
+// historical-pin module↔cid binding tests.
+const OLD_VAULTSFYI_CID = "bafyvaultsfyiOLD";
 
 function makePack(
 	id: string,
@@ -508,6 +513,88 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 			CHAINALYSIS_DEPLOYMENT.policyData.toLowerCase(),
 		);
 		assert.equal(result.historicalBindings?.[0]?.wasmCid, CHAINALYSIS_DEPLOYMENT.wasmCid);
+	});
+
+	it("historical pin to a recorded prior wasmCid succeeds (module↔cid bound)", async () => {
+		// vaultsfyi redeployed: the current cell records the superseded cid in
+		// priorWasmCids. A composite pinned to the OLD address+cid validates — the
+		// pinned cid is in the module's attested {current} ∪ priorWasmCids set.
+		const OLD_ADDR: Address = "0x5555555555555555555555555555555555555555";
+		const moduleRedeployed = makePack("vaultsfyi/risk-envelope/v1", {
+			...VAULTSFYI_DEPLOYMENT,
+			priorWasmCids: [OLD_VAULTSFYI_CID],
+		});
+		const fake = makeFakeClient({
+			onChainPolicyData: [OLD_ADDR],
+			wasmCidsByPolicyData: { [OLD_ADDR.toLowerCase()]: OLD_VAULTSFYI_CID },
+		});
+		const result = await defineComposite({
+			modules: [moduleRedeployed],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+			expectedPolicyDataAddresses: [OLD_ADDR],
+			expectedWasmCids: [OLD_VAULTSFYI_CID],
+		});
+		assert.equal(result.kind, "composite");
+		assert.equal(result.historicalBindings?.[0]?.wasmCid, OLD_VAULTSFYI_CID);
+	});
+
+	it("throws PinnedWasmCidNotInModuleHistoryError when a pinned cid is not in the module's attested history", async () => {
+		// The codex scenario: pin module `vaultsfyi` to a FOREIGN oracle whose
+		// address self-consistently serves its own cid (so check (a) passes). With
+		// a recorded cid history, check (b) catches that the cid was never
+		// vaultsfyi's — the pin pairs vaultsfyi's id with a foreign oracle.
+		const FOREIGN_ADDR: Address = "0x6666666666666666666666666666666666666666";
+		const FOREIGN_CID = "bafyforeignoracle";
+		const moduleRedeployed = makePack("vaultsfyi/risk-envelope/v1", {
+			...VAULTSFYI_DEPLOYMENT,
+			priorWasmCids: [OLD_VAULTSFYI_CID],
+		});
+		const fake = makeFakeClient({
+			onChainPolicyData: [FOREIGN_ADDR],
+			wasmCidsByPolicyData: { [FOREIGN_ADDR.toLowerCase()]: FOREIGN_CID },
+		});
+		await assert.rejects(
+			defineComposite({
+				modules: [moduleRedeployed],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+				expectedPolicyDataAddresses: [FOREIGN_ADDR],
+				expectedWasmCids: [FOREIGN_CID],
+			}),
+			(err: unknown) =>
+				err instanceof PinnedWasmCidNotInModuleHistoryError &&
+				(err as PinnedWasmCidNotInModuleHistoryError).pinnedWasmCid === FOREIGN_CID,
+		);
+	});
+
+	it("historical pin without a recorded cid history falls back to curator trust", async () => {
+		// VAULTSFYI fixture records no priorWasmCids → check (b) is skipped, and the
+		// pin to a foreign-but-self-consistent oracle succeeds. Documents the
+		// residual trust boundary for modules a pack has not recorded history for.
+		const fake = makeFakeClient({
+			onChainPolicyData: [CHAINALYSIS_DEPLOYMENT.policyData],
+			wasmCidsByPolicyData: {
+				[CHAINALYSIS_DEPLOYMENT.policyData.toLowerCase()]: CHAINALYSIS_DEPLOYMENT.wasmCid,
+			},
+		});
+		const result = await defineComposite({
+			modules: [VAULTSFYI],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+			expectedPolicyDataAddresses: [CHAINALYSIS_DEPLOYMENT.policyData],
+			expectedWasmCids: [CHAINALYSIS_DEPLOYMENT.wasmCid],
+		});
+		assert.equal(result.kind, "composite");
 	});
 });
 
