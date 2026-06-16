@@ -98,15 +98,31 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 }
 
 /**
+ * The structural minimum `getDeployment` needs to do its job — the pack's
+ * stable `id` (for error messages) and the `deployments` map. Both
+ * `PolicyPack` and `OracleModule` (composite-policy view) satisfy this, so
+ * Phase 2 consumers can pass either to `getDeployment` without a cast.
+ */
+type DeploymentLookupable = {
+	readonly id: string;
+	readonly deployments: Readonly<
+		Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>
+	>;
+};
+
+/**
  * Safe lookup helper. Returns the `Deployment` for `(chainId, env)` if the
  * pack is deployed there, or throws — `UnsupportedChainError` if the chain
  * itself has no entry, `UnsupportedEnvError` if the chain has at least one
  * env but not the one requested. Use this at every SDK callsite that reads
  * `pack.deployments[chainId][env]` so unsupported-cell failures surface
  * immediately rather than as `undefined.policy` further down.
+ *
+ * Accepts either a `PolicyPack` (curator-facing, for single-pack flows) or
+ * an `OracleModule` (composite-policy view, for `defineComposite` consumers).
  */
-export function getDeployment<TParams, TWasmArgs, TSecrets>(
-	pack: PolicyPack<TParams, TWasmArgs, TSecrets>,
+export function getDeployment(
+	pack: DeploymentLookupable,
 	chainId: ChainId,
 	env: GatewayEnv,
 ): Deployment {

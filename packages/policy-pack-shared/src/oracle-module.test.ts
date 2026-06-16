@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import { z } from "zod";
 import type { Deployment, GatewayEnv, PolicyPack } from "./index";
-import { oracleModuleFromPack } from "./index";
+import { getDeployment, oracleModuleFromPack } from "./index";
 
 const STAGEF_DEPLOYMENT: Deployment = {
 	policy: "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
@@ -99,5 +99,18 @@ describe("oracleModuleFromPack", () => {
 		assert.equal(parsed.floor, 80);
 
 		assert.throws(() => module.paramsSchema.parse({ floor: "wrong" }));
+	});
+
+	it("getDeployment accepts an OracleModule without cast", () => {
+		// Phase 2 consumers (defineComposite) hold OracleModule references,
+		// not PolicyPack. getDeployment's structural signature lets them
+		// reuse the same lookup helper without re-implementing the chain/env
+		// validation against deployments.
+		const pack = makePack();
+		const module = oracleModuleFromPack(pack);
+
+		const deployment = getDeployment(module, "11155111", "stagef");
+		assert.equal(deployment.policy, STAGEF_DEPLOYMENT.policy);
+		assert.equal(deployment.policyData, STAGEF_DEPLOYMENT.policyData);
 	});
 });

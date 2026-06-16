@@ -1,16 +1,16 @@
 # Composite policies
 
-> **Status:** Phase 0 done; Phase 1/1.5/2 in progress. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (in progress); Phase 1.5 = on-chain manifest format + decode helpers (in progress); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (in progress) — and shipping artifacts include:
+> **Status:** Phase 0 + Phase 1 done; Phase 1.5 / Phase 2 in progress. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (DONE in [PR #67](https://github.com/newt-foundation/newton-policy-packs/pull/67)); Phase 1.5 = on-chain manifest format + decode helpers (in progress); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (in progress) — and shipping artifacts include:
 >
 > - **Phase 0 (done)** — Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing — `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo now namespaces correctly; copy-as-is into a composite works.
 > - **Phase 0 (done)** — `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.
 > - **Phase 0 (done)** — `wrapping_test.rego` per-pack tests asserting namespace correctness, present in all 9 packs.
 > - **Phase 0 (done)** — AST-lint CI guard (`scripts/lint-policy-js.ts`) flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput`. A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands.
 > - **Phase 2 prerequisite (forward-looking)** — `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData). NOT required for Phase 0 single-pack redeploys.
-> - **Phase 1 (in progress)** — `OracleModule` type + `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule`.
+> - **Phase 1 (done)** — `OracleModule` type + `oracleModuleFromPack(pack)` helper in `@newton-xyz/policy-pack-shared`, plus `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule`. `getDeployment` accepts both `PolicyPack` and `OracleModule`.
 > - **Phase 2 (forward-looking)** — `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared`, shipping alongside the SDK guard that consumes it.
 >
-> The composite-deploy workflow below describes the end state. The namespacing claims are accurate today; the `defineComposite(...)`, `OracleModule`, and `KNOWN_PACK_IDS` references describe the API after Phase 1/2 land.
+> The composite-deploy workflow below describes the end state. The namespacing claims and `OracleModule` exports are live today; the `defineComposite(...)` and `KNOWN_PACK_IDS` references describe the API after Phase 2 lands.
 
 Authoring one Newton policy that consumes **multiple oracle modules** under one auditable on-chain artifact. This is how a vault curator gates a single action (say, MetaMorpho `reallocate`) with risk + sanctions + oracle-divergence simultaneously, while preserving "one policy address per vault" for depositor verification.
 
