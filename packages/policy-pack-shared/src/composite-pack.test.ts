@@ -6,12 +6,12 @@ import { decodeManifest } from "./composite-manifest";
 import {
 	ChainMismatchError,
 	CompositeBuilderError,
+	CompositeModuleSetMismatchError,
 	CompositePrepareQueryError,
 	defineComposite,
 	encodeCompositePolicyPack,
 	PinnedWasmCidMismatchError,
 	PolicyDataLengthMismatchError,
-	PolicyDataOrderingMismatchError,
 	UnknownPackIdError,
 } from "./composite-pack";
 import type { Deployment, PolicyPack, PrepareQueryArgs, PrepareQueryResult } from "./index";
@@ -281,14 +281,48 @@ describe("defineComposite — on-chain ordering checks", () => {
 		);
 	});
 
-	it("throws PolicyDataOrderingMismatchError on positional mismatch", async () => {
-		// On-chain order swapped vs the modules array.
+	it("reorders modules to match on-chain order — input order need not match", async () => {
+		// On-chain order is swapped vs the modules array the curator passed.
+		// Pre-auto-reorder this threw PolicyDataOrderingMismatchError; now it
+		// succeeds and the returned modules + manifest are aligned to on-chain order.
 		const fake = makeFakeClient({
 			onChainPolicyData: [CHAINALYSIS_DEPLOYMENT.policyData, VAULTSFYI_DEPLOYMENT.policyData],
 		});
+		const result = await defineComposite({
+			modules: [VAULTSFYI, CHAINALYSIS], // opposite of on-chain order
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+		});
+		assert.deepEqual(
+			result.modules.map((m) => m.id),
+			[CHAINALYSIS.id, VAULTSFYI.id],
+		);
+		const manifest = decodeManifest(
+			encodeCompositePolicyPack(result, { vaultsfyi: {}, chainalysis: {} }),
+		);
+		assert.equal(
+			manifest.modules[0]?.policyDataAddress.toLowerCase(),
+			CHAINALYSIS_DEPLOYMENT.policyData.toLowerCase(),
+		);
+		assert.equal(
+			manifest.modules[1]?.policyDataAddress.toLowerCase(),
+			VAULTSFYI_DEPLOYMENT.policyData.toLowerCase(),
+		);
+	});
+
+	it("throws CompositeModuleSetMismatchError when an on-chain oracle has no matching module", async () => {
+		// Length matches, but the on-chain composite references an address no
+		// provided module resolves to — a genuine set mismatch, not a permutation.
+		const STRANGER: Address = "0x3333333333333333333333333333333333333333";
+		const fake = makeFakeClient({
+			onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData, STRANGER],
+		});
 		await assert.rejects(
 			defineComposite({
-				modules: [VAULTSFYI, CHAINALYSIS],
+				modules: [VAULTSFYI, CHAINALYSIS], // chainalysis (0x2222) isn't on-chain
 				chainId: "11155111",
 				env: "stagef",
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
@@ -296,11 +330,14 @@ describe("defineComposite — on-chain ordering checks", () => {
 				policyAddress: POLICY,
 			}),
 			(err: unknown) =>
-				err instanceof PolicyDataOrderingMismatchError && /historical/.test((err as Error).message), // recovery hint surfaced
+				err instanceof CompositeModuleSetMismatchError &&
+				(err as CompositeModuleSetMismatchError).onChainAddress.toLowerCase() ===
+					STRANGER.toLowerCase() &&
+				/check policyAddress/.test((err as Error).message),
 		);
 	});
 
-	it("ordering hint is omitted in the historical-pin path", async () => {
+	it("throws CompositeModuleSetMismatchError when a historical pin doesn't match on-chain", async () => {
 		const fake = makeFakeClient({
 			onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData],
 		});
@@ -316,8 +353,46 @@ describe("defineComposite — on-chain ordering checks", () => {
 				expectedWasmCids: [CHAINALYSIS_DEPLOYMENT.wasmCid],
 			}),
 			(err: unknown) =>
-				err instanceof PolicyDataOrderingMismatchError &&
-				!/historical/.test((err as Error).message),
+				err instanceof CompositeModuleSetMismatchError &&
+				/expectedPolicyDataAddresses/.test((err as Error).message),
+		);
+	});
+
+	it("throws CompositeBuilderError when the on-chain array lists the same policyData twice", async () => {
+		const fake = makeFakeClient({
+			onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData, VAULTSFYI_DEPLOYMENT.policyData],
+		});
+		await assert.rejects(
+			defineComposite({
+				modules: [VAULTSFYI, CHAINALYSIS],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+			}),
+			(err: unknown) =>
+				err instanceof CompositeBuilderError && /more than once/.test((err as Error).message),
+		);
+	});
+
+	it("throws CompositeBuilderError when two modules resolve to the same policyData address", async () => {
+		// Two distinct packs pointed at the same oracle address — ambiguous which
+		// on-chain slot each owns. Caught before any RPC.
+		const TWIN = makePack("chainalysis/screening/v1", VAULTSFYI_DEPLOYMENT);
+		const fake = makeFakeClient();
+		await assert.rejects(
+			defineComposite({
+				modules: [VAULTSFYI, TWIN],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+			}),
+			(err: unknown) =>
+				err instanceof CompositeBuilderError &&
+				/two modules resolve to the same policyData/.test((err as Error).message),
 		);
 	});
 });
@@ -396,6 +471,43 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 			expectedWasmCids: [VAULTSFYI_DEPLOYMENT.wasmCid],
 		});
 		assert.ok(fake.calls.includes("multicall"));
+	});
+
+	it("reorders the historical-pin triples to match on-chain order", async () => {
+		// Curator passes modules + pins in [vaultsfyi, chainalysis] order, but the
+		// on-chain composite is [chainalysis, vaultsfyi]. The (module, pinnedAddr,
+		// pinnedCid) triples are realigned together; the wasmCid identity check
+		// still binds each address to its module, and the bindings come back in
+		// on-chain order.
+		const fake = makeFakeClient({
+			onChainPolicyData: [CHAINALYSIS_DEPLOYMENT.policyData, VAULTSFYI_DEPLOYMENT.policyData],
+			wasmCidsByPolicyData: {
+				[VAULTSFYI_DEPLOYMENT.policyData.toLowerCase()]: VAULTSFYI_DEPLOYMENT.wasmCid,
+				[CHAINALYSIS_DEPLOYMENT.policyData.toLowerCase()]: CHAINALYSIS_DEPLOYMENT.wasmCid,
+			},
+		});
+		const result = await defineComposite({
+			modules: [VAULTSFYI, CHAINALYSIS],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+			expectedPolicyDataAddresses: [
+				VAULTSFYI_DEPLOYMENT.policyData,
+				CHAINALYSIS_DEPLOYMENT.policyData,
+			],
+			expectedWasmCids: [VAULTSFYI_DEPLOYMENT.wasmCid, CHAINALYSIS_DEPLOYMENT.wasmCid],
+		});
+		assert.deepEqual(
+			result.modules.map((m) => m.id),
+			[CHAINALYSIS.id, VAULTSFYI.id],
+		);
+		assert.equal(
+			result.historicalBindings?.[0]?.policyDataAddress.toLowerCase(),
+			CHAINALYSIS_DEPLOYMENT.policyData.toLowerCase(),
+		);
+		assert.equal(result.historicalBindings?.[0]?.wasmCid, CHAINALYSIS_DEPLOYMENT.wasmCid);
 	});
 });
 

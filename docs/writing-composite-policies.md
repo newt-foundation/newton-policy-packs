@@ -118,7 +118,7 @@ newton-cli policy deploy \
 # → "Policy deployed successfully at address: 0xYOUR_COMPOSITE..."
 ```
 
-**Order is position-significant.** The on-chain `getPolicyData()` array preserves flag order, and `PolicyValidationLib.sol` enforces positional equality on every execution. Whatever order you pass the flags is the order you MUST pass `modules` to `defineComposite` in the next step.
+**On-chain order is position-significant.** The `getPolicyData()` array preserves your `--policy-data-address` flag order, and `PolicyValidationLib.sol` enforces positional equality on every execution. You don't have to mirror that order in your TypeScript, though — `defineComposite` reads `getPolicyData()` and aligns your `modules` array to it automatically (Step 5). What matters is that the **set** of modules you pass matches the deployed oracles.
 
 Requires `newton-cli` with the repeated-`--policy-data-address` form (shipped in newton-prover-avs PR #672). Older CLIs only deploy single-PolicyData policies.
 
@@ -135,10 +135,12 @@ import { defineComposite, encodeCompositePolicyPack } from "@newton-xyz/policy-p
 import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 
-// Builder reads getPolicyData() on-chain and asserts your module order matches
-// it positionally — a mis-ordered array throws here, before any setPolicy.
+// Builder reads getPolicyData() on-chain and aligns your modules to it. Pass
+// them in ANY order — defineComposite reorders to match the deployed array, so
+// the emitted manifest is always position-correct. A module whose oracle isn't
+// in the on-chain policy throws CompositeModuleSetMismatchError, before setPolicy.
 const composite = await defineComposite({
-  modules: [vaultsfyi, chainalysis],   // SAME order as the deploy flags
+  modules: [vaultsfyi, chainalysis],   // order-independent — aligned to on-chain
   chainId: "11155111",
   env: "stagef",
   publicClient,
@@ -191,7 +193,7 @@ m.kind; // "single-pack" | "composite"
 ## Gotchas
 
 - **Params flat → namespaced.** The single biggest copy mistake. Each pack's standalone Rego uses `t := data.params` (flat); composites use `data.params.<short-id>`. Rewrite every params reference when you copy deny rules in.
-- **Module order is load-bearing** across three places: the `--policy-data-address` flag order, the on-chain `getPolicyData()` array, and the `modules` array you pass `defineComposite`. All three must agree. `defineComposite` enforces it at construction time.
+- **On-chain module order is load-bearing, but the SDK aligns to it for you.** The `--policy-data-address` flag order fixes the on-chain `getPolicyData()` array order, and `PolicyValidationLib.sol` enforces it on every execution. You do NOT have to pass `modules` to `defineComposite` in that same order — it reorders your array to match `getPolicyData()` automatically, so the emitted manifest is always position-correct. Only the **set** must agree; a module whose oracle isn't in the deployed policy throws `CompositeModuleSetMismatchError`.
 - **Fail closed by construction.** Don't write `default allow := true` or an `allow` that's just `count(deny) == 0` — an oracle error produces zero denies. Require the well-formedness probes.
 - **Short-pack-id uniqueness.** Two modules deriving the same short id (e.g. two versions of the same pack) make `data.params.<short-id>` ambiguous. `defineComposite` rejects this.
 - **Redeploy drift.** If a pack redeploys its `policyData` after you deployed your composite, your composite is still valid on-chain but `module.deployments` no longer matches. Pass `expectedPolicyDataAddresses` + `expectedWasmCids` to `defineComposite` to pin to the historical addresses. See [`define-composite-spec.md`](./define-composite-spec.md) § "historical pin".
