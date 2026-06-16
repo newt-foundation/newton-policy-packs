@@ -216,5 +216,7 @@ Partners and external developers integrating a new data service should follow th
 - [Newton Developer Docs](https://docs.newton.xyz/developers/overview/core-concepts)
 - [Policy Lifecycle Guide](https://github.com/newt-foundation/newton-prover-avs/blob/main/bin/newton-cli/docs/policy-lifecycle.md)
 - [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) — adding a new policy pack
-- [`docs/composite-policies.md`](./docs/composite-policies.md) — stacking multiple packs into one composite policy
+- [`docs/writing-composite-policies.md`](./docs/writing-composite-policies.md) — combining multiple oracles into one composite policy (developer how-to)
+- [`examples/composite-vaultsfyi-chainalysis/`](./examples/composite-vaultsfyi-chainalysis/) — complete copy-paste composite example
+- [`docs/composite-policies.md`](./docs/composite-policies.md) — composite architecture + the AVS multi-PolicyData mechanism
 - [`OPERATING.md`](./OPERATING.md) — post-deploy lifecycle (PolicyClient + secrets)

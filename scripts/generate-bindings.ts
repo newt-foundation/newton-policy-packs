@@ -186,6 +186,7 @@ function discoverPacks(): string[] {
 		".git",
 		".github",
 		"dist",
+		"examples",
 	]);
 	for (const entry of readdirSync(REPO_ROOT, { withFileTypes: true })) {
 		if (!entry.isDirectory()) continue;

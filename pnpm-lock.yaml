@@ -42,6 +42,28 @@ importers:
         specifier: ^5.5.0
         version: 5.9.3
 
+  examples/composite-vaultsfyi-chainalysis:
+    dependencies:
+      '@newton-xyz/policy-pack-chainalysis':
+        specifier: workspace:*
+        version: link:../../packages/policy-pack-chainalysis
+      '@newton-xyz/policy-pack-shared':
+        specifier: workspace:*
+        version: link:../../packages/policy-pack-shared
+      '@newton-xyz/policy-pack-vaultsfyi':
+        specifier: workspace:*
+        version: link:../../packages/policy-pack-vaultsfyi
+    devDependencies:
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/policy-pack-balancer:
     devDependencies:
       '@newton-xyz/policy-pack-shared':

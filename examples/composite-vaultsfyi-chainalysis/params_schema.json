@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "description": "Composite params for the vaultsfyi + chainalysis gate. Keyed by short pack id — each sub-object is the params slice the corresponding oracle's Rego reads via data.params.<short-id>.*",
+  "additionalProperties": false,
+  "required": ["vaultsfyi", "chainalysis"],
+  "properties": {
+    "vaultsfyi": {
+      "type": "object",
+      "description": "Risk-envelope thresholds — subset of vaultsfyi/params_schema.json (only the fields this composite's Rego consumes).",
+      "additionalProperties": false,
+      "required": [
+        "apy_z_max",
+        "tvl_drawdown_24h_max_pct",
+        "tvl_drawdown_7d_max_pct",
+        "risk_score_floor",
+        "deny_on_allocation_change",
+        "deny_on_critical_flag",
+        "deny_on_corrupted"
+      ],
+      "properties": {
+        "apy_z_max": { "type": "number" },
+        "tvl_drawdown_24h_max_pct": { "type": "number" },
+        "tvl_drawdown_7d_max_pct": { "type": "number" },
+        "risk_score_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "deny_on_allocation_change": { "type": "boolean" },
+        "deny_on_critical_flag": { "type": "boolean" },
+        "deny_on_corrupted": { "type": "boolean" }
+      }
+    },
+    "chainalysis": {
+      "type": "object",
+      "description": "Sanctions / address-screening thresholds — subset of chainalysis/params_schema.json.",
+      "additionalProperties": false,
+      "required": ["deny_on_sanctioned", "deny_on_high_risk_category", "risk_categories_blocklist"],
+      "properties": {
+        "deny_on_sanctioned": { "type": "boolean" },
+        "deny_on_high_risk_category": { "type": "boolean" },
+        "risk_categories_blocklist": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
