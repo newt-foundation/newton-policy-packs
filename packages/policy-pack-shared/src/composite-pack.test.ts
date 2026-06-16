@@ -570,14 +570,18 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 			}),
 			(err: unknown) =>
 				err instanceof PinnedWasmCidNotInModuleHistoryError &&
-				(err as PinnedWasmCidNotInModuleHistoryError).pinnedWasmCid === FOREIGN_CID,
+				(err as PinnedWasmCidNotInModuleHistoryError).pinnedWasmCid === FOREIGN_CID &&
+				(err as PinnedWasmCidNotInModuleHistoryError).moduleId === "vaultsfyi/risk-envelope/v1" &&
+				(err as PinnedWasmCidNotInModuleHistoryError).knownWasmCids.includes(OLD_VAULTSFYI_CID) &&
+				!(err as PinnedWasmCidNotInModuleHistoryError).knownWasmCids.includes(FOREIGN_CID),
 		);
 	});
 
 	it("historical pin without a recorded cid history falls back to curator trust", async () => {
 		// VAULTSFYI fixture records no priorWasmCids → check (b) is skipped, and the
-		// pin to a foreign-but-self-consistent oracle succeeds. Documents the
-		// residual trust boundary for modules a pack has not recorded history for.
+		// pin to a foreign-but-self-consistent oracle (chainalysis's address+cid
+		// stands in as the foreign oracle here) succeeds. Documents the residual
+		// trust boundary for modules a pack has not recorded history for.
 		const fake = makeFakeClient({
 			onChainPolicyData: [CHAINALYSIS_DEPLOYMENT.policyData],
 			wasmCidsByPolicyData: {

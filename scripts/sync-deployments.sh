@@ -107,10 +107,13 @@ for (const path of snapPaths) {
   // changes the wasmCid, record the one it replaced (newest first, deduped).
   // The composite builder's historical-pin path reads this set to bind a pinned
   // (address, cid) to a module's identity — see composite-pack.ts.
-  const priorWasmCids = Array.isArray(prev.priorWasmCids) ? [...prev.priorWasmCids] : [];
-  if (prev.wasmCid && prev.wasmCid !== newWasmCid && !priorWasmCids.includes(prev.wasmCid)) {
-    priorWasmCids.unshift(prev.wasmCid);
+  const history = Array.isArray(prev.priorWasmCids) ? [...prev.priorWasmCids] : [];
+  if (prev.wasmCid && prev.wasmCid !== newWasmCid) {
+    history.unshift(prev.wasmCid);
   }
+  // Dedup (newest-first wins) and drop the now-current cid: a redeploy can
+  // revert to a previously-superseded cid, which must not appear in both.
+  const priorWasmCids = [...new Set(history)].filter((c) => c !== newWasmCid);
   const next = {
     policyData,
     wasmCid: newWasmCid,
