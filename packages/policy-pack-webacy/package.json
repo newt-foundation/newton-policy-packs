@@ -1,6 +1,6 @@
 {
 	"name": "@newton-xyz/policy-pack-webacy",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"description": "Bindings-only Newton webacy policy pack (zod schemas + deployments). No PolicyPack export yet — use with NewtonShield.guardedCall until pack.ts lands.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
@@ -47,7 +47,7 @@
 		"test": "node --import tsx --test src/*.test.ts"
 	},
 	"peerDependencies": {
-		"@newton-xyz/policy-pack-shared": "^0.4.1",
+		"@newton-xyz/policy-pack-shared": "^0.4.2",
 		"viem": "^2.0.0",
 		"zod": "^3.0.0"
 	},
