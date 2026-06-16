@@ -276,6 +276,29 @@ export function decodeManifest(encoded: Hex): CompositeManifest {
 }
 
 /**
+ * Optional per-module historical-binding override for `encodeCompositeParams`.
+ * When provided, the encoder emits these `policyDataAddress` / `wasmCid`
+ * values into the manifest INSTEAD of looking them up from each module's
+ * `deployments` map.
+ *
+ * Used by Phase 2's `defineComposite` historical-pin path — when a curator
+ * pinned an existing composite to its on-chain `getPolicyData()` snapshot
+ * (because a pack redeployed and the current `module.deployments[chainId][env]`
+ * no longer matches), the encoder must emit those pinned addresses, not the
+ * fresh ones. Without this propagation, the historical pin only validates
+ * but doesn't survive into the encoded manifest, defeating the mechanism.
+ *
+ * Caller (Phase 2 `defineComposite`) is responsible for verifying the
+ * historical bindings match on-chain state via `getWasmCid()` BEFORE passing
+ * them in. This parameter is the "trust-the-caller" hatch; the encoder
+ * doesn't re-verify.
+ */
+export interface HistoricalBinding {
+	readonly policyDataAddress: Address;
+	readonly wasmCid: string;
+}
+
+/**
  * Encode a composite manifest from a `MinimalCompositePack` + per-module
  * params. Validates each `params[id]` against its module's `paramsSchema`
  * before emitting bytes; throws `CompositeParamsValidationError` on schema
@@ -289,10 +312,16 @@ export function decodeManifest(encoded: Hex): CompositeManifest {
  * entry in `params` (use `{}` for keyless packs like balancer / redstone).
  * The strict policy is documented in `composite-manifest-spec.md` § "params"
  * — catches a class of partial-write bugs.
+ *
+ * `historicalBindings` (optional) — Phase 2 historical-pin override. When
+ * provided, must have the same length as `pack.modules` and is consumed
+ * positionally. Each `historicalBindings[i]` overrides the
+ * `module.deployments` lookup for `pack.modules[i]`.
  */
 export function encodeCompositeParams(
 	pack: MinimalCompositePack,
 	params: Record<string, unknown>,
+	historicalBindings?: ReadonlyArray<HistoricalBinding>,
 ): Hex {
 	// Reject empty `pack.modules` so the encoder never produces bytes that the
 	// decoder will reject. Round-trip invariant — a manifest with zero modules
@@ -320,7 +349,27 @@ export function encodeCompositeParams(
 		}
 		seenIds.add(module.id);
 	}
-	const modulesEncoded = pack.modules.map((module) => {
+	if (historicalBindings && historicalBindings.length !== pack.modules.length) {
+		throw new CompositeParamsValidationError(
+			`historicalBindings.length (${historicalBindings.length}) must equal pack.modules.length (${pack.modules.length})`,
+			"",
+			[],
+		);
+	}
+	const modulesEncoded = pack.modules.map((module, i) => {
+		// Historical-pin path: bypass module.deployments and use the pinned
+		// values verbatim. defineComposite has already verified each pinned
+		// address against on-chain getWasmCid(); the encoder trusts that
+		// verification.
+		if (historicalBindings) {
+			const binding = historicalBindings[i];
+			// biome-ignore lint/style/noNonNullAssertion: length checked above
+			return {
+				id: module.id,
+				policyDataAddress: getAddress(binding!.policyDataAddress),
+				wasmCid: binding!.wasmCid,
+			};
+		}
 		const perEnv = module.deployments[pack.chainId];
 		if (!perEnv) {
 			throw new ManifestDeploymentMissingError(
