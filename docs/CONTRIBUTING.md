@@ -1,0 +1,312 @@
+# Contributing a Newton Policy Pack
+
+This guide is for partners and external developers integrating a new data service (KYC, risk feeds, oracle data, on-chain monitoring, etc.) into the Newton Policy Pack ecosystem.
+
+A "policy pack" is the unit a vault curator wires into their Shield to gate an action with your service. Once your pack ships, any curator running a Newton Shield can reference its on-chain `Policy` + `PolicyData` addresses, set per-vault params, and your service participates in the deny/allow decision for every gated transaction.
+
+If you're a vault curator wanting to *consume* an existing pack, you don't need this doc — see [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) on npm.
+
+## Prerequisites
+
+- Read [`README.md`](../README.md) for the repo overview and the single-pack deploy flow.
+- Read [`OPERATING.md`](../OPERATING.md) for the post-deploy lifecycle (the curator-side dance — secrets, `set-policy-params`, `policy-client` registration). You don't operate this; the curator does. But knowing the shape clarifies what your pack needs to expose.
+- Skim an existing pack — `vaultsfyi/` is the most fleshed-out reference, `webacy/` is the simplest single-API-key pack.
+- Skim [`docs/composite-policies.md`](./composite-policies.md) — composites are how curators stack multiple packs; your pack should be composable from day one.
+
+## Tooling
+
+```bash
+# Install newton-cli (used for build, simulate, deploy)
+curl -L cli.newton.xyz | sh && newtup
+newton-cli doctor
+
+# Install jco (componentizes policy.js to WASM)
+npm install -g @bytecodealliance/jco @bytecodealliance/componentize-js @bytecodealliance/preview2-shim
+
+# Install OPA (runs Rego unit tests locally)
+brew install opa  # or see https://www.openpolicyagent.org/docs/latest/#1-download-opa
+
+# Install pnpm (regenerates the TypeScript bindings)
+corepack enable && corepack prepare pnpm@10 --activate
+```
+
+## What ships in a pack
+
+A pack is a top-level directory at the repo root (e.g. `<your-service>/`). The committed shape is identical for every pack — see `vaultsfyi/`, `webacy/`, etc. as templates.
+
+| File | What it is | Owner |
+|---|---|---|
+| `policy.js` | The WASM oracle. Fetches data from your service's API, returns JSON. | You |
+| `policy.rego` | Deny/allow rules over `data.wasm.<pack-id>.*`, `data.params.<pack-id>.*`, `input.*`. | You |
+| `policy_test.rego` | OPA unit tests for `policy.rego`. | You |
+| `wrapping_test.rego` | Asserts that `policy.js` outputs are namespaced under `<pack-id>` (composite-safety check). | You |
+| `params_schema.json` | JSON Schema for the curator-tunable params your Rego reads from `data.params.*`. | You |
+| `wasm_args_schema.json` | JSON Schema for the per-call inputs the AVS forwards to your WASM. | You |
+| `secrets_schema.json` | JSON Schema for the API keys your `policy.js` reads via `secret(...)`. Empty object if your service is keyless. | You |
+| `policy_metadata.json` | Pack identity (name, version, author, link, description). | You |
+| `policy_data_metadata.json` | WASM artifact identity (name, version, author, link, description). | You |
+| `newton-provider.wit` | WIT interface — copy verbatim from any other pack. Don't modify. | Shared |
+| `dist/policy.wasm` | Built WASM. Gitignored — `pnpm run upload <pack>` rebuilds it. | Generated |
+| `dist/policy_cids.json` | IPFS CIDs for the WASM + schemas. Written by `upload.sh`. | Generated |
+| `deployment.log` | Captured stdout from every `newton-cli` invocation. Committed. | Generated |
+| `README.md` | What your pack does, what params it accepts, what the deny semantics are. | You |
+
+The accompanying TypeScript bindings live under `packages/policy-pack-<name>/` and ship as `@newton-xyz/policy-pack-<name>` on npm. Six files are auto-generated from your schemas via `pnpm gen:bindings`; you don't hand-write them. See [`packages/README.md`](../packages/README.md).
+
+## Naming convention
+
+The pack name is **load-bearing** in five places:
+
+1. The top-level directory: `<your-pack>/`
+2. The npm package suffix: `@newton-xyz/policy-pack-<your-pack>`
+3. The `PACK_ID` literal in `policy.js` (used for output namespacing)
+4. The Rego namespace key: `data.wasm.<your-pack>.*` and `data.params.<your-pack>.*`
+5. The pack registry: [`scripts/lib/packs.sh`](../scripts/lib/packs.sh)
+
+Use `kebab-case` if the name has multiple words (`my-service`). The Rego package name is `snake_case` derived from the pack name (`my_service`) — `policy.rego` declares it via `package my_service` at the top.
+
+Pick a name that won't collide with an existing pack. The current set is in [`scripts/lib/packs.sh`](../scripts/lib/packs.sh).
+
+## Step-by-step: adding a new pack
+
+### 1. Copy a reference pack
+
+```bash
+# vaultsfyi has the most worked-out example (params + secrets + per-call wasm_args).
+# webacy is the simplest (single API key, single-input scoring API).
+cp -r vaultsfyi <your-pack>
+```
+
+Then edit the copied files:
+
+**`policy.rego`** — rename the package declaration:
+
+```rego
+# before
+package vault_risk_rating
+
+# after
+package <your_pack>
+```
+
+The entrypoint (`<your_pack>.allow`) is auto-derived from this declaration.
+
+**`policy.js`** — rewrite to call your service's API. Wrap the return value under `PACK_ID`:
+
+```js
+const PACK_ID = "<your-pack>";
+
+export async function run(args) {
+  try {
+    const apiKey = secret("YOUR_SERVICE_API_KEY");
+    const response = await fetch(`https://api.your-service.com/...`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const data = await response.json();
+    return JSON.stringify({ [PACK_ID]: { /* your fields */ } });
+  } catch (err) {
+    return JSON.stringify({ [PACK_ID]: { error: String(err) } });
+  }
+}
+```
+
+The `[PACK_ID]: { ... }` wrapper is required for composite-policy compatibility — `wrapping_test.rego` enforces it. See [`docs/composite-policies.md`](./composite-policies.md#namespacing) for why.
+
+**Schemas** — overwrite to describe your pack's surface:
+
+- `params_schema.json` — what curators tune (thresholds, allowlists, deny-on-X toggles)
+- `wasm_args_schema.json` — what the AVS forwards per-call (typically the depositor address, vault address, etc.)
+- `secrets_schema.json` — your API key names (or `{}` if keyless)
+
+**Metadata** — `policy_metadata.json` and `policy_data_metadata.json`:
+
+```json
+{
+  "name": "<your-pack>",
+  "version": "0.0.1",
+  "author": "Your Service Inc.",
+  "link": "https://your-service.com",
+  "description": "One-line description of what this pack gates"
+}
+```
+
+**`README.md`** — describe deny semantics, params, and any per-call wasm_args your pack reads.
+
+### 2. Register the pack
+
+Add the entry to [`scripts/lib/packs.sh`](../scripts/lib/packs.sh) so `upload.sh` and `deploy.sh` discover it:
+
+```bash
+ALL_PACKS=(
+  ...
+  "<your-pack>:<your_pack>"   # <pack-name>:<rego-package-name>
+)
+```
+
+### 3. Author and test the Rego
+
+Write `policy_test.rego` covering the deny paths. Run with OPA:
+
+```bash
+opa test ./<your-pack>/policy.rego ./<your-pack>/policy_test.rego -v
+```
+
+Run `wrapping_test.rego` to verify your `policy.js` output namespacing:
+
+```bash
+opa test ./<your-pack>/wrapping_test.rego -v
+```
+
+### 4. Simulate locally
+
+Drop test fixtures under `<your-pack>/configs/` (gitignored):
+
+- `wasm_args.json` — sample per-call inputs
+- `params.json` — sample policy params
+- `intent.json` — sample transaction intent
+
+Then simulate the full WASM + Rego flow:
+
+```bash
+# Build the WASM first
+jco componentize ./<your-pack>/policy.js \
+  --wit ./<your-pack>/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./<your-pack>/dist/policy.wasm
+
+# Then simulate
+newton-cli policy simulate \
+  --wasm-args ./<your-pack>/configs/wasm_args.json \
+  --intent-json ./<your-pack>/configs/intent.json \
+  --policy-params-data ./<your-pack>/configs/params.json \
+  --policy-file ./<your-pack>/policy.rego \
+  --wasm-file ./<your-pack>/dist/policy.wasm
+```
+
+The `--disable` flags are mandatory — without them the WASM imports `wasi:http`, which the Newton runtime rejects.
+
+### 5. Generate the TypeScript bindings
+
+```bash
+pnpm gen:bindings
+```
+
+This creates `packages/policy-pack-<your-pack>/` with the six auto-generated files. Commit those alongside your pack-side schemas. See [`packages/README.md`](../packages/README.md) for the regen workflow.
+
+### 6. Open the PR with pack code only (no deploy yet)
+
+Don't deploy on-chain yet. Open a PR with:
+
+- The new `<your-pack>/` directory
+- The new `packages/policy-pack-<your-pack>/` directory
+- The `scripts/lib/packs.sh` registry update
+- The OPA test runs in CI
+
+A maintainer reviews the Rego, the deny semantics, the schemas, and the namespacing convention.
+
+### 7. Deploy after PR approval
+
+Once the pack PR merges, deploy on-chain across the four supported cells (Sepolia × {stagef, prod}, Base Sepolia × {stagef, prod}). The deploy plumbing is in `scripts/`:
+
+```bash
+# Phase 1 — build + upload to IPFS once per pack (cached across cells)
+pnpm run upload <your-pack>
+
+# Phase 2 — deploy per (chain, env) cell
+# Sepolia stagef
+pnpm run deploy <your-pack> --env stagef --chain 11155111 --expire-after-blocks 100
+
+# Sepolia prod
+pnpm run deploy <your-pack> --env prod --chain 11155111 --expire-after-blocks 120
+
+# Base Sepolia stagef
+pnpm run deploy <your-pack> --env stagef --chain 84532 --expire-after-blocks 400
+
+# Base Sepolia prod
+pnpm run deploy <your-pack> --env prod --chain 84532 --expire-after-blocks 420
+
+# Sync each cell into deployments.json
+pnpm run deploy:sync --env stagef
+pnpm run deploy:sync --env prod
+```
+
+The `--expire-after-blocks` value is part of the CREATE2 salt for the `PolicyData` contract. Per chain, use values that give a 10–30 minute task-validity window:
+
+| Chain | Block time | 10 min | 30 min |
+|---|---|---|---|
+| Sepolia (`11155111`) | ~12s | 50 blocks | 150 blocks |
+| Base Sepolia (`84532`) | ~2s | 300 blocks | 900 blocks |
+
+If a deploy fails with `Create2Failed` (orphan address from a prior session collided with your predicted target), bump `--expire-after-blocks` by 5–10 inside the chain band and retry. `expireAfter` is in the salt, so a different value lands at a different CREATE2 address without rebuilding the WASM (preserves the one-`wasmCid`-per-pack invariant).
+
+### 8. Open the deploy PR
+
+A second PR lands the canonical `deployments.json` updates, regenerated bindings (`packages/policy-pack-<your-pack>/src/deployments.ts`), and the `<your-pack>/deployment.log` audit trail.
+
+### 9. Publish to npm
+
+After the deploy PR merges, the changesets bot opens a version PR. Add a changeset entry in the deploy PR for the new package:
+
+```bash
+pnpm changeset
+# Pick @newton-xyz/policy-pack-<your-pack> + @newton-xyz/policy-pack-shared
+# Pick "patch" for both unless you broke a public type
+# Write a one-paragraph changelog entry
+```
+
+The changesets bot opens a version PR that bumps your pack and re-pins the peer-dep range. Merging the version PR triggers the Release workflow which publishes to npm.
+
+> **Pre-1.0 caret-rule note.** `@newton-xyz/policy-pack-shared` is at `0.x.y` today. In semver, `^0.4.0` for a 0.x version pins to `>=0.4.0 <0.5.0`. So a `minor` bump on `shared` (`0.4.0 → 0.5.0`) is *outside* the existing peer range and will cascade every dependent pack as a `major`. If you need a true non-cascading shared bump, use `patch`. See [ADR 0001](./architecture/0001-policy-pack-shared-as-peer-dep.md).
+
+## Pack design checklist
+
+Before opening the pack PR, verify:
+
+- [ ] `policy.js` wraps every return path under `JSON.stringify({ [PACK_ID]: ... })`, including error paths
+- [ ] `wrapping_test.rego` passes
+- [ ] `policy.rego` references `data.wasm.<pack-id>.*` (not bare `data.wasm.*`) so the pack composes cleanly
+- [ ] `policy_test.rego` covers every deny rule plus the happy-path allow
+- [ ] `params_schema.json` has `additionalProperties: false` and lists `required` keys
+- [ ] `wasm_args_schema.json` matches what `policy.js` reads off `args`
+- [ ] `secrets_schema.json` lists every key passed to `secret(...)` in `policy.js`
+- [ ] All four metadata fields (`name`, `link`, `description`, `version`) are filled in
+- [ ] `README.md` documents the deny semantics in plain English (curator-facing)
+- [ ] No `wasi:http`, `wasi:random`, or `wasi:fetch-event` imports in the built WASM (`jco print dist/policy.wasm | grep wasi:` should show only the unused outgoing-handler export)
+
+## What CI enforces
+
+- `opa test` runs every pack's `policy_test.rego` and `wrapping_test.rego`
+- `pnpm gen:bindings` runs and CI fails on any uncommitted diff (regen drift)
+- `pnpm lint`, `pnpm -r typecheck`, `pnpm -r build`, `pnpm -r test` all green
+- AST-lint flags raw `JSON.stringify(...)` returns in `policy.js` that bypass the `PACK_ID` namespacing
+- The mainnet deploy gate (in `scripts/deploy.sh`) refuses chains `1` and `8453` without three independent operator confirmations (`--allow-mainnet` + two env vars)
+
+## Curator-side surface
+
+Once your pack ships:
+
+- Curators install your pack: `pnpm add @newton-xyz/policy-pack-<your-pack>`
+- The pack exports a `PolicyPack<Params, WasmArgs, Secrets>` shape consumed by `@newton-xyz/newton-shield-sdk`
+- Curators set per-vault params via `Shield.setPolicy(...)` (the SDK encodes them as UTF-8 JSON with sorted keys per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516))
+- Curators upload encrypted secrets (your API keys) via `newton-cli secrets upload` — see [`OPERATING.md`](../OPERATING.md)
+- Composites: curators stack your pack with others via `defineComposite(...)` from `@newton-xyz/policy-pack-shared` — see [`docs/composite-policies.md`](./composite-policies.md)
+
+## Reviewing your pack against existing ones
+
+| Pack | Why it's a useful reference |
+|---|---|
+| `vaultsfyi` | Per-call `prepare-query.ts` reading on-chain state, allocation hashing, secrets, full schema set |
+| `webacy` | Simplest single-API-key pack with depositor-reputation gating |
+| `chainalysis` | Two API keys (sanctions + screening) with conditional-key fallback |
+| `redstone` | Keyless service (public RedStone cluster), oracle-divergence math in Rego |
+| `balancer` | Composite-shaped: pulls multiple risk signals from a public GraphQL into one `data.wasm` blob |
+
+## Getting help
+
+- Newton Protocol developer docs: https://docs.newton.xyz/developers/overview/core-concepts
+- Rego authoring guide: https://docs.newton.xyz/developers/guides/writing-policies
+- WASM oracle dev: https://docs.newton.xyz/developers/guides/writing-data-oracles
+- Issues / PRs: https://github.com/newt-foundation/newton-policy-packs
+
+If your service has unusual constraints (HMAC-signed APIs, request signing, multi-step lookups, conditional auth), open a draft PR and a maintainer will help shape the integration. The `sumsub` pack ships HMAC signing as a reference for that pattern.
