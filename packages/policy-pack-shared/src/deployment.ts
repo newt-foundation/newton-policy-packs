@@ -37,7 +37,6 @@ export type GatewayEnv = "stagef" | "prod";
  *                      attestations against an unverified pack version.
  * - `deployedAt`   — date the pack version landed on this chain (ISO date,
  *                    no time of day; redeploys overwrite).
- * - `notes`        — free-form annotation for the deploy log; humans only.
  */
 export interface Deployment {
 	readonly policy: Address;
@@ -45,5 +44,4 @@ export interface Deployment {
 	readonly wasmCid: string;
 	readonly policyCodeHash: Hex;
 	readonly deployedAt: string;
-	readonly notes?: string;
 }
