@@ -6,8 +6,15 @@
 #
 # Usage:
 #   pnpm run deploy <pack> --env <stagef|prod> --chain <chainId>
-#   pnpm run deploy <pack> --env prod --chain 1 --allow-mainnet  # gated
-#   pnpm run deploy <pack> --env-file <path>                     # override
+#   pnpm run deploy <pack> --env prod --chain 1 --allow-mainnet      # gated
+#   pnpm run deploy <pack> --env-file <path>                         # env override
+#   pnpm run deploy <pack> --env stagef --chain 11155111 --expire-after-blocks 75
+#       # break a CREATE2 collision without re-rolling WASM bytes:
+#       # `expireAfter` is part of the PolicyData CREATE2 salt
+#       # (newton-prover-avs/contracts/src/core/NewtonPolicyDataFactory.sol:131),
+#       # so passing a session-unique value moves the predicted target away
+#       # from on-chain orphans claimed by prior sessions while keeping
+#       # wasmCid stable across cells (frozen rule 7).
 #
 # Run ONCE per (pack, chainId, env) cell. Prerequisites:
 #   1. `pnpm run upload <pack>` has been run earlier in the session, so
@@ -19,9 +26,9 @@
 # split keeps wasmCid stable per pack across cells (frozen rule 7).
 #
 # Mainnet gate (frozen rule 6): chain ids 1 (Ethereum) and 8453 (Base) are
-# refused unless --allow-mainnet is passed AND NEWTON_ALLOW_MAINNET_DEPLOY=1.
-# Defense-in-depth at two entry points: this script's flag check, and
-# inside the env-var check just below the case statement.
+# refused unless --allow-mainnet is passed AND NEWTON_ALLOW_MAINNET_DEPLOY=1
+# AND NEWTON_ALLOW_MAINNET_DEPLOY_FLAG=1. Three distinct signals, defense
+# in depth across CLI flag and two env vars.
 
 set -euo pipefail
 
@@ -36,6 +43,7 @@ chain_id=""
 chain_set=0
 env_file=""
 allow_mainnet=0
+expire_after_blocks=""
 pack=""
 
 while [[ $# -gt 0 ]]; do
@@ -46,9 +54,16 @@ while [[ $# -gt 0 ]]; do
     --chain)
       [[ "$chain_set" -eq 1 ]] && { echo "ERROR: --chain passed more than once" >&2; exit 2; }
       chain_id="${2:?--chain requires a chainId}"; chain_set=1; shift 2 ;;
+    --expire-after-blocks)
+      expire_after_blocks="${2:?--expire-after-blocks requires a positive integer}"
+      if ! [[ "$expire_after_blocks" =~ ^[1-9][0-9]*$ ]]; then
+        echo "ERROR: --expire-after-blocks must be a positive integer, got: $expire_after_blocks" >&2
+        exit 2
+      fi
+      shift 2 ;;
     --allow-mainnet) allow_mainnet=1; shift ;;
     --env-file) env_file="${2:?--env-file requires a path}"; shift 2 ;;
-    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,32p' "$0"; exit 0 ;;
     --*) echo "unknown flag: $1" >&2; exit 2 ;;
     *)
       [[ -n "$pack" ]] && { echo "ERROR: only one pack at a time. Got: $pack and $1" >&2; exit 2; }
@@ -172,7 +187,18 @@ run() {
 }
 
 echo "=== $(date) :: $pack policy-data deploy ($env/$chain_id) ===" | tee -a "$log"
-run newton-cli policy-data deploy --policy-cids "$cids"
+# --expire-after-blocks is part of the CREATE2 salt for the PolicyData contract
+# (see newton-prover-avs contracts/src/core/NewtonPolicyDataFactory.sol:131).
+# Passing a session-unique value moves the predicted target address, which is
+# the cleanest way to break orphan-collision deadlocks on testnet without
+# rolling WASM bytes (which would break frozen rule 7's wasmCid stability
+# across cells). Default = newton-cli default = 25 blocks on Sepolia, ~derived
+# from chain block-time on others.
+expire_args=()
+if [[ -n "$expire_after_blocks" ]]; then
+  expire_args+=(--expire-after-blocks "$expire_after_blocks")
+fi
+run newton-cli policy-data deploy --policy-cids "$cids" "${expire_args[@]}"
 
 DATA_ADDR=$(grep -Eo "Policy data deployed successfully at address: 0x[a-fA-F0-9]+" "$LAST_RUN_OUT" | awk '{print $NF}')
 if [[ -z "${DATA_ADDR:-}" ]]; then
