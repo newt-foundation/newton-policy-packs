@@ -1,6 +1,6 @@
 # Composite policies
 
-> **Status:** Phase 0 + Phase 1 done; Phase 1.5 / Phase 2 in progress. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (DONE in [PR #67](https://github.com/newt-foundation/newton-policy-packs/pull/67)); Phase 1.5 = on-chain manifest format + decode helpers (in progress); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (in progress) — and shipping artifacts include:
+> **Status:** Phase 0 + Phase 1 + Phase 1.5 done; Phase 2 in progress. The rollout has four phases — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (DONE in [PR #67](https://github.com/newt-foundation/newton-policy-packs/pull/67)); Phase 1.5 = on-chain manifest format + decode/encode/introspect helpers (DONE in [PR #70](https://github.com/newt-foundation/newton-policy-packs/pull/70)); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (in progress) — and shipping artifacts include:
 >
 > - **Phase 0 (done)** — Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing — `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo now namespaces correctly; copy-as-is into a composite works.
 > - **Phase 0 (done)** — `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.

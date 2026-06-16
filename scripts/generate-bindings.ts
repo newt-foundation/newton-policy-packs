@@ -101,6 +101,78 @@ function writeFile(filePath: string, content: string): void {
 	writeFileSync(filePath, content, "utf8");
 }
 
+/**
+ * Walk a JSON Schema and report whether it admits a top-level `_manifest`
+ * field by any path. Returns a human-readable description of the offending
+ * branch, or `null` if the schema rejects `_manifest` everywhere.
+ *
+ * Why every branch matters: a pack author could dodge a naive
+ * `properties._manifest` check by routing the field through `oneOf` /
+ * `anyOf` / `allOf` / `patternProperties`, or by leaving the schema open
+ * (no `additionalProperties: false`). Each of those would let an on-chain
+ * `policyParams` blob carry a top-level `_manifest` collision with the
+ * composite-manifest discriminator. The walker covers every JSON Schema
+ * variant we've seen pack authors use.
+ */
+export function findManifestKeyViolation(schema: unknown): string | null {
+	return walk(schema, "<root>");
+
+	function walk(node: unknown, where: string): string | null {
+		if (!node || typeof node !== "object" || Array.isArray(node)) return null;
+		const s = node as Record<string, unknown>;
+
+		// Direct property declaration.
+		const props = s.properties as Record<string, unknown> | undefined;
+		if (props && "_manifest" in props) {
+			return `${where}.properties._manifest`;
+		}
+
+		// Pattern-based property that could match `_manifest`. JSON Schema's
+		// `patternProperties` keys are ECMA-262 regexes — test each against
+		// the literal string `_manifest`.
+		const patternProps = s.patternProperties as Record<string, unknown> | undefined;
+		if (patternProps) {
+			for (const pattern of Object.keys(patternProps)) {
+				try {
+					if (new RegExp(pattern).test("_manifest")) {
+						return `${where}.patternProperties[${JSON.stringify(pattern)}] matches "_manifest"`;
+					}
+				} catch {
+					// Invalid regex in the schema — not our problem; let zod codegen
+					// surface it later. Continue scanning other keys.
+				}
+			}
+		}
+
+		// Note: we deliberately do NOT flag schemas that lack
+		// `additionalProperties: false`. Zod's `.strict()` injection at
+		// emitSchemaFile time enforces "no additional keys" at the SDK boundary,
+		// so an open JSON Schema can't actually admit `_manifest` at runtime —
+		// the curator would get a parse error from the generated zod schema
+		// before the bytes reach `setPolicy(...)`. Flagging open schemas here
+		// would force every existing pack to add `additionalProperties: false`
+		// (real partner-facing churn) for a guard the runtime already provides.
+		// The walker focuses on EXPLICIT `_manifest` declarations.
+
+		// Recurse into combinators.
+		for (const combinator of ["oneOf", "anyOf", "allOf"] as const) {
+			const branches = s[combinator] as ReadonlyArray<unknown> | undefined;
+			if (Array.isArray(branches)) {
+				for (let i = 0; i < branches.length; i++) {
+					const found = walk(branches[i], `${where}.${combinator}[${i}]`);
+					if (found) return found;
+				}
+			}
+		}
+
+		// `not` is the only other JSON Schema combinator that nests a subschema —
+		// `not: { properties: { _manifest: ... } }` would *forbid* `_manifest`,
+		// which is fine. We don't recurse into `not`.
+
+		return null;
+	}
+}
+
 /** Discover all pack directories at the repo root that have a complete set
  *  of schema files + metadata. Skips dotfiles, `packages/`, `scripts/`, and
  *  `node_modules/`. */
@@ -348,15 +420,17 @@ function main(): void {
 		// the discriminator and break depositor verification. Codegen rejects it
 		// here so the violation surfaces at PR time, not at production
 		// `decodeManifest(...)` time.
-		if (
-			paramsSchema &&
-			typeof paramsSchema === "object" &&
-			"properties" in paramsSchema &&
-			(paramsSchema as { properties?: Record<string, unknown> }).properties &&
-			"_manifest" in ((paramsSchema as { properties?: Record<string, unknown> }).properties ?? {})
-		) {
+		//
+		// We walk every variant a JSON Schema can use to admit a top-level
+		// `_manifest` field — direct `properties`, branch composites
+		// (`oneOf`/`anyOf`/`allOf`), `patternProperties` (which can match
+		// `_manifest` via regex), and a fully-open object (no
+		// `additionalProperties: false`). Each branch is checked by a recursive
+		// walker so nested combinators don't slip through.
+		const violation = findManifestKeyViolation(paramsSchema);
+		if (violation) {
 			fail(
-				`pack \`${packName}\` declares a top-level \`_manifest\` property in params_schema.json — that key is reserved for the composite-policy manifest discriminator (see docs/composite-manifest-spec.md). Rename the property or remove it.`,
+				`pack \`${packName}\` admits a top-level \`_manifest\` property in params_schema.json (${violation}) — that key is reserved for the composite-policy manifest discriminator (see docs/composite-manifest-spec.md). Tighten the schema or rename the property.`,
 			);
 		}
 		const meta = readJson<PackMetadata>(path.join(packSrcDir, "policy_metadata.json"));
@@ -422,4 +496,9 @@ function main(): void {
 	console.log("  Next: `pnpm install && pnpm lint:fix && pnpm -r typecheck && pnpm -r build`.");
 }
 
-main();
+// Only auto-execute when run as a script (e.g. `pnpm gen:bindings`), NOT when
+// imported by a test (e.g. `findManifestKeyViolation` self-test). Compares the
+// resolved file URL of this module against `process.argv[1]`'s file URL.
+if (import.meta.url === `file://${process.argv[1]}`) {
+	main();
+}

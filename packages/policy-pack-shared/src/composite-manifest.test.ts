@@ -83,8 +83,8 @@ const PACK: MinimalCompositePack = {
 describe("isCompositeManifest", () => {
 	it("returns true for a valid composite manifest blob", () => {
 		const bytes = encodeCompositeParams(PACK, {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		});
 		assert.equal(isCompositeManifest(bytes), true);
 	});
@@ -113,22 +113,22 @@ describe("isCompositeManifest", () => {
 describe("encodeCompositeParams + decodeManifest round-trip", () => {
 	it("round-trips byte-identical for deeply-equal inputs", () => {
 		const params1 = {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		};
 		const params2 = {
 			// Different insertion order — sorted-key canonicalization should
 			// produce byte-identical output.
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
 		};
 		assert.equal(encodeCompositeParams(PACK, params1), encodeCompositeParams(PACK, params2));
 	});
 
 	it("decodes encoded bytes back to the typed manifest", () => {
 		const bytes = encodeCompositeParams(PACK, {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		});
 		const manifest = decodeManifest(bytes);
 		assert.equal(manifest.magic, MANIFEST_MAGIC);
@@ -138,8 +138,9 @@ describe("encodeCompositeParams + decodeManifest round-trip", () => {
 		assert.equal(manifest.modules[1]?.id, "chainalysis/screening/v1");
 		// EIP-55 normalized via getAddress(...)
 		assert.equal(manifest.modules[0]?.policyDataAddress, VAULTSFYI_DEPLOYMENT.policyData);
-		// `params` keyed by module id
-		assert.deepEqual(manifest.params["vaultsfyi/risk-envelope/v1"], { floor: 80 });
+		// `params` keyed by SHORT pack id (matches data.wasm.<short-id> Phase 0
+		// namespacing). modules[].id stays full for traceability.
+		assert.deepEqual(manifest.params.vaultsfyi, { floor: 80 });
 	});
 
 	it("module ordering matches pack.modules ordering (position-significant)", () => {
@@ -150,8 +151,8 @@ describe("encodeCompositeParams + decodeManifest round-trip", () => {
 			env: STAGEF,
 		};
 		const bytes = encodeCompositeParams(reversedPack, {
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
 		});
 		const manifest = decodeManifest(bytes);
 		assert.equal(manifest.modules[0]?.id, "chainalysis/screening/v1");
@@ -260,7 +261,7 @@ describe("decodeManifest error semantics", () => {
 					wasmCid: "bafytest",
 				},
 			],
-			params: {}, // missing "vaultsfyi/risk-envelope/v1"
+			params: {}, // missing "vaultsfyi" (short pack id)
 		};
 		assert.throws(
 			() => decodeManifest(jsonHex(blob)),
@@ -279,8 +280,8 @@ describe("decodeManifest error semantics", () => {
 				},
 			],
 			params: {
-				"vaultsfyi/risk-envelope/v1": { floor: 80 },
-				"orphan/module/v1": { unused: true },
+				vaultsfyi: { floor: 80 },
+				orphan: { unused: true },
 			},
 		};
 		assert.throws(
@@ -293,7 +294,7 @@ describe("decodeManifest error semantics", () => {
 		const blob = {
 			_manifest: { magic: MANIFEST_MAGIC, version: 1 },
 			modules: [{ id: "x/y/v1", policyDataAddress: "not-an-address", wasmCid: "bafytest" }],
-			params: { "x/y/v1": {} },
+			params: { x: {} },
 		};
 		assert.throws(
 			() => decodeManifest(jsonHex(blob)),
@@ -307,8 +308,8 @@ describe("encodeCompositeParams error semantics", () => {
 		assert.throws(
 			() =>
 				encodeCompositeParams(PACK, {
-					"vaultsfyi/risk-envelope/v1": { floor: 999 }, // exceeds max(100)
-					"chainalysis/screening/v1": { deny_on_sanctioned: true },
+					vaultsfyi: { floor: 999 }, // exceeds max(100)
+					chainalysis: { deny_on_sanctioned: true },
 				}),
 			(err: unknown) => {
 				assert.ok(err instanceof CompositeParamsValidationError);
@@ -323,8 +324,8 @@ describe("encodeCompositeParams error semantics", () => {
 		assert.throws(
 			() =>
 				encodeCompositeParams(PACK, {
-					"vaultsfyi/risk-envelope/v1": { floor: 80 },
-					// "chainalysis/screening/v1" missing
+					vaultsfyi: { floor: 80 },
+					// "chainalysis" missing
 				}),
 			(err: unknown) => {
 				assert.ok(err instanceof CompositeParamsValidationError);
@@ -338,9 +339,9 @@ describe("encodeCompositeParams error semantics", () => {
 		assert.throws(
 			() =>
 				encodeCompositeParams(PACK, {
-					"vaultsfyi/risk-envelope/v1": { floor: 80 },
-					"chainalysis/screening/v1": { deny_on_sanctioned: true },
-					"orphan/module/v1": { unused: true },
+					vaultsfyi: { floor: 80 },
+					chainalysis: { deny_on_sanctioned: true },
+					orphan: { unused: true },
 				}),
 			(err: unknown) => err instanceof CompositeParamsValidationError,
 		);
@@ -355,7 +356,7 @@ describe("encodeCompositeParams error semantics", () => {
 		assert.throws(
 			() =>
 				encodeCompositeParams(packOnUnsupportedChain, {
-					"vaultsfyi/risk-envelope/v1": { floor: 80 },
+					vaultsfyi: { floor: 80 },
 				}),
 			(err: unknown) => {
 				assert.ok(err instanceof ManifestDeploymentMissingError);
@@ -375,7 +376,7 @@ describe("encodeCompositeParams error semantics", () => {
 		assert.throws(
 			() =>
 				encodeCompositeParams(packOnUnsupportedEnv, {
-					"vaultsfyi/risk-envelope/v1": { floor: 80 },
+					vaultsfyi: { floor: 80 },
 				}),
 			(err: unknown) => err instanceof ManifestDeploymentMissingError,
 		);
@@ -383,8 +384,8 @@ describe("encodeCompositeParams error semantics", () => {
 
 	it("emits magic = NPM1 and version = 1", () => {
 		const bytes = encodeCompositeParams(PACK, {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		});
 		const json = JSON.parse(new TextDecoder().decode(hexToBytes(bytes)));
 		assert.equal(json._manifest.magic, "NPM1");
@@ -395,8 +396,8 @@ describe("encodeCompositeParams error semantics", () => {
 describe("canonical-form encoding", () => {
 	it("sorted keys at every level (recursive)", () => {
 		const bytes = encodeCompositeParams(PACK, {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		});
 		const json = new TextDecoder().decode(hexToBytes(bytes));
 		// Top-level keys must be in alphabetical order: _manifest, modules, params.
@@ -414,8 +415,8 @@ describe("canonical-form encoding", () => {
 describe("CompositeManifest type assertion", () => {
 	it("decoded manifest is structurally a CompositeManifest", () => {
 		const bytes = encodeCompositeParams(PACK, {
-			"vaultsfyi/risk-envelope/v1": { floor: 80 },
-			"chainalysis/screening/v1": { deny_on_sanctioned: true },
+			vaultsfyi: { floor: 80 },
+			chainalysis: { deny_on_sanctioned: true },
 		});
 		const manifest: CompositeManifest = decodeManifest(bytes);
 		// Compile-time check that manifest.modules is iterable + the entries are typed

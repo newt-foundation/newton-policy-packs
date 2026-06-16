@@ -16,6 +16,7 @@ export {
 	ManifestDeploymentMissingError,
 	NotAManifestError,
 	NotJsonError,
+	shortPackIdFromModuleId,
 	UnsupportedManifestVersionError,
 } from "./composite-manifest";
 export type { ChainId, Deployment, GatewayEnv } from "./deployment";

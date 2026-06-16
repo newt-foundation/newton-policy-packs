@@ -31,6 +31,31 @@ import type { OracleModule } from "./oracle-module";
 export const MANIFEST_MAGIC = "NPM1" as const;
 export const MANIFEST_MAX_SUPPORTED_VERSION = 1 as const;
 
+/**
+ * The `OracleModule.id` is `<pack>/<purpose>/<version>` (e.g.
+ * `"vaultsfyi/risk-envelope/v1"`) — a unique identifier that survives multiple
+ * versions or purposes of the same pack. The MANIFEST `params` map keys, by
+ * contrast, are SHORT pack ids (`"vaultsfyi"`) — the same identifier
+ * `wrapOutput("vaultsfyi", ...)` uses for `data.wasm.vaultsfyi` Phase 0
+ * namespacing. Symmetric across the AVS-side namespaces:
+ *
+ *   data.wasm.<short-id>.<field>     // WASM oracle output (Phase 0)
+ *   data.params.<short-id>.<field>   // composite manifest params (Phase 1.5)
+ *
+ * Keeping `params` keys short lets composite Rego authors use plain dot
+ * notation (`data.params.vaultsfyi.risk_score_floor`) instead of
+ * bracket-on-slashes (`data.params["vaultsfyi/risk-envelope/v1"].risk_score_floor`),
+ * and matches the `composite-policies.md` Rego authoring guide.
+ *
+ * `manifest.modules[].id` keeps the FULL pack id for traceability —
+ * cross-referencing `OracleModule.id` directly is what depositor introspection
+ * uses to look up each module's published artifacts.
+ */
+export function shortPackIdFromModuleId(moduleId: string): string {
+	const slash = moduleId.indexOf("/");
+	return slash === -1 ? moduleId : moduleId.slice(0, slash);
+}
+
 export interface CompositeManifest {
 	readonly magic: typeof MANIFEST_MAGIC;
 	readonly version: number;
@@ -182,23 +207,46 @@ export function decodeManifest(encoded: Hex): CompositeManifest {
 		return { id: e.id, policyDataAddress: normalized, wasmCid: e.wasmCid };
 	});
 
+	// Reject duplicate module IDs. With duplicates, `params[id]` is ambiguous
+	// (which module owns it?) and Set-based validation can't tell us which
+	// duplicate to keep. Defense in depth — the encoder rejects this too, but
+	// bytes might come from a non-SDK writer.
+	const seenDecodedIds = new Set<string>();
+	for (const m of decodedModules) {
+		if (seenDecodedIds.has(m.id)) {
+			throw new MalformedManifestError(
+				`duplicate module id \`${m.id}\` in modules[] — every module MUST have a unique id`,
+			);
+		}
+		seenDecodedIds.add(m.id);
+	}
+
 	const params = obj.params;
 	if (!params || typeof params !== "object" || Array.isArray(params)) {
-		throw new MalformedManifestError("`params` must be an object keyed by module id");
+		throw new MalformedManifestError(
+			'`params` must be an object keyed by short pack id (e.g. `"vaultsfyi"`)',
+		);
 	}
-	const declaredIds = new Set(decodedModules.map((m) => m.id));
+	// `params` keys are SHORT pack ids derived from each module's full id via
+	// shortPackIdFromModuleId. See encoder + the comment on that helper.
+	const declaredShortIds = new Set(decodedModules.map((m) => shortPackIdFromModuleId(m.id)));
+	if (declaredShortIds.size !== decodedModules.length) {
+		throw new MalformedManifestError(
+			"two modules in modules[] share the same short pack id — would make data.params.<shortId> ambiguous in Rego",
+		);
+	}
 	const paramKeys = Object.keys(params);
-	for (const id of declaredIds) {
-		if (!paramKeys.includes(id)) {
+	for (const shortId of declaredShortIds) {
+		if (!paramKeys.includes(shortId)) {
 			throw new MalformedManifestError(
-				`params[${JSON.stringify(id)}] missing — every module declared in modules[] MUST have a params entry, even if it's {}`,
+				`params[${JSON.stringify(shortId)}] missing — every module declared in modules[] MUST have a params entry under its short pack id, even if it's {}`,
 			);
 		}
 	}
 	for (const k of paramKeys) {
-		if (!declaredIds.has(k)) {
+		if (!declaredShortIds.has(k)) {
 			throw new MalformedManifestError(
-				`params[${JSON.stringify(k)}] declared but no matching module in modules[]`,
+				`params[${JSON.stringify(k)}] declared but no matching short pack id in modules[]`,
 			);
 		}
 	}
@@ -230,6 +278,32 @@ export function encodeCompositeParams(
 	pack: MinimalCompositePack,
 	params: Record<string, unknown>,
 ): Hex {
+	// Reject empty `pack.modules` so the encoder never produces bytes that the
+	// decoder will reject. Round-trip invariant — a manifest with zero modules
+	// is meaningless (composites are length N≥1; single-pack policies don't
+	// use this code path at all).
+	if (pack.modules.length === 0) {
+		throw new CompositeParamsValidationError(
+			"pack.modules is empty — a composite manifest must declare at least one module",
+			"",
+			[],
+		);
+	}
+	// Reject duplicate module IDs. With duplicates, `params[id]` is ambiguous
+	// and `validatedParams[id]` overwrites silently, so the encoded manifest
+	// drops one set of validated params. Catch it here, not in the decoder
+	// where the bytes are already on-chain.
+	const seenIds = new Set<string>();
+	for (const module of pack.modules) {
+		if (seenIds.has(module.id)) {
+			throw new CompositeParamsValidationError(
+				`duplicate module id \`${module.id}\` in pack.modules — every module MUST have a unique id`,
+				module.id,
+				[],
+			);
+		}
+		seenIds.add(module.id);
+	}
 	const modulesEncoded = pack.modules.map((module) => {
 		const perEnv = module.deployments[pack.chainId];
 		if (!perEnv) {
@@ -256,29 +330,44 @@ export function encodeCompositeParams(
 		};
 	});
 
+	// `params` keyed by SHORT pack id (e.g. `"vaultsfyi"`), NOT full module id
+	// (`"vaultsfyi/risk-envelope/v1"`). See shortPackIdFromModuleId for the
+	// rationale. Two modules sharing the same short id at composite time would
+	// collide here — defense against that is in Phase 2 (KNOWN_PACK_IDS), but
+	// catch the symptom now: if encoding finds a collision, fail loudly.
 	const validatedParams: Record<string, unknown> = {};
+	const shortIds = new Set<string>();
 	for (const module of pack.modules) {
-		if (!(module.id in params)) {
+		const shortId = shortPackIdFromModuleId(module.id);
+		if (shortIds.has(shortId)) {
 			throw new CompositeParamsValidationError(
-				`params[${JSON.stringify(module.id)}] missing — every module MUST have a params entry, even if {}`,
+				`duplicate short pack id \`${shortId}\` derived from module id \`${module.id}\` — two modules share the same short id, which would make data.params.${shortId} ambiguous in Rego`,
 				module.id,
 				[],
 			);
 		}
-		const result = module.paramsSchema.safeParse(params[module.id]);
+		shortIds.add(shortId);
+		if (!(shortId in params)) {
+			throw new CompositeParamsValidationError(
+				`params[${JSON.stringify(shortId)}] missing — every module MUST have a params entry under its short pack id, even if {}`,
+				module.id,
+				[],
+			);
+		}
+		const result = module.paramsSchema.safeParse(params[shortId]);
 		if (!result.success) {
 			throw new CompositeParamsValidationError(
-				`params for module \`${module.id}\` failed schema validation`,
+				`params for module \`${module.id}\` (short id \`${shortId}\`) failed schema validation`,
 				module.id,
 				result.error.issues,
 			);
 		}
-		validatedParams[module.id] = result.data;
+		validatedParams[shortId] = result.data;
 	}
 	for (const k of Object.keys(params)) {
-		if (!pack.modules.some((m) => m.id === k)) {
+		if (!shortIds.has(k)) {
 			throw new CompositeParamsValidationError(
-				`params[${JSON.stringify(k)}] declared but no matching module in pack.modules`,
+				`params[${JSON.stringify(k)}] declared but no matching short pack id in pack.modules`,
 				k,
 				[],
 			);

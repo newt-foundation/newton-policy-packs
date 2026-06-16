@@ -1,6 +1,6 @@
 # Composite policy manifest format — design spec
 
-**Status:** Proposed. This is the byte-level spec for the composite-policy on-chain manifest written via `Shield.setPolicy(policyParams, expireAfter)`. Phase 1.5 of the composite rollout (NEWT-1541) — see [`composite-policies.md`](./composite-policies.md) for the surrounding rollout context.
+**Status:** Phase 1.5 implementation merged. Full byte-level spec. This is the byte-level spec for the composite-policy on-chain manifest written via `Shield.setPolicy(policyParams, expireAfter)`. Phase 1.5 of the composite rollout (NEWT-1541) — see [`composite-policies.md`](./composite-policies.md) for the surrounding rollout context.
 
 This spec answers: what bytes does `encodeCompositeParams(pack, params)` produce, and what does `decodeManifest(bytes)` reverse? It is the contract between three audiences:
 
@@ -91,18 +91,23 @@ Ordered array — position-significant. Each entry:
 
 ## `params`
 
-Object keyed by module `id`:
+Object keyed by **short pack id** (e.g. `"vaultsfyi"`, `"chainalysis"`) — the same identifier `wrapOutput("vaultsfyi", ...)` uses for `data.wasm.vaultsfyi` Phase 0 namespacing. Symmetric across the AVS-side namespaces:
 
 ```json
 {
-  "vaultsfyi/risk-envelope/v1": { "risk_score_floor": 80, /* ... */ },
-  "chainalysis/screening/v1": { "deny_on_sanctioned": true, /* ... */ }
+  "vaultsfyi": { "risk_score_floor": 80, /* ... */ },
+  "chainalysis": { "deny_on_sanctioned": true, /* ... */ }
 }
 ```
 
-Each value is the params object the AVS host forwards to that module's WASM. The AVS-side merge is shallow per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516); the Rego sees `data.params.<module-id>.<field>` after evaluation.
+Each value is the params object the AVS host forwards to that module's WASM. The AVS-side merge is shallow per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516); the Rego sees `data.params.<short-pack-id>.<field>` after evaluation — plain dot notation, NOT bracket-on-slashes.
 
-**Note on namespacing.** Earlier versions of this spec considered hoisting per-module params under their `<pack-id>` namespace at the manifest top level (alongside `_manifest` / `modules`). Rejected: `params` as a single nested object keeps the manifest's three top-level "metadata" keys (`_manifest`, `modules`, `params`) clearly separated from any future fields, and matches the [`composite-policies.md` Rego authoring guide](./composite-policies.md#authoring-a-composite--five-concrete-steps) where `data.params.<id>.<field>` is the documented access path.
+**Why short pack ids in `params` keys, but full module ids in `modules[].id`.** The two serve different purposes:
+
+- `modules[].id` carries the full `OracleModule.id` (e.g. `"vaultsfyi/risk-envelope/v1"`) — unambiguous traceability that survives multiple versions or purposes of the same pack. Depositor introspection cross-references `OracleModule.id` directly against published artifacts.
+- `params` keys use the short pack id derived via `shortPackIdFromModuleId(module.id)` (everything before the first `/`) — readable Rego access (`data.params.vaultsfyi.field`, matching `data.wasm.vaultsfyi.field`) and symmetric with the Phase 0 namespacing convention.
+
+The encoder (`encodeCompositeParams`) rejects packs where two modules derive the same short id — that would make `data.params.<shortId>` ambiguous in Rego. `KNOWN_PACK_IDS` in Phase 2 will mechanically enforce uniqueness across the published-pack universe.
 
 `encodeCompositeParams` validates each `params[id]` against the corresponding module's `paramsSchema` (zod) before emitting bytes. Schema mismatch throws `CompositeParamsValidationError` with the offending module + zod issue list.
 

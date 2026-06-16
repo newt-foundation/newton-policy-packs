@@ -46,8 +46,8 @@ const PACK: MinimalCompositePack = {
 };
 
 const PARAMS = {
-	"vaultsfyi/risk-envelope/v1": { floor: 80 },
-	"chainalysis/screening/v1": { deny_on_sanctioned: true },
+	vaultsfyi: { floor: 80 },
+	chainalysis: { deny_on_sanctioned: true },
 };
 
 const MANIFEST_BYTES = encodeCompositeParams(PACK, PARAMS);
