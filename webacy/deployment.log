@@ -1092,3 +1092,251 @@ Policy deployed successfully at address: 0x31b4B8Bd0334ae3c92e9920EEE6ac8AE8992e
 === Sun Jun 14 15:45:17 PDT 2026 :: webacy DONE ===
 webacy DATA=0xa1c0CB602D2a337F6eBdAA8FBa4D92918689E108 POLICY=0x31b4B8Bd0334ae3c92e9920EEE6ac8AE8992ec2c
 wrote ./webacy/dist/last_deploy.json
+=== Mon Jun 15 18:51:11 PDT 2026 :: webacy policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:51:11 PDT 2026 :: webacy sync source policy.rego -> dist ===
+=== Mon Jun 15 18:51:11 PDT 2026 :: webacy generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./webacy/dist"
+policyCodeHash: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+Public IPFS Link: https://ipfs.io/ipfs/bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./webacy/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./webacy/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+Public IPFS Link: https://ipfs.io/ipfs/bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./webacy/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here",
+  "policyCid": "bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i",
+  "schemaCid": "bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm",
+  "entrypoint": "webacy_depeg_risk.allow",
+  "policyMetadataCid": "bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka",
+  "policyDataMetadataCid": "bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge",
+  "secretsSchemaCid": "bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy",
+  "policyCodeHash": "0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9"
+}
+=== Mon Jun 15 18:51:22 PDT 2026 :: webacy UPLOAD DONE ===
+wrote ./webacy/dist/policy_cids.json
+=== Mon Jun 15 18:56:54 PDT 2026 :: webacy policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0x838d2c1d000434a00fCC81fD5F5c0C99cF6047bF
+Policy Data Address: 0x838d2c1d000434a00fCC81fD5F5c0C99cF6047bF
+DATA_ADDR=0x838d2c1d000434a00fCC81fD5F5c0C99cF6047bF
+=== Mon Jun 15 18:57:03 PDT 2026 :: webacy policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0x838d2c1d000434a00fcc81fd5f5c0c99cf6047bf]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0x3e30511Ec046942eaA11c5FCAF5786ce1ED30Ce1
+=== Mon Jun 15 18:57:18 PDT 2026 :: webacy DEPLOY DONE (stagef/11155111) ===
+webacy DATA=0x838d2c1d000434a00fCC81fD5F5c0C99cF6047bF POLICY=0x3e30511Ec046942eaA11c5FCAF5786ce1ED30Ce1
+wrote ./webacy/dist/last_deploy.json
+=== Mon Jun 15 19:06:20 PDT 2026 :: webacy policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0xBFf38a5A77262ADfC10667004A550337A97EFB36
+Policy Data Address: 0xBFf38a5A77262ADfC10667004A550337A97EFB36
+DATA_ADDR=0xBFf38a5A77262ADfC10667004A550337A97EFB36
+=== Mon Jun 15 19:06:28 PDT 2026 :: webacy policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xbff38a5a77262adfc10667004a550337a97efb36]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0x18C851b54c0B6e0FA17E73EeF88E8Fe118F9a273
+=== Mon Jun 15 19:06:44 PDT 2026 :: webacy DEPLOY DONE (prod/11155111) ===
+webacy DATA=0xBFf38a5A77262ADfC10667004A550337A97EFB36 POLICY=0x18C851b54c0B6e0FA17E73EeF88E8Fe118F9a273
+wrote ./webacy/dist/last_deploy.json
+=== Mon Jun 15 19:10:00 PDT 2026 :: webacy policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0xCdd60ec1F4acd899C1C80817D60c3dD95f396134
+Policy Data Address: 0xCdd60ec1F4acd899C1C80817D60c3dD95f396134
+DATA_ADDR=0xCdd60ec1F4acd899C1C80817D60c3dD95f396134
+=== Mon Jun 15 19:10:01 PDT 2026 :: webacy policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xcdd60ec1f4acd899c1c80817d60c3dd95f396134]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0xCf2ebB1EdbE0ef775E49d33B66fA7ede54Ef18a0
+=== Mon Jun 15 19:10:03 PDT 2026 :: webacy DEPLOY DONE (stagef/84532) ===
+webacy DATA=0xCdd60ec1F4acd899C1C80817D60c3dD95f396134 POLICY=0xCf2ebB1EdbE0ef775E49d33B66fA7ede54Ef18a0
+wrote ./webacy/dist/last_deploy.json
+=== Mon Jun 15 19:13:39 PDT 2026 :: webacy policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0xba92f10a04033C8941990Cd2c234D64315f16C34
+Policy Data Address: 0xba92f10a04033C8941990Cd2c234D64315f16C34
+DATA_ADDR=0xba92f10a04033C8941990Cd2c234D64315f16C34
+=== Mon Jun 15 19:13:40 PDT 2026 :: webacy policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0xba92f10a04033c8941990cd2c234d64315f16c34]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 19:13:51 PDT 2026 :: webacy policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:03 PDT 2026 :: webacy policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 420 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 19:14:34 PDT 2026 :: webacy policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 460 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 460 blocks 
+
+Policy data deployed successfully at address: 0x01206E5302794Fba1B71b761594a5e8b4111Be60
+Policy Data Address: 0x01206E5302794Fba1B71b761594a5e8b4111Be60
+DATA_ADDR=0x01206E5302794Fba1B71b761594a5e8b4111Be60
+=== Mon Jun 15 19:14:35 PDT 2026 :: webacy policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9
+Pinned policyCodeHash 0x8c9068c2a801d09fa3578c474c763ae3323c89f5454915f1b5f42a6f09d73bb9 in "./webacy/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: webacy_depeg_risk.allow
+  policyCid: bafkreifhfaxrknejcilrbcpr3jr6dmt7jzpj4rxvoqdm3mwgluvyr5zg5i
+  schemaCid: bafkreiehvq6ftylxjx6hfig7izuefpf3n3cwk2kcfvyfx67bm6rx4y6olm
+  policyData: [0x01206e5302794fba1b71b761594a5e8b4111be60]
+  metadataCid: bafkreibov4z2i5vggygzwgui2qckyez4lltvtipwkjdsijzd62tmoylvka 
+
+Policy deployed successfully at address: 0x65423D1AD2B00735b8ed0dCb11C5B03649fb96D3
+=== Mon Jun 15 19:14:36 PDT 2026 :: webacy DEPLOY DONE (prod/84532) ===
+webacy DATA=0x01206E5302794Fba1B71b761594a5e8b4111Be60 POLICY=0x65423D1AD2B00735b8ed0dCb11C5B03649fb96D3
+wrote ./webacy/dist/last_deploy.json

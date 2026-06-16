@@ -5,38 +5,41 @@ import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-sh
 export const deployments = {
 	"84532": {
 		stagef: {
-			policy: "0x0DE9E40A7C1803bC80A053db96e811d6C39a261B",
-			policyData: "0xE1b1b5F4a22Aa53eCf2403BB650e33d38D431801",
-			wasmCid: "bafybeidk5o6m4lnxwf3ozfxeokwgkc2kqmio6zfo7hoz4al7mtqi6vwvye",
+			policy: "0x40bC21AdB139f1125F658dbC26d908e6763A58ff",
+			policyData: "0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1",
+			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
-			deployedAt: "2026-06-14",
-			notes: "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, stagef)",
+			deployedAt: "2026-06-16",
+			notes:
+				"Phase 0 PR E2 — Stream D5 canonical sweep cell 3 (expire=400, balancer expire-recovery)",
 		},
 		prod: {
-			policy: "0x15cBF6118cdA95e900550ebBcC3ECe56742efA63",
-			policyData: "0x6C9068e1213fD6dba4Eb8A9767dEb5bD320a6885",
-			wasmCid: "bafybeih7le4d3o75bldcvehgerfpeadp5nm3lihxc4ng6t4zz63g7yzrfy",
+			policy: "0x004af8d849F7aB9e883Ad0F95b236D9D7347bfab",
+			policyData: "0xDbfE2fea061e71109e65e511CD11D070f49A187d",
+			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
-			deployedAt: "2026-06-14",
-			notes: "Phase 0 Stream D2 — env-axis expansion to (Base Sepolia, prod)",
+			deployedAt: "2026-06-16",
+			notes:
+				"Phase 0 PR E2 — Stream D5 canonical sweep cell 4 (expire=420, chainalysis/persona/webacy expire-recovery)",
 		},
 	},
 	"11155111": {
 		stagef: {
-			policy: "0x2059d650A414a2006433B9ef818a0dBaE17F1077",
-			policyData: "0xdD956F174d2416D8a9F303A1e979016f5Dd12837",
-			wasmCid: "bafybeicxv5qvhijhwvhqa36xmloezsmgiy74dr5we7a4y5673gr6f5ukki",
+			policy: "0x6aD94d9F83804B050961C318d2e4C92aA0cB424B",
+			policyData: "0xf30394EbB11B74dd701eC3592d58dC3d62926f00",
+			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
-			deployedAt: "2026-06-14",
-			notes: "Phase 0 Stream D — composite namespacing redeploy",
+			deployedAt: "2026-06-16",
+			notes: "Phase 0 PR E2 — sumsub cell 1 recovery via expire-after-blocks",
 		},
 		prod: {
-			policy: "0x97C7E16846A9Ef13aBC2492A2FeE5a5957e08d41",
-			policyData: "0xEF57d7C9641c8687A193F96A425966207fa7c9b1",
-			wasmCid: "bafybeieuu4y7cqq6yppvjffichnvdayoba6loakklfrxv6fowyijsmjr34",
+			policy: "0x10Be3038bb02986afCab89E6231e5125dE802d72",
+			policyData: "0x6621D7F739a3682054ac974D772AEEBb8548b1BF",
+			wasmCid: "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
 			policyCodeHash: "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462",
-			deployedAt: "2026-06-14",
-			notes: "Phase 0 Stream D2 — env-axis expansion to (Sepolia, prod)",
+			deployedAt: "2026-06-16",
+			notes:
+				"Phase 0 PR E2 — Stream D5 canonical sweep cell 2 (expire=120, guardrail expire-recovery)",
 		},
 	},
 } as const satisfies Readonly<

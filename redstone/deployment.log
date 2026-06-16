@@ -981,3 +981,198 @@ Policy deployed successfully at address: 0x15cBF6118cdA95e900550ebBcC3ECe56742ef
 === Sun Jun 14 15:35:22 PDT 2026 :: redstone DONE ===
 redstone DATA=0x6C9068e1213fD6dba4Eb8A9767dEb5bD320a6885 POLICY=0x15cBF6118cdA95e900550ebBcC3ECe56742efA63
 wrote ./redstone/dist/last_deploy.json
+=== Mon Jun 15 18:50:30 PDT 2026 :: redstone policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:50:30 PDT 2026 :: redstone sync source policy.rego -> dist ===
+=== Mon Jun 15 18:50:30 PDT 2026 :: redstone generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./redstone/dist"
+policyCodeHash: 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+Public IPFS Link: https://ipfs.io/ipfs/bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+Public IPFS Link: https://ipfs.io/ipfs/bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./redstone/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./redstone/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./redstone/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e",
+  "policyCid": "bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq",
+  "schemaCid": "bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym",
+  "entrypoint": "redstone_oracle_divergence.allow",
+  "policyMetadataCid": "bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu",
+  "policyDataMetadataCid": "bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha",
+  "secretsSchemaCid": "bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e",
+  "policyCodeHash": "0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462"
+}
+=== Mon Jun 15 18:50:44 PDT 2026 :: redstone UPLOAD DONE ===
+wrote ./redstone/dist/policy_cids.json
+=== Mon Jun 15 18:54:19 PDT 2026 :: redstone policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0xf30394EbB11B74dd701eC3592d58dC3d62926f00
+Policy Data Address: 0xf30394EbB11B74dd701eC3592d58dC3d62926f00
+DATA_ADDR=0xf30394EbB11B74dd701eC3592d58dC3d62926f00
+=== Mon Jun 15 18:54:28 PDT 2026 :: redstone policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462
+Pinned policyCodeHash 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462 in "./redstone/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: redstone_oracle_divergence.allow
+  policyCid: bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+  schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+  policyData: [0xf30394ebb11b74dd701ec3592d58dc3d62926f00]
+  metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
+
+Policy deployed successfully at address: 0x6aD94d9F83804B050961C318d2e4C92aA0cB424B
+=== Mon Jun 15 18:54:36 PDT 2026 :: redstone DEPLOY DONE (stagef/11155111) ===
+redstone DATA=0xf30394EbB11B74dd701eC3592d58dC3d62926f00 POLICY=0x6aD94d9F83804B050961C318d2e4C92aA0cB424B
+wrote ./redstone/dist/last_deploy.json
+=== Mon Jun 15 19:04:43 PDT 2026 :: redstone policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x6621D7F739a3682054ac974D772AEEBb8548b1BF
+Policy Data Address: 0x6621D7F739a3682054ac974D772AEEBb8548b1BF
+DATA_ADDR=0x6621D7F739a3682054ac974D772AEEBb8548b1BF
+=== Mon Jun 15 19:05:19 PDT 2026 :: redstone policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462
+Pinned policyCodeHash 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462 in "./redstone/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: redstone_oracle_divergence.allow
+  policyCid: bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+  schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+  policyData: [0x6621d7f739a3682054ac974d772aeebb8548b1bf]
+  metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
+
+Policy deployed successfully at address: 0x10Be3038bb02986afCab89E6231e5125dE802d72
+=== Mon Jun 15 19:05:28 PDT 2026 :: redstone DEPLOY DONE (prod/11155111) ===
+redstone DATA=0x6621D7F739a3682054ac974D772AEEBb8548b1BF POLICY=0x10Be3038bb02986afCab89E6231e5125dE802d72
+wrote ./redstone/dist/last_deploy.json
+=== Mon Jun 15 19:09:34 PDT 2026 :: redstone policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1
+Policy Data Address: 0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1
+DATA_ADDR=0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1
+=== Mon Jun 15 19:09:35 PDT 2026 :: redstone policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462
+Pinned policyCodeHash 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462 in "./redstone/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: redstone_oracle_divergence.allow
+  policyCid: bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+  schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+  policyData: [0x6b92f1319ba2a5c8b7ee822fe7543866159de6f1]
+  metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
+
+Policy deployed successfully at address: 0x40bC21AdB139f1125F658dbC26d908e6763A58ff
+=== Mon Jun 15 19:09:36 PDT 2026 :: redstone DEPLOY DONE (stagef/84532) ===
+redstone DATA=0x6b92f1319Ba2a5c8b7EE822FE7543866159dE6F1 POLICY=0x40bC21AdB139f1125F658dbC26d908e6763A58ff
+wrote ./redstone/dist/last_deploy.json
+=== Mon Jun 15 19:12:58 PDT 2026 :: redstone policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0xDbfE2fea061e71109e65e511CD11D070f49A187d
+Policy Data Address: 0xDbfE2fea061e71109e65e511CD11D070f49A187d
+DATA_ADDR=0xDbfE2fea061e71109e65e511CD11D070f49A187d
+=== Mon Jun 15 19:13:06 PDT 2026 :: redstone policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462
+Pinned policyCodeHash 0xfc83b3204c9119d8cbd3d59b560805f4415a2b1539b87dab128e1943c05ed462 in "./redstone/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: redstone_oracle_divergence.allow
+  policyCid: bafkreia4uhqymtecnvyflvms36joc2cwmuqe3bqz5ipkprvmsphxuuwqoq
+  schemaCid: bafkreichkuy2a3piv573eqsnyjawkn2p2bpcbgardk5sbx55t3hjyrxoym
+  policyData: [0xdbfe2fea061e71109e65e511cd11d070f49a187d]
+  metadataCid: bafkreia7qap3uoav65d7dgtb5zszq5riutkj6bpropjc6c3wya7o2w6stu 
+
+Policy deployed successfully at address: 0x004af8d849F7aB9e883Ad0F95b236D9D7347bfab
+=== Mon Jun 15 19:13:15 PDT 2026 :: redstone DEPLOY DONE (prod/84532) ===
+redstone DATA=0xDbfE2fea061e71109e65e511CD11D070f49A187d POLICY=0x004af8d849F7aB9e883Ad0F95b236D9D7347bfab
+wrote ./redstone/dist/last_deploy.json

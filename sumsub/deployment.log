@@ -870,3 +870,278 @@ Policy deployed successfully at address: 0x122D98305F1c56509d678eB14184dE4cc9c01
 === Sun Jun 14 15:36:54 PDT 2026 :: sumsub DONE ===
 sumsub DATA=0x04899bC417B42d061Dc9CDaBfBa714a4520D3756 POLICY=0x122D98305F1c56509d678eB14184dE4cc9c01770
 wrote ./sumsub/dist/last_deploy.json
+=== Mon Jun 15 18:50:45 PDT 2026 :: sumsub policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Mon Jun 15 18:50:45 PDT 2026 :: sumsub sync source policy.rego -> dist ===
+=== Mon Jun 15 18:50:45 PDT 2026 :: sumsub generate-cids (Pinata IPFS upload) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./sumsub/dist"
+policyCodeHash: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./sumsub/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./sumsub/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Direct IPFS Link gateway_link=https://ipfs.newt.foundation/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./sumsub/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y",
+  "policyCid": "bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu",
+  "schemaCid": "bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4",
+  "entrypoint": "sumsub_kyc.allow",
+  "policyMetadataCid": "bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q",
+  "policyDataMetadataCid": "bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi",
+  "secretsSchemaCid": "bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m",
+  "policyCodeHash": "0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6"
+}
+=== Mon Jun 15 18:50:59 PDT 2026 :: sumsub UPLOAD DONE ===
+wrote ./sumsub/dist/policy_cids.json
+=== Mon Jun 15 18:54:40 PDT 2026 :: sumsub policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 100 blocks 
+
+Policy data deployed successfully at address: 0x9cc7f4F2e96AfAa7DDeA554Be637FB26Cb126745
+Policy Data Address: 0x9cc7f4F2e96AfAa7DDeA554Be637FB26Cb126745
+DATA_ADDR=0x9cc7f4F2e96AfAa7DDeA554Be637FB26Cb126745
+=== Mon Jun 15 18:54:49 PDT 2026 :: sumsub policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x9cc7f4f2e96afaa7ddea554be637fb26cb126745]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 18:55:21 PDT 2026 :: sumsub policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 100 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 18:55:52 PDT 2026 :: sumsub policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 100 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 100 blocks 
+
+Error: Failed to deploy policy data: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: 3, message: "execution reverted", data: Some(RawValue("0x04a5b3ee")) }))
+
+Location:
+    bin/newton-cli/src/commands/policy_data.rs:110:26
+=== Mon Jun 15 18:57:58 PDT 2026 :: sumsub policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0xCE18Ae6bbB0dBD7C1288C3079b26e5690B8D3eAe
+Policy Data Address: 0xCE18Ae6bbB0dBD7C1288C3079b26e5690B8D3eAe
+DATA_ADDR=0xCE18Ae6bbB0dBD7C1288C3079b26e5690B8D3eAe
+=== Mon Jun 15 18:58:13 PDT 2026 :: sumsub policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0xce18ae6bbb0dbd7c1288c3079b26e5690b8d3eae]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Error: Failed to deploy policy: Alloy Contract Error TransportError(ErrorResp(ErrorPayload { code: -32000, message: "replacement transaction underpriced", data: None }))
+
+Location:
+    bin/newton-cli/src/commands/policy.rs:207:26
+=== Mon Jun 15 18:58:45 PDT 2026 :: sumsub policy-data deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 130 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 130 blocks 
+
+Policy data deployed successfully at address: 0xC2a7E414A055dCc08F3B0808ceEC291bF9C43F52
+Policy Data Address: 0xC2a7E414A055dCc08F3B0808ceEC291bF9C43F52
+DATA_ADDR=0xC2a7E414A055dCc08F3B0808ceEC291bF9C43F52
+=== Mon Jun 15 18:59:00 PDT 2026 :: sumsub policy deploy (stagef/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0xc2a7e414a055dcc08f3b0808ceec291bf9c43f52]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x6eC52192A417C2dcC5c1CEb5c3792440cc860119
+=== Mon Jun 15 18:59:30 PDT 2026 :: sumsub DEPLOY DONE (stagef/11155111) ===
+sumsub DATA=0xC2a7E414A055dCc08F3B0808ceEC291bF9C43F52 POLICY=0x6eC52192A417C2dcC5c1CEb5c3792440cc860119
+wrote ./sumsub/dist/last_deploy.json
+=== Mon Jun 15 19:05:32 PDT 2026 :: sumsub policy-data deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0xa8Dd24EC989CD9Fc5FbFa3fe2B7991A053753E11
+Policy Data Address: 0xa8Dd24EC989CD9Fc5FbFa3fe2B7991A053753E11
+DATA_ADDR=0xa8Dd24EC989CD9Fc5FbFa3fe2B7991A053753E11
+=== Mon Jun 15 19:05:40 PDT 2026 :: sumsub policy deploy (prod/11155111) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0xa8dd24ec989cd9fc5fbfa3fe2b7991a053753e11]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0xD3Dd5772327f02d80ABec8B59DbC6334d9fBFb45
+=== Mon Jun 15 19:05:49 PDT 2026 :: sumsub DEPLOY DONE (prod/11155111) ===
+sumsub DATA=0xa8Dd24EC989CD9Fc5FbFa3fe2B7991A053753E11 POLICY=0xD3Dd5772327f02d80ABec8B59DbC6334d9fBFb45
+wrote ./sumsub/dist/last_deploy.json
+=== Mon Jun 15 19:09:40 PDT 2026 :: sumsub policy-data deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 400 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 400 blocks 
+
+Policy data deployed successfully at address: 0x5E89555C11E9a718993DAf67750d82707CA1B267
+Policy Data Address: 0x5E89555C11E9a718993DAf67750d82707CA1B267
+DATA_ADDR=0x5E89555C11E9a718993DAf67750d82707CA1B267
+=== Mon Jun 15 19:09:48 PDT 2026 :: sumsub policy deploy (stagef/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x5e89555c11e9a718993daf67750d82707ca1b267]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0x728451D8bbb51a6E81DcE2aF26bfB5CE8A4CdA76
+=== Mon Jun 15 19:09:50 PDT 2026 :: sumsub DEPLOY DONE (stagef/84532) ===
+sumsub DATA=0x5E89555C11E9a718993DAf67750d82707CA1B267 POLICY=0x728451D8bbb51a6E81DcE2aF26bfB5CE8A4CdA76
+wrote ./sumsub/dist/last_deploy.json
+=== Mon Jun 15 19:13:18 PDT 2026 :: sumsub policy-data deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x52458F0F5937b703d64B5D206a800384A7fc59e1
+Policy Data Address: 0x52458F0F5937b703d64B5D206a800384A7fc59e1
+DATA_ADDR=0x52458F0F5937b703d64B5D206a800384A7fc59e1
+=== Mon Jun 15 19:13:27 PDT 2026 :: sumsub policy deploy (prod/84532) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6
+Pinned policyCodeHash 0x4b2f9b84045794a10fed8bd980f7e1c2893b31ddb9039496c6c716676584a9c6 in "./sumsub/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: sumsub_kyc.allow
+  policyCid: bafkreigfmedmph5fp33ug5trnwgcl766lilrh3jsppy7t6lrxmlkoqsnlu
+  schemaCid: bafkreifuj73ylg7mu2zk36qjdvupj4drfhszxsfsc4g6okzh7eum47oqt4
+  policyData: [0x52458f0f5937b703d64b5d206a800384a7fc59e1]
+  metadataCid: bafkreiatv4to35n7mj3frea4ydf3snmaqpujidaehdw436ympg2qcqyg6q 
+
+Policy deployed successfully at address: 0xA74c7f91D24b2DA158c3DAE88459A0D43e61614E
+=== Mon Jun 15 19:13:28 PDT 2026 :: sumsub DEPLOY DONE (prod/84532) ===
+sumsub DATA=0x52458F0F5937b703d64B5D206a800384A7fc59e1 POLICY=0xA74c7f91D24b2DA158c3DAE88459A0D43e61614E
+wrote ./sumsub/dist/last_deploy.json
