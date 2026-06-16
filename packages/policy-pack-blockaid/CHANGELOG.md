@@ -1,5 +1,18 @@
 # @newton-xyz/policy-pack-blockaid
 
+## 2.0.3
+
+### Patch Changes
+
+- ffee4cf: Drop `notes` field from `Deployment` schema.
+
+  The field carried no protocol load (not used by `getDeployment` lookup, CREATE2 derivation, or attestation flow) and the merge path in `sync-deployments.sh` overwrote every pack's notes on every sync, muddying provenance. Canonical sources for deploy provenance already exist (git blame on `deployments.json`, per-pack `deployment.log` audit trail, the PR description).
+
+  Strictly a breaking type change, but no production consumers exist yet — clean migration. Patch-bumped across the cascade so dependent packs stay inside the existing `^0.4.0` peer range on `@newton-xyz/policy-pack-shared` (avoids the pre-1.0 caret-rule cascade where a minor on shared would force a major on every dependent).
+
+- Updated dependencies [ffee4cf]
+  - @newton-xyz/policy-pack-shared@0.4.1
+
 ## 2.0.2
 
 ### Patch Changes
