@@ -15,6 +15,7 @@ import {
 	UnknownPackIdError,
 } from "./composite-pack";
 import type { Deployment, PolicyPack, PrepareQueryArgs, PrepareQueryResult } from "./index";
+import { UnsupportedChainError, UnsupportedEnvError } from "./pack";
 
 const SHIELD: Address = "0x9999999999999999999999999999999999999999";
 const POLICY: Address = "0x8888888888888888888888888888888888888888";
@@ -225,6 +226,38 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 			(err: unknown) =>
 				err instanceof CompositeBuilderError &&
 				/must be provided together/.test((err as Error).message),
+		);
+	});
+});
+
+describe("defineComposite — missing-deployment surfaces canonical errors", () => {
+	it("throws UnsupportedChainError when module has no deployment on the requested chain (fresh path)", async () => {
+		const fake = makeFakeClient();
+		await assert.rejects(
+			defineComposite({
+				modules: [VAULTSFYI],
+				chainId: "1", // mainnet — VAULTSFYI fixture only has Sepolia
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+			}),
+			(err: unknown) => err instanceof UnsupportedChainError,
+		);
+	});
+
+	it("throws UnsupportedEnvError when module is on the chain but missing the env (fresh path)", async () => {
+		const fake = makeFakeClient();
+		await assert.rejects(
+			defineComposite({
+				modules: [VAULTSFYI],
+				chainId: "11155111",
+				env: "prod", // VAULTSFYI fixture only has stagef
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+			}),
+			(err: unknown) => err instanceof UnsupportedEnvError,
 		);
 	});
 });

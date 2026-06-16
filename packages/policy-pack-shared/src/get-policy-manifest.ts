@@ -73,27 +73,29 @@ const NEWTON_POLICY_ABI = [
 	},
 ] as const;
 
-export interface GetPolicyManifestArgs {
+export interface GetPolicyManifestArgs<TSinglePackParams = unknown> {
 	readonly publicClient: PublicClient;
 	readonly shieldAddress: Address;
 	/**
 	 * Optional single-pack `paramsSchema` (zod). When provided, the
 	 * single-pack branch validates the parsed JSON through it and throws
-	 * `SinglePackParamsValidationError` on failure. When omitted, the
-	 * single-pack branch returns the parsed JSON as-is (typed `unknown`).
+	 * `SinglePackParamsValidationError` on failure; the returned `params`
+	 * narrows to the schema's inferred type via the call-site type
+	 * parameter `TSinglePackParams`. When omitted, the single-pack branch
+	 * returns the parsed JSON as-is (typed `unknown`).
 	 */
-	readonly singlePackPack?: { readonly paramsSchema: z.ZodType<unknown> };
+	readonly singlePackPack?: { readonly paramsSchema: z.ZodType<TSinglePackParams> };
 }
 
-export type PolicyManifest =
-	| { readonly kind: "single-pack"; readonly params: unknown }
+export type PolicyManifest<TSinglePackParams = unknown> =
+	| { readonly kind: "single-pack"; readonly params: TSinglePackParams }
 	| { readonly kind: "composite"; readonly manifest: CompositeManifest };
 
-export async function getPolicyManifest({
+export async function getPolicyManifest<TSinglePackParams = unknown>({
 	publicClient,
 	shieldAddress,
 	singlePackPack,
-}: GetPolicyManifestArgs): Promise<PolicyManifest> {
+}: GetPolicyManifestArgs<TSinglePackParams>): Promise<PolicyManifest<TSinglePackParams>> {
 	const policyAddress = (await publicClient.readContract({
 		address: shieldAddress,
 		abi: POLICY_CLIENT_ABI,
@@ -161,7 +163,13 @@ export async function getPolicyManifest({
 		return { kind: "single-pack", params: result.data };
 	}
 
-	return { kind: "single-pack", params: parsed };
+	// No paramsSchema provided — caller chose to skip validation. The parsed
+	// value is typed `unknown` at the SDK boundary, but the call-site type
+	// parameter `TSinglePackParams` narrows to whatever the caller passed.
+	// When `TSinglePackParams = unknown` (the default), this is just `unknown`
+	// at the API surface. When the caller explicitly types it, they're
+	// declaring trust in the bytes — which is their choice.
+	return { kind: "single-pack", params: parsed as TSinglePackParams };
 }
 
 /**

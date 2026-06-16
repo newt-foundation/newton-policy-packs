@@ -399,16 +399,22 @@ function main(): void {
 	// Instead, parse the `KNOWN_PACK_IDS = [...] as const satisfies ...` literal
 	// out of the source file directly.
 	const knownIdsSrc = readFileSync(path.join(SHARED_PACKAGE_DIR, "src/known-pack-ids.ts"), "utf8");
-	const knownIdsMatch = knownIdsSrc.match(/export const KNOWN_PACK_IDS = \[([\s\S]*?)\] as const/);
+	// Match `[...]` after `KNOWN_PACK_IDS =`. Permissive about what follows
+	// the closing `]` (biome may reformat `as const satisfies ...` onto a
+	// new line; trailing-syntax matters less than the array contents).
+	const knownIdsMatch = knownIdsSrc.match(/export const KNOWN_PACK_IDS = \[([\s\S]*?)\]/);
 	if (!knownIdsMatch) {
 		fail(
 			"could not parse KNOWN_PACK_IDS from policy-pack-shared/src/known-pack-ids.ts — registry shape changed?",
 		);
 	}
-	const registry = new Set(
-		// biome-ignore lint/style/noNonNullAssertion: regex matched above
-		Array.from(knownIdsMatch[1]!.matchAll(/"([^"]+)"/g), (m) => m[1] as string),
-	);
+	// Strip line + block comments BEFORE extracting quoted strings. A comment
+	// like `// TODO add "newpack"` inside the array would otherwise look like
+	// a registered entry to the parser even though the runtime literal doesn't
+	// include it.
+	// biome-ignore lint/style/noNonNullAssertion: regex matched above
+	const registryBody = knownIdsMatch[1]!.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+	const registry = new Set(Array.from(registryBody.matchAll(/"([^"]+)"/g), (m) => m[1] as string));
 	const discoveredSet = new Set(packs);
 	const missingFromRegistry = [...discoveredSet].filter((p) => !registry.has(p));
 	const stalRegistryEntries = [...registry].filter((p) => !discoveredSet.has(p));

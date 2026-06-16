@@ -4,9 +4,16 @@ import {
 	type HistoricalBinding,
 	shortPackIdFromModuleId,
 } from "./composite-manifest";
-import type { ChainId, Deployment, GatewayEnv } from "./deployment";
+import type { ChainId, GatewayEnv } from "./deployment";
 import { isKnownPackId, type KnownPackId } from "./known-pack-ids";
-import type { PolicyPack, PrepareQueryArgs, PrepareQueryResult } from "./pack";
+import {
+	getDeployment,
+	type PolicyPack,
+	type PrepareQueryArgs,
+	type PrepareQueryResult,
+	UnsupportedChainError,
+	UnsupportedEnvError,
+} from "./pack";
 
 /**
  * Composite-policy builder + runtime layer. Phase 2 of the composite-policy
@@ -164,18 +171,17 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 			expectedAddrs.push(getAddress(args.expectedPolicyDataAddresses![i]!));
 			continue;
 		}
-		const perEnv = module.deployments[args.chainId];
-		if (!perEnv) {
-			throw new CompositeBuilderError(
-				`module \`${module.id}\` has no deployment on chain ${args.chainId}`,
-			);
-		}
-		const deployment: Deployment | undefined = perEnv[args.env];
-		if (!deployment) {
-			throw new CompositeBuilderError(
-				`module \`${module.id}\` is deployed on chain ${args.chainId} but not in env "${args.env}"`,
-			);
-		}
+		// Spec § "Invariant checks at construction time" #8: re-throw the
+		// existing UnsupportedChainError / UnsupportedEnvError from getDeployment
+		// so consumers can catch the canonical error classes (the same ones
+		// curator-side single-pack flows already handle via getDeployment).
+		// Wrap the module shape that getDeployment expects (it needs `id` +
+		// `deployments` per the structural type at pack.ts:106).
+		const deployment = getDeployment(
+			{ id: module.id, deployments: module.deployments },
+			args.chainId,
+			args.env,
+		);
 		expectedAddrs.push(getAddress(deployment.policyData));
 	}
 
