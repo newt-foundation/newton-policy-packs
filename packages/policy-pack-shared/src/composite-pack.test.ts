@@ -22,7 +22,6 @@ const POLICY: Address = "0x8888888888888888888888888888888888888888";
 const SEPOLIA_MULTICALL3: Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 const VAULTSFYI_DEPLOYMENT: Deployment = {
-	policy: "0xAaaa000000000000000000000000000000000001",
 	policyData: "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
 	wasmCid: "bafyvaultsfyi",
 	policyCodeHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -30,7 +29,6 @@ const VAULTSFYI_DEPLOYMENT: Deployment = {
 };
 
 const CHAINALYSIS_DEPLOYMENT: Deployment = {
-	policy: "0xBbbb000000000000000000000000000000000001",
 	policyData: "0x2222222222222222222222222222222222222222",
 	wasmCid: "bafychainalysis",
 	policyCodeHash: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",

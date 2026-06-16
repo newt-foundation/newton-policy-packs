@@ -5,7 +5,6 @@ import type { Deployment, GatewayEnv, PolicyPack } from "./index";
 import { getDeployment, UnsupportedChainError, UnsupportedEnvError } from "./index";
 
 const STAGEF_BALANCER: Deployment = {
-	policy: "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
 	policyData: "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
 	wasmCid: "bafybeibb4rxzaqaolsqmc7kymnr34a3vj6bo6xfom5cggr4ouyqahlspvu",
 	policyCodeHash: "0x5ec04403a9345b012b891ce29b0c291736ef98d1f50901739b563246af05ed29",
@@ -13,7 +12,6 @@ const STAGEF_BALANCER: Deployment = {
 };
 
 const PROD_BALANCER: Deployment = {
-	policy: "0x1111111111111111111111111111111111111111",
 	policyData: "0x2222222222222222222222222222222222222222",
 	wasmCid: "bafybeiprodprodprodprodprodprodprodprodprodprodprodprod",
 	policyCodeHash: "0x3333333333333333333333333333333333333333333333333333333333333333",
@@ -44,18 +42,16 @@ describe("getDeployment", () => {
 		});
 
 		const stagef = getDeployment(pack, "11155111", "stagef");
-		assert.equal(stagef.policy, STAGEF_BALANCER.policy);
 		assert.equal(stagef.policyData, STAGEF_BALANCER.policyData);
 
 		const prod = getDeployment(pack, "11155111", "prod");
-		assert.equal(prod.policy, PROD_BALANCER.policy);
 		assert.equal(prod.policyData, PROD_BALANCER.policyData);
 	});
 
 	it("returns the right Deployment when only one env is deployed on a chain", () => {
 		const pack = makePack({ "11155111": { stagef: STAGEF_BALANCER } });
 		const dep = getDeployment(pack, "11155111", "stagef");
-		assert.equal(dep.policy, STAGEF_BALANCER.policy);
+		assert.equal(dep.policyData, STAGEF_BALANCER.policyData);
 	});
 
 	it("throws UnsupportedChainError when the chain has no entry at all", () => {

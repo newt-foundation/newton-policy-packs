@@ -27,7 +27,6 @@ const SEPOLIA = "11155111";
 const STAGEF: "stagef" = "stagef";
 
 const VAULTSFYI_DEPLOYMENT: Deployment = {
-	policy: "0x9EE0B769E62aEEa3282396ee7a4D5B16119De14C",
 	policyData: "0x4b1c450b1DA523EdB0C2aB0c905267281d36cb7c",
 	wasmCid: "bafyvaultsfyidev",
 	policyCodeHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -35,7 +34,6 @@ const VAULTSFYI_DEPLOYMENT: Deployment = {
 };
 
 const CHAINALYSIS_DEPLOYMENT: Deployment = {
-	policy: "0x1111111111111111111111111111111111111111",
 	policyData: "0x2222222222222222222222222222222222222222",
 	wasmCid: "bafychainalysisdev",
 	policyCodeHash: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",

@@ -62,7 +62,6 @@ function resolveSharedPeerVersion(): string {
 }
 
 interface DeploymentEntry {
-	policy: string;
 	policyData: string;
 	wasmCid: string;
 	policyCodeHash: string;

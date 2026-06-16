@@ -1,16 +1,17 @@
 # Operating a Newton Policy
 
-This doc covers the post-deploy lifecycle: registering a `PolicyClient`, binding it to the policy you just deployed, setting params, and uploading encrypted API keys for the packs that need them.
+This doc covers the post-deploy lifecycle: deploying **your** policy from a pack's reference Rego, registering a `PolicyClient`, binding it to that policy, setting params, and uploading encrypted API keys for the packs that need them.
 
-`newton-cli policy deploy` puts your policy on-chain — it does **not** wire it into a vault. The wiring happens here.
+A pack in this repo ships a reusable **oracle** (`NewtonPolicyData`), not a blessed policy. You deploy your own `NewtonPolicy` — single-pack (referencing one pack's `policyData`) or composite (referencing several) — from a reference `policy.rego`. `newton-cli policy deploy` puts that policy on-chain; it does **not** wire it into a vault. The wiring happens here. To write a composite, see [`docs/writing-composite-policies.md`](./docs/writing-composite-policies.md).
 
 ## Mental model
 
-Three on-chain pieces:
+Four on-chain pieces:
 
 | Piece | What it is | Who deploys it |
 |---|---|---|
-| **Policy** | The deployed policy contract that the prover network evaluates. Address comes from your `<pack>/deployment.log` (`Policy deployed successfully at address: 0x...`). | You, via `newton-cli policy deploy` |
+| **PolicyData (oracle)** | The reusable WASM-oracle contract a pack publishes. Address + `wasmCid` live in [`deployments.json`](./deployments.json) (`packs.<name>.<chain_id>.policyData`). | Newton / this repo, per pack |
+| **Policy** | **Your** deployed `NewtonPolicy` that references one or more PolicyData oracles via `--policy-data-address` and evaluates your Rego. Address comes from your own `newton-cli policy deploy` (`Policy deployed successfully at address: 0x...`). | You, from a reference / composite `policy.rego` |
 | **PolicyClient** | Your contract that calls Newton at vault deposit time. One per gate per vault. | You, separately (Solidity) |
 | **PolicyClientRegistry** | Newton-deployed registry, one per chain. Authority that gates which `PolicyClient` contracts can submit evaluation tasks. | Newton |
 
@@ -43,7 +44,7 @@ newton-cli policy-client set-policy \
   --policy 0x<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>
 ```
 
-Owner-only. The canonical `<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>` for each pack lives in [`deployments.json`](./deployments.json) at the repo root (`packs.<name>.<chain_id>.policy`). For ad-hoc / unmerged deploys it's the last "Policy deployed successfully at address: 0x…" line in `<pack>/deployment.log`.
+Owner-only. `<POLICY_ADDRESS_FROM_DEPLOYMENT_LOG>` is the address of **your own** `NewtonPolicy` — the one you deployed with `newton-cli policy deploy --policy-data-address <pack's policyData> --policy-file <your policy.rego>`, captured from its "Policy deployed successfully at address: 0x…" output. The reusable pack oracle you referenced (`packs.<name>.<chain_id>.policyData` in [`deployments.json`](./deployments.json)) is the `--policy-data-address` input to that deploy, not the policy address you bind here. (For a composite, your policy references several `policyData` addresses — see [`docs/writing-composite-policies.md`](./docs/writing-composite-policies.md).)
 
 ## 3. Set policy params
 

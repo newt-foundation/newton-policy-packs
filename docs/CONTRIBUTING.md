@@ -2,7 +2,7 @@
 
 This guide is for partners and external developers integrating a new data service (KYC, risk feeds, oracle data, on-chain monitoring, etc.) as a Newton Policy Pack.
 
-A "policy pack" is the unit a vault curator wires into their Shield to gate an action with your service. Once your pack ships, any curator running a Newton Shield can reference its on-chain `Policy` + `PolicyData` addresses, set per-vault params, and your service participates in the deny/allow decision for every gated transaction.
+A "policy pack" ships a reusable on-chain **oracle** (`NewtonPolicyData`) plus the typed bindings and a reference `policy.rego`. A curator references your pack's `PolicyData` address from their own `NewtonPolicy` — single-pack or composite — sets per-vault params, and your service participates in the deny/allow decision for every gated transaction. (Packs do NOT ship a blessed `NewtonPolicy`; the Rego is a reference curators copy and deploy themselves.)
 
 If you're a vault curator wanting to *consume* an existing pack, you don't need this doc — see [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) on npm.
 

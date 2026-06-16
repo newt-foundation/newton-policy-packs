@@ -116,7 +116,7 @@ type DeploymentLookupable = {
  * itself has no entry, `UnsupportedEnvError` if the chain has at least one
  * env but not the one requested. Use this at every SDK callsite that reads
  * `pack.deployments[chainId][env]` so unsupported-cell failures surface
- * immediately rather than as `undefined.policy` further down.
+ * immediately rather than as `undefined.policyData` further down.
  *
  * Accepts either a `PolicyPack` (curator-facing, for single-pack flows) or
  * an `OracleModule` (composite-policy view, for `defineComposite` consumers).
