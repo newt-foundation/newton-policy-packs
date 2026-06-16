@@ -94,6 +94,10 @@ newton-cli policy simulate \
 
 Without a `WEBACY_API_KEY` set, the WASM oracle will return `{"error": "..."}` from the upstream call and the Rego will deny — exactly as intended (fail closed on missing data).
 
+## Deploy
+
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
+
 ## Deployments
 
 See [`deployments.json`](../deployments.json) at the repo root for deployed contract addresses (`packs.webacy.<chain_id>.<env>.policyData` — the reusable oracle; you deploy your own policy referencing it).

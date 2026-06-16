@@ -82,21 +82,28 @@ newton-cli doctor
 ## Build
 
 ```bash
-newton-cli policy build -p ./sumsub
+jco componentize ./sumsub/policy.js \
+  --wit ./sumsub/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./sumsub/dist/policy.wasm
 ```
 
 ## Simulate
 
 ```bash
-# Test full policy (WASM + Rego)
-newton-cli policy simulate -p ./sumsub
-
-# With custom args
-newton-cli policy simulate -p ./sumsub --wasm-args ./sumsub/configs/wasm_args.json --intent-json ./sumsub/configs/intent.json --policy-params-data ./sumsub/configs/params.json
+newton-cli policy simulate \
+  --wasm-args ./sumsub/configs/wasm_args.json \
+  --intent-json ./sumsub/configs/intent.json \
+  --policy-params-data ./sumsub/configs/params.json \
+  --policy-file ./sumsub/policy.rego \
+  --wasm-file ./sumsub/dist/policy.wasm
 ```
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./sumsub
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
+
+## Deployments
+
+See [`deployments.json`](../deployments.json) at the repo root for the deployed oracle address (`packs.sumsub.<chain_id>.<env>.policyData` — the reusable oracle; you deploy your own policy referencing it).

@@ -82,24 +82,27 @@ newton-cli doctor
 ## Build
 
 ```bash
-newton-cli policy build -p ./vaultsfyi
+jco componentize ./vaultsfyi/policy.js \
+  --wit ./vaultsfyi/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./vaultsfyi/dist/policy.wasm
 ```
 
 ## Simulate
 
 ```bash
-# Test full policy (WASM + Rego)
-newton-cli policy simulate -p ./vaultsfyi
-
-# With custom args
-newton-cli policy simulate -p ./vaultsfyi --wasm-args ./vaultsfyi/configs/wasm_args.json --intent-json ./vaultsfyi/configs/intent.json --policy-params-data ./vaultsfyi/configs/params.json
+newton-cli policy simulate \
+  --wasm-args ./vaultsfyi/configs/wasm_args.json \
+  --intent-json ./vaultsfyi/configs/intent.json \
+  --policy-params-data ./vaultsfyi/configs/params.json \
+  --policy-file ./vaultsfyi/policy.rego \
+  --wasm-file ./vaultsfyi/dist/policy.wasm
 ```
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./vaultsfyi
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 

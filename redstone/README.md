@@ -75,7 +75,11 @@ newton-cli doctor
 ## Build
 
 ```bash
-newton-cli policy build -p ./redstone
+jco componentize ./redstone/policy.js \
+  --wit ./redstone/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./redstone/dist/policy.wasm
 ```
 
 ## Test (Rego unit tests)
@@ -87,16 +91,19 @@ opa test ./redstone/policy.rego ./redstone/policy_test.rego -v
 ## Simulate
 
 ```bash
-newton-cli policy simulate -p ./redstone
+newton-cli policy simulate \
+  --wasm-args ./redstone/configs/wasm_args.json \
+  --intent-json ./redstone/configs/intent.json \
+  --policy-params-data ./redstone/configs/params.json \
+  --policy-file ./redstone/policy.rego \
+  --wasm-file ./redstone/dist/policy.wasm
 ```
 
 The default `configs/wasm_args.json` queries RedStone for `ETH` and reads Chainlink ETH/USD on Sepolia (`0x694AA1769357215DE4FAC081bf1f309aDC325306`, selector `0x50d25bcd`, 8 decimals) — both calls work without API keys.
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./redstone
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 

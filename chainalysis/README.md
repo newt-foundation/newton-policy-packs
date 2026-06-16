@@ -60,7 +60,11 @@ Two API keys can be passed via `wasm_args` (and the runtime's `getSecret`):
 ## Build
 
 ```bash
-newton-cli policy build -p ./chainalysis
+jco componentize ./chainalysis/policy.js \
+  --wit ./chainalysis/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./chainalysis/dist/policy.wasm
 ```
 
 ## Test (Rego unit tests)
@@ -72,14 +76,17 @@ opa test ./chainalysis/policy.rego ./chainalysis/policy_test.rego -v
 ## Simulate
 
 ```bash
-newton-cli policy simulate -p ./chainalysis
+newton-cli policy simulate \
+  --wasm-args ./chainalysis/configs/wasm_args.json \
+  --intent-json ./chainalysis/configs/intent.json \
+  --policy-params-data ./chainalysis/configs/params.json \
+  --policy-file ./chainalysis/policy.rego \
+  --wasm-file ./chainalysis/dist/policy.wasm
 ```
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./chainalysis
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 

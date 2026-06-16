@@ -80,7 +80,11 @@ Set `PERSONA_API_KEY` in your environment (it is forwarded into the WASM oracle 
 ## Build
 
 ```bash
-newton-cli policy build -p ./persona
+jco componentize ./persona/policy.js \
+  --wit ./persona/newton-provider.wit \
+  -n newton-provider \
+  --disable http --disable random --disable fetch-event --disable stdio \
+  -o ./persona/dist/policy.wasm
 ```
 
 ## Test
@@ -92,23 +96,19 @@ opa test ./persona/policy.rego ./persona/policy_test.rego -v
 ## Simulate
 
 ```bash
-# Test full policy (WASM + Rego)
-newton-cli policy simulate -p ./persona
-
-# With custom args
-newton-cli policy simulate -p ./persona \
+newton-cli policy simulate \
   --wasm-args ./persona/configs/wasm_args.json \
   --intent-json ./persona/configs/intent.json \
-  --policy-params-data ./persona/configs/params.json
+  --policy-params-data ./persona/configs/params.json \
+  --policy-file ./persona/policy.rego \
+  --wasm-file ./persona/dist/policy.wasm
 ```
 
 Note: simulation will fail with an HTTP error unless `PERSONA_API_KEY` in `configs/wasm_args.json` is a real Persona key with access to an inquiry whose `reference-id` matches the `walletAddress`.
 
 ## Deploy
 
-```bash
-newton-cli policy deploy -p ./persona
-```
+This pack ships a reusable **PolicyData oracle** (the WASM built above), not a blessed `NewtonPolicy`. The `policy.rego` here is a **reference implementation** — copy it as the starting point for your own policy and adapt the deny rules to your vault. Publishing the oracle follows the deploy flow in the [root README Quick Start](../README.md#quick-start) (`generate-cids` → `policy-data deploy`). To gate a vault, deploy your own `NewtonPolicy` (single-pack or composite) referencing this pack's `policyData` — see [`docs/writing-composite-policies.md`](../docs/writing-composite-policies.md).
 
 ## Deployments
 

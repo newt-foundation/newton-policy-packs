@@ -135,7 +135,7 @@ Each pack has the same shape:
 ```
 <pack>/
 ├── policy.js                 # WASM oracle source
-├── policy.rego               # Rego rules
+├── policy.rego               # Rego rules (reference impl — copy & adapt; not a blessed policy)
 ├── policy_test.rego          # Rego unit tests
 ├── newton-provider.wit
 ├── params_schema.json
@@ -165,7 +165,7 @@ Each policy has a `configs/` subdirectory (gitignored) with:
 - `params.json` — Policy parameters evaluated by Rego
 - `intent.json` — Transaction intent being evaluated
 
-When you run `newton-cli policy simulate -p ./my_policy`, the CLI auto-resolves these files from `configs/` inside the policy directory. You can override with explicit flags (`--wasm-args`, `--policy-params-data`, `--intent-json`).
+Pass these to `newton-cli policy simulate` via `--wasm-args`, `--policy-params-data`, and `--intent-json` (with `--policy-file` and `--wasm-file` — see the [Quick Start](#quick-start) for the full invocation).
 
 ## Included Policies
 

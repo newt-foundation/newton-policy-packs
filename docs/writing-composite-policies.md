@@ -28,7 +28,7 @@ At evaluation time the AVS runs every referenced oracle WASM, **merges** their J
 
 | Goal | Shape |
 |---|---|
-| Gate on exactly one pack | Single pack — bind the pack's published `policy` address directly. No composite. |
+| Gate on exactly one pack | Single pack — deploy your own `NewtonPolicy` referencing the pack's `policyData`. No composite. |
 | Gate on N packs, ALL must pass | **Composite** — author Rego over N oracles. |
 | Different gates for `reallocate` vs `submitCap` | Out of scope — same Rego runs on every action your Shield routes. v2 question. |
 | "Only call oracle B if oracle A says X" | Out of scope — every referenced oracle runs every call. Composites are AND-composition, not conditional flow. |

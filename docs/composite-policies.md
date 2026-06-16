@@ -33,7 +33,7 @@ No new infrastructure. No new WASM build per composite — you reuse existing Po
 
 | Use case | Shape |
 |---|---|
-| "Gate `reallocate` with VaultsFYI's risk envelope, nothing else" | Single pack — bind `vaultsfyi`'s deployed Policy directly. |
+| "Gate `reallocate` with VaultsFYI's risk envelope, nothing else" | Single pack — deploy your own `NewtonPolicy` referencing `vaultsfyi`'s `policyData`. |
 | "Gate `reallocate` with VaultsFYI AND deny if curator wallet is sanctioned" | **Composite** — author Rego over `vaultsfyi + chainalysis`. |
 | "Gate `reallocate` with VaultsFYI for risk AND RedStone for oracle health AND Webacy for the depositor's reputation" | **Composite** — three modules. |
 | "Gate `reallocate` with VaultsFYI but `submitCap` with KYC" | Out of scope for composite. v2 design question. |
