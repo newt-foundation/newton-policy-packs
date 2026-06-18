@@ -63,22 +63,25 @@ argument is `PrepareQueryArgs`:
 interface PrepareQueryArgs {
   readonly publicClient: PublicClient;   // viem client for on-chain reads
   readonly subject: Address;             // the on-chain entity this evaluation concerns
-  readonly dataSourceChainId?: number;   // testing override (see below)
-  readonly dataSourceSubject?: Address;  // testing override (see below)
 }
 ```
+
+The base shape is deliberately minimal — `publicClient` + `subject`. Everything
+pack-specific, **including per-call overrides**, lives in the second
+`options` argument, which your pack narrows to its own typed shape. Don't reach
+for fields on the base interface; your `wasm_args` are unique to your pack, so
+your inputs belong in your `options`.
 
 **`subject`** is the on-chain entity the gated action is *about*. It is NOT the
 policy client (the Shield) and NOT the depositor — it is the thing your oracle
 inspects. For a vault-risk pack like **vaultsfyi**, the `subject` is the
 **MetaMorpho vault** the curator is reallocating: vaultsfyi's WASM fetches
 `api.vaults.fyi/.../<network>/<subject>` to score that vault's risk. (The field
-was once named `vault` for exactly this case, but most packs don't operate on a
-vault — Chainalysis screens a depositor address, RedStone reads a price feed —
-so the shared interface uses the neutral `subject`.) `subject` is always present
-in `PrepareQueryArgs`, but a pack need not use it: a pack that inspects a
-per-call entity (e.g. the depositor address Chainalysis screens) takes that from
-its `options` parameter instead and simply ignores `subject`.
+was once named `vault`, but most packs don't operate on a vault — Chainalysis
+screens a depositor address, RedStone reads a price feed — so the shared
+interface uses the neutral `subject`.) A pack that inspects a per-call entity
+(e.g. the depositor address Chainalysis screens) takes that from its `options`
+instead and ignores `subject`.
 
 **"Data source"** = the *external* place your pack reads from to make its
 decision — vaultsfyi's data source is the vaults.fyi REST API; RedStone's is its
@@ -87,17 +90,18 @@ from the *execution chain* (where the Shield submits the transaction) and from
 the `subject` (the entity on that chain). Normally they line up: you score the
 same vault, on the same chain, that the Shield gates.
 
-**`dataSourceChainId` / `dataSourceSubject` (optional, testing only).** When a
-pack's data source only covers production networks, a curator testing on a
-testnet has no data and the policy fails closed. These overrides let the pack
-resolve its data source against a *different* chain / subject than the executed
-one — e.g. vaultsfyi reads a real **mainnet** vault's risk while the Shield
-executes a reallocation on a **testnet** vault. Worked example: a Base-Sepolia
-e2e passes `dataSourceChainId: 1` + `dataSourceSubject: <a real mainnet vault>`
-so vaultsfyi returns live data instead of a 404. This **decouples the oracle's
-data from the executed entity**, so it is strictly a testing/demo affordance —
-in production leave both unset so the policy describes the same vault it gates.
-A pack that honors these overrides MUST document the decoupling in its README.
+**Data-source overrides are a per-pack concern (testing only).** When a pack's
+data source only covers production networks, a curator testing on a testnet has
+no data and the policy fails closed. If your pack has this shape, expose your
+own override fields in *your* `options` so a curator can resolve the lookup
+against a real production target while the Shield executes on a testnet — e.g.
+vaultsfyi accepts `{ network, vaultAddress }` and guardrail accepts
+`{ chainId, vaultAddress }`, each matching that pack's own `wasm_args`. This
+**decouples the oracle's data from the executed entity**, so it is strictly a
+testing/demo affordance — production callers leave the overrides unset so the
+policy describes the same vault it gates. There is intentionally no generic
+base-interface override: each pack owns whether and how to support this, and
+MUST document it in its README.
 
 ## Naming convention
 

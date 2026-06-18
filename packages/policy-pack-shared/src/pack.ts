@@ -17,31 +17,19 @@ import type { ChainId, Deployment, GatewayEnv } from "./deployment";
  * don't operate on a vault and the shared interface shouldn't bake in one
  * pack family's noun.
  *
- * ## Data-source overrides (non-production testing)
- *
- * Some packs resolve an EXTERNAL data source keyed on the execution chain and
- * subject — e.g. VaultsFYI fetches `api.vaults.fyi/.../<network>/<subject>`.
- * When that data source only covers production networks (vaults.fyi indexes
- * mainnets only), a curator testing on a testnet has no data and the policy
- * fails closed. These optional overrides let the pack point its data lookup at
- * a different chain / subject than the one the Shield actually executes against:
- *
- * - `dataSourceChainId` — resolve the pack's external data source against this
- *   chain instead of `publicClient.chain.id`.
- * - `dataSourceSubject` — use this address as the data-source key instead of
- *   `subject`.
- *
- * This decouples the oracle's data from the executed entity, so it is a
- * **testing / demo affordance, not a production pattern** — in production the
- * data source must describe the same entity the Shield gates. Packs that don't
- * consult a per-chain external source ignore both. A pack that honors them
- * MUST document the decoupling.
+ * This base shape is deliberately minimal. Anything pack-specific — including
+ * per-call overrides — belongs in the pack's own `prepareQuery(args, options)`
+ * second argument, which each pack narrows to its own typed shape (VaultsFYI's
+ * `previousAllocationHash`, Chainalysis's `address`, etc.). For example, a pack
+ * whose external data source only covers production networks can expose its own
+ * `network` / `vaultAddress` override in `options` so a curator can point the
+ * lookup at a real mainnet target while testing on a testnet — that is the
+ * pack's responsibility to design and document, not a base-interface concern,
+ * since each pack's `wasm_args` are unique.
  */
 export interface PrepareQueryArgs {
 	readonly publicClient: PublicClient;
 	readonly subject: Address;
-	readonly dataSourceChainId?: number;
-	readonly dataSourceSubject?: Address;
 }
 
 /**

@@ -23,8 +23,8 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  * sorted keys) — not per-pack.
  *
  * `prepareQuery` populates `vaultAddress` from `PrepareQueryArgs.subject` and
- * `chainId` from `publicClient.chain.id` (both overridable for testing via
- * `dataSourceSubject` / `dataSourceChainId`). A curator that prefers
+ * `chainId` from `publicClient.chain.id` (both overridable for testing via the
+ * pack's own `vaultAddress` / `chainId` options). A curator that prefers
  * protocol-level alerts can pass `protocolId` via the options bag.
  */
 export const guardrail: PolicyPack<Params, WasmArgs, Secrets> = {

@@ -48,27 +48,49 @@ function networkForChain(chainId: number): string {
  * AVS's FNV-1a-over-API-metadata, so `deny_on_allocation_change: true` was
  * effectively a coin flip. Removed.
  */
+/**
+ * Per-call options for vaultsfyi's `prepareQuery`.
+ *
+ * - `previousAllocationHash` — the hash the AVS returned on the prior call, for
+ *   the `deny_on_allocation_change` freshness comparison (see above).
+ * - `network` / `vaultAddress` — **data-source overrides (testing only).**
+ *   vaults.fyi indexes production networks only, so a curator testing on a
+ *   testnet (e.g. Base Sepolia) has no data and the policy fails closed. Set
+ *   these to point the vaults.fyi lookup at a real mainnet vault while the
+ *   Shield executes on the testnet: `network` is the vaults.fyi slug
+ *   (e.g. `"mainnet"`, `"base"`) and `vaultAddress` is the indexed vault. This
+ *   decouples the oracle's data from the vault the Shield gates, so it is a
+ *   testing/demo affordance — leave both unset in production so the risk
+ *   envelope describes the same vault the Shield reallocates.
+ */
+export interface PrepareQueryOptions {
+	readonly previousAllocationHash?: string;
+	readonly network?: string;
+	readonly vaultAddress?: string;
+}
+
 export async function prepareQuery(
-	{ publicClient, subject, dataSourceChainId, dataSourceSubject }: PrepareQueryArgs,
-	options: { previousAllocationHash?: string } = {},
+	{ publicClient, subject }: PrepareQueryArgs,
+	options: PrepareQueryOptions = {},
 ): Promise<PrepareQueryResult<WasmArgs>> {
-	// vaults.fyi indexes production networks only, so a curator testing on a
-	// testnet has no data and the policy fails closed. `dataSourceChainId` /
-	// `dataSourceSubject` let them point the lookup at a real mainnet vault
-	// while the Shield executes on the testnet — a testing/demo affordance
-	// (see PrepareQueryArgs). In production, leave both unset so the oracle
-	// describes the same vault the Shield gates.
-	const lookupChainId = dataSourceChainId ?? publicClient.chain?.id;
-	if (lookupChainId === undefined) {
-		throw new Error(
-			"policy-pack-vaultsfyi: no chain to resolve a vaults.fyi network from. Pass a chain to viem's createPublicClient, or set dataSourceChainId.",
-		);
+	// `network` defaults to the vaults.fyi slug for the execution chain; the
+	// `network` / `vaultAddress` overrides (testing only) point the lookup
+	// elsewhere — see PrepareQueryOptions.
+	let network = options.network;
+	if (network === undefined) {
+		const chainId = publicClient.chain?.id;
+		if (chainId === undefined) {
+			throw new Error(
+				"policy-pack-vaultsfyi: no chain to resolve a vaults.fyi network from. Pass a chain to viem's createPublicClient, or set the `network` option.",
+			);
+		}
+		network = networkForChain(chainId);
 	}
 
 	return {
 		wasmArgs: {
-			network: networkForChain(lookupChainId),
-			vaultAddress: dataSourceSubject ?? subject,
+			network,
+			vaultAddress: options.vaultAddress ?? subject,
 			lastKnownAllocationHash: options.previousAllocationHash ?? null,
 		},
 	};
