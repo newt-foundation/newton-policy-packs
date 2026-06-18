@@ -41,6 +41,26 @@ Calls Guardrail's alerts endpoint (and optionally a health endpoint) for the tar
 | `max_alert_age_seconds` | number | Max allowed age of the oldest alert |
 | `min_health_score` | number | Floor on the protocol health score |
 
+### Testing on a non-production network (data-source override)
+
+Guardrail's data source — its alert/health API — indexes production protocols
+and vaults. A curator testing on a network the API doesn't cover would get no
+data and the policy would fail closed. To exercise the pack on a testnet, the
+SDK's `prepareQuery` accepts two optional overrides (from `PrepareQueryArgs`)
+that point the lookup at a real production target while the Shield still
+executes on the testnet:
+
+| Override | Effect |
+|----------|--------|
+| `dataSourceChainId` | resolve the data source against this chain instead of the execution chain |
+| `dataSourceSubject` | use this address as the data-source key instead of the executed `subject` |
+
+This **decouples the data Guardrail evaluates from the vault the Shield actually
+gates**, so it is a **testing/demo affordance only**. In production, leave both
+unset so the alert/health check describes the same vault the Shield executes
+against. See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-subject-and-the-data-source)
+for the shared-interface definition of `subject` and "data source".
+
 ## Prerequisites
 
 ```bash

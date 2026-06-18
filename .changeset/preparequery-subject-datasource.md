@@ -1,14 +1,14 @@
 ---
 "@newton-xyz/policy-pack-shared": minor
-"@newton-xyz/policy-pack-vaultsfyi": minor
-"@newton-xyz/policy-pack-chainalysis": minor
-"@newton-xyz/policy-pack-redstone": minor
-"@newton-xyz/policy-pack-webacy": minor
-"@newton-xyz/policy-pack-persona": minor
-"@newton-xyz/policy-pack-sumsub": minor
-"@newton-xyz/policy-pack-blockaid": minor
-"@newton-xyz/policy-pack-guardrail": minor
-"@newton-xyz/policy-pack-balancer": minor
+"@newton-xyz/policy-pack-vaultsfyi": major
+"@newton-xyz/policy-pack-chainalysis": major
+"@newton-xyz/policy-pack-redstone": major
+"@newton-xyz/policy-pack-webacy": major
+"@newton-xyz/policy-pack-persona": major
+"@newton-xyz/policy-pack-sumsub": major
+"@newton-xyz/policy-pack-blockaid": major
+"@newton-xyz/policy-pack-guardrail": major
+"@newton-xyz/policy-pack-balancer": major
 ---
 
 Rename `PrepareQueryArgs.vault` → `subject` and add data-source overrides.
@@ -35,7 +35,9 @@ from the executed entity, so it is a testing/demo affordance — production
 callers leave both unset. See `docs/CONTRIBUTING.md` for the full definition.
 
 **Breaking:** consumers constructing `PrepareQueryArgs` (or calling a composite's
-`prepareQuery`) must pass `subject` instead of `vault`. This cascades a peer-dep
-bump across all per-pack packages per ADR 0001. Pack authors upgrading to
-shared `^0.5.0` must update their `prepareQuery` signature to destructure
-`subject` (not `vault`) before bumping.
+`prepareQuery`) must pass `subject` instead of `vault`. Per ADR 0001 this is a
+breaking change to the shared interface, so it cascades a **major** bump to every
+per-pack package (they move 2.0.x → 3.0.0; `shared` itself is pre-1.0, so its
+breaking bump is `0.4.6` → `0.5.0`). Anyone who reads `vault` off `PrepareQueryArgs`
+— in a pack's `prepareQuery` or a direct caller — must replace that use with
+`subject`.
