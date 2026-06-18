@@ -53,15 +53,15 @@ the testnet:
 | Option | Effect |
 |--------|--------|
 | `chainId` | the numeric chain id to query instead of the execution chain |
-| `vaultAddress` | the vault address to look up instead of the executed `subject` |
+| `vaultAddress` | the vault address to look up instead of the executed `target` |
 
 Pass them via the SDK's per-call `prepareQueryOptions` keyed by short pack id —
 `{ guardrail: { chainId: 1, vaultAddress: "0x…" } }`. This **decouples the data
 Guardrail evaluates from the vault the Shield actually gates**, so it is a
 **testing/demo affordance only**. In production, leave both unset so the
 alert/health check describes the same vault the Shield executes against. See
-[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-subject-and-the-data-source)
-for the definition of `subject` and "data source".
+[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-target-and-the-data-source)
+for the definition of `target` and "data source".
 
 ## Prerequisites
 

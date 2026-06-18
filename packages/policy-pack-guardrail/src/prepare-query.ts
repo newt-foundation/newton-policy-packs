@@ -4,7 +4,7 @@ import type { WasmArgs } from "./wasm-args";
 /**
  * Per-call inputs for Guardrail. The wasm args schema requires *at least one
  * of* `protocolId` or `vaultAddress`. `vaultAddress` is naturally available
- * from `PrepareQueryArgs.subject` (the vault the curator is acting on); a
+ * from `PrepareQueryArgs.target` (the vault the curator is acting on); a
  * curator that prefers Guardrail's protocol-level alerts can pass
  * `protocolId` via the options bag instead.
  *
@@ -24,13 +24,13 @@ export interface PrepareQueryOptions {
 }
 
 export async function prepareQuery(
-	{ publicClient, subject }: PrepareQueryArgs,
+	{ publicClient, target }: PrepareQueryArgs,
 	options?: PrepareQueryOptions,
 ): Promise<PrepareQueryResult<WasmArgs>> {
 	const chainId = options?.chainId ?? publicClient.chain?.id;
 	return {
 		wasmArgs: {
-			vaultAddress: options?.vaultAddress ?? subject,
+			vaultAddress: options?.vaultAddress ?? target,
 			...(options?.protocolId ? { protocolId: options.protocolId } : {}),
 			...(chainId !== undefined ? { chainId } : {}),
 		},

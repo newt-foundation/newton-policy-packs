@@ -15,7 +15,7 @@ pnpm add @newton-xyz/policy-pack-guardrail
 | Export | Source | Purpose |
 |---|---|---|
 | `guardrail` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
-| `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Populates `vaultAddress` from `PrepareQueryArgs.subject` and `chainId` from `publicClient.chain.id`; optional `protocolId`, plus `chainId` / `vaultAddress` testing overrides, via the options bag. |
+| `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Populates `vaultAddress` from `PrepareQueryArgs.target` and `chainId` from `publicClient.chain.id`; optional `protocolId`, plus `chainId` / `vaultAddress` testing overrides, via the options bag. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |
 | `ParamsSchema` (zod) + `Params` (type) | `params_schema.json` | Configuration thresholds, set at policy upload time. |

@@ -70,7 +70,7 @@ export interface PrepareQueryOptions {
 }
 
 export async function prepareQuery(
-	{ publicClient, subject }: PrepareQueryArgs,
+	{ publicClient, target }: PrepareQueryArgs,
 	options: PrepareQueryOptions = {},
 ): Promise<PrepareQueryResult<WasmArgs>> {
 	// `network` defaults to the vaults.fyi slug for the execution chain; the
@@ -90,7 +90,7 @@ export async function prepareQuery(
 	return {
 		wasmArgs: {
 			network,
-			vaultAddress: options.vaultAddress ?? subject,
+			vaultAddress: options.vaultAddress ?? target,
 			lastKnownAllocationHash: options.previousAllocationHash ?? null,
 		},
 	};

@@ -94,8 +94,8 @@ export async function encodeParams() {
 export async function buildWasmArgs() {
 	const composite = await buildComposite();
 	const { wasmArgs } = await composite.prepareQuery(
-		// `subject` is the on-chain entity the evaluation concerns — here the vault.
-		{ publicClient, subject: VAULT_ADDRESS },
+		// `target` is the manager action's on-chain target — here the vault.
+		{ publicClient, target: VAULT_ADDRESS },
 		{
 			// keyed by short pack id; modules without per-call options omit their key
 			chainalysis: { address: DEPOSITOR_ADDRESS },

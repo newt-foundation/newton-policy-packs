@@ -18,8 +18,10 @@ fields to the shared `PrepareQueryArgs`. That was the wrong layer: each pack's
 `wasm_args` are unique, so a generic base-interface override doesn't fit — the
 responsibility to support (and shape) an override belongs to each pack.
 
-- `PrepareQueryArgs` is now minimal again: `{ publicClient, subject }`. The two
-  `dataSource*` fields are **removed**.
+- `PrepareQueryArgs` is now minimal again: `{ publicClient, target }`. The two
+  `dataSource*` fields are **removed**, and the entity field is renamed
+  `subject` → **`target`** (the manager action's on-chain target — clearer than
+  the too-vague `subject` that 0.5.0 introduced).
 - Packs that read an external data source keyed on chain/vault now expose their
   own override in their `prepareQuery` `options`, matching that pack's own
   `wasm_args`: **vaultsfyi** accepts `{ network?, vaultAddress? }` (the

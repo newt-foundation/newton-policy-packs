@@ -85,15 +85,15 @@ mainnet vault while the Shield still executes on the testnet:
 | Option | Effect |
 |--------|--------|
 | `network` | the vaults.fyi network slug to query (e.g. `"mainnet"`, `"base"`) instead of deriving it from the execution chain |
-| `vaultAddress` | the vaults.fyi vault address to score instead of the executed `subject` |
+| `vaultAddress` | the vaults.fyi vault address to score instead of the executed `target` |
 
 Pass them via the SDK's per-call `prepareQueryOptions` keyed by short pack id —
 `{ vaultsfyi: { network: "mainnet", vaultAddress: "0x…" } }`. This **decouples
 the oracle's data from the vault the Shield actually gates**, so it is a
 **testing/demo affordance only**. In production, leave both unset so the risk
 envelope describes the same vault the Shield executes against. See
-[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-subject-and-the-data-source)
-for the definition of `subject` and "data source".
+[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-target-and-the-data-source)
+for the definition of `target` and "data source".
 
 ## Prerequisites
 

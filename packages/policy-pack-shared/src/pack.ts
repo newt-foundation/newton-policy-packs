@@ -6,16 +6,19 @@ import type { ChainId, Deployment, GatewayEnv } from "./deployment";
  * Inputs that a pack's `prepareQuery` reads at intent-build time.
  *
  * The Shield SDK passes a viem `PublicClient` (so the pack can read on-chain
- * state) and `subject` — the on-chain entity this evaluation concerns. For a
- * vault-risk pack (VaultsFYI, Guardrail) `subject` is the vault being curated;
+ * state) and `target` — the on-chain contract the gated manager action acts on
+ * (the Shield's `intent.to`, sourced from the curator's `vault` config). For a
+ * vault-risk pack (VaultsFYI, Guardrail) `target` is the vault being curated;
  * a pack that inspects a different kind of entity reads whatever it needs.
- * Identity / screening packs (Chainalysis, Persona, Sumsub, Webacy) take their
- * subject from the per-call `options` bag instead and ignore `subject`. Packs
- * that need no on-chain state can ignore everything — `prepareQuery` is optional.
+ * Identity / screening packs (Chainalysis, Persona, Sumsub, Webacy) take the
+ * address they screen from the per-call `options` bag instead and ignore
+ * `target`. Packs that need no on-chain state can ignore everything —
+ * `prepareQuery` is optional.
  *
- * `subject` was previously named `vault`; it was renamed because most packs
- * don't operate on a vault and the shared interface shouldn't bake in one
- * pack family's noun.
+ * `target` was previously named `vault`, then `subject`; it was renamed off
+ * `vault` because most packs don't operate on a vault, and off `subject`
+ * because that was too vague. `target` names what it is: the manager action's
+ * on-chain target.
  *
  * This base shape is deliberately minimal. Anything pack-specific — including
  * per-call overrides — belongs in the pack's own `prepareQuery(args, options)`
@@ -29,7 +32,7 @@ import type { ChainId, Deployment, GatewayEnv } from "./deployment";
  */
 export interface PrepareQueryArgs {
 	readonly publicClient: PublicClient;
-	readonly subject: Address;
+	readonly target: Address;
 }
 
 /**
