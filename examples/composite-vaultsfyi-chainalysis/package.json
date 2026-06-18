@@ -1,6 +1,6 @@
 {
   "name": "@newton-xyz/example-composite-vaultsfyi-chainalysis",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "description": "Worked example: composing the vaultsfyi + chainalysis packs into one composite Newton policy. Not published.",
   "license": "Apache-2.0",
