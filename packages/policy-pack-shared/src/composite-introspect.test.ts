@@ -1,6 +1,13 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { type Address, getAddress, type Hex } from "viem";
+import {
+	type Abi,
+	type Address,
+	decodeFunctionResult,
+	encodeFunctionResult,
+	getAddress,
+	type Hex,
+} from "viem";
 import { z } from "zod";
 import { introspectComposite } from "./composite-introspect";
 import { encodeCompositeParams, type MinimalCompositePack } from "./composite-manifest";
@@ -273,5 +280,84 @@ describe("introspectComposite — verification mismatches", () => {
 		});
 
 		assert.equal(result.verification.onChainPolicyDataMatches, true);
+	});
+});
+
+// ABI-level regression for the getPolicyConfig fix. The fake clients above hand
+// back a pre-decoded object, so they don't prove the ABI tuple shape decodes
+// real return bytes. This test exercises viem's decoder directly: it encodes a
+// canonical on-chain `(bytes policyParams, uint32 expireAfter)` result, decodes
+// it under the SHIPPED ABI, and confirms the OLD phantom 4-field ABI throws on
+// those same bytes (the `IntegerOutOfRangeError` this fix removes). If anyone
+// reintroduces `policyId` / `expireUnit`, this fails.
+describe("getPolicyConfig ABI decodes real return bytes", () => {
+	// The canonical AVS struct: INewtonPolicy.PolicyConfig { bytes; uint32 }.
+	const CORRECT_ABI = [
+		{
+			type: "function",
+			name: "getPolicyConfig",
+			inputs: [{ name: "policyId", type: "bytes32" }],
+			outputs: [
+				{
+					type: "tuple",
+					components: [
+						{ name: "policyParams", type: "bytes" },
+						{ name: "expireAfter", type: "uint32" },
+					],
+				},
+			],
+			stateMutability: "view",
+		},
+	] as const satisfies Abi;
+
+	// The phantom shape this fix removed.
+	const OLD_WRONG_ABI = [
+		{
+			type: "function",
+			name: "getPolicyConfig",
+			inputs: [{ name: "policyId", type: "bytes32" }],
+			outputs: [
+				{
+					type: "tuple",
+					components: [
+						{ name: "policyId", type: "bytes32" },
+						{ name: "policyParams", type: "bytes" },
+						{ name: "expireAfter", type: "uint32" },
+						{ name: "expireUnit", type: "uint8" },
+					],
+				},
+			],
+			stateMutability: "view",
+		},
+	] as const satisfies Abi;
+
+	const PARAMS: Hex = "0x7b226d6f64756c6573223a5b5d7d"; // {"modules":[]}
+	const EXPIRE_AFTER = 50; // 0x32 — the value that mis-decodes as a huge offset
+
+	// Encode the way the contract actually returns: 2-field tuple.
+	const onChainBytes = encodeFunctionResult({
+		abi: CORRECT_ABI,
+		functionName: "getPolicyConfig",
+		result: { policyParams: PARAMS, expireAfter: EXPIRE_AFTER },
+	});
+
+	it("decodes a 2-field result under the shipped ABI", () => {
+		const decoded = decodeFunctionResult({
+			abi: CORRECT_ABI,
+			functionName: "getPolicyConfig",
+			data: onChainBytes,
+		}) as { policyParams: Hex; expireAfter: number };
+		assert.equal(decoded.policyParams, PARAMS);
+		assert.equal(decoded.expireAfter, EXPIRE_AFTER);
+	});
+
+	it("the old 4-field ABI fails on the same bytes (the bug this fixes)", () => {
+		assert.throws(() =>
+			decodeFunctionResult({
+				abi: OLD_WRONG_ABI,
+				functionName: "getPolicyConfig",
+				data: onChainBytes,
+			}),
+		);
 	});
 });
