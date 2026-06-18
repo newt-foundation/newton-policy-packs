@@ -13,6 +13,8 @@ import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
 
+export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
+
 const BASIS_POINTS = 10_000;
 
 /**

@@ -45,21 +45,23 @@ Calls Guardrail's alerts endpoint (and optionally a health endpoint) for the tar
 
 Guardrail's data source — its alert/health API — indexes production protocols
 and vaults. A curator testing on a network the API doesn't cover would get no
-data and the policy would fail closed. To exercise the pack on a testnet, the
-SDK's `prepareQuery` accepts two optional overrides (from `PrepareQueryArgs`)
-that point the lookup at a real production target while the Shield still
-executes on the testnet:
+data and the policy would fail closed. To exercise the pack on a testnet, this
+pack's `prepareQuery` accepts two optional overrides in its **own options** that
+point the lookup at a real production target while the Shield still executes on
+the testnet:
 
-| Override | Effect |
-|----------|--------|
-| `dataSourceChainId` | resolve the data source against this chain instead of the execution chain |
-| `dataSourceSubject` | use this address as the data-source key instead of the executed `subject` |
+| Option | Effect |
+|--------|--------|
+| `chainId` | the numeric chain id to query instead of the execution chain |
+| `vaultAddress` | the vault address to look up instead of the executed `target` |
 
-This **decouples the data Guardrail evaluates from the vault the Shield actually
-gates**, so it is a **testing/demo affordance only**. In production, leave both
-unset so the alert/health check describes the same vault the Shield executes
-against. See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-subject-and-the-data-source)
-for the shared-interface definition of `subject` and "data source".
+Pass them via the SDK's per-call `prepareQueryOptions` keyed by short pack id —
+`{ guardrail: { chainId: 1, vaultAddress: "0x…" } }`. This **decouples the data
+Guardrail evaluates from the vault the Shield actually gates**, so it is a
+**testing/demo affordance only**. In production, leave both unset so the
+alert/health check describes the same vault the Shield executes against. See
+[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-target-and-the-data-source)
+for the definition of `target` and "data source".
 
 ## Prerequisites
 

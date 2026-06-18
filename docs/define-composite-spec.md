@@ -130,7 +130,7 @@ interface CompositePolicyPack {
    * The optional second argument is a per-module options bag keyed by short
    * pack id (e.g. `{ chainalysis: { address: "0x..." }, redstone: { symbol:
    * "ETH", rpcUrl: "...", onchainOracle: "0x..." } }`). Each module's
-   * `prepareQuery` receives `args` (publicClient + subject) and its own
+   * `prepareQuery` receives `args` (publicClient + target) and its own
    * `options[shortId]`. Modules without a per-call options shape ignore the
    * second arg.
    */
@@ -253,7 +253,7 @@ Curators construct it module-by-module:
 ```ts
 const compositePack = await defineComposite({ modules, chainId, env, publicClient, policyAddress });
 const result = await compositePack.prepareQuery!(
-  { publicClient, subject: vault }, // `subject` = the on-chain entity evaluated (here, the vault)
+  { publicClient, target: vault }, // `target` = the manager action's on-chain target (here, the vault)
   {
     chainalysis: { address: depositorAddress },
     redstone: { symbol: "ETH", rpcUrl, onchainOracle: oracleAddr },
