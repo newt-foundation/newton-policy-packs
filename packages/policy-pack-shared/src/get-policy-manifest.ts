@@ -62,10 +62,8 @@ const NEWTON_POLICY_ABI = [
 			{
 				type: "tuple",
 				components: [
-					{ name: "policyId", type: "bytes32" },
 					{ name: "policyParams", type: "bytes" },
 					{ name: "expireAfter", type: "uint32" },
-					{ name: "expireUnit", type: "uint8" },
 				],
 			},
 		],
@@ -112,7 +110,7 @@ export async function getPolicyManifest<TSinglePackParams = unknown>({
 		abi: NEWTON_POLICY_ABI,
 		functionName: "getPolicyConfig",
 		args: [policyId],
-	})) as { policyId: Hex; policyParams: Hex; expireAfter: number; expireUnit: number };
+	})) as { policyParams: Hex; expireAfter: number };
 
 	const bytes = policyConfig.policyParams;
 

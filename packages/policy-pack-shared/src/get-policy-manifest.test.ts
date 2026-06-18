@@ -51,10 +51,8 @@ function makeFakeClient(policyParams: Hex) {
 					return POLICY_ID;
 				case "getPolicyConfig":
 					return {
-						policyId: POLICY_ID,
 						policyParams,
 						expireAfter: 100,
-						expireUnit: 0,
 					};
 				default:
 					throw new Error(`unexpected: ${args.functionName}`);

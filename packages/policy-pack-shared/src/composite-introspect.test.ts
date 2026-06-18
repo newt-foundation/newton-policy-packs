@@ -88,10 +88,8 @@ function makeFakeClient(opts: {
 						return POLICY_ID;
 					case "getPolicyConfig":
 						return {
-							policyId: POLICY_ID,
 							policyParams: opts.policyConfigBytes,
 							expireAfter: 100,
-							expireUnit: 0,
 						};
 					case "getPolicyData":
 						return [...opts.onChainPolicyData];
