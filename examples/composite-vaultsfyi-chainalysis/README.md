@@ -91,7 +91,7 @@ await shield.setPolicy(policyParams, expireAfter);
 ```ts
 // Per intent — aggregated prepareQuery, per-module options keyed by short id
 const { wasmArgs } = await composite.prepareQuery(
-  { publicClient, vault },
+  { publicClient, subject: vault }, // `subject` = the on-chain entity evaluated (here, the vault)
   { chainalysis: { address: depositorAddress } },
 );
 

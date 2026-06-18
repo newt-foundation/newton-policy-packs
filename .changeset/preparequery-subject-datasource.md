@@ -36,4 +36,6 @@ callers leave both unset. See `docs/CONTRIBUTING.md` for the full definition.
 
 **Breaking:** consumers constructing `PrepareQueryArgs` (or calling a composite's
 `prepareQuery`) must pass `subject` instead of `vault`. This cascades a peer-dep
-bump across all per-pack packages per ADR 0001.
+bump across all per-pack packages per ADR 0001. Pack authors upgrading to
+shared `^0.5.0` must update their `prepareQuery` signature to destructure
+`subject` (not `vault`) before bumping.

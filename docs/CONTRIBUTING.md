@@ -61,10 +61,10 @@ argument is `PrepareQueryArgs`:
 
 ```ts
 interface PrepareQueryArgs {
-  publicClient: PublicClient;        // viem client for on-chain reads
-  subject: Address;                  // the on-chain entity this evaluation concerns
-  dataSourceChainId?: number;        // testing override (see below)
-  dataSourceSubject?: Address;       // testing override (see below)
+  readonly publicClient: PublicClient;   // viem client for on-chain reads
+  readonly subject: Address;             // the on-chain entity this evaluation concerns
+  readonly dataSourceChainId?: number;   // testing override (see below)
+  readonly dataSourceSubject?: Address;  // testing override (see below)
 }
 ```
 
@@ -75,8 +75,10 @@ inspects. For a vault-risk pack like **vaultsfyi**, the `subject` is the
 `api.vaults.fyi/.../<network>/<subject>` to score that vault's risk. (The field
 was once named `vault` for exactly this case, but most packs don't operate on a
 vault — Chainalysis screens a depositor address, RedStone reads a price feed —
-so the shared interface uses the neutral `subject`. Packs that take their
-subject from the per-call `options` bag, like Chainalysis, ignore `subject`.)
+so the shared interface uses the neutral `subject`.) `subject` is always present
+in `PrepareQueryArgs`, but a pack need not use it: a pack that inspects a
+per-call entity (e.g. the depositor address Chainalysis screens) takes that from
+its `options` parameter instead and simply ignores `subject`.
 
 **"Data source"** = the *external* place your pack reads from to make its
 decision — vaultsfyi's data source is the vaults.fyi REST API; RedStone's is its
