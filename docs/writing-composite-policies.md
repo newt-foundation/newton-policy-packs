@@ -164,7 +164,7 @@ The composite's `prepareQuery` runs every module's `prepareQuery` in parallel an
 
 ```ts
 const { wasmArgs } = await composite.prepareQuery(
-  { publicClient, vault },
+  { publicClient, subject: vault }, // `subject` = the on-chain entity evaluated (here, the vault)
   {
     chainalysis: { address: depositorAddress },
     // modules with no per-call options omit their key

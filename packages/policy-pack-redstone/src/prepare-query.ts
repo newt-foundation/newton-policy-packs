@@ -35,7 +35,7 @@ export async function prepareQuery(
 ): Promise<PrepareQueryResult<WasmArgs>> {
 	if (!options?.symbol || !options?.rpcUrl || !options?.onchainOracle) {
 		throw new Error(
-			"policy-pack-redstone: prepareQuery requires `symbol`, `rpcUrl`, and `onchainOracle` in the options bag — none of these can be derived from publicClient + vault.",
+			"policy-pack-redstone: prepareQuery requires `symbol`, `rpcUrl`, and `onchainOracle` in the options bag — none of these can be derived from publicClient + subject.",
 		);
 	}
 

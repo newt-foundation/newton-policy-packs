@@ -22,8 +22,9 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  * `decodePolicyParams` in `@newton-xyz/policy-pack-shared` (UTF-8 JSON,
  * sorted keys) — not per-pack.
  *
- * `prepareQuery` populates `vaultAddress` from `PrepareQueryArgs.vault` and
- * `chainId` from `publicClient.chain.id`. A curator that prefers
+ * `prepareQuery` populates `vaultAddress` from `PrepareQueryArgs.subject` and
+ * `chainId` from `publicClient.chain.id` (both overridable for testing via
+ * `dataSourceSubject` / `dataSourceChainId`). A curator that prefers
  * protocol-level alerts can pass `protocolId` via the options bag.
  */
 export const guardrail: PolicyPack<Params, WasmArgs, Secrets> = {

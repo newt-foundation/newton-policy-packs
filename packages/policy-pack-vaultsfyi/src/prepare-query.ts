@@ -49,20 +49,26 @@ function networkForChain(chainId: number): string {
  * effectively a coin flip. Removed.
  */
 export async function prepareQuery(
-	{ publicClient, vault }: PrepareQueryArgs,
+	{ publicClient, subject, dataSourceChainId, dataSourceSubject }: PrepareQueryArgs,
 	options: { previousAllocationHash?: string } = {},
 ): Promise<PrepareQueryResult<WasmArgs>> {
-	const chainId = publicClient.chain?.id;
-	if (chainId === undefined) {
+	// vaults.fyi indexes production networks only, so a curator testing on a
+	// testnet has no data and the policy fails closed. `dataSourceChainId` /
+	// `dataSourceSubject` let them point the lookup at a real mainnet vault
+	// while the Shield executes on the testnet — a testing/demo affordance
+	// (see PrepareQueryArgs). In production, leave both unset so the oracle
+	// describes the same vault the Shield gates.
+	const lookupChainId = dataSourceChainId ?? publicClient.chain?.id;
+	if (lookupChainId === undefined) {
 		throw new Error(
-			"policy-pack-vaultsfyi: publicClient.chain is undefined. Pass a chain to viem's createPublicClient.",
+			"policy-pack-vaultsfyi: no chain to resolve a vaults.fyi network from. Pass a chain to viem's createPublicClient, or set dataSourceChainId.",
 		);
 	}
 
 	return {
 		wasmArgs: {
-			network: networkForChain(chainId),
-			vaultAddress: vault,
+			network: networkForChain(lookupChainId),
+			vaultAddress: dataSourceSubject ?? subject,
 			lastKnownAllocationHash: options.previousAllocationHash ?? null,
 		},
 	};

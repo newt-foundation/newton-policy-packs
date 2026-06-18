@@ -750,7 +750,7 @@ describe("composite prepareQuery aggregation", () => {
 
 		const result = await composite.prepareQuery(
 			// biome-ignore lint/suspicious/noExplicitAny: fake client args
-			{ publicClient: fake.client as any, vault: "0xVAULT" },
+			{ publicClient: fake.client as any, subject: "0xVAULT" },
 			{ chainalysis: { address: "0xDEPOSITOR" } },
 		);
 		assert.deepEqual(result.wasmArgs, {
@@ -774,7 +774,7 @@ describe("composite prepareQuery aggregation", () => {
 		});
 		const result = await composite.prepareQuery(
 			// biome-ignore lint/suspicious/noExplicitAny: fake client
-			{ publicClient: fake.client as any, vault: "0xVAULT" },
+			{ publicClient: fake.client as any, subject: "0xVAULT" },
 		);
 		assert.deepEqual(result.wasmArgs, { vaultsfyi: {} });
 	});
@@ -801,7 +801,7 @@ describe("composite prepareQuery aggregation", () => {
 		await assert.rejects(
 			composite.prepareQuery(
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
-				{ publicClient: fake.client as any, vault: "0xVAULT" },
+				{ publicClient: fake.client as any, subject: "0xVAULT" },
 			),
 			(err: unknown) => {
 				if (!(err instanceof CompositePrepareQueryError)) return false;
@@ -836,7 +836,7 @@ describe("composite prepareQuery aggregation", () => {
 		await assert.rejects(
 			composite.prepareQuery(
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
-				{ publicClient: fake.client as any, vault: "0xVAULT" },
+				{ publicClient: fake.client as any, subject: "0xVAULT" },
 			),
 			(err: unknown) => {
 				if (!(err instanceof CompositePrepareQueryError)) return false;

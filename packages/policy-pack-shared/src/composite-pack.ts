@@ -41,7 +41,7 @@ import {
  *
  *   // Per-call: composite's aggregated prepareQuery
  *   const { wasmArgs } = await composite.prepareQuery!(
- *     { publicClient, vault },
+ *     { publicClient, subject: vault },
  *     {
  *       chainalysis: { address: depositorAddress },
  *       redstone: { symbol: "ETH", rpcUrl, onchainOracle },
