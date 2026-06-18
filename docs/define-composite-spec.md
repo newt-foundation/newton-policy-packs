@@ -253,7 +253,7 @@ Curators construct it module-by-module:
 ```ts
 const compositePack = await defineComposite({ modules, chainId, env, publicClient, policyAddress });
 const result = await compositePack.prepareQuery!(
-  { publicClient, vault },
+  { publicClient, subject: vault }, // `subject` = the on-chain entity evaluated (here, the vault)
   {
     chainalysis: { address: depositorAddress },
     redstone: { symbol: "ETH", rpcUrl, onchainOracle: oracleAddr },

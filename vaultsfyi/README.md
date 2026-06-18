@@ -73,6 +73,26 @@ Configured by the wallet owner on-chain:
 | `deny_on_corrupted` | boolean | Block if vault is corrupted |
 | `nrt_max_age_seconds` | number | Maximum oracle data age in seconds (e.g., 300) |
 
+### Testing on a non-production network (data-source override)
+
+This pack's data source — the [vaults.fyi](https://vaults.fyi) API — indexes
+**production networks only** (no Sepolia or Base Sepolia). A curator testing on
+a testnet would get a 404 and the policy would fail closed. To exercise the pack
+end-to-end on a testnet, the SDK's `prepareQuery` accepts two optional overrides
+(from `PrepareQueryArgs`) that point the vaults.fyi lookup at a real mainnet
+vault while the Shield still executes on the testnet:
+
+| Override | Effect |
+|----------|--------|
+| `dataSourceChainId` | resolve the vaults.fyi network from this chain instead of the execution chain (e.g. `1` for mainnet) |
+| `dataSourceSubject` | use this address as the vaults.fyi vault key instead of the executed `subject` |
+
+This **decouples the oracle's data from the vault the Shield actually gates**, so
+it is a **testing/demo affordance only**. In production, leave both unset so the
+risk envelope describes the same vault the Shield executes against. See
+[`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#preparequery-the-subject-and-the-data-source)
+for the shared-interface definition of `subject` and "data source".
+
 ## Prerequisites
 
 ```bash

@@ -6,12 +6,42 @@ import type { ChainId, Deployment, GatewayEnv } from "./deployment";
  * Inputs that a pack's `prepareQuery` reads at intent-build time.
  *
  * The Shield SDK passes a viem `PublicClient` (so the pack can read on-chain
- * state) and the vault address the curator is acting on. Packs that don't
- * need on-chain state can ignore both — `prepareQuery` is optional.
+ * state) and `subject` — the on-chain entity this evaluation concerns. For a
+ * vault-risk pack (VaultsFYI, Guardrail) `subject` is the vault being curated;
+ * a pack that inspects a different kind of entity reads whatever it needs.
+ * Identity / screening packs (Chainalysis, Persona, Sumsub, Webacy) take their
+ * subject from the per-call `options` bag instead and ignore `subject`. Packs
+ * that need no on-chain state can ignore everything — `prepareQuery` is optional.
+ *
+ * `subject` was previously named `vault`; it was renamed because most packs
+ * don't operate on a vault and the shared interface shouldn't bake in one
+ * pack family's noun.
+ *
+ * ## Data-source overrides (non-production testing)
+ *
+ * Some packs resolve an EXTERNAL data source keyed on the execution chain and
+ * subject — e.g. VaultsFYI fetches `api.vaults.fyi/.../<network>/<subject>`.
+ * When that data source only covers production networks (vaults.fyi indexes
+ * mainnets only), a curator testing on a testnet has no data and the policy
+ * fails closed. These optional overrides let the pack point its data lookup at
+ * a different chain / subject than the one the Shield actually executes against:
+ *
+ * - `dataSourceChainId` — resolve the pack's external data source against this
+ *   chain instead of `publicClient.chain.id`.
+ * - `dataSourceSubject` — use this address as the data-source key instead of
+ *   `subject`.
+ *
+ * This decouples the oracle's data from the executed entity, so it is a
+ * **testing / demo affordance, not a production pattern** — in production the
+ * data source must describe the same entity the Shield gates. Packs that don't
+ * consult a per-chain external source ignore both. A pack that honors them
+ * MUST document the decoupling.
  */
 export interface PrepareQueryArgs {
 	readonly publicClient: PublicClient;
-	readonly vault: Address;
+	readonly subject: Address;
+	readonly dataSourceChainId?: number;
+	readonly dataSourceSubject?: Address;
 }
 
 /**
@@ -36,7 +66,7 @@ export interface PrepareQueryResult<TWasmArgs> {
  * - `TParams`   — the shape stored on-chain in `NewtonPolicyData.policyParams`
  *                  (e.g. risk envelope thresholds for VaultsFYI).
  * - `TWasmArgs` — the shape passed to the policy's WASM oracle at evaluation
- *                  time (e.g. `{ vault, network, lastKnownAllocationHash }`).
+ *                  time (e.g. `{ vaultAddress, network, lastKnownAllocationHash }`).
  * - `TSecrets`  — required API credentials uploaded before any run/sim.
  *
  * The fields:

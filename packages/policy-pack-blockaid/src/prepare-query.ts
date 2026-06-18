@@ -21,7 +21,7 @@ const CHAIN_BY_ID: Readonly<Record<number, string>> = {
  * Per-call inputs for Blockaid: every wasmArg (`from`, `to`, `value`, `data`)
  * mirrors the on-chain transaction the depositor is about to submit, so it
  * has to come from the SDK's intent context — `PrepareQueryArgs` (which only
- * carries `publicClient` + `vault`) doesn't have any of it. The SDK forwards
+ * carries `publicClient` + `subject`) doesn't have any of it. The SDK forwards
  * these via `prepareQuery`'s second `options` arg (introduced in NEWT-1499).
  *
  * `chain` is derived from `publicClient.chain.id` so curators don't have to
