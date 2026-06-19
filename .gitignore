@@ -1,6 +1,5 @@
 .env
-.env.*.local
-.env.deploy.local*
+.env.*
 */configs/
 */dist/policy.wasm
 */dist/policy.wasm.stamp
