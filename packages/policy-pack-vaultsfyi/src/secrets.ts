@@ -3,6 +3,6 @@
 // Source schema: vaultsfyi/secrets_schema.json
 import { z } from "zod";
 
-export const SecretsSchema = z.object({ VAULTS_FYI_API_KEY: z.string().min(1) }).strict();
+export const SecretsSchema = z.object({ "VAULTS_FYI_API_KEY": z.string().min(1) }).strict();
 
 export type Secrets = z.infer<typeof SecretsSchema>;
