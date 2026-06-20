@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsSchema } from "./params";
+import { type Params, ParamsJsonSchema, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
@@ -79,6 +79,7 @@ export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>
 export const vaultsfyi: PolicyPack<Params, WasmArgs, Secrets> = {
 	id: `${PACK_NAME}/risk-envelope/v1`,
 	paramsSchema: RefinedParamsSchema,
+	paramsJsonSchema: ParamsJsonSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	prepareQuery,

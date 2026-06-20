@@ -13,6 +13,7 @@ export {
 	CompositeParamsValidationError,
 	decodeManifest,
 	encodeCompositeParams,
+	generateCompositeParamsSchema,
 	isCompositeManifest,
 	MANIFEST_MAGIC,
 	MANIFEST_MAX_SUPPORTED_VERSION,

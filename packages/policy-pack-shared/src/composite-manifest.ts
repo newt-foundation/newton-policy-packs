@@ -72,6 +72,127 @@ export function shortPackIdFromModuleId(moduleId: string): string {
 	return shortId;
 }
 
+/**
+ * The minimal module shape `generateCompositeParamsSchema` reads: a full
+ * module id (to derive the short `params` key) and the module's raw inner
+ * params JSON Schema (inlined verbatim under `params.<shortId>`). Both
+ * `OracleModule` and `PolicyPack` satisfy this via their `paramsJsonSchema`
+ * field, so callers can pass either.
+ */
+interface ParamsSchemaModule {
+	readonly id: string;
+	readonly paramsJsonSchema: object;
+}
+
+/**
+ * Deep-clone a JSON-Schema value through `structuredClone`. We inline each
+ * module's `paramsJsonSchema` into the envelope; cloning prevents the
+ * generated object from aliasing the (frozen `as const`) source literal, so a
+ * downstream consumer that mutates the result can't corrupt a pack's exported
+ * schema constant. `structuredClone` is in Node ≥17 — the package's runtime
+ * floor — and JSON Schemas are plain JSON, so it round-trips losslessly.
+ */
+function cloneJsonSchema(schema: object): object {
+	return structuredClone(schema) as object;
+}
+
+/**
+ * Build the JSON Schema that describes the on-chain composite-manifest
+ * ENVELOPE `encodeCompositePolicyPack` writes — i.e. the literal
+ * `{ _manifest, modules, params }` blob, NOT the inner per-module params.
+ *
+ * This is the schema a curator pins on the composite `NewtonPolicy` (via
+ * `setPolicy({ policyParams: <schema>, ... })`'s pinned-schema slot). It MUST
+ * describe the whole manifest because the AVS validates the raw on-chain
+ * `policyParams` bytes AS-IS against the pinned schema — it does NOT unwrap the
+ * `_manifest` envelope first (newton-prover-avs `task.rs` /
+ * `rego-kernel/src/rego.rs`). A hand-written per-example schema that described
+ * only the inner params produced the mainnet failure
+ * `Missing required property 'vaultsfyi' at ''` — the validator saw `_manifest`
+ * / `modules` / `params` at the root, not `vaultsfyi`. Deriving the envelope
+ * schema from the same modules the encoder uses removes that drift.
+ *
+ * Regorus support note: the emitted schema uses only keywords regorus's
+ * `Schema::from_serde_json_value` accepts (`type`, `required`, `properties`,
+ * `additionalProperties`, `const`, `items`, `minItems`, `minimum`, `maximum`,
+ * `enum`, `anyOf`, `allOf`). Each module's inner schema is INLINED (no `$ref`,
+ * which regorus does not support) and no `$schema` marker is emitted. The
+ * inner schemas come from each pack's regorus-clean `params_schema.json`, so
+ * the inlined result stays regorus-clean too.
+ *
+ * The `params` key for each module is its SHORT pack id
+ * (`shortPackIdFromModuleId(module.id)`), matching what the encoder writes and
+ * what composite Rego reads as `data.params.<shortId>`.
+ *
+ * @param pack - any object exposing `modules` with `{ id, paramsJsonSchema }`.
+ *   Both `MinimalCompositePack`'s `OracleModule[]` and a raw `OracleModule[]`
+ *   wrapper satisfy it.
+ * @returns the envelope JSON Schema as a plain object, ready to ABI-/JSON-encode
+ *   into the policy's pinned-schema slot.
+ */
+export function generateCompositeParamsSchema(pack: {
+	readonly modules: ReadonlyArray<ParamsSchemaModule>;
+}): object {
+	if (pack.modules.length === 0) {
+		throw new MalformedManifestError(
+			"pack.modules is empty — a composite params schema must describe at least one module",
+		);
+	}
+
+	const paramsProperties: Record<string, object> = {};
+	const paramsRequired: string[] = [];
+	const seenShortIds = new Set<string>();
+	for (const module of pack.modules) {
+		const shortId = shortPackIdFromModuleId(module.id);
+		if (seenShortIds.has(shortId)) {
+			throw new MalformedManifestError(
+				`duplicate short pack id \`${shortId}\` derived from module id \`${module.id}\` — two modules share the same short id, which would make params.${shortId} ambiguous`,
+			);
+		}
+		seenShortIds.add(shortId);
+		// Inline the module's inner params schema verbatim (deep-cloned, no
+		// `$ref`). This is the canonical schema the pack's zod was generated
+		// from, so the envelope describes exactly what the encoder validated.
+		paramsProperties[shortId] = cloneJsonSchema(module.paramsJsonSchema);
+		paramsRequired.push(shortId);
+	}
+
+	return {
+		type: "object",
+		additionalProperties: false,
+		required: ["_manifest", "modules", "params"],
+		properties: {
+			_manifest: {
+				type: "object",
+				required: ["magic", "version"],
+				properties: {
+					magic: { const: MANIFEST_MAGIC },
+					version: { type: "integer", minimum: 1, maximum: MANIFEST_MAX_SUPPORTED_VERSION },
+				},
+			},
+			modules: {
+				type: "array",
+				minItems: 1,
+				items: {
+					type: "object",
+					required: ["id", "policyDataAddress", "wasmCid"],
+					properties: {
+						id: { type: "string" },
+						policyDataAddress: { type: "string" },
+						wasmCid: { type: "string" },
+					},
+				},
+			},
+			params: {
+				type: "object",
+				additionalProperties: false,
+				required: paramsRequired,
+				properties: paramsProperties,
+			},
+		},
+	};
+}
+
 export interface CompositeManifest {
 	readonly magic: typeof MANIFEST_MAGIC;
 	readonly version: number;

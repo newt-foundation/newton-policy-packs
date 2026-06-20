@@ -36,3 +36,52 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Risk envelope thresholds for vault deposit gating",
+	properties: {
+		apy_z_max: {
+			type: "number",
+			description:
+				"Max APY z-score (current vs 30d median). Exceeding this indicates an APY anomaly.",
+		},
+		tvl_drawdown_24h_max_pct: {
+			type: "number",
+			description: "Max allowed 24h TVL drawdown percentage",
+		},
+		tvl_drawdown_7d_max_pct: {
+			type: "number",
+			description: "Max allowed 7d TVL drawdown percentage",
+		},
+		risk_score_floor: {
+			type: "integer",
+			minimum: 0,
+			maximum: 100,
+			description:
+				"Minimum acceptable risk score (0-100 integer scale; matches the AVS-side `vault.scores.netScore`). Set to 0 to effectively disable the floor.",
+		},
+		deny_on_allocation_change: {
+			type: "boolean",
+			description:
+				"Whether to deny if vault allocation/strategy metadata has changed since last evaluation",
+		},
+		deny_on_critical_flag: {
+			type: "boolean",
+			description: "Whether to deny if the vault has a flag with severity 'critical' or 'high'",
+		},
+		deny_on_corrupted: {
+			type: "boolean",
+			description: "Whether to deny if the vault is reported as corrupted by the data source",
+		},
+	},
+	required: [
+		"apy_z_max",
+		"tvl_drawdown_24h_max_pct",
+		"tvl_drawdown_7d_max_pct",
+		"risk_score_floor",
+		"deny_on_allocation_change",
+		"deny_on_critical_flag",
+		"deny_on_corrupted",
+	],
+} as const;

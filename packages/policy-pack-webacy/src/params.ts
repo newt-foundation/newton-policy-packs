@@ -33,3 +33,41 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Thresholds for the Webacy depeg-risk gate",
+	properties: {
+		deny_on_collapsed: {
+			type: "boolean",
+			description:
+				"Deny when Webacy reports the token as structurally collapsed (token.is_collapsed == true)",
+		},
+		max_recent_depeg_events: {
+			type: "number",
+			description:
+				"Maximum allowed depeg events in the lookback window. 0 means any event in the window denies.",
+		},
+		max_consecutive_days_below_peg: {
+			type: "number",
+			description:
+				"Maximum allowed consecutive days the token has been below peg. 0 means any day below peg denies.",
+		},
+		deny_on_stale_data: {
+			type: "boolean",
+			description: "Deny when Webacy flags the response as stale (data freshness guard).",
+		},
+		max_abs_dev_pct: {
+			type: "number",
+			description:
+				"Maximum tolerated absolute deviation from peg on the latest snapshot, expressed as a fraction (e.g. 0.005 = 0.5%). Catches tokens currently off-peg even when no discrete depeg event has been logged.",
+		},
+	},
+	required: [
+		"deny_on_collapsed",
+		"max_recent_depeg_events",
+		"max_consecutive_days_below_peg",
+		"deny_on_stale_data",
+		"max_abs_dev_pct",
+	],
+} as const;

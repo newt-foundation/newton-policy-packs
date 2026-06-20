@@ -220,13 +220,25 @@ function emitSchemaFile(
 	// stripped and shipping AVS-rejecting bytes. Nested objects inside `inner`
 	// are unaffected — only the outer chain gains `.strict()`.
 	const expr = zodName === "ParamsSchema" ? `${inner}.strict()` : inner;
+	// `ParamsSchema` additionally ships the raw source JSON Schema as a
+	// `ParamsJsonSchema` constant. This is the canonical inner schema a
+	// composite manifest's pinned `policyParams` schema inlines under
+	// `params.<shortId>` (see `generateCompositeParamsSchema`). Byte-derived
+	// from the same `params_schema.json` the zod comes from, so the two can't
+	// drift. The AVS-side `params_schema.json` only uses regorus-clean
+	// keywords (type/properties/required/items/minimum/maximum/enum/…), so the
+	// embedded literal is safe to validate the on-chain blob with directly.
+	const jsonSchemaConst =
+		zodName === "ParamsSchema"
+			? `\nexport const ParamsJsonSchema = ${jsLiteral(schema)} as const;\n`
+			: "";
 	return `${BANNER}// Source schema: ${sourceRelPath}
 import { z } from "zod";
 
 export const ${zodName} = ${expr};
 
 export type ${typeName} = z.infer<typeof ${zodName}>;
-`;
+${jsonSchemaConst}`;
 }
 
 function emitMetadata(meta: PackMetadata): string {

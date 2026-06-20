@@ -7,7 +7,7 @@ import {
 } from "@newton-xyz/policy-pack-shared";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsSchema } from "./params";
+import { type Params, ParamsJsonSchema, ParamsSchema } from "./params";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
 
@@ -26,6 +26,7 @@ import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
 export const balancer: PolicyPack<Params, WasmArgs, Secrets> = {
 	id: `${PACK_NAME}/risk-envelope/v1`,
 	paramsSchema: ParamsSchema,
+	paramsJsonSchema: ParamsJsonSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	deployments,

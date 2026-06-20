@@ -16,6 +16,10 @@ import type { PolicyPack } from "./pack";
  * - The three schemas — `paramsSchema`, `wasmArgsSchema`, `secretsSchema` —
  *   so the composite can validate per-module curator inputs at intent-build
  *   time and surface schema mismatches before any AVS round-trip.
+ * - `paramsJsonSchema` — the raw `params_schema.json` this module's params
+ *   zod was generated from. `generateCompositeParamsSchema` inlines it under
+ *   `params.<shortId>` so the composite's pinned on-chain params schema
+ *   describes the manifest envelope the AVS validates as-is.
  * - `deployments` — the `(chainId, env) → Deployment` map sliced from the
  *   upstream `deployments.json`. The composite manifest carries each module's
  *   `policyData` address and `wasmCid`; both come from this map via
@@ -40,6 +44,7 @@ export interface OracleModule<TParams, TWasmArgs, TSecrets> {
 	readonly paramsSchema: z.ZodType<TParams>;
 	readonly wasmArgsSchema: z.ZodType<TWasmArgs>;
 	readonly secretsSchema: z.ZodType<TSecrets>;
+	readonly paramsJsonSchema: object;
 	readonly deployments: Readonly<
 		Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>
 	>;
@@ -69,6 +74,7 @@ export function oracleModuleFromPack<TParams, TWasmArgs, TSecrets>(
 		paramsSchema: pack.paramsSchema,
 		wasmArgsSchema: pack.wasmArgsSchema,
 		secretsSchema: pack.secretsSchema,
+		paramsJsonSchema: pack.paramsJsonSchema,
 		deployments: pack.deployments,
 	};
 }

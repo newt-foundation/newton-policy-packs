@@ -33,3 +33,41 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Composite Balancer pool risk gate thresholds",
+	properties: {
+		max_token_weight_pct: {
+			type: "number",
+			description:
+				"Maximum allowed concentration of any single token in the pool, as a percentage 0-100. Set to 80 to allow 80/20 weighted pools.",
+		},
+		deny_on_underlying_risk: {
+			type: "boolean",
+			description:
+				"Whether to deny when the pool contains boosted/wrapped tokens with nested pools or underlying yield-bearing assets.",
+		},
+		min_tvl_usd: {
+			type: "number",
+			description: "Minimum acceptable pool TVL in USD. Pools below this floor are denied.",
+		},
+		tvl_drawdown_24h_max_pct: {
+			type: "number",
+			description:
+				"Maximum allowed 24h TVL drawdown percentage. Null oracle values fail-soft and do not trigger this rule.",
+		},
+		tvl_drawdown_7d_max_pct: {
+			type: "number",
+			description:
+				"Maximum allowed 7d TVL drawdown percentage. Null oracle values fail-soft and do not trigger this rule.",
+		},
+	},
+	required: [
+		"max_token_weight_pct",
+		"deny_on_underlying_risk",
+		"min_tvl_usd",
+		"tvl_drawdown_24h_max_pct",
+		"tvl_drawdown_7d_max_pct",
+	],
+} as const;

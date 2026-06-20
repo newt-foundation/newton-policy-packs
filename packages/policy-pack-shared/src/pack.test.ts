@@ -26,6 +26,7 @@ function makePack(
 		paramsSchema: z.object({}),
 		wasmArgsSchema: z.object({}),
 		secretsSchema: z.object({}),
+		paramsJsonSchema: { type: "object" },
 		deployments,
 		metadata: {
 			name: "balancer",
