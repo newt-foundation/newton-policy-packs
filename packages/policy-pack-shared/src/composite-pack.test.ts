@@ -53,6 +53,7 @@ function makePack(
 		paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 		wasmArgsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 		secretsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
+		paramsJsonSchema: { type: "object" },
 		deployments: { "11155111": { stagef: deployment } },
 		metadata: { name: id.split("/")[0] ?? id, version: "1.0.0", description: "test" },
 		...(prepareQuery ? { prepareQuery } : {}),

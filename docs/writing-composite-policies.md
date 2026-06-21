@@ -35,11 +35,11 @@ At evaluation time the AVS runs every referenced oracle WASM, **merges** their J
 
 ## Step 1 — Pick your oracles
 
-Read the repo-root [`deployments.json`](../deployments.json) for the `(policyData, wasmCid)` of each pack you want, on your target `(chainId, env)` cell. You'll reference the `policyData` addresses at deploy time. Example (Sepolia / stagef):
+Read the repo-root [`deployments.json`](../deployments.json) for the `(policyData, wasmCid)` of each pack you want, on your target `(chainId, env)` cell. You'll reference the `policyData` addresses at deploy time. Example (Sepolia / prod):
 
 ```
-vaultsfyi   policyData  0x347c9151177bCcFd7ABE70196c4790a2dCae528b
-chainalysis policyData  0x223F563c3CfD087cB1857851629b4d8CE7738448
+vaultsfyi   policyData  0x90ef32c7D103D5Af2A546f94BdA994BC37372017
+chainalysis policyData  0x226d196d565b92952669701Fb6cb85B586706996
 ```
 
 For each oracle, also read its TypeScript binding (`packages/policy-pack-<name>/src/params.ts`, `wasm-args.ts`) to know what params it accepts and what fields its WASM emits.
@@ -106,14 +106,14 @@ opa test my_vault_gate/policy.rego my_vault_gate/policy_test.rego -v
 
 No new WASM build. Upload your Rego + schemas, then deploy a single `NewtonPolicy` referencing the reused `policyData` addresses — one `--policy-data-address` flag per oracle:
 
-Addresses below are vaultsfyi + chainalysis on Sepolia / stagef (from `deployments.json`). Keep the inline comments OUT of the command — a `\` line-continuation followed by a `#` comment breaks the continuation in bash.
+Addresses below are vaultsfyi + chainalysis on Sepolia / prod (from `deployments.json`). Keep the inline comments OUT of the command — a `\` line-continuation followed by a `#` comment breaks the continuation in bash.
 
 ```bash
 # --policy-data-address order: vaultsfyi, then chainalysis
 newton-cli policy deploy \
   --policy-cids ./my_vault_gate/dist/policy_cids.json \
-  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \
-  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \
+  --policy-data-address 0x90ef32c7D103D5Af2A546f94BdA994BC37372017 \
+  --policy-data-address 0x226d196d565b92952669701Fb6cb85B586706996 \
   --policy-file ./my_vault_gate/policy.rego
 # → "Policy deployed successfully at address: 0xYOUR_COMPOSITE..."
 ```
@@ -142,7 +142,7 @@ import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 const composite = await defineComposite({
   modules: [vaultsfyi, chainalysis],   // order-independent — aligned to on-chain
   chainId: "11155111",
-  env: "stagef",
+  env: "prod",
   publicClient,
   policyAddress: "0xYOUR_COMPOSITE...",  // from step 4
 });

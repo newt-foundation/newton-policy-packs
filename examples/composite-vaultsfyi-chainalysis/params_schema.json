@@ -1,43 +1,132 @@
 {
   "type": "object",
-  "description": "Composite params for the vaultsfyi + chainalysis gate. Keyed by short pack id — each sub-object is the params slice the corresponding oracle's Rego reads via data.params.<short-id>.*",
   "additionalProperties": false,
-  "required": ["vaultsfyi", "chainalysis"],
+  "required": [
+    "_manifest",
+    "modules",
+    "params"
+  ],
   "properties": {
-    "vaultsfyi": {
+    "_manifest": {
       "type": "object",
-      "description": "Risk-envelope thresholds — subset of vaultsfyi/params_schema.json (only the fields this composite's Rego consumes).",
-      "additionalProperties": false,
       "required": [
-        "apy_z_max",
-        "tvl_drawdown_24h_max_pct",
-        "tvl_drawdown_7d_max_pct",
-        "risk_score_floor",
-        "deny_on_allocation_change",
-        "deny_on_critical_flag",
-        "deny_on_corrupted"
+        "magic",
+        "version"
       ],
       "properties": {
-        "apy_z_max": { "type": "number" },
-        "tvl_drawdown_24h_max_pct": { "type": "number" },
-        "tvl_drawdown_7d_max_pct": { "type": "number" },
-        "risk_score_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "deny_on_allocation_change": { "type": "boolean" },
-        "deny_on_critical_flag": { "type": "boolean" },
-        "deny_on_corrupted": { "type": "boolean" }
+        "magic": {
+          "const": "NPM1"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        }
       }
     },
-    "chainalysis": {
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "policyDataAddress",
+          "wasmCid"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "policyDataAddress": {
+            "type": "string"
+          },
+          "wasmCid": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "params": {
       "type": "object",
-      "description": "Sanctions / address-screening thresholds — subset of chainalysis/params_schema.json.",
       "additionalProperties": false,
-      "required": ["deny_on_sanctioned", "deny_on_high_risk_category", "risk_categories_blocklist"],
+      "required": [
+        "vaultsfyi",
+        "chainalysis"
+      ],
       "properties": {
-        "deny_on_sanctioned": { "type": "boolean" },
-        "deny_on_high_risk_category": { "type": "boolean" },
-        "risk_categories_blocklist": {
-          "type": "array",
-          "items": { "type": "string" }
+        "vaultsfyi": {
+          "type": "object",
+          "description": "Risk envelope thresholds for vault deposit gating",
+          "properties": {
+            "apy_z_max": {
+              "type": "number",
+              "description": "Max APY z-score (current vs 30d median). Exceeding this indicates an APY anomaly."
+            },
+            "tvl_drawdown_24h_max_pct": {
+              "type": "number",
+              "description": "Max allowed 24h TVL drawdown percentage"
+            },
+            "tvl_drawdown_7d_max_pct": {
+              "type": "number",
+              "description": "Max allowed 7d TVL drawdown percentage"
+            },
+            "risk_score_floor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Minimum acceptable risk score (0-100 integer scale; matches the AVS-side `vault.scores.netScore`). Set to 0 to effectively disable the floor."
+            },
+            "deny_on_allocation_change": {
+              "type": "boolean",
+              "description": "Whether to deny if vault allocation/strategy metadata has changed since last evaluation"
+            },
+            "deny_on_critical_flag": {
+              "type": "boolean",
+              "description": "Whether to deny if the vault has a flag with severity 'critical' or 'high'"
+            },
+            "deny_on_corrupted": {
+              "type": "boolean",
+              "description": "Whether to deny if the vault is reported as corrupted by the data source"
+            }
+          },
+          "required": [
+            "apy_z_max",
+            "tvl_drawdown_24h_max_pct",
+            "tvl_drawdown_7d_max_pct",
+            "risk_score_floor",
+            "deny_on_allocation_change",
+            "deny_on_critical_flag",
+            "deny_on_corrupted"
+          ],
+          "additionalProperties": false
+        },
+        "chainalysis": {
+          "type": "object",
+          "description": "Thresholds for the Chainalysis sanctions / address-screening gate",
+          "properties": {
+            "deny_on_sanctioned": {
+              "type": "boolean",
+              "description": "Deny when the public Sanctions Screening API returns any identification for the address"
+            },
+            "deny_on_high_risk_category": {
+              "type": "boolean",
+              "description": "Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)"
+            },
+            "risk_categories_blocklist": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])"
+            }
+          },
+          "required": [
+            "deny_on_sanctioned",
+            "deny_on_high_risk_category",
+            "risk_categories_blocklist"
+          ],
+          "additionalProperties": false
         }
       }
     }

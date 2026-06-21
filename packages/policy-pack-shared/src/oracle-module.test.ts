@@ -14,6 +14,11 @@ const STAGEF_DEPLOYMENT: Deployment = {
 const PARAMS_SCHEMA = z.object({ floor: z.number() });
 const WASM_ARGS_SCHEMA = z.object({ vault: z.string() });
 const SECRETS_SCHEMA = z.object({ API_KEY: z.string() });
+const PARAMS_JSON_SCHEMA = {
+	type: "object",
+	properties: { floor: { type: "number" } },
+	required: ["floor"],
+};
 
 function makePack(): PolicyPack<
 	z.infer<typeof PARAMS_SCHEMA>,
@@ -30,6 +35,7 @@ function makePack(): PolicyPack<
 		paramsSchema: PARAMS_SCHEMA,
 		wasmArgsSchema: WASM_ARGS_SCHEMA,
 		secretsSchema: SECRETS_SCHEMA,
+		paramsJsonSchema: PARAMS_JSON_SCHEMA,
 		deployments,
 		metadata: {
 			name: "balancer",
@@ -45,7 +51,7 @@ function makePack(): PolicyPack<
 }
 
 describe("oracleModuleFromPack", () => {
-	it("projects the five composite-relevant fields verbatim", () => {
+	it("projects the six composite-relevant fields verbatim", () => {
 		const pack = makePack();
 		const module = oracleModuleFromPack(pack);
 
@@ -53,6 +59,7 @@ describe("oracleModuleFromPack", () => {
 		assert.equal(module.paramsSchema, pack.paramsSchema);
 		assert.equal(module.wasmArgsSchema, pack.wasmArgsSchema);
 		assert.equal(module.secretsSchema, pack.secretsSchema);
+		assert.equal(module.paramsJsonSchema, pack.paramsJsonSchema);
 		assert.equal(module.deployments, pack.deployments);
 	});
 

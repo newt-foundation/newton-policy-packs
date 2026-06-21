@@ -70,6 +70,17 @@ export interface PrepareQueryResult<TWasmArgs> {
  *                       intent and forwards `wasmArgs` to the gateway.
  * - `secretsSchema`  — zod schema enforced at upload-time. Validates the
  *                       shape of the secrets the operator stores in the AVS.
+ * - `paramsJsonSchema`— OPTIONAL. The raw `params_schema.json` JSON Schema this
+ *                       pack's `paramsSchema` zod was generated from.
+ *                       Regorus-clean (no `$ref`, no `$schema`). A composite
+ *                       policy inlines it under `params.<shortId>` so the pinned
+ *                       on-chain params schema describes the manifest ENVELOPE
+ *                       the AVS validates as-is — see
+ *                       `generateCompositeParamsSchema`. Only consumed when a
+ *                       pack is stacked into a composite; single-pack flows
+ *                       never read it, so the field is optional and a custom
+ *                       pack that never composites can omit it. Every shipped
+ *                       `@newton-xyz/policy-pack-<name>` populates it.
  *
  * Encoding is *not* a per-pack concern. The on-chain `policyParams` byte
  * format is a Newton-protocol invariant — UTF-8 JSON, sorted keys —
@@ -105,6 +116,7 @@ export interface PolicyPack<TParams, TWasmArgs, TSecrets> {
 	readonly paramsSchema: z.ZodType<TParams>;
 	readonly wasmArgsSchema: z.ZodType<TWasmArgs>;
 	readonly secretsSchema: z.ZodType<TSecrets>;
+	readonly paramsJsonSchema?: object;
 	prepareQuery?(args: PrepareQueryArgs, options?: unknown): Promise<PrepareQueryResult<TWasmArgs>>;
 	readonly deployments: Readonly<
 		Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>

@@ -28,6 +28,7 @@ const VAULTSFYI_MODULE: OracleModule<unknown, unknown, unknown> = {
 	paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 	wasmArgsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 	secretsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
+	paramsJsonSchema: { type: "object" },
 	deployments: { "11155111": { stagef: DEPLOYMENT } },
 };
 
