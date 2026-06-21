@@ -54,6 +54,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/policy-pack-vaultsfyi
     devDependencies:
+      tsx:
+        specifier: ^4.0.0
+        version: 4.22.4
       typescript:
         specifier: ^5.5.0
         version: 5.9.3

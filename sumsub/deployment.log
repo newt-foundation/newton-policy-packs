@@ -1145,3 +1145,69 @@ Policy deployed successfully at address: 0xA74c7f91D24b2DA158c3DAE88459A0D43e616
 === Mon Jun 15 19:13:28 PDT 2026 :: sumsub DEPLOY DONE (prod/84532) ===
 sumsub DATA=0x52458F0F5937b703d64B5D206a800384A7fc59e1 POLICY=0xA74c7f91D24b2DA158c3DAE88459A0D43e61614E
 wrote ./sumsub/dist/last_deploy.json
+=== Sat Jun 20 11:51:41 PDT 2026 :: sumsub policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x271221cd3bfF4f45b41A28Af4A28a82F4e373265
+Policy Data Address: 0x271221cd3bfF4f45b41A28Af4A28a82F4e373265
+DATA_ADDR=0x271221cd3bfF4f45b41A28Af4A28a82F4e373265
+=== Sat Jun 20 11:51:43 PDT 2026 :: sumsub DEPLOY DONE (prod/8453) ===
+sumsub DATA=0x271221cd3bfF4f45b41A28Af4A28a82F4e373265
+wrote ./sumsub/dist/last_deploy.json
+=== Sat Jun 20 11:56:50 PDT 2026 :: sumsub policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+
+thread 'tokio-runtime-worker' (63868137) panicked at crates/core/src/common/chain.rs:38:35:
+Failed to get chain ID: Transport(Custom(reqwest::Error { kind: Request, url: "https://winter-quiet-surf.base-mainnet.quiknode.pro/2c1b6b27ba740a95e17a559b7141b1592bd79c43", source: hyper_util::client::legacy::Error(Connect, TunnelUnsuccessful) }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+=== Sat Jun 20 21:44:28 PDT 2026 :: sumsub policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xe86F1Ae0702dE3cBfaC5319E6DFd16e1C15C2dED
+Policy Data Address: 0xe86F1Ae0702dE3cBfaC5319E6DFd16e1C15C2dED
+DATA_ADDR=0xe86F1Ae0702dE3cBfaC5319E6DFd16e1C15C2dED
+=== Sat Jun 20 21:44:36 PDT 2026 :: sumsub DEPLOY DONE (stagef/8453) ===
+sumsub DATA=0xe86F1Ae0702dE3cBfaC5319E6DFd16e1C15C2dED
+wrote ./sumsub/dist/last_deploy.json
+=== Sat Jun 20 21:47:23 PDT 2026 :: sumsub policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x6B8d613bD3003A6e90F1536C576519A231730A1d
+Policy Data Address: 0x6B8d613bD3003A6e90F1536C576519A231730A1d
+DATA_ADDR=0x6B8d613bD3003A6e90F1536C576519A231730A1d
+=== Sat Jun 20 21:47:53 PDT 2026 :: sumsub DEPLOY DONE (prod/1) ===
+sumsub DATA=0x6B8d613bD3003A6e90F1536C576519A231730A1d
+wrote ./sumsub/dist/last_deploy.json
+=== Sat Jun 20 21:50:35 PDT 2026 :: sumsub policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiek2ihacvmuj2cwfr62avubfppsudmyyij75q5c5uem5xck2wrx5y
+  secretsSchemaCid: bafkreibnx7vc5ph5rb6zrxqisgp6s2gvntlnrjbupnifzmixvdbted7s2m
+  metadataCid: bafkreifmmcrf4rtt54blnzpdevd5oo65gsiv5wi4uwuvqbd3rlorfiscdi
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x4B0c56Cc9E765b3e6d71BaF51Df810839b8A8C69
+Policy Data Address: 0x4B0c56Cc9E765b3e6d71BaF51Df810839b8A8C69
+DATA_ADDR=0x4B0c56Cc9E765b3e6d71BaF51Df810839b8A8C69
+=== Sat Jun 20 21:50:51 PDT 2026 :: sumsub DEPLOY DONE (stagef/1) ===
+sumsub DATA=0x4B0c56Cc9E765b3e6d71BaF51Df810839b8A8C69
+wrote ./sumsub/dist/last_deploy.json

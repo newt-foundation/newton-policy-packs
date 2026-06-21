@@ -1367,3 +1367,63 @@ Policy deployed successfully at address: 0xAA7405a0522D07C4a16334bd1E5B7Cf4DE64B
 === Mon Jun 15 19:15:00 PDT 2026 :: chainalysis DEPLOY DONE (prod/84532) ===
 chainalysis DATA=0xdC2e9d30B8e415F907e39f0bfe22974B9894740F POLICY=0xAA7405a0522D07C4a16334bd1E5B7Cf4DE64B690
 wrote ./chainalysis/dist/last_deploy.json
+=== Sat Jun 20 11:51:09 PDT 2026 :: chainalysis policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xceB2027a5fA390740971c7cbb2523841C19CC2f9
+Policy Data Address: 0xceB2027a5fA390740971c7cbb2523841C19CC2f9
+DATA_ADDR=0xceB2027a5fA390740971c7cbb2523841C19CC2f9
+=== Sat Jun 20 11:51:10 PDT 2026 :: chainalysis DEPLOY DONE (prod/8453) ===
+chainalysis DATA=0xceB2027a5fA390740971c7cbb2523841C19CC2f9
+wrote ./chainalysis/dist/last_deploy.json
+=== Sat Jun 20 11:56:05 PDT 2026 :: chainalysis policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x939A37e0d0B4579F3fADCE190498D3C09C21D67B
+Policy Data Address: 0x939A37e0d0B4579F3fADCE190498D3C09C21D67B
+DATA_ADDR=0x939A37e0d0B4579F3fADCE190498D3C09C21D67B
+=== Sat Jun 20 11:56:13 PDT 2026 :: chainalysis DEPLOY DONE (stagef/8453) ===
+chainalysis DATA=0x939A37e0d0B4579F3fADCE190498D3C09C21D67B
+wrote ./chainalysis/dist/last_deploy.json
+=== Sat Jun 20 21:45:58 PDT 2026 :: chainalysis policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049
+Policy Data Address: 0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049
+DATA_ADDR=0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049
+=== Sat Jun 20 21:46:13 PDT 2026 :: chainalysis DEPLOY DONE (prod/1) ===
+chainalysis DATA=0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049
+wrote ./chainalysis/dist/last_deploy.json
+=== Sat Jun 20 21:49:09 PDT 2026 :: chainalysis policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi
+  secretsSchemaCid: bafkreib2vimgjrakneqnmyjhduf3n2gvsku2gfn33jhnnkzru7t3qooipm
+  metadataCid: bafkreiht5oso36jwxw4wg2wnfcxiycitxsw4b2w6c6jasrippbrxxj5ahm
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xf3Ba80E4584eC3441E1b32bF3ac5864B6840FAf4
+Policy Data Address: 0xf3Ba80E4584eC3441E1b32bF3ac5864B6840FAf4
+DATA_ADDR=0xf3Ba80E4584eC3441E1b32bF3ac5864B6840FAf4
+=== Sat Jun 20 21:49:25 PDT 2026 :: chainalysis DEPLOY DONE (stagef/1) ===
+chainalysis DATA=0xf3Ba80E4584eC3441E1b32bF3ac5864B6840FAf4
+wrote ./chainalysis/dist/last_deploy.json

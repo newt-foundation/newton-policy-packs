@@ -1746,3 +1746,63 @@ Policy deployed successfully at address: 0x935F55cA3c91f4D86F99Ada4Bbf3c3c01dC13
 === Mon Jun 15 19:11:10 PDT 2026 :: balancer DEPLOY DONE (prod/84532) ===
 balancer DATA=0x245819bE9518a4282D8EA72c82ca853131a87d4c POLICY=0x935F55cA3c91f4D86F99Ada4Bbf3c3c01dC138A7
 wrote ./balancer/dist/last_deploy.json
+=== Sat Jun 20 11:49:29 PDT 2026 :: balancer policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x53F172A3Aa5C997f0F3CD62Af032FefCab754C42
+Policy Data Address: 0x53F172A3Aa5C997f0F3CD62Af032FefCab754C42
+DATA_ADDR=0x53F172A3Aa5C997f0F3CD62Af032FefCab754C42
+=== Sat Jun 20 11:49:37 PDT 2026 :: balancer DEPLOY DONE (prod/8453) ===
+balancer DATA=0x53F172A3Aa5C997f0F3CD62Af032FefCab754C42
+wrote ./balancer/dist/last_deploy.json
+=== Sat Jun 20 11:52:01 PDT 2026 :: balancer policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xe728b741573e9A85752B4bC0bF2a11cC1C9f38Af
+Policy Data Address: 0xe728b741573e9A85752B4bC0bF2a11cC1C9f38Af
+DATA_ADDR=0xe728b741573e9A85752B4bC0bF2a11cC1C9f38Af
+=== Sat Jun 20 11:52:03 PDT 2026 :: balancer DEPLOY DONE (stagef/8453) ===
+balancer DATA=0xe728b741573e9A85752B4bC0bF2a11cC1C9f38Af
+wrote ./balancer/dist/last_deploy.json
+=== Sat Jun 20 21:45:01 PDT 2026 :: balancer policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xAd60980C077123A82c574624AC857Dc775b914bd
+Policy Data Address: 0xAd60980C077123A82c574624AC857Dc775b914bd
+DATA_ADDR=0xAd60980C077123A82c574624AC857Dc775b914bd
+=== Sat Jun 20 21:45:17 PDT 2026 :: balancer DEPLOY DONE (prod/1) ===
+balancer DATA=0xAd60980C077123A82c574624AC857Dc775b914bd
+wrote ./balancer/dist/last_deploy.json
+=== Sat Jun 20 21:48:34 PDT 2026 :: balancer policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeiemhlpfly7l56vsgvjqcci6auebwiffchxuckoczi5nop674lvjci
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreievpvc7zkdlrg6w237vozwqm2iwindyqmeiblh7uybx6hblcvilee
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x030d852c3555C5Ef0899DbD622026a9a4b53C982
+Policy Data Address: 0x030d852c3555C5Ef0899DbD622026a9a4b53C982
+DATA_ADDR=0x030d852c3555C5Ef0899DbD622026a9a4b53C982
+=== Sat Jun 20 21:48:49 PDT 2026 :: balancer DEPLOY DONE (stagef/1) ===
+balancer DATA=0x030d852c3555C5Ef0899DbD622026a9a4b53C982
+wrote ./balancer/dist/last_deploy.json

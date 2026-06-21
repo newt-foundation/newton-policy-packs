@@ -72,6 +72,289 @@ export function shortPackIdFromModuleId(moduleId: string): string {
 	return shortId;
 }
 
+/**
+ * The minimal module shape `generateCompositeParamsSchema` reads: a full
+ * module id (to derive the short `params` key) and the module's raw inner
+ * params JSON Schema (inlined verbatim under `params.<shortId>`). Both
+ * `OracleModule` and `PolicyPack` satisfy this via their `paramsJsonSchema`
+ * field, so callers can pass either.
+ *
+ * `paramsJsonSchema` is optional here because it's optional on the public
+ * `OracleModule` / `PolicyPack` interfaces (a custom pack that never composites
+ * may omit it). `generateCompositeParamsSchema` requires it at runtime and
+ * throws `MalformedManifestError` naming the offending module if it's absent —
+ * a composite can't pin a schema for a module whose inner shape it doesn't know.
+ */
+interface ParamsSchemaModule {
+	readonly id: string;
+	readonly paramsJsonSchema?: object;
+}
+
+/**
+ * Deep-clone a JSON-Schema value through `structuredClone`. We inline each
+ * module's `paramsJsonSchema` into the envelope; cloning prevents the
+ * generated object from aliasing the (frozen `as const`) source literal, so a
+ * downstream consumer that mutates the result can't corrupt a pack's exported
+ * schema constant. `structuredClone` is in Node ≥17 — the package's runtime
+ * floor — and JSON Schemas are plain JSON, so it round-trips losslessly.
+ */
+function cloneJsonSchema(schema: object): object {
+	return structuredClone(schema) as object;
+}
+
+/**
+ * Recursively close every object node in a (already-cloned) JSON Schema:
+ * set `additionalProperties: false` on each `{ type: "object" }` node that
+ * doesn't already declare `additionalProperties`. Mutates in place and returns
+ * the same reference.
+ *
+ * Why: regorus fail-OPENs on an absent `additionalProperties` — newton-rego's
+ * `additional_properties_default()` returns "any extra property allowed", so an
+ * object schema with no `additionalProperties` accepts unknown keys at the AVS.
+ * The SDK's generated `ParamsSchema` zod is emitted with `.strict()`, which
+ * REJECTS unknown keys. Inlining a source `params_schema.json` verbatim would
+ * therefore make the on-chain pinned schema looser than SDK validation: a
+ * curator blob carrying junk module params would pass AVS schema validation but
+ * fail the SDK. Closing each object node keeps the two surfaces identical.
+ *
+ * An explicit `additionalProperties` (whether `false`, `true`, or a sub-schema)
+ * is left untouched — that's a deliberate authoring choice. Recurses through
+ * `properties`, `items` (object or array form), a schema-valued
+ * `additionalProperties`, and the `anyOf` / `allOf` / `oneOf` combinators so a
+ * future nested-object schema is closed at every level, not just the root.
+ */
+function closeObjectSchema(schema: object): object {
+	const node = schema as Record<string, unknown>;
+	if (node.type === "object") {
+		if (!("additionalProperties" in node)) {
+			node.additionalProperties = false;
+		}
+		const props = node.properties;
+		if (props && typeof props === "object") {
+			for (const v of Object.values(props as Record<string, unknown>)) {
+				if (v && typeof v === "object") closeObjectSchema(v as object);
+			}
+		}
+	}
+	// `additionalProperties` may itself be a sub-schema (not a bool) — recurse.
+	const ap = node.additionalProperties;
+	if (ap && typeof ap === "object") closeObjectSchema(ap as object);
+	// `items` is either a single schema or a tuple array of schemas.
+	const items = node.items;
+	if (Array.isArray(items)) {
+		for (const it of items) if (it && typeof it === "object") closeObjectSchema(it as object);
+	} else if (items && typeof items === "object") {
+		closeObjectSchema(items as object);
+	}
+	for (const key of ["anyOf", "allOf", "oneOf"] as const) {
+		const branch = node[key];
+		if (Array.isArray(branch)) {
+			for (const b of branch) if (b && typeof b === "object") closeObjectSchema(b as object);
+		}
+	}
+	return schema;
+}
+
+/**
+ * JSON-Schema keywords newton-rego's `Schema` deserializer accepts. Derived
+ * from the `Type` enum variants + the custom `Schema` deserializer in
+ * `newton-prover-avs/libs/regorus/src/schema.rs` (which routes `anyOf` /
+ * `const` / `enum` specially and reads `description` / `minimum` / `maximum` /
+ * `minLength` / `maxLength` / `pattern` / `minItems` / `maxItems` / `items` /
+ * `properties` / `required` / `additionalProperties` / `name` / `default` /
+ * `value` / `values` / `allOf` on the typed variants). `deny_unknown_fields` on
+ * every variant means a keyword OUTSIDE this set makes the whole composite
+ * schema fail to parse at the AVS — a fail-closed prod outage. We allowlist the
+ * supported set and reject anything else (notably `$ref`, `$schema`, `format`,
+ * `oneOf`, `patternProperties`, `propertyNames`, `if`/`then`/`else`).
+ */
+const REGORUS_SCHEMA_KEYWORDS: ReadonlySet<string> = new Set([
+	"type",
+	"description",
+	"default",
+	"properties",
+	"required",
+	"additionalProperties",
+	"name",
+	"items",
+	"minItems",
+	"maxItems",
+	"minimum",
+	"maximum",
+	"minLength",
+	"maxLength",
+	"pattern",
+	"enum",
+	"const",
+	"value",
+	"values",
+	"anyOf",
+	"allOf",
+]);
+
+/**
+ * Walk a generated schema and throw `MalformedManifestError` on the first
+ * keyword regorus can't parse. Skips the contents of a `properties` map (those
+ * keys are curator field NAMES, not schema keywords) and of `const`/`enum`
+ * value payloads (arbitrary data, not schema). Recurses everywhere a sub-schema
+ * can hide so a nested regression can't slip through. `path` is threaded for a
+ * pinpoint error.
+ */
+function assertRegorusSupportedKeywords(schema: unknown, path: string): void {
+	if (Array.isArray(schema)) {
+		schema.forEach((item, i) => {
+			assertRegorusSupportedKeywords(item, `${path}[${i}]`);
+		});
+		return;
+	}
+	if (!schema || typeof schema !== "object") return;
+	const node = schema as Record<string, unknown>;
+	for (const [key, value] of Object.entries(node)) {
+		if (!REGORUS_SCHEMA_KEYWORDS.has(key)) {
+			throw new MalformedManifestError(
+				`generated composite schema uses JSON Schema keyword \`${key}\` at \`${path || "<root>"}\`, which newton-rego does not support — it would fail-closed at attestation time. Supported keywords: ${[...REGORUS_SCHEMA_KEYWORDS].sort().join(", ")}. Remove it from the offending pack's params_schema.json.`,
+			);
+		}
+		// `properties` keys are field names; recurse into each field's SUB-schema
+		// but don't treat the field names themselves as keywords.
+		if (key === "properties" && value && typeof value === "object") {
+			for (const [field, sub] of Object.entries(value as Record<string, unknown>)) {
+				assertRegorusSupportedKeywords(sub, `${path}.properties.${field}`);
+			}
+			continue;
+		}
+		// `const`/`enum` carry arbitrary value payloads, not schemas — don't walk.
+		if (key === "const" || key === "enum" || key === "value" || key === "values") continue;
+		assertRegorusSupportedKeywords(value, path ? `${path}.${key}` : key);
+	}
+}
+
+/**
+ * Build the JSON Schema that describes the on-chain composite-manifest
+ * ENVELOPE `encodeCompositePolicyPack` writes — i.e. the literal
+ * `{ _manifest, modules, params }` blob, NOT the inner per-module params.
+ *
+ * This is the schema a curator pins on the composite `NewtonPolicy` (via
+ * `setPolicy({ policyParams: <schema>, ... })`'s pinned-schema slot). It MUST
+ * describe the whole manifest because the AVS validates the raw on-chain
+ * `policyParams` bytes AS-IS against the pinned schema — it does NOT unwrap the
+ * `_manifest` envelope first (newton-prover-avs `task.rs` /
+ * `rego-kernel/src/rego.rs`). A hand-written per-example schema that described
+ * only the inner params produced the mainnet failure
+ * `Missing required property 'vaultsfyi' at ''` — the validator saw `_manifest`
+ * / `modules` / `params` at the root, not `vaultsfyi`. Deriving the envelope
+ * schema from the same modules the encoder uses removes that drift.
+ *
+ * Regorus support note: the emitted schema uses only keywords regorus's
+ * `Schema::from_serde_json_value` accepts (see `REGORUS_SCHEMA_KEYWORDS`). Each
+ * module's inner schema is INLINED (no `$ref`, which regorus does not support)
+ * and no `$schema` marker is emitted. The inner schemas come from each pack's
+ * regorus-clean `params_schema.json` — but a pack could regress and add a
+ * regorus-hostile keyword (`$ref`, `format`, `patternProperties`, `oneOf`, …)
+ * that `opa test` accepts and the SDK's zod ignores, yet regorus rejects at
+ * attestation time (a fail-closed prod outage). `assertRegorusSupportedKeywords`
+ * walks the FINAL envelope and throws on any keyword outside the supported set,
+ * so the leak surfaces when anyone generates the composite, not in production.
+ *
+ * The `params` key for each module is its SHORT pack id
+ * (`shortPackIdFromModuleId(module.id)`), matching what the encoder writes and
+ * what composite Rego reads as `data.params.<shortId>`.
+ *
+ * @param pack - any object exposing `modules` with `{ id, paramsJsonSchema }`.
+ *   Both `MinimalCompositePack`'s `OracleModule[]` and a raw `OracleModule[]`
+ *   wrapper satisfy it.
+ * @returns the envelope JSON Schema as a plain object, ready to ABI-/JSON-encode
+ *   into the policy's pinned-schema slot.
+ */
+export function generateCompositeParamsSchema(pack: {
+	readonly modules: ReadonlyArray<ParamsSchemaModule>;
+}): object {
+	if (pack.modules.length === 0) {
+		throw new MalformedManifestError(
+			"pack.modules is empty — a composite params schema must describe at least one module",
+		);
+	}
+
+	const paramsProperties: Record<string, object> = {};
+	const paramsRequired: string[] = [];
+	const seenShortIds = new Set<string>();
+	for (const module of pack.modules) {
+		const shortId = shortPackIdFromModuleId(module.id);
+		if (seenShortIds.has(shortId)) {
+			throw new MalformedManifestError(
+				`duplicate short pack id \`${shortId}\` derived from module id \`${module.id}\` — two modules share the same short id, which would make params.${shortId} ambiguous`,
+			);
+		}
+		seenShortIds.add(shortId);
+		if (module.paramsJsonSchema === undefined) {
+			throw new MalformedManifestError(
+				`module \`${module.id}\` has no \`paramsJsonSchema\` — a composite params schema can't pin params.${shortId} without the module's inner JSON Schema. Every published @newton-xyz/policy-pack-<name> ships one; a custom module must provide it to be composited.`,
+			);
+		}
+		// Inline the module's inner params schema verbatim (deep-cloned, no
+		// `$ref`), then close it: `closeObjectSchema` sets `additionalProperties:
+		// false` on every object node that doesn't already declare it. The source
+		// `params_schema.json` files omit `additionalProperties`, and regorus
+		// fail-OPENs on its absence (an absent `additionalProperties` defaults to
+		// "any extra key allowed" — newton-rego schema.rs). That would let a
+		// curator's manifest carry junk module params the SDK's `.strict()` zod
+		// rejects, so the on-chain schema would be looser than SDK validation.
+		// Closing each object keeps the two surfaces identical.
+		paramsProperties[shortId] = closeObjectSchema(cloneJsonSchema(module.paramsJsonSchema));
+		paramsRequired.push(shortId);
+	}
+
+	const envelope = {
+		type: "object",
+		additionalProperties: false,
+		required: ["_manifest", "modules", "params"],
+		properties: {
+			// Every object node closes unknown keys: regorus fail-opens on an absent
+			// `additionalProperties`, so without these the pinned schema would accept
+			// a manifest carrying extra control-plane fields under `_manifest` or a
+			// `modules[]` entry that the encoder never emits — weakening the
+			// exact-envelope invariant. Close `_manifest` and each `modules` item the
+			// same way the root and `params` (and the inlined module schemas) are.
+			_manifest: {
+				type: "object",
+				additionalProperties: false,
+				required: ["magic", "version"],
+				properties: {
+					magic: { const: MANIFEST_MAGIC },
+					version: { type: "integer", minimum: 1, maximum: MANIFEST_MAX_SUPPORTED_VERSION },
+				},
+			},
+			modules: {
+				type: "array",
+				minItems: 1,
+				items: {
+					type: "object",
+					additionalProperties: false,
+					required: ["id", "policyDataAddress", "wasmCid"],
+					properties: {
+						id: { type: "string" },
+						policyDataAddress: { type: "string" },
+						wasmCid: { type: "string" },
+					},
+				},
+			},
+			params: {
+				type: "object",
+				additionalProperties: false,
+				required: paramsRequired,
+				properties: paramsProperties,
+			},
+		},
+	};
+
+	// Final guard: a pack's inlined inner schema could carry a regorus-hostile
+	// keyword (`$ref`, `format`, `oneOf`, …) that the SDK's zod ignores but
+	// newton-rego rejects at attestation time. Walk the assembled envelope and
+	// throw here — fail at generation, not in production.
+	assertRegorusSupportedKeywords(envelope, "");
+	return envelope;
+}
+
 export interface CompositeManifest {
 	readonly magic: typeof MANIFEST_MAGIC;
 	readonly version: number;

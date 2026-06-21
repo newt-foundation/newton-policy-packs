@@ -25,3 +25,29 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Thresholds for the Blockaid transaction-time exploit gate",
+	properties: {
+		deny_features: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Blockaid feature ids that, if present on a Warning-classified transaction, deny the deposit (e.g. ['unbounded_approval','honeypot','phishing'])",
+		},
+		max_outbound_inbound_ratio: {
+			type: "number",
+			description:
+				"Maximum allowed simulated outbound-to-inbound USD value ratio. Above this, the transaction is treated as a value-skim and denied.",
+		},
+		require_received_shares: {
+			type: "boolean",
+			description:
+				"Deny if the simulated state-diff shows the depositor receives no inbound asset (vault shares). Catches contracts that take funds without minting receipts.",
+		},
+	},
+	required: ["deny_features", "max_outbound_inbound_ratio", "require_received_shares"],
+} as const;
