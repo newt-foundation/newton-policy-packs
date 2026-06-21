@@ -33,3 +33,41 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Thresholds for the RedStone oracle-divergence gate",
+	properties: {
+		warn_bp: {
+			type: "number",
+			description:
+				"Soft divergence threshold in basis points. Below this is always allowed; at or above triggers the sustained-drift branch when enabled.",
+		},
+		deny_bp: {
+			type: "number",
+			description:
+				"Hard divergence threshold in basis points. At or above this, the deposit is denied immediately.",
+		},
+		deny_sustained_seconds: {
+			type: "number",
+			description:
+				"Minimum seconds of sustained divergence (current and prior snapshot both at/above warn_bp) required to deny when enable_sustained_check is true.",
+		},
+		max_feed_age_seconds: {
+			type: "number",
+			description: "Maximum allowed age of the RedStone price feed in seconds. Stale feeds deny.",
+		},
+		enable_sustained_check: {
+			type: "boolean",
+			description:
+				"Whether to evaluate the sustained-drift branch. Requires the caller to pass prevSnapshot in wasm_args.",
+		},
+	},
+	required: [
+		"warn_bp",
+		"deny_bp",
+		"deny_sustained_seconds",
+		"max_feed_age_seconds",
+		"enable_sustained_check",
+	],
+} as const;

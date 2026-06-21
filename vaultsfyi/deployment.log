@@ -1310,3 +1310,48 @@ DATA_ADDR=0x763800149600164edBd19d0eeE9f858d7ac27836
 === Fri Jun 19 07:17:40 PDT 2026 :: vaultsfyi DEPLOY DONE (prod/8453) ===
 vaultsfyi DATA=0x763800149600164edBd19d0eeE9f858d7ac27836
 wrote ./vaultsfyi/dist/last_deploy.json
+=== Sat Jun 20 21:44:41 PDT 2026 :: vaultsfyi policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifyg4beze4t2epbdt5smcpxo7m7xcmb2vo2itxbeablvr6yerw3im
+  secretsSchemaCid: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x2d8A727f523D5a0ae131b017F8f0617DA897Ec34
+Policy Data Address: 0x2d8A727f523D5a0ae131b017F8f0617DA897Ec34
+DATA_ADDR=0x2d8A727f523D5a0ae131b017F8f0617DA897Ec34
+=== Sat Jun 20 21:44:49 PDT 2026 :: vaultsfyi DEPLOY DONE (stagef/8453) ===
+vaultsfyi DATA=0x2d8A727f523D5a0ae131b017F8f0617DA897Ec34
+wrote ./vaultsfyi/dist/last_deploy.json
+=== Sat Jun 20 21:47:58 PDT 2026 :: vaultsfyi policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeifyg4beze4t2epbdt5smcpxo7m7xcmb2vo2itxbeablvr6yerw3im
+  secretsSchemaCid: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xd0947ba40e526E7cdD9d2f9C276cED1B2e089c49
+Policy Data Address: 0xd0947ba40e526E7cdD9d2f9C276cED1B2e089c49
+DATA_ADDR=0xd0947ba40e526E7cdD9d2f9C276cED1B2e089c49
+=== Sat Jun 20 21:48:14 PDT 2026 :: vaultsfyi DEPLOY DONE (prod/1) ===
+vaultsfyi DATA=0xd0947ba40e526E7cdD9d2f9C276cED1B2e089c49
+wrote ./vaultsfyi/dist/last_deploy.json
+=== Sat Jun 20 21:50:56 PDT 2026 :: vaultsfyi policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeifyg4beze4t2epbdt5smcpxo7m7xcmb2vo2itxbeablvr6yerw3im
+  secretsSchemaCid: bafkreigmpbhubdqn2pvknh6aclw3zgsn5xqyxtzgypetmyr5au7zhkgdg4
+  metadataCid: bafkreigfaiftjrbz2ojcbbgqx5iscawfd2d2alfmvr36ck4earfuboyph4
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x5c65b03DD2c518DD853D1481d5f1bb60Eb0F32A1
+Policy Data Address: 0x5c65b03DD2c518DD853D1481d5f1bb60Eb0F32A1
+DATA_ADDR=0x5c65b03DD2c518DD853D1481d5f1bb60Eb0F32A1
+=== Sat Jun 20 21:51:05 PDT 2026 :: vaultsfyi DEPLOY DONE (stagef/1) ===
+vaultsfyi DATA=0x5c65b03DD2c518DD853D1481d5f1bb60Eb0F32A1
+wrote ./vaultsfyi/dist/last_deploy.json

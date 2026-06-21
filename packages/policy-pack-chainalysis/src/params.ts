@@ -25,3 +25,29 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Thresholds for the Chainalysis sanctions / address-screening gate",
+	properties: {
+		deny_on_sanctioned: {
+			type: "boolean",
+			description:
+				"Deny when the public Sanctions Screening API returns any identification for the address",
+		},
+		deny_on_high_risk_category: {
+			type: "boolean",
+			description:
+				"Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)",
+		},
+		risk_categories_blocklist: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])",
+		},
+	},
+	required: ["deny_on_sanctioned", "deny_on_high_risk_category", "risk_categories_blocklist"],
+} as const;

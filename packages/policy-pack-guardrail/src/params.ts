@@ -31,3 +31,44 @@ export const ParamsSchema = z
 	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
+
+export const ParamsJsonSchema = {
+	type: "object",
+	description: "Thresholds for the Guardrail on-chain monitoring gate",
+	properties: {
+		deny_on_active_alert: {
+			type: "boolean",
+			description:
+				"Deny when any active alert on the target has a severity in deny_alert_severities",
+		},
+		deny_alert_severities: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description: "Lowercased severity strings that trigger a deny (e.g. ['critical','high'])",
+		},
+		max_alert_age_seconds: {
+			type: "number",
+			description:
+				"Maximum allowed age (seconds) for the oldest active alert. Beyond this, alert data itself is treated as stale and the deposit denies.",
+		},
+		min_health_score: {
+			type: "number",
+			description:
+				"Minimum acceptable Guardrail health score. Only enforced when health_available is true.",
+		},
+		require_health: {
+			type: "boolean",
+			description:
+				"When true, deny if the Guardrail health endpoint did not return a usable score (health_available == false). When false, infra-side health endpoint outages are tolerated and the policy gates only on the alert signal. Default to true to fail closed on upstream outages.",
+		},
+	},
+	required: [
+		"deny_on_active_alert",
+		"deny_alert_severities",
+		"max_alert_age_seconds",
+		"min_health_score",
+		"require_health",
+	],
+} as const;

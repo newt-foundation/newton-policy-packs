@@ -1393,3 +1393,63 @@ Policy deployed successfully at address: 0x48C6BD3E31b69fD81b0EDd8579E46b0603f01
 === Mon Jun 15 19:15:17 PDT 2026 :: persona DEPLOY DONE (prod/84532) ===
 persona DATA=0xA3aDce2bcAf62dfd945D627cCfD563158e09eC53 POLICY=0x48C6BD3E31b69fD81b0EDd8579E46b0603f0119a
 wrote ./persona/dist/last_deploy.json
+=== Sat Jun 20 11:51:21 PDT 2026 :: persona policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x3c1cFEa7E26059eE8e88E4A04588C7b191D48Bc1
+Policy Data Address: 0x3c1cFEa7E26059eE8e88E4A04588C7b191D48Bc1
+DATA_ADDR=0x3c1cFEa7E26059eE8e88E4A04588C7b191D48Bc1
+=== Sat Jun 20 11:51:23 PDT 2026 :: persona DEPLOY DONE (prod/8453) ===
+persona DATA=0x3c1cFEa7E26059eE8e88E4A04588C7b191D48Bc1
+wrote ./persona/dist/last_deploy.json
+=== Sat Jun 20 11:56:31 PDT 2026 :: persona policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xeE234E8A1386510E048B84BA529CaF81A3e059dF
+Policy Data Address: 0xeE234E8A1386510E048B84BA529CaF81A3e059dF
+DATA_ADDR=0xeE234E8A1386510E048B84BA529CaF81A3e059dF
+=== Sat Jun 20 11:56:32 PDT 2026 :: persona DEPLOY DONE (stagef/8453) ===
+persona DATA=0xeE234E8A1386510E048B84BA529CaF81A3e059dF
+wrote ./persona/dist/last_deploy.json
+=== Sat Jun 20 21:46:33 PDT 2026 :: persona policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x85C946F218C00095885ba418bc3F802aE8dD16B0
+Policy Data Address: 0x85C946F218C00095885ba418bc3F802aE8dD16B0
+DATA_ADDR=0x85C946F218C00095885ba418bc3F802aE8dD16B0
+=== Sat Jun 20 21:46:49 PDT 2026 :: persona DEPLOY DONE (prod/1) ===
+persona DATA=0x85C946F218C00095885ba418bc3F802aE8dD16B0
+wrote ./persona/dist/last_deploy.json
+=== Sat Jun 20 21:49:45 PDT 2026 :: persona policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeidoylqin2q2u6o27qekw2dqmai66caz2brffy2zvvdal6kftodo64
+  secretsSchemaCid: bafkreic6swb3kx7wwt463ngm6iiegwmhqgtcotkgytgrnelhdqmjlrfbgy
+  metadataCid: bafkreidti3yzircxral37srmy6wippthvml3skarjatxnlxu6eqwx2upcq
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xAaA657AF025355DfbCCC194801BddC275a4DCBfb
+Policy Data Address: 0xAaA657AF025355DfbCCC194801BddC275a4DCBfb
+DATA_ADDR=0xAaA657AF025355DfbCCC194801BddC275a4DCBfb
+=== Sat Jun 20 21:50:01 PDT 2026 :: persona DEPLOY DONE (stagef/1) ===
+persona DATA=0xAaA657AF025355DfbCCC194801BddC275a4DCBfb
+wrote ./persona/dist/last_deploy.json
