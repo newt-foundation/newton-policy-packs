@@ -192,6 +192,7 @@ function mergeSnapshot(pack: string, chain: string, env: string): boolean {
 	const prev = (dep.packs[pack][chain][env] ?? {}) as {
 		wasmCid?: string;
 		priorWasmCids?: string[];
+		deployedAt?: string;
 	};
 	const newWasmCid = s.policyCids.wasmCid;
 	const history = Array.isArray(prev.priorWasmCids) ? [...prev.priorWasmCids] : [];
@@ -202,7 +203,10 @@ function mergeSnapshot(pack: string, chain: string, env: string): boolean {
 		wasmCid: newWasmCid,
 		...(priorWasmCids.length ? { priorWasmCids } : {}),
 		policyCodeHash: s.policyCids.policyCodeHash,
-		deployedAt: (s.deployedAt ?? "").slice(0, 10),
+		// Fall back to the prior date when a snapshot lacks `deployedAt`, matching
+		// sync-deployments.sh (`dateOnly(deployedAt) || prev.deployedAt`) so a
+		// snapshot without a date can't blank an existing cell's record.
+		deployedAt: (s.deployedAt ?? "").slice(0, 10) || prev.deployedAt,
 	};
 	writeFileSync(depPath, `${JSON.stringify(dep, null, 2)}\n`);
 	console.log(`  merged ${pack}@${chain}/${env}: policyData=${s.policyData}`);

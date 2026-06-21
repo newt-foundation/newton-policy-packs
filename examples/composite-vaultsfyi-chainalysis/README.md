@@ -39,17 +39,17 @@ opa test policy.rego policy_test.rego -v
 
 ## 2. Deploy — one policy, two PolicyData
 
-No new WASM build. Reuse the published `policyData` addresses from the repo-root [`deployments.json`](../../deployments.json). On Sepolia / stagef:
+No new WASM build. Reuse the published `policyData` addresses from the repo-root [`deployments.json`](../../deployments.json). On Sepolia / prod:
 
-Addresses (Sepolia / stagef, from `deployments.json`):
-- vaultsfyi PolicyData: `0x347c9151177bCcFd7ABE70196c4790a2dCae528b`
-- chainalysis PolicyData: `0x223F563c3CfD087cB1857851629b4d8CE7738448`
+Addresses (Sepolia / prod, from `deployments.json`):
+- vaultsfyi PolicyData: `0x90ef32c7D103D5Af2A546f94BdA994BC37372017`
+- chainalysis PolicyData: `0x226d196d565b92952669701Fb6cb85B586706996`
 
 ```bash
 newton-cli policy deploy \
   --policy-cids ./dist/policy_cids.json \
-  --policy-data-address 0x347c9151177bCcFd7ABE70196c4790a2dCae528b \
-  --policy-data-address 0x223F563c3CfD087cB1857851629b4d8CE7738448 \
+  --policy-data-address 0x90ef32c7D103D5Af2A546f94BdA994BC37372017 \
+  --policy-data-address 0x226d196d565b92952669701Fb6cb85B586706996 \
   --policy-file ./policy.rego
 # → "Policy deployed successfully at address: 0xYOUR_COMPOSITE..."
 ```
@@ -70,7 +70,7 @@ import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 const composite = await defineComposite({
   modules: [vaultsfyi, chainalysis],   // any order — aligned to on-chain getPolicyData()
   chainId: "11155111",
-  env: "stagef",
+  env: "prod",
   publicClient,
   policyAddress: "0xYOUR_COMPOSITE...",
 });
