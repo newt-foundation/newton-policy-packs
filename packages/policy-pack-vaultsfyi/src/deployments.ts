@@ -3,6 +3,14 @@
 import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = {
+	"8453": {
+		prod: {
+			policyData: "0x763800149600164edBd19d0eeE9f858d7ac27836",
+			wasmCid: "bafybeifyg4beze4t2epbdt5smcpxo7m7xcmb2vo2itxbeablvr6yerw3im",
+			policyCodeHash: "0x78067d1329f7cf28fff8728da6f1480a047dde458c04fa8db69407bc7bcb492b",
+			deployedAt: "2026-06-19",
+		},
+	},
 	"84532": {
 		stagef: {
 			policyData: "0x879B05A7eB133184eB9b9a5C06acf0f76613B568",
