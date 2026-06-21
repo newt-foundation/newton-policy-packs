@@ -220,13 +220,25 @@ function emitSchemaFile(
 	// stripped and shipping AVS-rejecting bytes. Nested objects inside `inner`
 	// are unaffected — only the outer chain gains `.strict()`.
 	const expr = zodName === "ParamsSchema" ? `${inner}.strict()` : inner;
+	// `ParamsSchema` additionally ships the raw source JSON Schema as a
+	// `ParamsJsonSchema` constant. This is the canonical inner schema a
+	// composite manifest's pinned `policyParams` schema inlines under
+	// `params.<shortId>` (see `generateCompositeParamsSchema`). Byte-derived
+	// from the same `params_schema.json` the zod comes from, so the two can't
+	// drift. The AVS-side `params_schema.json` only uses regorus-clean
+	// keywords (type/properties/required/items/minimum/maximum/enum/…), so the
+	// embedded literal is safe to validate the on-chain blob with directly.
+	const jsonSchemaConst =
+		zodName === "ParamsSchema"
+			? `\nexport const ParamsJsonSchema = ${jsLiteral(schema)} as const;\n`
+			: "";
 	return `${BANNER}// Source schema: ${sourceRelPath}
 import { z } from "zod";
 
 export const ${zodName} = ${expr};
 
 export type ${typeName} = z.infer<typeof ${zodName}>;
-`;
+${jsonSchemaConst}`;
 }
 
 function emitMetadata(meta: PackMetadata): string {
@@ -236,6 +248,36 @@ export const PACK_DESCRIPTION = ${jsLiteral(meta.description)} as const;
 export const PACK_LINK = ${jsLiteral(meta.link ?? "")} as const;
 export const PACK_AUTHOR = ${jsLiteral(meta.author ?? "")} as const;
 `;
+}
+
+/**
+ * Gateway envs that may appear in PUBLISHED per-pack `deployments.ts`. `stagef`
+ * is an internal-only staging env: it lives in the repo-root `deployments.json`
+ * (the full audit trail) but must NOT ship in the npm packages or be referenced
+ * in published docs. External SDK consumers only ever target `prod`.
+ */
+const PUBLISHED_ENVS: ReadonlySet<GatewayEnv> = new Set<GatewayEnv>(["prod"]);
+
+/**
+ * Drop internal-only env cells (`stagef`) from a pack's deployments before
+ * emitting its published `deployments.ts`. A chain left with no published env
+ * after filtering is dropped entirely (rather than emitting an empty `{}`),
+ * so the generated map only lists chains that actually have a published
+ * deployment. The repo-root `deployments.json` is untouched — it remains the
+ * complete internal record including stagef.
+ */
+export function filterPublishedEnvs(
+	perChain: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>>,
+): Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>> {
+	const out: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>> = {};
+	for (const [chainId, byEnv] of Object.entries(perChain)) {
+		const publishedCells: Partial<Record<GatewayEnv, DeploymentEntry>> = {};
+		for (const [env, entry] of Object.entries(byEnv) as [GatewayEnv, DeploymentEntry][]) {
+			if (PUBLISHED_ENVS.has(env)) publishedCells[env] = entry;
+		}
+		if (Object.keys(publishedCells).length > 0) out[chainId] = publishedCells;
+	}
+	return out;
 }
 
 function emitDeployments(
@@ -506,7 +548,7 @@ function main(): void {
 		);
 		writeFile(path.join(srcDir, "metadata.ts"), emitMetadata(meta));
 
-		const perChain = deploymentsFile.packs[packName] ?? {};
+		const perChain = filterPublishedEnvs(deploymentsFile.packs[packName] ?? {});
 		writeFile(path.join(srcDir, "deployments.ts"), emitDeployments(perChain));
 
 		// Re-export hand-written `pack.ts` if the maintainer has provided one.

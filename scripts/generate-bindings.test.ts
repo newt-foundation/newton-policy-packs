@@ -13,7 +13,7 @@
 
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { findManifestKeyViolation } from "./generate-bindings";
+import { filterPublishedEnvs, findManifestKeyViolation } from "./generate-bindings";
 
 describe("findManifestKeyViolation — accepted (no violation)", () => {
 	it("returns null for a closed object schema with no _manifest", () => {
@@ -170,5 +170,45 @@ describe("findManifestKeyViolation — rejected (violation found)", () => {
 		});
 		assert.ok(result);
 		assert.match(result, /oneOf\[0\]\.allOf\[0\]\.properties\._manifest/);
+	});
+});
+
+describe("filterPublishedEnvs — stagef is internal-only, never published", () => {
+	const entry = (policyData: string) => ({
+		policyData,
+		wasmCid: "bafytest",
+		policyCodeHash: "0xdead",
+		deployedAt: "2026-06-20",
+	});
+
+	it("strips stagef cells, keeps prod", () => {
+		const out = filterPublishedEnvs({
+			"1": { prod: entry("0xprod1"), stagef: entry("0xstagef1") },
+			"8453": { prod: entry("0xprod8453"), stagef: entry("0xstagef8453") },
+		});
+		assert.deepEqual(Object.keys(out).sort(), ["1", "8453"]);
+		assert.deepEqual(Object.keys(out["1"] ?? {}), ["prod"]);
+		assert.deepEqual(Object.keys(out["8453"] ?? {}), ["prod"]);
+	});
+
+	it("drops a chain that has ONLY stagef (no empty {} emitted)", () => {
+		const out = filterPublishedEnvs({
+			"11155111": { prod: entry("0xprod") },
+			"31337": { stagef: entry("0xstagefonly") }, // local-only cell, stagef only
+		});
+		assert.deepEqual(Object.keys(out), ["11155111"]);
+		assert.equal(out["31337"], undefined);
+	});
+
+	it("never emits the string 'stagef' anywhere in the result", () => {
+		const out = filterPublishedEnvs({
+			"1": { prod: entry("0xa"), stagef: entry("0xb") },
+		});
+		assert.equal(JSON.stringify(out).includes("stagef"), false);
+	});
+
+	it("returns an empty object when every cell is stagef", () => {
+		const out = filterPublishedEnvs({ "1": { stagef: entry("0xb") } });
+		assert.deepEqual(out, {});
 	});
 });
