@@ -1176,3 +1176,63 @@ Policy deployed successfully at address: 0x004af8d849F7aB9e883Ad0F95b236D9D7347b
 === Mon Jun 15 19:13:15 PDT 2026 :: redstone DEPLOY DONE (prod/84532) ===
 redstone DATA=0xDbfE2fea061e71109e65e511CD11D070f49A187d POLICY=0x004af8d849F7aB9e883Ad0F95b236D9D7347bfab
 wrote ./redstone/dist/last_deploy.json
+=== Sat Jun 20 11:51:28 PDT 2026 :: redstone policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xa5aDDdcf0d37C50A338B3C7F8067FB175AFAf6Bf
+Policy Data Address: 0xa5aDDdcf0d37C50A338B3C7F8067FB175AFAf6Bf
+DATA_ADDR=0xa5aDDdcf0d37C50A338B3C7F8067FB175AFAf6Bf
+=== Sat Jun 20 11:51:36 PDT 2026 :: redstone DEPLOY DONE (prod/8453) ===
+redstone DATA=0xa5aDDdcf0d37C50A338B3C7F8067FB175AFAf6Bf
+wrote ./redstone/dist/last_deploy.json
+=== Sat Jun 20 11:56:37 PDT 2026 :: redstone policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x29a44a1Fc856843dd3270D945cEA17a4be9e9D02
+Policy Data Address: 0x29a44a1Fc856843dd3270D945cEA17a4be9e9D02
+DATA_ADDR=0x29a44a1Fc856843dd3270D945cEA17a4be9e9D02
+=== Sat Jun 20 11:56:45 PDT 2026 :: redstone DEPLOY DONE (stagef/8453) ===
+redstone DATA=0x29a44a1Fc856843dd3270D945cEA17a4be9e9D02
+wrote ./redstone/dist/last_deploy.json
+=== Sat Jun 20 21:46:55 PDT 2026 :: redstone policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9
+Policy Data Address: 0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9
+DATA_ADDR=0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9
+=== Sat Jun 20 21:47:17 PDT 2026 :: redstone DEPLOY DONE (prod/1) ===
+redstone DATA=0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9
+wrote ./redstone/dist/last_deploy.json
+=== Sat Jun 20 21:50:07 PDT 2026 :: redstone policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeietgew4k4kfztjgdny6ujwsxvuu4zusghsvh6rqbs6pwme7w7lh3e
+  secretsSchemaCid: bafkreiai4dhdb4gdxh4764g7k75k2youekgfcclad4hjylwpucc4gaoe2e
+  metadataCid: bafkreibwbvb6c6pfqq5qhr2zkij4eszh33bd2lwqoh3yw6bt3q33nxxsha
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xcf03dAA747d11F21630b2b2726F48720B3fE51a8
+Policy Data Address: 0xcf03dAA747d11F21630b2b2726F48720B3fE51a8
+DATA_ADDR=0xcf03dAA747d11F21630b2b2726F48720B3fE51a8
+=== Sat Jun 20 21:50:29 PDT 2026 :: redstone DEPLOY DONE (stagef/1) ===
+redstone DATA=0xcf03dAA747d11F21630b2b2726F48720B3fE51a8
+wrote ./redstone/dist/last_deploy.json

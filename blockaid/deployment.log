@@ -1398,3 +1398,63 @@ Policy deployed successfully at address: 0xEC514aEA6cbB4C56829f982AdfBe13E616B7E
 === Mon Jun 15 19:11:23 PDT 2026 :: blockaid DEPLOY DONE (prod/84532) ===
 blockaid DATA=0xa086D57d33d030A5209fED5f62be0014f09B0413 POLICY=0xEC514aEA6cbB4C56829f982AdfBe13E616B7E0b3
 wrote ./blockaid/dist/last_deploy.json
+=== Sat Jun 20 11:51:02 PDT 2026 :: blockaid policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifktjif3473eeunuozy6dcr6qs5z774yo27ufhezohtdgryobralq
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x33394324EA2a7a599B368bd73133cc02c1E04753
+Policy Data Address: 0x33394324EA2a7a599B368bd73133cc02c1E04753
+DATA_ADDR=0x33394324EA2a7a599B368bd73133cc02c1E04753
+=== Sat Jun 20 11:51:03 PDT 2026 :: blockaid DEPLOY DONE (prod/8453) ===
+blockaid DATA=0x33394324EA2a7a599B368bd73133cc02c1E04753
+wrote ./blockaid/dist/last_deploy.json
+=== Sat Jun 20 11:55:58 PDT 2026 :: blockaid policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeifktjif3473eeunuozy6dcr6qs5z774yo27ufhezohtdgryobralq
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0xFFfb2CBA78220F0ac3248e36320Cc9e13774588b
+Policy Data Address: 0xFFfb2CBA78220F0ac3248e36320Cc9e13774588b
+DATA_ADDR=0xFFfb2CBA78220F0ac3248e36320Cc9e13774588b
+=== Sat Jun 20 11:55:59 PDT 2026 :: blockaid DEPLOY DONE (stagef/8453) ===
+blockaid DATA=0xFFfb2CBA78220F0ac3248e36320Cc9e13774588b
+wrote ./blockaid/dist/last_deploy.json
+=== Sat Jun 20 21:45:22 PDT 2026 :: blockaid policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeifktjif3473eeunuozy6dcr6qs5z774yo27ufhezohtdgryobralq
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xa7ab76E81269f48b6C40132d2234A710b0B7A099
+Policy Data Address: 0xa7ab76E81269f48b6C40132d2234A710b0B7A099
+DATA_ADDR=0xa7ab76E81269f48b6C40132d2234A710b0B7A099
+=== Sat Jun 20 21:45:52 PDT 2026 :: blockaid DEPLOY DONE (prod/1) ===
+blockaid DATA=0xa7ab76E81269f48b6C40132d2234A710b0B7A099
+wrote ./blockaid/dist/last_deploy.json
+=== Sat Jun 20 21:48:55 PDT 2026 :: blockaid policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeifktjif3473eeunuozy6dcr6qs5z774yo27ufhezohtdgryobralq
+  secretsSchemaCid: bafkreiaqj2zjkdemtciurmws7djuhn2c7sjrv2c4l44gg35rx7t3g3ss2q
+  metadataCid: bafkreiamgq4yl363uklrcuohpzzi5otm4aafinb5m2e3ugdbzehr4p4ufe
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x9A3F60C893d54d4b271Df823e09bE4B20bC0ddB3
+Policy Data Address: 0x9A3F60C893d54d4b271Df823e09bE4B20bC0ddB3
+DATA_ADDR=0x9A3F60C893d54d4b271Df823e09bE4B20bC0ddB3
+=== Sat Jun 20 21:49:04 PDT 2026 :: blockaid DEPLOY DONE (stagef/1) ===
+blockaid DATA=0x9A3F60C893d54d4b271Df823e09bE4B20bC0ddB3
+wrote ./blockaid/dist/last_deploy.json

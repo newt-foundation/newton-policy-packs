@@ -1340,3 +1340,63 @@ Policy deployed successfully at address: 0x65423D1AD2B00735b8ed0dCb11C5B03649fb9
 === Mon Jun 15 19:14:36 PDT 2026 :: webacy DEPLOY DONE (prod/84532) ===
 webacy DATA=0x01206E5302794Fba1B71b761594a5e8b4111Be60 POLICY=0x65423D1AD2B00735b8ed0dCb11C5B03649fb96D3
 wrote ./webacy/dist/last_deploy.json
+=== Sat Jun 20 11:51:48 PDT 2026 :: webacy policy-data deploy (prod/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x031afeF4c77774960Eb33fb446F9Ce3612C56b5c
+Policy Data Address: 0x031afeF4c77774960Eb33fb446F9Ce3612C56b5c
+DATA_ADDR=0x031afeF4c77774960Eb33fb446F9Ce3612C56b5c
+=== Sat Jun 20 11:51:56 PDT 2026 :: webacy DEPLOY DONE (prod/8453) ===
+webacy DATA=0x031afeF4c77774960Eb33fb446F9Ce3612C56b5c
+wrote ./webacy/dist/last_deploy.json
+=== Sat Jun 20 21:44:55 PDT 2026 :: webacy policy-data deploy (stagef/8453) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x476F51fd1b9A08d7963C0140AbF09dff0A1f534F
+Policy Data Address: 0x476F51fd1b9A08d7963C0140AbF09dff0A1f534F
+DATA_ADDR=0x476F51fd1b9A08d7963C0140AbF09dff0A1f534F
+=== Sat Jun 20 21:44:56 PDT 2026 :: webacy DEPLOY DONE (stagef/8453) ===
+webacy DATA=0x476F51fd1b9A08d7963C0140AbF09dff0A1f534F
+wrote ./webacy/dist/last_deploy.json
+=== Sat Jun 20 21:48:19 PDT 2026 :: webacy policy-data deploy (prod/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0xc127976860eEF5FF5d610548C456ABFEE66CD620
+Policy Data Address: 0xc127976860eEF5FF5d610548C456ABFEE66CD620
+DATA_ADDR=0xc127976860eEF5FF5d610548C456ABFEE66CD620
+=== Sat Jun 20 21:48:28 PDT 2026 :: webacy DEPLOY DONE (prod/1) ===
+webacy DATA=0xc127976860eEF5FF5d610548C456ABFEE66CD620
+wrote ./webacy/dist/last_deploy.json
+=== Sat Jun 20 21:51:11 PDT 2026 :: webacy policy-data deploy (stagef/1) ===
+Loading cli config from: "/Users/dennis.won/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeibylsb3pe56ysd5jygeezdiv6vrnyq2exqew3t44peli7fls6here
+  secretsSchemaCid: bafkreib5qbb7q3ine5gip7opioo7hdu6c5joz2fyd7jc4655kvhxpauaiy
+  metadataCid: bafkreiaepo5w4bycj3iwhapzfqnorh7hpw4sf3dst2apw2rj42m3yxelge
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x1317DC0e442434bEE6117AAf9b2D7a5968A21e97
+Policy Data Address: 0x1317DC0e442434bEE6117AAf9b2D7a5968A21e97
+DATA_ADDR=0x1317DC0e442434bEE6117AAf9b2D7a5968A21e97
+=== Sat Jun 20 21:51:41 PDT 2026 :: webacy DEPLOY DONE (stagef/1) ===
+webacy DATA=0x1317DC0e442434bEE6117AAf9b2D7a5968A21e97
+wrote ./webacy/dist/last_deploy.json
