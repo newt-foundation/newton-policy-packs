@@ -9,6 +9,7 @@
   "properties": {
     "_manifest": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "magic",
         "version"
@@ -29,6 +30,7 @@
       "minItems": 1,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "id",
           "policyDataAddress",

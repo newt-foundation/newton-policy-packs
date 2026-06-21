@@ -584,6 +584,41 @@ describe("generateCompositeParamsSchema", () => {
 		assert.equal(inner.properties.limits.additionalProperties, false);
 	});
 
+	it("closes EVERY object node in the envelope (_manifest + modules items included)", () => {
+		// regorus fail-opens on an absent `additionalProperties`, so any object
+		// node left open lets a manifest carry extra fields the pinned schema
+		// would accept but the encoder never emits. Walk the whole generated
+		// envelope — the hand-built `_manifest` / `modules.items` nodes are the
+		// easy ones to forget — and assert every `type: "object"` node is closed.
+		const schema = generateCompositeParamsSchema({ modules: [VAULTSFYI, CHAINALYSIS] });
+		const openNodes: string[] = [];
+		const walk = (node: unknown, path: string): void => {
+			if (Array.isArray(node)) {
+				node.forEach((n, i) => {
+					walk(n, `${path}[${i}]`);
+				});
+				return;
+			}
+			if (!node || typeof node !== "object") return;
+			const obj = node as Record<string, unknown>;
+			if (obj.type === "object" && obj.additionalProperties !== false) {
+				openNodes.push(path || "<root>");
+			}
+			for (const [k, v] of Object.entries(obj)) {
+				// `properties` keys are field names, not schema nodes — recurse into
+				// their VALUES; `const`/`enum` carry data payloads, not schemas.
+				if (k === "const" || k === "enum") continue;
+				walk(v, path ? `${path}.${k}` : k);
+			}
+		};
+		walk(schema, "");
+		assert.deepEqual(
+			openNodes,
+			[],
+			`every object node must set additionalProperties:false; open nodes: ${openNodes.join(", ")}`,
+		);
+	});
+
 	it("does not clobber an explicit additionalProperties on a source schema", () => {
 		// An author who deliberately set `additionalProperties: true` (open object)
 		// keeps it — the generator only FILLS an absent value, never overrides.

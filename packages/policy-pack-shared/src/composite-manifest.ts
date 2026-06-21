@@ -309,8 +309,15 @@ export function generateCompositeParamsSchema(pack: {
 		additionalProperties: false,
 		required: ["_manifest", "modules", "params"],
 		properties: {
+			// Every object node closes unknown keys: regorus fail-opens on an absent
+			// `additionalProperties`, so without these the pinned schema would accept
+			// a manifest carrying extra control-plane fields under `_manifest` or a
+			// `modules[]` entry that the encoder never emits — weakening the
+			// exact-envelope invariant. Close `_manifest` and each `modules` item the
+			// same way the root and `params` (and the inlined module schemas) are.
 			_manifest: {
 				type: "object",
+				additionalProperties: false,
 				required: ["magic", "version"],
 				properties: {
 					magic: { const: MANIFEST_MAGIC },
@@ -322,6 +329,7 @@ export function generateCompositeParamsSchema(pack: {
 				minItems: 1,
 				items: {
 					type: "object",
+					additionalProperties: false,
 					required: ["id", "policyDataAddress", "wasmCid"],
 					properties: {
 						id: { type: "string" },
