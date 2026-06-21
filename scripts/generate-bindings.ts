@@ -250,6 +250,36 @@ export const PACK_AUTHOR = ${jsLiteral(meta.author ?? "")} as const;
 `;
 }
 
+/**
+ * Gateway envs that may appear in PUBLISHED per-pack `deployments.ts`. `stagef`
+ * is an internal-only staging env: it lives in the repo-root `deployments.json`
+ * (the full audit trail) but must NOT ship in the npm packages or be referenced
+ * in published docs. External SDK consumers only ever target `prod`.
+ */
+const PUBLISHED_ENVS: ReadonlySet<GatewayEnv> = new Set<GatewayEnv>(["prod"]);
+
+/**
+ * Drop internal-only env cells (`stagef`) from a pack's deployments before
+ * emitting its published `deployments.ts`. A chain left with no published env
+ * after filtering is dropped entirely (rather than emitting an empty `{}`),
+ * so the generated map only lists chains that actually have a published
+ * deployment. The repo-root `deployments.json` is untouched — it remains the
+ * complete internal record including stagef.
+ */
+export function filterPublishedEnvs(
+	perChain: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>>,
+): Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>> {
+	const out: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>> = {};
+	for (const [chainId, byEnv] of Object.entries(perChain)) {
+		const publishedCells: Partial<Record<GatewayEnv, DeploymentEntry>> = {};
+		for (const [env, entry] of Object.entries(byEnv) as [GatewayEnv, DeploymentEntry][]) {
+			if (PUBLISHED_ENVS.has(env)) publishedCells[env] = entry;
+		}
+		if (Object.keys(publishedCells).length > 0) out[chainId] = publishedCells;
+	}
+	return out;
+}
+
 function emitDeployments(
 	perChain: Record<string, Partial<Record<GatewayEnv, DeploymentEntry>>>,
 ): string {
@@ -518,7 +548,7 @@ function main(): void {
 		);
 		writeFile(path.join(srcDir, "metadata.ts"), emitMetadata(meta));
 
-		const perChain = deploymentsFile.packs[packName] ?? {};
+		const perChain = filterPublishedEnvs(deploymentsFile.packs[packName] ?? {});
 		writeFile(path.join(srcDir, "deployments.ts"), emitDeployments(perChain));
 
 		// Re-export hand-written `pack.ts` if the maintainer has provided one.
