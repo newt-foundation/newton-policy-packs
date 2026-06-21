@@ -537,21 +537,108 @@ describe("generateCompositeParamsSchema", () => {
 		assert.deepEqual(Object.keys(manifest.params).sort(), shortIds);
 		assert.equal(paramsSchema.additionalProperties, false);
 
-		// Each params.properties.<shortId> deep-equals the module's inner schema.
-		assert.deepEqual(paramsSchema.properties.vaultsfyi, VAULTSFYI_PARAMS_JSON_SCHEMA);
-		assert.deepEqual(paramsSchema.properties.chainalysis, CHAINALYSIS_PARAMS_JSON_SCHEMA);
+		// Each params.properties.<shortId> deep-equals the module's inner schema
+		// CLOSED — `generateCompositeParamsSchema` adds `additionalProperties:
+		// false` to every object node so the on-chain schema rejects unknown keys
+		// exactly like the SDK's `.strict()` zod (regorus fail-opens otherwise).
+		assert.deepEqual(paramsSchema.properties.vaultsfyi, {
+			...VAULTSFYI_PARAMS_JSON_SCHEMA,
+			additionalProperties: false,
+		});
+		assert.deepEqual(paramsSchema.properties.chainalysis, {
+			...CHAINALYSIS_PARAMS_JSON_SCHEMA,
+			additionalProperties: false,
+		});
+	});
+
+	it("closes every inlined object node with additionalProperties:false (regorus fail-open guard)", () => {
+		// A nested-object inner schema: regorus would accept unknown keys at BOTH
+		// the outer and the inner object if `additionalProperties` were absent.
+		const nestedModule = makeModule(
+			"nested/params/v1",
+			z.object({ limits: z.object({ max: z.number() }) }),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				properties: {
+					limits: {
+						type: "object",
+						properties: { max: { type: "number" } },
+						required: ["max"],
+					},
+				},
+				required: ["limits"],
+			},
+		);
+		const schema = generateCompositeParamsSchema({ modules: [nestedModule] }) as {
+			properties: { params: { properties: Record<string, Record<string, unknown>> } };
+		};
+		const inner = schema.properties.params.properties.nested as {
+			additionalProperties: boolean;
+			properties: { limits: { additionalProperties: boolean } };
+		};
+		// Both the outer object and the nested `limits` object are closed.
+		assert.equal(inner.additionalProperties, false);
+		assert.equal(inner.properties.limits.additionalProperties, false);
+	});
+
+	it("does not clobber an explicit additionalProperties on a source schema", () => {
+		// An author who deliberately set `additionalProperties: true` (open object)
+		// keeps it — the generator only FILLS an absent value, never overrides.
+		const openModule = makeModule(
+			"open/params/v1",
+			z.object({}).passthrough(),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{ type: "object", additionalProperties: true, properties: {} },
+		);
+		const schema = generateCompositeParamsSchema({ modules: [openModule] }) as {
+			properties: { params: { properties: { open: Record<string, unknown> } } };
+		};
+		assert.equal(schema.properties.params.properties.open.additionalProperties, true);
+	});
+
+	it("throws MalformedManifestError on a module without paramsJsonSchema", () => {
+		// paramsJsonSchema is optional on the public interfaces (Finding E). A
+		// module that omits it can't be composited — the generator must say so
+		// loudly, not emit a half-formed schema.
+		const noSchemaModule = {
+			id: "noschema/params/v1",
+			paramsSchema: z.object({}),
+			wasmArgsSchema: z.object({}),
+			secretsSchema: z.object({}),
+			deployments: { [SEPOLIA]: { stagef: VAULTSFYI_DEPLOYMENT } },
+		} as OracleModule<unknown, unknown, unknown>;
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [noSchemaModule] }),
+			(err: unknown) =>
+				err instanceof MalformedManifestError && /noschema\/params\/v1/.test(err.message),
+		);
 	});
 
 	it("inlined inner schema is a clone, not an alias of the source constant", () => {
 		const schema = generateCompositeParamsSchema(PACK) as {
 			properties: { params: { properties: Record<string, object> } };
 		};
-		// Deep-equal but not reference-equal — mutating the result can't corrupt
-		// a pack's exported `ParamsJsonSchema` constant.
-		assert.deepEqual(schema.properties.params.properties.vaultsfyi, VAULTSFYI_PARAMS_JSON_SCHEMA);
+		// Deep-equal (modulo the added `additionalProperties: false`) but not
+		// reference-equal — mutating the result can't corrupt a pack's exported
+		// `ParamsJsonSchema` constant.
+		assert.deepEqual(schema.properties.params.properties.vaultsfyi, {
+			...VAULTSFYI_PARAMS_JSON_SCHEMA,
+			additionalProperties: false,
+		});
 		assert.notStrictEqual(
 			schema.properties.params.properties.vaultsfyi,
 			VAULTSFYI_PARAMS_JSON_SCHEMA,
+		);
+		// The source constant itself is untouched — no `additionalProperties` leaked
+		// back onto it (proves we close the CLONE, not the original).
+		assert.equal(
+			(VAULTSFYI_PARAMS_JSON_SCHEMA as Record<string, unknown>).additionalProperties,
+			undefined,
 		);
 	});
 
@@ -570,7 +657,10 @@ describe("generateCompositeParamsSchema", () => {
 		};
 		assert.deepEqual(schema.properties.params.required, ["vaultsfyi"]);
 		assert.deepEqual(Object.keys(manifest.params), ["vaultsfyi"]);
-		assert.deepEqual(schema.properties.params.properties.vaultsfyi, VAULTSFYI_PARAMS_JSON_SCHEMA);
+		assert.deepEqual(schema.properties.params.properties.vaultsfyi, {
+			...VAULTSFYI_PARAMS_JSON_SCHEMA,
+			additionalProperties: false,
+		});
 	});
 
 	it("emits no $ref and no $schema anywhere (regorus has neither)", () => {
@@ -585,5 +675,90 @@ describe("generateCompositeParamsSchema", () => {
 			() => generateCompositeParamsSchema(emptyPack),
 			(err: unknown) => err instanceof MalformedManifestError,
 		);
+	});
+
+	// --- regorus keyword guard (Finding F) ---
+	// newton-rego's Schema deserializer uses `deny_unknown_fields`, so a JSON
+	// Schema keyword it doesn't model makes the WHOLE composite schema fail to
+	// parse at attestation time — a fail-closed prod outage that `opa test` and
+	// the SDK's zod both wave through. The generator must reject such a keyword
+	// at generation, naming the offending path.
+
+	it("rejects a module schema using $ref (regorus has no $ref)", () => {
+		const refModule = makeModule(
+			"badref/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{ type: "object", properties: { floor: { $ref: "#/definitions/Floor" } } },
+		);
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [refModule] }),
+			(err: unknown) =>
+				err instanceof MalformedManifestError &&
+				err.message.includes("$ref") &&
+				err.message.includes("badref"),
+		);
+	});
+
+	it("rejects a module schema using `format` (regorus does not model it)", () => {
+		const fmtModule = makeModule(
+			"badfmt/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{ type: "object", properties: { when: { type: "string", format: "date-time" } } },
+		);
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [fmtModule] }),
+			(err: unknown) => err instanceof MalformedManifestError && err.message.includes("format"),
+		);
+	});
+
+	it("rejects `oneOf` / `patternProperties` (regorus models neither)", () => {
+		for (const badKeyword of [
+			{ oneOf: [{ type: "string" }, { type: "number" }] },
+			{ patternProperties: { "^x": { type: "string" } } },
+		]) {
+			const mod = makeModule(
+				"badkw/params/v1",
+				z.object({}),
+				z.object({ x: z.string() }),
+				z.object({}),
+				VAULTSFYI_DEPLOYMENT,
+				{ type: "object", properties: {}, ...badKeyword },
+			);
+			assert.throws(
+				() => generateCompositeParamsSchema({ modules: [mod] }),
+				(err: unknown) => err instanceof MalformedManifestError,
+			);
+		}
+	});
+
+	it("accepts the real shipped pack keywords (description/items/min/max/enum)", () => {
+		// Exercises every keyword the 9 shipped source schemas actually use, plus
+		// enum, so the guard can't false-reject a valid composite.
+		const richModule = makeModule(
+			"rich/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				description: "rich",
+				properties: {
+					floor: { type: "integer", minimum: 0, maximum: 100, description: "a bound" },
+					tags: { type: "array", items: { type: "string" } },
+					mode: { type: "string", enum: ["a", "b"] },
+				},
+				required: ["floor"],
+			},
+		);
+		// Does not throw.
+		const schema = generateCompositeParamsSchema({ modules: [richModule] });
+		assert.ok(schema);
 	});
 });

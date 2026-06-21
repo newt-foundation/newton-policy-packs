@@ -44,8 +44,8 @@ const publicClient = createPublicClient({ chain: sepolia, transport: http() });
 export async function buildComposite() {
 	return defineComposite({
 		modules: [vaultsfyi, chainalysis], // any order — aligned to on-chain getPolicyData()
-		chainId: "11155111",
-		env: "stagef",
+		chainId: "11155111", // Sepolia
+		env: "prod",
 		publicClient,
 		policyAddress: COMPOSITE_POLICY_ADDRESS,
 	});

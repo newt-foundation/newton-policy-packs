@@ -73,3 +73,17 @@ jobs:
 
       - name: Lint policy.js (AST guard)
         run: pnpm lint:policy-js
+
+      # Guard the codegen itself: the `_manifest` reservation walker, the
+      # composite params-schema generator, and the stagef-never-published
+      # filter (`filterPublishedEnvs`). These protect invariants that the
+      # `git diff --exit-code` drift check can't express on its own.
+      - name: Test generate-bindings guards
+        run: pnpm gen:bindings:test
+
+      # Run the per-package unit suites (composite-manifest schema generator,
+      # regorus-keyword guard, the composite example's anti-drift check). CI
+      # previously skipped these; they're cheap and catch schema/interface
+      # regressions before publish.
+      - name: Unit tests
+        run: pnpm -r test
