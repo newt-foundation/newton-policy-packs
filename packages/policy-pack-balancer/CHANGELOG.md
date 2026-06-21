@@ -1,5 +1,22 @@
 # @newton-xyz/policy-pack-balancer
 
+## 4.1.0
+
+### Minor Changes
+
+- 098a8aa: Deploy each pack's policyData oracle on Ethereum (1) and Base (8453) mainnet.
+
+  Every pack now carries a `prod` deployment on both mainnets in its `deployments` map (Sepolia and Base Sepolia were already present). Curators on Ethereum or Base mainnet can reference these oracle addresses directly via `getDeployment(pack, 1, "prod")` / `getDeployment(pack, 8453, "prod")`. The on-chain `wasmCid` is identical to the testnet deployments for each pack (the same WASM bytes deployed across cells), so a policy that passed on testnet evaluates identically on mainnet.
+
+- 098a8aa: Stop publishing the internal `stagef` env in each pack's `deployments` map.
+
+  `stagef` is internal staging infrastructure. The generated `deployments.ts` now ships only `prod` cells; the repo-root `deployments.json` keeps the full record (including `stagef`) as the internal audit trail. External consumers reading `pack.deployments[chainId].stagef` will get `undefined` — use `prod`, or `getDeployment(pack, chainId, "prod")`. Each chain that had a `prod` deployment is unaffected; chains that only had `stagef` no longer appear in the published map.
+
+### Patch Changes
+
+- Updated dependencies [098a8aa]
+  - @newton-xyz/policy-pack-shared@0.6.2
+
 ## 4.0.0
 
 ### Major Changes
