@@ -258,28 +258,20 @@ A maintainer reviews the Rego, the deny semantics, the schemas, and the namespac
 
 ### 7. Deploy after PR approval
 
-Once the pack PR merges, deploy on-chain across the four supported cells (Sepolia × {stagef, prod}, Base Sepolia × {stagef, prod}). The deploy plumbing is in `scripts/`.
+Once the pack PR merges, deploy on-chain across the supported prod cells (Sepolia, Base Sepolia, and the mainnets once promoted). The deploy plumbing is in `scripts/`.
 
-**Sync after every cell.** `deploy.sh` writes a single `<pack>/dist/last_deploy.json` snapshot that is overwritten on the next `deploy` invocation. `sync-deployments.sh` reads that snapshot and merges into `deployments.json` under the requested env. If you deploy all 4 cells before syncing, the snapshot only carries the last cell's data and `sync-deployments.sh` rejects mismatched `--env` values, so you must sync immediately after each cell:
+**Sync after every cell.** `deploy.sh` writes a single `<pack>/dist/last_deploy.json` snapshot that is overwritten on the next `deploy` invocation. `sync-deployments.sh` reads that snapshot and merges into `deployments.json` under the requested env. If you deploy multiple cells before syncing, the snapshot only carries the last cell's data, so you must sync immediately after each cell:
 
 ```bash
 # Phase 1 — build + upload to IPFS once per pack (cached across cells)
 pnpm run upload <your-pack>
 
-# Phase 2 — deploy + sync per (chain, env) cell
-# Sepolia stagef
-pnpm run deploy <your-pack> --env stagef --chain 11155111 --expire-after-blocks 100
-pnpm run deploy:sync --env stagef
-
-# Sepolia prod
+# Phase 2 — deploy + sync per chain
+# Sepolia
 pnpm run deploy <your-pack> --env prod --chain 11155111 --expire-after-blocks 120
 pnpm run deploy:sync --env prod
 
-# Base Sepolia stagef
-pnpm run deploy <your-pack> --env stagef --chain 84532 --expire-after-blocks 400
-pnpm run deploy:sync --env stagef
-
-# Base Sepolia prod
+# Base Sepolia
 pnpm run deploy <your-pack> --env prod --chain 84532 --expire-after-blocks 420
 pnpm run deploy:sync --env prod
 ```

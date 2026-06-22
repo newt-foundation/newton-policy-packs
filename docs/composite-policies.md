@@ -6,11 +6,11 @@
 > - **Phase 0 (done)** — `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.
 > - **Phase 0 (done)** — `wrapping_test.rego` per-pack tests asserting namespace correctness, present in all 9 packs.
 > - **Phase 0 (done)** — AST-lint CI guard (`scripts/lint-policy-js.ts`) flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput`. A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands.
-> - **Phase 2 prerequisite (forward-looking)** — `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData). NOT required for Phase 0 single-pack redeploys.
+> - **Phase 2 prerequisite (done)** — `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData). NOT required for Phase 0 single-pack redeploys.
 > - **Phase 1 (done)** — `OracleModule` type + `oracleModuleFromPack(pack)` helper in `@newton-xyz/policy-pack-shared`, plus `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule`. `getDeployment` accepts both `PolicyPack` and `OracleModule`.
-> - **Phase 2 (forward-looking)** — `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared`, shipping alongside the SDK guard that consumes it.
+> - **Phase 2 (done)** — `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared` + the `defineComposite` builder that consumes it.
 >
-> The composite-deploy workflow below describes the end state. The namespacing claims and `OracleModule` exports are live today; the `defineComposite(...)` and `KNOWN_PACK_IDS` references describe the API after Phase 2 lands.
+> The composite-deploy workflow below describes the shipped end state — `defineComposite(...)`, `KNOWN_PACK_IDS`, the namespacing convention, and the `OracleModule` exports are all live in `@newton-xyz/policy-pack-shared` today.
 
 Authoring one Newton policy that consumes **multiple oracle modules** under one auditable on-chain artifact. This is how a vault curator gates a single action (say, MetaMorpho `reallocate`) with risk + sanctions + oracle-divergence simultaneously, while preserving "one policy address per vault" for depositor verification.
 

@@ -125,7 +125,7 @@ curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
 ## Environment
 
 - `~/.newton/newton-cli.toml` — primary config, holds chain id, signer key, RPC, Pinata creds
-- `.env.stagef` / `.env.prod` — starter env templates (Sepolia / mainnet); copy to `.env` if you want env-var-based overrides
+- `.env.prod` — starter env template; copy to `.env` if you want env-var-based overrides
 - `<name>/configs/` (gitignored) — `wasm_args.json`, `params.json`, `intent.json` for local simulation; auto-resolved by `policy simulate -p`
 
 ## Conventions

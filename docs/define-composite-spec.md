@@ -1,8 +1,8 @@
 # `defineComposite` builder + composite SDK consumption — design spec
 
-**Status:** Proposed. Phase 2 of the composite-policy rollout (NEWT-1542). Implementation lands in a follow-up PR after design review.
+**Status:** Shipped (`@newton-xyz/policy-pack-shared`). `defineComposite` and the surrounding composite SDK are live; this doc is the design rationale for the delivered API, kept as the reference for how the pieces fit together.
 
-This spec answers: how does a curator build a composite policy in TypeScript, and how do downstream consumers (the Shield SDK, depositor UIs) work with the resulting object? It binds together the artifacts shipped in Phase 0 (`wrapOutput`), Phase 1 (`OracleModule`), and Phase 1.5 (`encodeCompositeParams` / `decodeManifest` / `introspectComposite`) into one curator-facing API.
+This spec answers: how does a curator build a composite policy in TypeScript, and how do downstream consumers (the Shield SDK, depositor UIs) work with the resulting object? It binds together `wrapOutput`, `OracleModule`, and the manifest codec (`encodeCompositeParams` / `decodeManifest` / `introspectComposite`) into one curator-facing API.
 
 ## Goals
 
@@ -340,27 +340,25 @@ The two cases dispatch on `pack.kind`:
 
 Phase 2 ships only the policy-pack-shared side. The actual Shield SDK changes ship in newton-shield, NOT this repo. This spec describes the SHARED surface that newton-shield consumes.
 
-## Open questions
+## Decisions
 
-- **Should `KNOWN_PACK_IDS` carry version info?** v1 says no — short pack id is identity, not versioning; downstream dispatch on `OracleModule.id` (which carries `<purpose>/<version>`) handles that. **Recommendation:** Skip versioning in the registry.
-- **Should `defineComposite` cache the `getPolicyData()` snapshot indefinitely or expire it?** Composites are intended for low-frequency tuning; on-chain state changes are rare. **Recommendation:** Cache for the lifetime of the `CompositePolicyPack` object — callers who suspect drift call `defineComposite` again to rebuild.
-- **Should there be a sync `defineCompositeUnchecked(...)` for tests?** Tempting because the async invariant check makes test fixtures noisy. Risk: someone uses the unchecked path in production. **Recommendation:** Add it ONLY if test suites genuinely need it, mark with a clear "DO NOT USE IN PRODUCTION" prefix.
-- **Type-narrowing CompositePolicyPack with a typed modules tuple.** `CompositePolicyPack<TModules extends ReadonlyArray<PolicyPack<...>>>` could give Phase 2 callers a typed `params` shape. Trade-off: more complex types, harder error messages. **Recommendation:** Skip for v1 — the params validation already happens at runtime via each module's `paramsSchema`.
+Resolved during implementation; recorded here as the rationale behind the shipped behavior:
 
-## Implementation plan
+- **`KNOWN_PACK_IDS` does not carry version info** — short pack id is identity, not versioning; downstream dispatch on `OracleModule.id` (which carries `<purpose>/<version>`) handles that.
+- **`defineComposite` caches the `getPolicyData()` snapshot for the lifetime of the `CompositePolicyPack`** — composites are low-frequency tuning; callers who suspect on-chain drift call `defineComposite` again to rebuild.
+- **No `defineCompositeUnchecked(...)`** — the async invariant check stays mandatory; the production-misuse risk outweighed test-fixture convenience.
+- **`CompositePolicyPack` is not type-narrowed by a typed modules tuple** — params validation happens at runtime via each module's `paramsSchema`, which keeps the types and error messages simple.
 
-Single PR — Phase 2 implementation:
+## Delivered surface
 
-1. `packages/policy-pack-shared/src/known-pack-ids.ts` — `KNOWN_PACK_IDS` constant + `KnownPackId` type
-2. `packages/policy-pack-shared/src/known-pack-ids.test.ts` — unit tests + cross-check that every existing `<name>OracleModule.id` (Phase 1 export) derives a short id present in `KNOWN_PACK_IDS`
-3. `packages/policy-pack-shared/src/composite-pack.ts` — `defineComposite`, `CompositePolicyPack`, `encodeCompositePolicyPack` (the convenience that wraps `encodeCompositeParams` with the historical bindings carried on `CompositePolicyPack`), error classes (`CompositeBuilderError`, `UnknownPackIdError`, `PolicyDataLengthMismatchError`, `PolicyDataOrderingMismatchError`, `ChainMismatchError`, `CompositePrepareQueryError`, `PinnedWasmCidMismatchError`), the aggregated `prepareQuery` builder, the `expectedPolicyDataAddresses` + `expectedWasmCids` historical-pinning path with on-chain `getWasmCid()` identity check (multicall when supported, sequential fallback)
-4. `packages/policy-pack-shared/src/composite-pack.test.ts` — fake `PublicClient`-driven tests covering every invariant check (zero-address, chain mismatch, duplicate short ids, unknown short ids, length mismatch, set mismatch (foreign on-chain oracle) with and without historical pinning, two-modules-same-address and on-chain-duplicate guards, module reorder happy path (fresh + historical), wasmCid identity mismatch, missing `expectedWasmCids` when `expectedPolicyDataAddresses` is set), prepareQuery aggregation (per-module options threading, fail-fast on rejection, modules without `prepareQuery`, non-Error cause normalization), registry-rejection, `encodeCompositePolicyPack` emits pinned addresses+CIDs when historical bindings are present
-5. `packages/policy-pack-shared/src/composite-manifest.ts` — extend `encodeCompositeParams` to accept an optional `historicalBindings?: ReadonlyArray<{ policyDataAddress: Address; wasmCid: string }>` parameter that overrides the default `module.deployments` lookup. Phase 1.5 callers (no historical pin) keep using the default path.
-6. `packages/policy-pack-shared/src/get-policy-manifest.ts` — `getPolicyManifest` discriminated dispatch + `SinglePackParamsValidationError` + tests covering single-pack happy path, composite happy path, NotJsonError surfacing, BadManifestMagicError / UnsupportedManifestVersionError / MalformedManifestError surfacing, single-pack params schema validation failure
-7. `scripts/generate-bindings.ts` — cross-check `KNOWN_PACK_IDS` against discovered packs at regen time; fail on missing or extra entries
-8. Re-exports from `packages/policy-pack-shared/src/index.ts`
+Shipped in `@newton-xyz/policy-pack-shared`:
 
-After this lands, `composite-policies.md` Phase 2 status moves from "in progress" to done, and the four-phase composite-policy rollout closes.
+- `known-pack-ids.ts` — `KNOWN_PACK_IDS` + `KnownPackId`; the binding codegen cross-checks every pack's short id against it and fails on a missing/extra entry.
+- `composite-pack.ts` — `defineComposite`, `CompositePolicyPack`, `encodeCompositePolicyPack`, the aggregated `prepareQuery` builder, the historical-pinning path (`getWasmCid()` identity check), and the builder error classes (`CompositeBuilderError`, `UnknownPackIdError`, `PolicyDataLengthMismatchError`, `PolicyDataOrderingMismatchError`, `ChainMismatchError`, `CompositePrepareQueryError`, `PinnedWasmCidMismatchError`).
+- `composite-manifest.ts` — `encodeCompositeParams` with the optional `historicalBindings` override.
+- `get-policy-manifest.ts` — `getPolicyManifest` discriminated dispatch + `SinglePackParamsValidationError`.
+
+The four-phase composite-policy rollout is closed; see [`composite-policies.md`](./composite-policies.md) for the curator-facing summary.
 
 ## See also
 

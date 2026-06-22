@@ -153,7 +153,7 @@ newton-cli policy-client transfer-ownership --registry 0x<REGISTRY> --client 0x<
 
 Before running any of the above on behalf of a user, confirm these inputs (don't synthesize):
 
-1. **Chain** — stagef (Sepolia, `chain_id=11155111`) or prod (mainnet, `chain_id=1`). Should match `~/.newton/newton-cli.toml`.
+1. **Chain** — the target chain id (e.g. mainnet `1`, Base `8453`, Sepolia `11155111`, Base Sepolia `84532`). Should match `~/.newton/newton-cli.toml`.
 2. **PolicyClient address** — the user's deployed `PolicyClient` contract (0x-prefixed). Distinct from the policy address.
 3. **Policy address** — the curator's OWN deployed `NewtonPolicy` (from their `newton-cli policy deploy` output). NOT a `deployments.json` field and NOT from `<pack>/deployment.log` (those logs only record the pack's PolicyData oracle; any old "Policy deployed" lines are stale pre-refactor history). Don't confuse with the policy-data (oracle) address.
 4. **Registry address** — look up from [Newton contract-addresses docs](https://docs.newton.xyz/developers/reference/contract-addresses) per chain. Never invent.

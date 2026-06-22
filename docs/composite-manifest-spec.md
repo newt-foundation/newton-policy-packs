@@ -107,9 +107,11 @@ Each value is the params object the AVS host forwards to that module's WASM. The
 - `modules[].id` carries the full `OracleModule.id` (e.g. `"vaultsfyi/risk-envelope/v1"`) — unambiguous traceability that survives multiple versions or purposes of the same pack. Depositor introspection cross-references `OracleModule.id` directly against published artifacts.
 - `params` keys use the short pack id derived via `shortPackIdFromModuleId(module.id)` (everything before the first `/`) — readable Rego access (`data.params.vaultsfyi.field`, matching `data.wasm.vaultsfyi.field`) and symmetric with the Phase 0 namespacing convention.
 
-The encoder (`encodeCompositeParams`) rejects packs where two modules derive the same short id — that would make `data.params.<shortId>` ambiguous in Rego. `KNOWN_PACK_IDS` in Phase 2 will mechanically enforce uniqueness across the published-pack universe.
+The encoder (`encodeCompositeParams`) rejects packs where two modules derive the same short id — that would make `data.params.<shortId>` ambiguous in Rego. `KNOWN_PACK_IDS` mechanically enforces uniqueness across the published-pack universe.
 
 `encodeCompositeParams` validates each `params[shortId]` against the corresponding module's `paramsSchema` (zod) before emitting bytes. Schema mismatch throws `CompositeParamsValidationError` with the offending module + zod issue list.
+
+**`params` is strictly bijective with the oracle module set.** Every module in `modules[]` has exactly one `params[shortId]` entry, and every `params` key must be a short pack id present in the module set — the encoder rejects a `params` key that no module covers, and a module with no params entry. The consequence for policy authors: a **policy-level** value that is not an oracle param — a bound vault address, a cap ceiling, a composite-wide threshold — has **no `params` slot** and cannot be written via `setParams`. Encode such values as **Rego constants** in the composite's `policy.rego` (retune by editing the Rego and redeploying the composite), not as manifest params. This is why composite gates that bind a target address or a numeric ceiling carry them as `package`-level constants rather than `data.params.*` reads.
 
 ## Canonical-form encoding
 
@@ -216,39 +218,19 @@ All errors thrown by `decodeManifest`, `introspectComposite`, and `encodeComposi
 | `MalformedManifestError` | post-magic structural validation failed | Fix the writer — usually a `defineComposite` bug |
 | `CompositeParamsValidationError` | one of `params[shortId]` failed its module's `paramsSchema` (zod) — thrown by `encodeCompositeParams` before bytes are emitted | Fix the offending params; `err.moduleId` + `err.zodIssues` carry context |
 
-## Implementation plan
+## Delivered surface
 
-The actual code lands in a follow-up PR (Phase 1.5 implementation). Two scope options to nail down before that PR opens:
+Shipped in `@newton-xyz/policy-pack-shared` (`composite-manifest.ts` + `composite-introspect.ts`): the manifest type, `decodeManifest` / `isCompositeManifest`, `encodeCompositeParams` (byte producer, validates each `params[shortId]` against the module's `paramsSchema` before emitting), `introspectComposite` (multicall with sequential fallback), and the error classes above. The codegen (`scripts/generate-bindings.ts`) enforces the `_manifest` key reservation — a pack whose `params_schema.json` declares a top-level `_manifest` property fails at regen.
 
-### Option A — read path only, fixture-based tests
+## Decisions
 
-1. `packages/policy-pack-shared/src/composite-manifest.ts` — type + `decodeManifest` + `isCompositeManifest` + error classes (`NotAManifestError`, `NotJsonError`, `BadManifestMagicError`, `UnsupportedManifestVersionError`, `MalformedManifestError`)
-2. `packages/policy-pack-shared/src/composite-manifest.test.ts` — fixture-decode tests (hand-rolled byte fixtures), version mismatch, magic mismatch, malformed cases. **No round-trip tests** — those require the encoder, which lands in Phase 2 with `defineComposite`.
-3. `packages/policy-pack-shared/src/composite-introspect.ts` — `introspectComposite` (depends on `viem` peer-dep for `PublicClient`)
-4. `packages/policy-pack-shared/src/composite-introspect.test.ts` — uses a mock `PublicClient` to exercise both the multicall path and the sequential-fallback path
-5. Re-exports from `packages/policy-pack-shared/src/index.ts`
+Resolved during implementation; the shipped format follows these:
 
-### Option B — read + write paired in Phase 1.5
-
-Same as Option A plus `encodeCompositeParams(pack, params)` (the byte producer, no on-chain calls) so the test suite can exercise round-trip identity. Signature: `pack` is a `CompositePolicyPack` (the type Phase 2's `defineComposite` produces) carrying both the typed `modules` array AND each module's `paramsSchema` — needed because the encoder validates `params[shortId]` against `pack.modules[i].paramsSchema` before emitting bytes (`shortId = shortPackIdFromModuleId(module.id)`). The single-arg shape mirrors `encodePolicyParams(pack, params)` for single-pack params (see [`packages/policy-pack-shared/src/encoding.ts`](../packages/policy-pack-shared/src/encoding.ts)).
-
-For Phase 1.5, the implementation defines a minimal `CompositePolicyPack` shape (just `modules: ReadonlyArray<OracleModule<...>>`) so `encodeCompositeParams` can run before Phase 2's `defineComposite` builder lands. Phase 2 fills in the rest of `CompositePolicyPack` (e.g. cached on-chain `getPolicyData()` snapshot for invariants, `prepareQuery` aggregation across modules) without changing the encoder's signature.
-
-**Recommendation: Option B.** Putting encoder + decoder in the same module is the standard pattern (see `encoding.ts` for single-pack), tests are stronger, and `defineComposite` becomes a pure builder — no byte logic. The cost is one extra function in Phase 1.5, which is small.
-
-### `_manifest` key reservation enforcement
-
-Codegen-time check in `scripts/generate-bindings.ts`: when reading each pack's `params_schema.json`, fail if the schema declares a top-level `_manifest` property. This is mechanical enforcement of the spec's reservation — without it, a future pack author could accidentally collide with the discriminator. Lands as part of the Phase 1.5 implementation PR.
-
-## Open questions
-
-These are flagged for review on this design PR:
-
-- **Magic-byte length / format.** 4-char ASCII (`"NPM1"`) is human-readable in JSON. Alternative: a 4-byte hex like `"0x4e504d31"`. ASCII wins on grep-ability and editor inspection; hex wins on a tiny serialization-size advantage. **Recommendation:** ASCII.
-- **`policyDataAddress` casing.** EIP-55 checksummed (preserves bytewise comparison against viem-formatted addresses) vs all-lowercase (smaller, simpler equality). **Recommendation:** EIP-55, since most viem call returns are checksummed.
-- **`wasmCid` form.** CIDv1 base32-lower (the form `policy_cids.json` writes today) vs CIDv0 base58. **Recommendation:** CIDv1 base32-lower — matches what the AVS-side `INewtonPolicyData.getWasmCid()` returns and what the upload pipeline pins to Pinata.
-- **Should `_manifest` carry `chainId` and `env` fields?** Pro: depositors can sanity-check they're verifying against the right cell. Con: the cell is implied by the on-chain Shield they're querying. **Recommendation:** Skip for v1. Add in v2 if a real failure mode surfaces.
-- **What happens if `params[shortId]` is missing for a module in `modules[]`?** Either the module's WASM gets `{}` as params (lenient) or `decodeManifest` throws `MalformedManifestError` (strict). **Recommendation:** Strict — every module declared in `modules[]` MUST have a corresponding `params[shortId]` entry, even if the entry is `{}`. Catches a class of partial-write bugs.
+- **Magic bytes** are 4-char ASCII (`"NPM1"`) — grep-able and editor-inspectable in JSON.
+- **`policyDataAddress`** is EIP-55 checksummed, matching viem call returns.
+- **`wasmCid`** is CIDv1 base32-lower, matching `INewtonPolicyData.getWasmCid()` and the Pinata upload pipeline.
+- **`_manifest` does not carry `chainId`/`env`** — the cell is implied by the on-chain Shield the depositor queries.
+- **Missing `params[shortId]` is strict** — every module in `modules[]` MUST have a corresponding `params` entry (even `{}`); a gap throws `MalformedManifestError`. Catches partial-write bugs.
 
 ## See also
 

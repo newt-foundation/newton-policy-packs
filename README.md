@@ -110,7 +110,7 @@ cp -r vaultsfyi my_policy
 | `PINATA_JWT` | Pinata IPFS token — **strongly recommended**; without it, IPFS uploads fall back to the Newton proxy and won't be pinned to your Pinata account |
 | `PINATA_GATEWAY` | Pinata gateway URL |
 
-The `.env.stagef` / `.env.prod` files are starter templates — they are **not** auto-sourced by the CLI. Either `source .env` yourself or export the values directly.
+The `.env.prod` file is a starter template — it is **not** auto-sourced by the CLI. Either `source .env` yourself or export the values directly.
 
 ## Project Structure
 
@@ -125,8 +125,7 @@ newton-policy-packs/
 ├── persona/               # KYC / identity gate
 ├── sumsub/                # KYC / applicant gate (HMAC-signed)
 ├── balancer/              # Composite Balancer pool-risk gate
-├── .env.stagef            # Starter env for testnet
-├── .env.prod              # Starter env for mainnet
+├── .env.prod              # Starter env template
 └── package.json           # jco build deps
 ```
 
