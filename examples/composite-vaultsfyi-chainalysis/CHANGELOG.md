@@ -1,5 +1,14 @@
 # @newton-xyz/example-composite-vaultsfyi-chainalysis
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [c5e4c89]
+  - @newton-xyz/policy-pack-shared@0.7.0
+  - @newton-xyz/policy-pack-chainalysis@5.0.0
+  - @newton-xyz/policy-pack-vaultsfyi@5.0.0
+
 ## 0.0.6
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @newton-xyz/policy-pack-webacy
 
+## 5.0.0
+
+### Patch Changes
+
+- Updated dependencies [c5e4c89]
+  - @newton-xyz/policy-pack-shared@0.7.0
+
 ## 4.1.0
 
 ### Minor Changes
