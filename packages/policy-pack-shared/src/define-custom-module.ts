@@ -3,6 +3,18 @@ import { isKnownPackId } from "./known-pack-ids";
 import type { PolicyPack } from "./pack";
 
 /**
+ * Grammar a derived short pack id must satisfy: a lowercase letter followed by
+ * lowercase alphanumerics or underscores. This is the set that is safe as a Rego
+ * dot-path segment (`data.params.<shortId>`) and as a plain composite-manifest
+ * key. Every published `KNOWN_PACK_IDS` entry already matches it. Excludes
+ * hyphens (Rego reads `a-b` as subtraction), dots, spaces, uppercase, and
+ * leading digits. The leading `[a-z]` anchor also rejects prototype keys like
+ * `__proto__` (they start with `_`), which would otherwise corrupt the generated
+ * envelope object.
+ */
+const SHORT_ID_RE = /^[a-z][a-z0-9_]*$/;
+
+/**
  * Arguments for {@link defineCustomModule}. Structurally the `PolicyPack`
  * contract with one difference: `paramsJsonSchema` is REQUIRED, not optional.
  *
@@ -38,15 +50,23 @@ export interface DefineCustomModuleArgs<TParams, TWasmArgs, TSecrets>
  *
  * Validation performed (all fail-early, before any RPC):
  * - `id` is a non-empty string not starting with `/`.
+ * - the derived short pack id matches `^[a-z][a-z0-9_]*$` — it is used as a Rego
+ *   dot-path segment (`data.params.<shortId>`) and a manifest key, so hyphens,
+ *   dots, spaces, uppercase, leading digits, and prototype keys are rejected.
  * - the derived short pack id is NOT in `KNOWN_PACK_IDS` — a custom module must
  *   not claim a published pack's `data.params.<shortId>` / `data.wasm.<shortId>`
  *   namespace.
- * - the three zod schemas are present.
+ * - the three zod schemas are present; `metadata` carries `{ name, version,
+ *   description }` strings.
  * - `paramsJsonSchema` is present AND survives the exact gate
  *   `generateCompositeParamsSchema` runs (`assertRegorusSupportedKeywords`), so
  *   a `$ref` / `oneOf` / `format` keyword that passes `opa test` and zod but
  *   fails-closed at the AVS is caught now. This reuses the production path
  *   rather than duplicating the keyword allowlist, so the two can't drift.
+ * - when `paramsSchema` is a `z.object`, its field set matches
+ *   `paramsJsonSchema.properties` — the zod (SDK validation) and the JSON Schema
+ *   (pinned on-chain) must describe the same params, or SDK-valid params get
+ *   denied fail-closed at the AVS / the on-chain schema misrepresents enforcement.
  *
  * @throws {CustomModuleError} on a shape problem (bad id, namespace collision,
  *   missing schema).
@@ -66,6 +86,18 @@ export function defineCustomModule<TParams, TWasmArgs, TSecrets>(
 	}
 
 	const shortId = shortPackIdFromModuleId(args.id);
+	// The short id is used as a Rego dot-path segment (`data.params.<shortId>`,
+	// `data.wasm.<shortId>`) AND as a composite-manifest params key. A hyphen makes
+	// `data.params.foo-bar` parse in Rego as subtraction, not key access; a dot,
+	// space, or uppercase is likewise not a bare-key dot-path; a `__proto__` /
+	// `constructor` key corrupts the generated envelope object. Enforce the same
+	// snake_case grammar the published packs already follow (all KNOWN_PACK_IDS
+	// match it) so a custom module is dot-notation-safe by construction.
+	if (!SHORT_ID_RE.test(shortId)) {
+		throw new CustomModuleError(
+			`custom module id \`${args.id}\` derives short pack id \`${shortId}\`, which is not a valid Rego dot-path segment. A short id must match ${SHORT_ID_RE} (lowercase letter, then lowercase alphanumerics or underscore) so composite Rego can read \`data.params.${shortId}\` / \`data.wasm.${shortId}\` with dot notation. Use snake_case, e.g. \`bizantine_ltv\`.`,
+		);
+	}
 	if (isKnownPackId(shortId)) {
 		throw new CustomModuleError(
 			`custom module id \`${args.id}\` derives short pack id \`${shortId}\`, which is a published pack in KNOWN_PACK_IDS — a custom module must not claim a published pack's \`data.params.${shortId}\` / \`data.wasm.${shortId}\` namespace. Pick a distinct short id.`,
@@ -108,9 +140,17 @@ export function defineCustomModule<TParams, TWasmArgs, TSecrets>(
 	}
 
 	if (!args.metadata || typeof args.metadata !== "object" || Array.isArray(args.metadata)) {
-		throw new CustomModuleError(
-			"metadata must be an object with at least `{ name, version, description }`",
-		);
+		throw new CustomModuleError("metadata must be an object with `{ name, version, description }`");
+	}
+	// Enforce the three keys the message promises (and that `PolicyPack.metadata`
+	// requires) - a bare `typeof === object` check would let `metadata: {}` through
+	// with undefined name/version/description feeding telemetry + introspection.
+	for (const key of ["name", "version", "description"] as const) {
+		if (typeof (args.metadata as Record<string, unknown>)[key] !== "string") {
+			throw new CustomModuleError(
+				`metadata.${key} must be a string — metadata requires \`{ name, version, description }\`.`,
+			);
+		}
 	}
 
 	// Dry-run the exact gate defineComposite runs. Throws MalformedManifestError
@@ -120,6 +160,30 @@ export function defineCustomModule<TParams, TWasmArgs, TSecrets>(
 	generateCompositeParamsSchema({
 		modules: [{ id: args.id, paramsJsonSchema: args.paramsJsonSchema }],
 	});
+
+	// Reconcile the two params surfaces. `paramsSchema` (zod) gates SDK-side
+	// enforcement; `paramsJsonSchema` is inlined verbatim into the on-chain pinned
+	// envelope depositors verify. Published packs codegen both from one source so
+	// they can't drift; a custom module hand-writes both. If their property sets
+	// disagree, SDK-valid params can be denied fail-closed at the AVS, or the
+	// on-chain schema misrepresents what is enforced (a verifiability defect). We
+	// reconcile the PROPERTY key sets (not `required` - an optional zod field is a
+	// legitimate property absent from `required`). Best-effort: only when the zod
+	// schema is a ZodObject (exposes `.shape`); opaque schemas (record/union) are
+	// skipped since their key set can't be introspected.
+	const zodShape = (args.paramsSchema as { shape?: Record<string, unknown> })?.shape;
+	if (zodShape && typeof zodShape === "object") {
+		const jsonProps =
+			(args.paramsJsonSchema as { properties?: Record<string, unknown> }).properties ?? {};
+		const zodKeys = Object.keys(zodShape).sort();
+		const jsonKeys = Object.keys(jsonProps).sort();
+		if (zodKeys.join(",") !== jsonKeys.join(",")) {
+			throw new CustomModuleError(
+				`paramsSchema (zod) and paramsJsonSchema describe different fields: zod has [${zodKeys.join(", ")}], paramsJsonSchema.properties has [${jsonKeys.join(", ")}]. ` +
+					"They must agree - the zod gates SDK validation, the JSON Schema is pinned on-chain; a mismatch means SDK-valid params get denied at the AVS, or the on-chain schema misrepresents what is enforced. Generate both from one source, or align them by hand.",
+			);
+		}
+	}
 
 	const pack: PolicyPack<TParams, TWasmArgs, TSecrets> = {
 		id: args.id,

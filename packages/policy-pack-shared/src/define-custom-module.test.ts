@@ -35,17 +35,17 @@ type Args = DefineCustomModuleArgs<
 	z.infer<typeof SECRETS_SCHEMA>
 >;
 
-// A realistic bespoke module id (short id `bizantine-ltv` is deliberately NOT
+// A realistic bespoke module id (short id `bizantine_ltv` is deliberately NOT
 // in KNOWN_PACK_IDS - the whole point of a custom module).
 function validArgs(): Args {
 	return {
-		id: "bizantine-ltv/max-ltv/v1",
+		id: "bizantine_ltv/max-ltv/v1",
 		paramsSchema: PARAMS_SCHEMA,
 		wasmArgsSchema: WASM_ARGS_SCHEMA,
 		secretsSchema: SECRETS_SCHEMA,
 		paramsJsonSchema: PARAMS_JSON_SCHEMA,
 		deployments: { "8453": { prod: CUSTOM_DEPLOYMENT } },
-		metadata: { name: "bizantine-ltv", version: "1.0.0", description: "custom LTV gate" },
+		metadata: { name: "bizantine_ltv", version: "1.0.0", description: "custom LTV gate" },
 	};
 }
 
@@ -53,7 +53,7 @@ describe("defineCustomModule", () => {
 	it("returns a PolicyPack carrying every field verbatim", () => {
 		const pack = defineCustomModule(validArgs());
 
-		assert.equal(pack.id, "bizantine-ltv/max-ltv/v1");
+		assert.equal(pack.id, "bizantine_ltv/max-ltv/v1");
 		// Schema + deployments references pass through unchanged (same guarantee
 		// oracleModuleFromPack gives): params validated through the module must
 		// validate identically to the source schema.
@@ -61,7 +61,7 @@ describe("defineCustomModule", () => {
 		assert.strictEqual(pack.wasmArgsSchema, WASM_ARGS_SCHEMA);
 		assert.strictEqual(pack.secretsSchema, SECRETS_SCHEMA);
 		assert.strictEqual(pack.paramsJsonSchema, PARAMS_JSON_SCHEMA);
-		assert.equal(pack.metadata.name, "bizantine-ltv");
+		assert.equal(pack.metadata.name, "bizantine_ltv");
 	});
 
 	it("output satisfies getDeployment", () => {
@@ -77,21 +77,21 @@ describe("defineCustomModule", () => {
 		const schema = generateCompositeParamsSchema({ modules: [pack] }) as {
 			properties: { params: { properties: Record<string, unknown>; required: string[] } };
 		};
-		assert.ok(schema.properties.params.properties["bizantine-ltv"]);
-		assert.deepEqual(schema.properties.params.required, ["bizantine-ltv"]);
+		assert.ok(schema.properties.params.properties["bizantine_ltv"]);
+		assert.deepEqual(schema.properties.params.required, ["bizantine_ltv"]);
 	});
 
 	it("output composes: encodeCompositeParams round-trips through decodeManifest", () => {
 		const pack = defineCustomModule(validArgs());
 		const bytes = encodeCompositeParams(
 			{ modules: [pack], chainId: "8453", env: "prod" },
-			{ "bizantine-ltv": { max_ltv_bps: 5000 } },
+			{ bizantine_ltv: { max_ltv_bps: 5000 } },
 		);
 		const manifest = decodeManifest(bytes);
 		assert.equal(manifest.modules.length, 1);
-		assert.equal(manifest.modules[0]?.id, "bizantine-ltv/max-ltv/v1");
+		assert.equal(manifest.modules[0]?.id, "bizantine_ltv/max-ltv/v1");
 		assert.equal(manifest.modules[0]?.policyDataAddress, CUSTOM_DEPLOYMENT.policyData);
-		assert.deepEqual(manifest.params["bizantine-ltv"], { max_ltv_bps: 5000 });
+		assert.deepEqual(manifest.params["bizantine_ltv"], { max_ltv_bps: 5000 });
 	});
 
 	it("rejects a regorus-hostile paramsJsonSchema at construction (fail early)", () => {
@@ -258,5 +258,124 @@ describe("defineCustomModule", () => {
 		const parsed = pack.paramsSchema.parse({ max_ltv_bps: 5000 });
 		assert.equal(parsed.max_ltv_bps, 5000);
 		assert.throws(() => pack.paramsSchema.parse({ max_ltv_bps: "wrong" }));
+	});
+
+	// --- Short-id grammar (blocker 1): the short id is used as a Rego dot-path
+	// segment (data.params.<shortId>) and a manifest key. It MUST match
+	// ^[a-z][a-z0-9_]*$ - hyphens, dots, spaces, uppercase, leading digits, and
+	// prototype keys all break Rego dot-notation or corrupt the envelope.
+	it("rejects a hyphenated short id (breaks Rego dot notation)", () => {
+		// `data.params.bizantine-ltv` parses in Rego as subtraction, not key access.
+		const args = { ...validArgs(), id: "bizantine-ltv/max-ltv/v1" };
+		assert.throws(
+			() => defineCustomModule(args),
+			(err: unknown) => {
+				assert.ok(err instanceof CustomModuleError);
+				assert.match(err.message, /short pack id|bizantine-ltv/);
+				return true;
+			},
+		);
+	});
+
+	it("rejects a `__proto__` short id (corrupts the composite envelope)", () => {
+		// `paramsProperties["__proto__"] = schema` sets the prototype, not an own
+		// key, so the envelope requires a property it never defines -> fail-closed.
+		const args = { ...validArgs(), id: "__proto__/x/v1" };
+		assert.throws(
+			() => defineCustomModule(args),
+			(err: unknown) => {
+				assert.ok(err instanceof CustomModuleError);
+				return true;
+			},
+		);
+	});
+
+	it("rejects an uppercase / space / leading-digit short id", () => {
+		for (const id of ["MyOracle/x/v1", "my oracle/x/v1", "1oracle/x/v1", "a.b/x/v1"]) {
+			assert.throws(
+				() => defineCustomModule({ ...validArgs(), id }),
+				(err: unknown) => {
+					assert.ok(err instanceof CustomModuleError, `expected throw for id "${id}"`);
+					return true;
+				},
+			);
+		}
+	});
+
+	it("accepts a snake_case / lowercase-alnum short id", () => {
+		for (const id of ["bizantine_ltv/x/v1", "myoracle/x/v1", "oracle2/x/v1"]) {
+			const pack = defineCustomModule({ ...validArgs(), id });
+			assert.equal(pack.id, id);
+		}
+	});
+
+	// --- Schema reconciliation (blocker 2): paramsSchema (zod, SDK enforcement)
+	// and paramsJsonSchema (inlined into the on-chain pinned envelope) are two
+	// independent inputs. A custom author hand-writes both; if their field sets
+	// disagree, SDK-valid params can be denied fail-closed at the AVS, or the
+	// on-chain schema misrepresents what is enforced. The helper reconciles the
+	// property key sets when paramsSchema is a ZodObject.
+	it("rejects a paramsSchema / paramsJsonSchema field-set mismatch", () => {
+		// zod knows { max_ltv_bps }; jsonSchema pins a different field.
+		const args = {
+			...validArgs(),
+			paramsJsonSchema: {
+				type: "object",
+				properties: { min_health_factor: { type: "integer" } },
+				required: ["min_health_factor"],
+			},
+		};
+		assert.throws(
+			() => defineCustomModule(args),
+			(err: unknown) => {
+				assert.ok(err instanceof CustomModuleError);
+				assert.match(err.message, /paramsSchema|paramsJsonSchema|min_health_factor|max_ltv_bps/);
+				return true;
+			},
+		);
+	});
+
+	it("accepts an optional zod field absent from jsonSchema required (not a mismatch)", () => {
+		// An optional zod field is in .shape but need not be in jsonSchema.required.
+		// Parity is on the PROPERTY set, not the required set - don't over-reject.
+		const paramsSchema = z.object({ max_ltv_bps: z.number(), note: z.string().optional() });
+		const paramsJsonSchema = {
+			type: "object",
+			properties: { max_ltv_bps: { type: "integer" }, note: { type: "string" } },
+			required: ["max_ltv_bps"],
+		};
+		const pack = defineCustomModule({
+			...validArgs(),
+			paramsSchema,
+			paramsJsonSchema,
+		} as unknown as Args);
+		assert.ok(pack);
+	});
+
+	it("skips the parity check for a non-object zod paramsSchema (opaque)", () => {
+		// A z.record / z.union has no .shape to compare; the check is best-effort
+		// and must not throw just because it can't introspect the schema.
+		const paramsSchema = z.record(z.number());
+		const paramsJsonSchema = { type: "object", properties: { anyKey: { type: "integer" } } };
+		const pack = defineCustomModule({
+			...validArgs(),
+			paramsSchema,
+			paramsJsonSchema,
+		} as unknown as Args);
+		assert.ok(pack);
+	});
+
+	// --- Metadata content (minor): the message promises { name, version,
+	// description }; enforce it rather than only checking typeof === object.
+	it("rejects metadata missing name/version/description", () => {
+		const args = { ...validArgs(), metadata: {} } as unknown as Args;
+		assert.throws(
+			() => defineCustomModule(args),
+			(err: unknown) => {
+				assert.ok(err instanceof CustomModuleError);
+				assert.match(err.message, /metadata|name|version|description/);
+				return true;
+			},
+		);
 	});
 });

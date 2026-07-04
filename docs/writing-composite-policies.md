@@ -206,17 +206,23 @@ import { defineCustomModule, defineComposite } from "@newton-xyz/policy-pack-sha
 import { z } from "zod";
 
 const myLtvGate = defineCustomModule({
-  // `<short-id>/<purpose>/<version>`. The short id (`bizantine-ltv`) namespaces
-  // your oracle's output and params: `data.wasm.bizantine-ltv.*`,
-  // `data.params.bizantine-ltv.*`. It must NOT collide with a published pack id.
-  id: "bizantine-ltv/max-ltv/v1",
+  // `<short-id>/<purpose>/<version>`. The short id (`bizantine_ltv`) namespaces
+  // your oracle's output and params: `data.wasm.bizantine_ltv.*`,
+  // `data.params.bizantine_ltv.*`. It MUST be a Rego-dot-safe identifier
+  // (`^[a-z][a-z0-9_]*$` - snake_case, no hyphens/dots/uppercase: `data.params.a-b`
+  // parses in Rego as subtraction, not a key) and must NOT collide with a
+  // published pack id.
+  id: "bizantine_ltv/max-ltv/v1",
   paramsSchema: z.object({ max_ltv_bps: z.number() }),
   wasmArgsSchema: z.object({ position: z.string() }),
   secretsSchema: z.object({}),
   // The raw params_schema.json your paramsSchema was generated from. REQUIRED for
   // a custom module (a published pack's is optional because single-pack flows
   // never read it) - the composite inlines it to pin the on-chain params
-  // envelope. Must be regorus-clean: no `$ref`, `format`, `oneOf`, `$schema`.
+  // envelope. Must be regorus-clean: no `$ref`, `format`, `oneOf`, `$schema`. Its
+  // property set MUST match `paramsSchema`'s fields (the zod gates SDK validation,
+  // this pins the on-chain schema; defineCustomModule reconciles the two and
+  // throws on a mismatch). Best practice: generate BOTH from one params_schema.json.
   paramsJsonSchema: {
     type: "object",
     properties: { max_ltv_bps: { type: "integer", minimum: 0, maximum: 10000 } },
@@ -227,16 +233,18 @@ const myLtvGate = defineCustomModule({
   deployments: {
     "8453": { prod: { policyData: "0xYOUR_POLICY_DATA...", wasmCid: "bafy...", policyCodeHash: "0x...", deployedAt: "2026-07-04" } },
   },
-  metadata: { name: "bizantine-ltv", version: "1.0.0", description: "custom LTV gate" },
+  metadata: { name: "bizantine_ltv", version: "1.0.0", description: "custom LTV gate" },
   // Optional: read chain state per call to build wasmArgs, like a published pack.
 });
 ```
 
-`defineCustomModule` rejects, at construction: a missing or non-object `paramsSchema`/`wasmArgsSchema`/`secretsSchema`, a missing `paramsJsonSchema`, a `paramsJsonSchema` that uses a JSON Schema keyword newton-rego can't parse (it runs the same check `defineComposite` would), an `id` whose short form collides with a published pack, and a malformed `deployments`/`metadata`.
+`defineCustomModule` rejects, at construction: a missing or non-object `paramsSchema`/`wasmArgsSchema`/`secretsSchema`; a missing `paramsJsonSchema`; a `paramsJsonSchema` that uses a JSON Schema keyword newton-rego can't parse (it runs the same check `defineComposite` would); an `id` whose derived short form is not a Rego-dot-safe identifier (`^[a-z][a-z0-9_]*$`) or collides with a published pack; a `paramsSchema`/`paramsJsonSchema` field-set mismatch (when `paramsSchema` is a `z.object`); and a malformed `deployments`/`metadata`.
+
+> Your oracle's `policy.rego` is NOT vetted the way a published pack's is. Run it through the regorus-builtin discipline before you ship: `opa test` green is necessary but NOT sufficient - `opa.*`, `http`, and `net` compile under `newton-cli`/`opa test` but are absent from the production regorus build (`newton-prover-avs`), so an oracle that uses them ships but fails-closed at attestation. Confirm every builtin your Rego calls is in the production regorus feature set before deploying.
 
 ### Compose it with `allowUnknownPackIds: true`
 
-`defineComposite` gates module short ids against `KNOWN_PACK_IDS` (the published packs) to catch typos like `vaultsfy`. Your custom short id isn't published, so tell the builder it's intentional with `allowUnknownPackIds: true` - that is the switch for custom modules. It relaxes ONLY the registry gate; every other check still runs (duplicate-short-id, and the on-chain `getPolicyData()` set-match + `getWasmCid()` identity against your deployed `NewtonPolicy`):
+`defineComposite` gates module short ids against `KNOWN_PACK_IDS` (the published packs) to catch typos like `vaultsfy`. Your custom short id isn't published, so tell the builder it's intentional with `allowUnknownPackIds: true` - that is the switch for custom modules. It relaxes ONLY the registry gate; every other check still runs (duplicate-short-id, and the on-chain `getPolicyData()` set-match + `getWasmCid()` identity against your deployed `NewtonPolicy`). Note the flag is composite-WIDE, not per-module: in a call mixing a custom module with published packs it also drops the typo guard for those published ids, so double-check their spelling (the on-chain `getPolicyData()` set-match is the backstop - a misspelled published id resolves to no oracle and throws `CompositeModuleSetMismatchError`):
 
 ```ts
 const composite = await defineComposite({
