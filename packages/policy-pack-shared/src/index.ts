@@ -41,6 +41,8 @@ export {
 	PolicyDataOrderingMismatchError,
 	UnknownPackIdError,
 } from "./composite-pack";
+export type { DefineCustomModuleArgs } from "./define-custom-module";
+export { CustomModuleError, defineCustomModule } from "./define-custom-module";
 export type { ChainId, Deployment, GatewayEnv } from "./deployment";
 export { decodePolicyParams, encodePolicyParams } from "./encoding";
 export type {

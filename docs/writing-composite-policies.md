@@ -30,6 +30,7 @@ At evaluation time the AVS runs every referenced oracle WASM, **merges** their J
 |---|---|
 | Gate on exactly one pack | Single pack — deploy your own `NewtonPolicy` referencing the pack's `policyData`. No composite. |
 | Gate on N packs, ALL must pass | **Composite** — author Rego over N oracles. |
+| Gate on a control no published pack covers | **Composite with a custom module** - build your own oracle, construct it with `defineCustomModule`, compose with `allowUnknownPackIds: true`. See ["Composing a custom oracle"](#composing-a-custom-oracle-alongside-published-packs). |
 | Different gates for `reallocate` vs `submitCap` | Out of scope — same Rego runs on every action your Shield routes. v2 question. |
 | "Only call oracle B if oracle A says X" | Out of scope — every referenced oracle runs every call. Composites are AND-composition, not conditional flow. |
 
@@ -190,12 +191,74 @@ const m = await getPolicyManifest({ publicClient, shieldAddress });
 m.kind; // "single-pack" | "composite"
 ```
 
+## Composing a custom oracle alongside published packs
+
+Policy packs are an optional building block, not the only way. A control no published pack covers - a bespoke risk signal, a partner API, a strategy-specific invariant - is a custom oracle you build yourself, and it composes in the same `defineComposite` call as the published packs. One vault policy, any mix of custom and published oracles.
+
+What "custom" costs you that a published pack gives for free: you author and deploy your own `NewtonPolicyData` (the WASM oracle) and its Rego, exactly as the packs do. Steps 1-4 above are the same work, done by you for your oracle. What the SDK gives you is a safe way to describe that oracle to `defineComposite` so it composes without hand-rolling a fragile object.
+
+### Construct the module with `defineCustomModule`
+
+`defineCustomModule` builds a valid module object and validates it up front, so a mistake throws at construction with an actionable message instead of failing deep inside the composite build - or worse, fail-closed at attestation time:
+
+```ts
+import { defineCustomModule, defineComposite } from "@newton-xyz/policy-pack-shared";
+import { z } from "zod";
+
+const myLtvGate = defineCustomModule({
+  // `<short-id>/<purpose>/<version>`. The short id (`bizantine-ltv`) namespaces
+  // your oracle's output and params: `data.wasm.bizantine-ltv.*`,
+  // `data.params.bizantine-ltv.*`. It must NOT collide with a published pack id.
+  id: "bizantine-ltv/max-ltv/v1",
+  paramsSchema: z.object({ max_ltv_bps: z.number() }),
+  wasmArgsSchema: z.object({ position: z.string() }),
+  secretsSchema: z.object({}),
+  // The raw params_schema.json your paramsSchema was generated from. REQUIRED for
+  // a custom module (a published pack's is optional because single-pack flows
+  // never read it) - the composite inlines it to pin the on-chain params
+  // envelope. Must be regorus-clean: no `$ref`, `format`, `oneOf`, `$schema`.
+  paramsJsonSchema: {
+    type: "object",
+    properties: { max_ltv_bps: { type: "integer", minimum: 0, maximum: 10000 } },
+    required: ["max_ltv_bps"],
+  },
+  // Your deployed NewtonPolicyData, per (chainId, env). `{}` is valid if you
+  // haven't deployed yet - the address is only needed when you compose/encode.
+  deployments: {
+    "8453": { prod: { policyData: "0xYOUR_POLICY_DATA...", wasmCid: "bafy...", policyCodeHash: "0x...", deployedAt: "2026-07-04" } },
+  },
+  metadata: { name: "bizantine-ltv", version: "1.0.0", description: "custom LTV gate" },
+  // Optional: read chain state per call to build wasmArgs, like a published pack.
+});
+```
+
+`defineCustomModule` rejects, at construction: a missing or non-object `paramsSchema`/`wasmArgsSchema`/`secretsSchema`, a missing `paramsJsonSchema`, a `paramsJsonSchema` that uses a JSON Schema keyword newton-rego can't parse (it runs the same check `defineComposite` would), an `id` whose short form collides with a published pack, and a malformed `deployments`/`metadata`.
+
+### Compose it with `allowUnknownPackIds: true`
+
+`defineComposite` gates module short ids against `KNOWN_PACK_IDS` (the published packs) to catch typos like `vaultsfy`. Your custom short id isn't published, so tell the builder it's intentional with `allowUnknownPackIds: true` - that is the switch for custom modules. It relaxes ONLY the registry gate; every other check still runs (duplicate-short-id, and the on-chain `getPolicyData()` set-match + `getWasmCid()` identity against your deployed `NewtonPolicy`):
+
+```ts
+const composite = await defineComposite({
+  modules: [myLtvGate, vaultsfyi],   // custom + published, order-independent
+  allowUnknownPackIds: true,         // THE switch: lets the custom short id through
+  chainId: "8453",
+  env: "prod",
+  publicClient,
+  policyAddress: "0xYOUR_COMPOSITE...",  // your NewtonPolicy referencing BOTH policyData addresses
+});
+```
+
+Everything downstream is identical to the all-published case: `encodeCompositePolicyPack` validates your params against `myLtvGate.paramsSchema`, the aggregated `prepareQuery` runs your module's alongside the packs', and `introspectComposite` verifies your oracle's on-chain address + wasmCid the same way. Your Rego reads `data.wasm.bizantine-ltv.*` / `data.params.bizantine-ltv.*` exactly as it reads the published oracles.
+
 ## Gotchas
 
 - **Params flat → namespaced.** The single biggest copy mistake. Each pack's standalone Rego uses `t := data.params` (flat); composites use `data.params.<short-id>`. Rewrite every params reference when you copy deny rules in.
 - **On-chain module order is load-bearing, but the SDK aligns to it for you.** The `--policy-data-address` flag order fixes the on-chain `getPolicyData()` array order, and `PolicyValidationLib.sol` enforces it on every execution. You do NOT have to pass `modules` to `defineComposite` in that same order — it reorders your array to match `getPolicyData()` automatically, so the emitted manifest is always position-correct. Only the **set** must agree; a module whose oracle isn't in the deployed policy throws `CompositeModuleSetMismatchError`.
 - **Fail closed by construction.** Don't write `default allow := true` or an `allow` that's just `count(deny) == 0` — an oracle error produces zero denies. Require the well-formedness probes.
 - **Short-pack-id uniqueness.** Two modules deriving the same short id (e.g. two versions of the same pack) make `data.params.<short-id>` ambiguous. `defineComposite` rejects this.
+- **Custom module short id must not shadow a published pack.** A custom `id` like `vaultsfyi/mine/v1` derives short id `vaultsfyi`, which would hijack the published pack's `data.wasm.vaultsfyi` / `data.params.vaultsfyi` namespace. `defineCustomModule` rejects any short id in `KNOWN_PACK_IDS`. Pick a distinct short id.
+- **`allowUnknownPackIds` is the custom-module switch, and it's opt-in.** Without it, a non-published short id throws `UnknownPackIdError` (typo safety for the published packs). Set it `true` only for the composite calls that intentionally include a custom module; it relaxes the registry gate alone, never the on-chain checks.
 - **Redeploy drift.** If a pack redeploys its `policyData` after you deployed your composite, your composite is still valid on-chain but `module.deployments` no longer matches. Pass `expectedPolicyDataAddresses` + `expectedWasmCids` to `defineComposite` to pin to the historical addresses. See [`define-composite-spec.md`](./define-composite-spec.md) § "historical pin".
 
 ## Reference
