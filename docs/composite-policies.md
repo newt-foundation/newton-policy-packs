@@ -246,7 +246,7 @@ If you're contributing a new pack to this repo and want it to be usable in compo
 return JSON.stringify({ [PACK_ID]: existingOutputOrError });
 ```
 
-A repo-level AST-lint CI check flags raw `JSON.stringify(...)` returns that bypass `wrapOutput`; the source-level check fires on PRs without needing per-pack runtime fixtures. The canonical pack-id registry (`KNOWN_PACK_IDS`) lives in `@newton-xyz/policy-pack-shared` post-Phase-2 — add your pack id there in the PR that wires Phase 2's defensive-check guard. The registry shape is `readonly string[]` exported from `@newton-xyz/policy-pack-shared`, with each entry matching the `id` field on the corresponding `<name>OracleModule`.
+A repo-level AST-lint CI check flags raw `JSON.stringify(...)` returns that bypass `wrapOutput`; the source-level check fires on PRs without needing per-pack runtime fixtures. The canonical pack-id registry (`KNOWN_PACK_IDS`) lives in `@newton-xyz/policy-pack-shared` — add your pack id there when contributing a new pack.
 
 2. Reference your namespaced output from `policy.rego`:
 
@@ -255,7 +255,7 @@ v := data.wasm.<your-pack-id>
 deny contains msg if { v.<field> < data.params.<your-pack-id>.<threshold>; ... }
 ```
 
-3. Publish a `<your-pack>OracleModule` export from `packages/policy-pack-<your-pack>/src/index.ts` (via `oracleModuleFromPack(<your-pack>)`) with `paramsSchema` + `wasmArgsSchema` + `secretsSchema` derived from the schema files. `OracleModule` is the manifest-only subset (no `prepareQuery`); `defineComposite(...)` consumes the **runtime** `PolicyPack` form (so it can call each module's `prepareQuery` per intent), while the manifest-encoding layer (`encodeCompositeParams`) accepts the lighter `OracleModule` shape. Pack packages export both — your pack PR ships a `pack.ts` that defines both the runtime `<name>: PolicyPack<...>` and the manifest `<name>OracleModule = oracleModuleFromPack(<name>)`. The `OracleModule` type ships in `@newton-xyz/policy-pack-shared` post-Phase-1.
+3. Author your pack with `definePolicyPack` in `packages/policy-pack-<your-pack>/src/pack.ts`. The pack object can be passed directly to `generateCompositeParamsSchema` and `defineComposite` for multi-oracle composition. Curators consume the pack via its published `@newton-xyz/policy-pack-<your-pack>` export.
 
 The reference walkthrough at [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) is the worked example showing the full composite path end-to-end (Rego + OPA tests + deploy recipe + TypeScript).
 

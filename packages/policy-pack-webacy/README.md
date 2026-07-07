@@ -14,7 +14,7 @@ pnpm add @newton-xyz/policy-pack-webacy
 
 | Export | Source | Purpose |
 |---|---|---|
-| `webacy` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
+| `webacy` (the pack's `PolicyPack` type) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
 | `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Reads pegged-token `address` (and optional `chain`/`lookback_days`) from the SDK options bag; derives Webacy chain slug from `publicClient.chain.id`. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |

@@ -2,8 +2,9 @@
 
 > SUPERSEDED (2026-07). This document describes the pre-v2 public `defineComposite`
 > surface, including a `defineComposite([pack])` bare-array form that never
-> typechecked. The v2 authoring surface is `definePolicyPack` +
-> `definePolicy(...).with(...)`. Do not follow the API below.
+> typechecked. The v2 authoring surface is `definePolicyPack` (to author a
+> pack/oracle) and `defineComposite` (to compose a multi-oracle policy). Do not
+> follow the API below.
 
 **Status:** Shipped (`@newton-xyz/policy-pack-shared`). `defineComposite` and the surrounding composite SDK are live; this doc is the design rationale for the delivered API, kept as the reference for how the pieces fit together.
 

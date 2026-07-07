@@ -11,3 +11,7 @@ normal). Repurpose `KNOWN_PACK_IDS` into a provenance registry and add
 `classifyProvenance` + a generated `AUDITED_POLICY_DATA` map so a first-party
 name can be distinguished from a lookalike by verified address. Remove
 `defineCustomModule`, `oracleModuleFromPack`, and the `OracleModule` projection.
+The `PolicyPack` type gained a leading `TId` type parameter (now
+`PolicyPack<TId, TParams, TWasmArgs, TSecrets, TOptions>`); 3-argument
+annotations must add the id type arg (or drop the explicit annotation and let
+inference from `definePolicyPack` handle it).
