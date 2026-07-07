@@ -4,10 +4,7 @@ import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
-import {
-	generateCompositeParamsSchema,
-	oracleModuleFromPack,
-} from "@newton-xyz/policy-pack-shared";
+import { generateCompositeParamsSchema } from "@newton-xyz/policy-pack-shared";
 import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -22,7 +19,7 @@ const SCHEMA_PATH = resolve(__dirname, "..", "params_schema.json");
 // `pnpm -r test` locally; if it ever diverges, regenerate the file from the
 // modules below.
 describe("composite-vaultsfyi-chainalysis params_schema.json", () => {
-	const modules = [oracleModuleFromPack(vaultsfyi), oracleModuleFromPack(chainalysis)];
+	const modules = [vaultsfyi, chainalysis];
 
 	it("is byte-identical to generateCompositeParamsSchema output for {vaultsfyi, chainalysis}", () => {
 		const want = generateCompositeParamsSchema({ modules });
@@ -31,7 +28,7 @@ describe("composite-vaultsfyi-chainalysis params_schema.json", () => {
 			committed,
 			want,
 			"params_schema.json drifted from the generator — regenerate it: " +
-				"`generateCompositeParamsSchema({ modules: [vaultsfyiOracleModule, chainalysisOracleModule] })`.",
+				"`generateCompositeParamsSchema({ modules: [vaultsfyi, chainalysis] })`.",
 		);
 	});
 
