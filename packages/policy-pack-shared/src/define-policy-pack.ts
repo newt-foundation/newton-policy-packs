@@ -71,7 +71,12 @@ export interface DefinePolicyPackArgs<
  * - `paramsJsonSchema` (derived or override) survives the exact regorus gate
  *   `generateCompositeParamsSchema` runs.
  *
- * @throws {PolicyPackDefinitionError} on a shape problem.
+ * @throws {PolicyPackDefinitionError} on a shape problem (bad id, missing schema,
+ *   non-object deployments/metadata), or when an explicit
+ *   `unsafeParamsJsonSchemaOverride` fails the regorus gate or the zod/JSON
+ *   key-set reconciliation.
+ * @throws {ParamsSchemaDerivationError} on the default (no-override) path, when
+ *   the zod `paramsSchema` derives a JSON Schema the regorus gate rejects.
  */
 export function definePolicyPack<
 	const TId extends string,
