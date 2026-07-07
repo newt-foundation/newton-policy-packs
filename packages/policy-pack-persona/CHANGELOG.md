@@ -1,5 +1,16 @@
 # @newton-xyz/policy-pack-persona
 
+## 6.0.0
+
+### Major Changes
+
+- c03bc58: Migrate every pack to `definePolicyPack` and require `@newton-xyz/policy-pack-shared` 0.8. The `<name>OracleModule` export and the bare `PolicyPack` literal are removed; `paramsJsonSchema` is now derived from the pack's zod `paramsSchema` (the derived on-chain schema is byte-identical to the previous hand-written one - no policy redeploy). Consumers importing `<name>OracleModule` must compose the pack directly instead (pass the pack to `generateCompositeParamsSchema` / `defineComposite`, which now accept the `PolicyPack` form).
+
+### Patch Changes
+
+- Updated dependencies [c03bc58]
+  - @newton-xyz/policy-pack-shared@0.9.0
+
 ## 5.0.0
 
 ### Patch Changes
