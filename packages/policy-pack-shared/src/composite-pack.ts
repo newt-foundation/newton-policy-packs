@@ -433,7 +433,6 @@ export class ChainMismatchError extends Error {
 	}
 }
 
-
 /**
  * `INewtonPolicy(policyAddress).getPolicyData()` returned an array whose
  * length doesn't match `args.modules.length`. The deployed composite

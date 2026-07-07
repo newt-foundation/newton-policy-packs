@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classifyProvenance } from "./provenance";
-import { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
 import { KNOWN_PACK_IDS } from "./known-pack-ids";
+import { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
+import { classifyProvenance } from "./provenance";
 
 const CHAIN = "8453";
 const ENV = "prod" as const;

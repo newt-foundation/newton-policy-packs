@@ -88,7 +88,9 @@ export function definePolicyPack<
 		);
 	}
 	if (spec.id.startsWith("/")) {
-		throw new PolicyPackDefinitionError(`id must not start with "/", got ${JSON.stringify(spec.id)}`);
+		throw new PolicyPackDefinitionError(
+			`id must not start with "/", got ${JSON.stringify(spec.id)}`,
+		);
 	}
 
 	const shortId = shortPackIdFromModuleId(spec.id);
@@ -108,14 +110,20 @@ export function definePolicyPack<
 		}
 	}
 
-	if (!spec.deployments || typeof spec.deployments !== "object" || Array.isArray(spec.deployments)) {
+	if (
+		!spec.deployments ||
+		typeof spec.deployments !== "object" ||
+		Array.isArray(spec.deployments)
+	) {
 		throw new PolicyPackDefinitionError(
 			"deployments must be a `chainId -> env -> Deployment` object (use `{}` for a pack defined before it is deployed anywhere)",
 		);
 	}
 
 	if (!spec.metadata || typeof spec.metadata !== "object" || Array.isArray(spec.metadata)) {
-		throw new PolicyPackDefinitionError("metadata must be an object with `{ name, version, description }`");
+		throw new PolicyPackDefinitionError(
+			"metadata must be an object with `{ name, version, description }`",
+		);
 	}
 	for (const key of ["name", "version", "description"] as const) {
 		if (typeof (spec.metadata as Record<string, unknown>)[key] !== "string") {
@@ -141,9 +149,7 @@ export function definePolicyPack<
 			generateCompositeParamsSchema({ modules: [{ id: spec.id, paramsJsonSchema: override }] });
 		} catch (err) {
 			// Re-throw as PolicyPackDefinitionError so the test's error-class assertion passes
-			throw new PolicyPackDefinitionError(
-				err instanceof Error ? err.message : String(err),
-			);
+			throw new PolicyPackDefinitionError(err instanceof Error ? err.message : String(err));
 		}
 		// (2) Reconcile the two params surfaces - PORTED from the retired
 		// defineCustomModule so the override is NOT a safety regression (finding

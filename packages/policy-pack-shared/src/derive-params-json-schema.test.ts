@@ -1,18 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { z } from "zod";
-import {
-	deriveParamsJsonSchema,
-	ParamsSchemaDerivationError,
-} from "./derive-params-json-schema";
 import { generateCompositeParamsSchema } from "./composite-manifest";
+import { deriveParamsJsonSchema, ParamsSchemaDerivationError } from "./derive-params-json-schema";
 
 const ID = { id: "example/thing/v1" };
 
 test("derives a regorus-clean schema for a flat strict object", () => {
-	const schema = z
-		.object({ maxLtv: z.number().min(0).max(10000), enabled: z.boolean() })
-		.strict();
+	const schema = z.object({ maxLtv: z.number().min(0).max(10000), enabled: z.boolean() }).strict();
 	const json = deriveParamsJsonSchema(schema, ID) as Record<string, unknown>;
 	assert.equal(json.type, "object");
 	assert.equal("$schema" in json, false, "root $schema must be stripped");
@@ -44,16 +39,12 @@ test("throws ParamsSchemaDerivationError on a format-producing refinement", () =
 });
 
 test("optional + nullable fields pass", () => {
-	const schema = z
-		.object({ note: z.string().optional(), cap: z.number().nullable() })
-		.strict();
+	const schema = z.object({ note: z.string().optional(), cap: z.number().nullable() }).strict();
 	assert.doesNotThrow(() => deriveParamsJsonSchema(schema, ID));
 });
 
 test("nested strict objects pass", () => {
-	const schema = z
-		.object({ band: z.object({ lo: z.number(), hi: z.number() }).strict() })
-		.strict();
+	const schema = z.object({ band: z.object({ lo: z.number(), hi: z.number() }).strict() }).strict();
 	assert.doesNotThrow(() => deriveParamsJsonSchema(schema, ID));
 });
 
@@ -68,9 +59,7 @@ test("arrays of primitives and of strict objects pass", () => {
 });
 
 test("a union passes (derives to anyOf / type-array, both allowlisted)", () => {
-	const schema = z
-		.object({ v: z.union([z.string(), z.number()]) })
-		.strict();
+	const schema = z.object({ v: z.union([z.string(), z.number()]) }).strict();
 	assert.doesNotThrow(() => deriveParamsJsonSchema(schema, ID));
 });
 
@@ -79,7 +68,8 @@ test("ANTI-VACUOUS control: the gate really rejects an unsupported keyword", () 
 	// straight to the gate this helper wraps. If this does NOT throw, the gate is
 	// not actually running and the green above is meaningless.
 	assert.throws(
-		() => generateCompositeParamsSchema({ modules: [{ id: ID.id, paramsJsonSchema: { oneOf: [] } }] }),
+		() =>
+			generateCompositeParamsSchema({ modules: [{ id: ID.id, paramsJsonSchema: { oneOf: [] } }] }),
 		/newton-rego does not support/,
 	);
 });

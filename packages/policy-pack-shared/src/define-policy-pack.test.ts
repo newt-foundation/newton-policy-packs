@@ -20,10 +20,7 @@ test("builds a pack and derives paramsJsonSchema when omitted", () => {
 });
 
 test("rejects an id that derives an invalid short id", () => {
-	assert.throws(
-		() => definePolicyPack({ id: "Bad-Id/x/v1", ...base }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ id: "Bad-Id/x/v1", ...base }), PolicyPackDefinitionError);
 });
 
 test("does NOT reject a first-party-looking short id (no membership gate)", () => {
@@ -90,7 +87,10 @@ test("rejects an unsafeParamsJsonSchemaOverride whose keys drift from paramsSche
 			definePolicyPack({
 				id: "example/z/v1",
 				...base,
-				unsafeParamsJsonSchemaOverride: { type: "object", properties: { wrongField: { type: "integer" } } },
+				unsafeParamsJsonSchemaOverride: {
+					type: "object",
+					properties: { wrongField: { type: "integer" } },
+				},
 			}),
 		/describe different fields|maxLtv/,
 	);

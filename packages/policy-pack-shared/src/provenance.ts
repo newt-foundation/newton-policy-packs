@@ -1,6 +1,6 @@
 import type { ChainId, GatewayEnv } from "./deployment";
-import { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
 import { isKnownPackId } from "./known-pack-ids";
+import { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
 
 /**
  * Provenance of a resolved policy-data module, keyed on (verified address +
@@ -20,7 +20,12 @@ import { isKnownPackId } from "./known-pack-ids";
 export type Provenance = "audited" | "custom" | "impersonating";
 
 type Registry = Readonly<
-	Partial<Record<string, Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>>>
+	Partial<
+		Record<
+			string,
+			Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>
+		>
+	>
 >;
 
 /**
@@ -40,7 +45,12 @@ export function classifyProvenance(args: {
 	if (!isKnownPackId(args.shortId)) {
 		return "custom";
 	}
-	const audited = (registry as Record<string, Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>>)[args.shortId]?.[args.chainId]?.[args.env];
+	const audited = (
+		registry as Record<
+			string,
+			Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>
+		>
+	)[args.shortId]?.[args.chainId]?.[args.env];
 	if (audited && audited.toLowerCase() === args.resolvedPolicyData.toLowerCase()) {
 		return "audited";
 	}

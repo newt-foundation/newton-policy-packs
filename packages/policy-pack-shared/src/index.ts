@@ -40,13 +40,10 @@ export {
 	PolicyDataLengthMismatchError,
 	PolicyDataOrderingMismatchError,
 } from "./composite-pack";
-export { definePolicyPack, PolicyPackDefinitionError } from "./define-policy-pack";
 export type { DefinePolicyPackArgs } from "./define-policy-pack";
-export { deriveParamsJsonSchema, ParamsSchemaDerivationError } from "./derive-params-json-schema";
-export { classifyProvenance } from "./provenance";
-export type { Provenance } from "./provenance";
-export { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
+export { definePolicyPack, PolicyPackDefinitionError } from "./define-policy-pack";
 export type { ChainId, Deployment, GatewayEnv } from "./deployment";
+export { deriveParamsJsonSchema, ParamsSchemaDerivationError } from "./derive-params-json-schema";
 export { decodePolicyParams, encodePolicyParams } from "./encoding";
 export type {
 	GetPolicyManifestArgs,
@@ -58,6 +55,7 @@ export {
 } from "./get-policy-manifest";
 export type { KnownPackId } from "./known-pack-ids";
 export { isKnownPackId, KNOWN_PACK_IDS } from "./known-pack-ids";
+export { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
 export type {
 	PolicyPack,
 	PrepareQueryArgs,
@@ -68,4 +66,6 @@ export {
 	UnsupportedChainError,
 	UnsupportedEnvError,
 } from "./pack";
+export type { Provenance } from "./provenance";
+export { classifyProvenance } from "./provenance";
 export { wrapOutput } from "./wrap";
