@@ -196,8 +196,10 @@ export function definePolicyPack<
 /**
  * Thrown by {@link definePolicyPack} for a shape-of-args problem: a bad id, an
  * invalid short id, a missing schema, a non-object deployments/metadata. A
- * regorus-hostile derived/override schema throws `ParamsSchemaDerivationError`
- * (from the derivation helper) or `MalformedManifestError` (override path).
+ * regorus-hostile derived schema throws `ParamsSchemaDerivationError` (from the
+ * derivation helper); a regorus-hostile explicit override throws
+ * `PolicyPackDefinitionError` (the override path catches the gate's
+ * `MalformedManifestError` and re-throws it as this class).
  */
 export class PolicyPackDefinitionError extends Error {
 	override readonly name = "PolicyPackDefinitionError";
