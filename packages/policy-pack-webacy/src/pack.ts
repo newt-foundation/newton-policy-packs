@@ -1,13 +1,11 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
 import {
-	type OracleModule,
-	oracleModuleFromPack,
-	type PolicyPack,
+	definePolicyPack,
 } from "@newton-xyz/policy-pack-shared";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsJsonSchema, ParamsSchema } from "./params";
+import { type Params, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
@@ -26,10 +24,9 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  * options bag and derives the Webacy chain slug from `publicClient.chain.id`
  * (overridable via `options.chain`).
  */
-export const webacy: PolicyPack<Params, WasmArgs, Secrets> = {
+export const webacy = definePolicyPack({
 	id: `${PACK_NAME}/depeg-monitor/v1`,
 	paramsSchema: ParamsSchema,
-	paramsJsonSchema: ParamsJsonSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	prepareQuery,
@@ -41,13 +38,5 @@ export const webacy: PolicyPack<Params, WasmArgs, Secrets> = {
 		author: PACK_AUTHOR || undefined,
 		link: PACK_LINK || undefined,
 	},
-};
+});
 
-/**
- * Composite-policy view of the webacy pack. Pass to `defineComposite(...)`
- * (Phase 2 — see `docs/composite-policies.md`) when stacking webacy with
- * other packs in one Shield. Strict subset of the `PolicyPack` above —
- * shares the same `id`, schemas, and deployments.
- */
-export const webacyOracleModule: OracleModule<Params, WasmArgs, Secrets> =
-	oracleModuleFromPack(webacy);
