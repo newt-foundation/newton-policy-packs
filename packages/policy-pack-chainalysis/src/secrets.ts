@@ -3,6 +3,11 @@
 // Source schema: chainalysis/secrets_schema.json
 import { z } from "zod";
 
-export const SecretsSchema = z.object({ "CHAINALYSIS_SANCTIONS_KEY": z.string().min(1), "CHAINALYSIS_SCREENING_KEY": z.string().min(1).optional() }).strict();
+export const SecretsSchema = z
+	.object({
+		CHAINALYSIS_SANCTIONS_KEY: z.string().min(1),
+		CHAINALYSIS_SCREENING_KEY: z.string().min(1).optional(),
+	})
+	.strict();
 
 export type Secrets = z.infer<typeof SecretsSchema>;

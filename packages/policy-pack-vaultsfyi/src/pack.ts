@@ -87,4 +87,3 @@ export const vaultsfyi = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

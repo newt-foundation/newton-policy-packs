@@ -3,6 +3,6 @@
 // Source schema: persona/secrets_schema.json
 import { z } from "zod";
 
-export const SecretsSchema = z.object({ "PERSONA_API_KEY": z.string().min(1) }).strict();
+export const SecretsSchema = z.object({ PERSONA_API_KEY: z.string().min(1) }).strict();
 
 export type Secrets = z.infer<typeof SecretsSchema>;

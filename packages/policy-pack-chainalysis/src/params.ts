@@ -3,33 +3,51 @@
 // Source schema: chainalysis/params_schema.json
 import { z } from "zod";
 
-export const ParamsSchema = z.object({ "deny_on_sanctioned": z.boolean().describe("Deny when the public Sanctions Screening API returns any identification for the address"), "deny_on_high_risk_category": z.boolean().describe("Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)"), "risk_categories_blocklist": z.array(z.string()).describe("Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])") }).describe("Thresholds for the Chainalysis sanctions / address-screening gate").strict();
+export const ParamsSchema = z
+	.object({
+		deny_on_sanctioned: z
+			.boolean()
+			.describe(
+				"Deny when the public Sanctions Screening API returns any identification for the address",
+			),
+		deny_on_high_risk_category: z
+			.boolean()
+			.describe(
+				"Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)",
+			),
+		risk_categories_blocklist: z
+			.array(z.string())
+			.describe(
+				"Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])",
+			),
+	})
+	.describe("Thresholds for the Chainalysis sanctions / address-screening gate")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
 
 export const ParamsJsonSchema = {
-  "type": "object",
-  "description": "Thresholds for the Chainalysis sanctions / address-screening gate",
-  "properties": {
-    "deny_on_sanctioned": {
-      "type": "boolean",
-      "description": "Deny when the public Sanctions Screening API returns any identification for the address"
-    },
-    "deny_on_high_risk_category": {
-      "type": "boolean",
-      "description": "Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)"
-    },
-    "risk_categories_blocklist": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])"
-    }
-  },
-  "required": [
-    "deny_on_sanctioned",
-    "deny_on_high_risk_category",
-    "risk_categories_blocklist"
-  ]
+	type: "object",
+	description: "Thresholds for the Chainalysis sanctions / address-screening gate",
+	properties: {
+		deny_on_sanctioned: {
+			type: "boolean",
+			description:
+				"Deny when the public Sanctions Screening API returns any identification for the address",
+		},
+		deny_on_high_risk_category: {
+			type: "boolean",
+			description:
+				"Deny when the Address Screening v2 risk enum is 'high' or 'severe' (requires CHAINALYSIS_SCREENING_KEY)",
+		},
+		risk_categories_blocklist: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Lowercased category strings that, if any are present in the screening response, deny the deposit (e.g. ['mixer','stolen_funds','ransomware'])",
+		},
+	},
+	required: ["deny_on_sanctioned", "deny_on_high_risk_category", "risk_categories_blocklist"],
 } as const;

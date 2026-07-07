@@ -2,6 +2,7 @@
 // Source: AVS-side artifacts in this repo (run `pnpm gen:bindings` to regenerate).
 export const PACK_NAME = "chainalysis" as const;
 export const PACK_VERSION = "0.0.1" as const;
-export const PACK_DESCRIPTION = "Gates vault deposits using Chainalysis Sanctions Screening (free, OFAC) and Address Screening v2 (paid risk categorization)" as const;
+export const PACK_DESCRIPTION =
+	"Gates vault deposits using Chainalysis Sanctions Screening (free, OFAC) and Address Screening v2 (paid risk categorization)" as const;
 export const PACK_LINK = "https://www.chainalysis.com" as const;
 export const PACK_AUTHOR = "" as const;

@@ -38,4 +38,3 @@ export const blockaid = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

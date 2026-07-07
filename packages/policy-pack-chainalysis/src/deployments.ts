@@ -3,36 +3,38 @@
 import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-pack-shared";
 
 export const deployments = {
-  "1": {
-    "prod": {
-      "policyData": "0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049",
-      "wasmCid": "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
-      "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
-      "deployedAt": "2026-06-21"
-    }
-  },
-  "8453": {
-    "prod": {
-      "policyData": "0xceB2027a5fA390740971c7cbb2523841C19CC2f9",
-      "wasmCid": "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
-      "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
-      "deployedAt": "2026-06-20"
-    }
-  },
-  "84532": {
-    "prod": {
-      "policyData": "0xdC2e9d30B8e415F907e39f0bfe22974B9894740F",
-      "wasmCid": "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
-      "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
-      "deployedAt": "2026-06-16"
-    }
-  },
-  "11155111": {
-    "prod": {
-      "policyData": "0x226d196d565b92952669701Fb6cb85B586706996",
-      "wasmCid": "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
-      "policyCodeHash": "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
-      "deployedAt": "2026-06-16"
-    }
-  }
-} as const satisfies Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>>;
+	"1": {
+		prod: {
+			policyData: "0xCacbdEDA32C0048bbE0Ae0d3081Ced3490699049",
+			wasmCid: "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
+			policyCodeHash: "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+			deployedAt: "2026-06-21",
+		},
+	},
+	"8453": {
+		prod: {
+			policyData: "0xceB2027a5fA390740971c7cbb2523841C19CC2f9",
+			wasmCid: "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
+			policyCodeHash: "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+			deployedAt: "2026-06-20",
+		},
+	},
+	"84532": {
+		prod: {
+			policyData: "0xdC2e9d30B8e415F907e39f0bfe22974B9894740F",
+			wasmCid: "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
+			policyCodeHash: "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+			deployedAt: "2026-06-16",
+		},
+	},
+	"11155111": {
+		prod: {
+			policyData: "0x226d196d565b92952669701Fb6cb85B586706996",
+			wasmCid: "bafybeieur2bjx2xva4rwv3kxkalfhcllxn5iaufsmuqqof5ufvjxbbk7yi",
+			policyCodeHash: "0xcd67effeb86e90807614caae91e99863ce47ab07d4e2b7219fdcccdcc0493e8a",
+			deployedAt: "2026-06-16",
+		},
+	},
+} as const satisfies Readonly<
+	Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>
+>;

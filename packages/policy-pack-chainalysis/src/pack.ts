@@ -36,4 +36,3 @@ export const chainalysis = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

@@ -707,7 +707,9 @@ describe("generateCompositeParamsSchema", () => {
 	});
 
 	it("throws on an empty modules list", () => {
-		const emptyPack = { modules: [] as ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>> };
+		const emptyPack = {
+			modules: [] as ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>,
+		};
 		assert.throws(
 			() => generateCompositeParamsSchema(emptyPack),
 			(err: unknown) => err instanceof MalformedManifestError,

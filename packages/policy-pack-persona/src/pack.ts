@@ -37,4 +37,3 @@ export const persona = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

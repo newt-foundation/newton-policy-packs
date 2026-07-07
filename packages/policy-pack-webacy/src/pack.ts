@@ -1,8 +1,6 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import {
-	definePolicyPack,
-} from "@newton-xyz/policy-pack-shared";
+import { definePolicyPack } from "@newton-xyz/policy-pack-shared";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
 import { type Params, ParamsSchema } from "./params";
@@ -39,4 +37,3 @@ export const webacy = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

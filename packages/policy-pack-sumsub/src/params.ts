@@ -3,43 +3,74 @@
 // Source schema: sumsub/params_schema.json
 import { z } from "zod";
 
-export const ParamsSchema = z.object({ "max_age_days": z.number().describe("Maximum age (in days, since the SumSub applicant record was created) before KYC is considered stale and must be re-verified."), "allowed_countries": z.array(z.string()).describe("Allow-list of ISO 3166-1 alpha-2 country codes (e.g. \"US\",\"GB\"). If the applicant's country is not in this list the deposit is denied."), "min_age_years": z.number().describe("Minimum applicant age in whole years derived from the SumSub date of birth."), "required_review_answer": z.string().describe("The SumSub reviewAnswer value required to pass (typically \"GREEN\"). Any other value (\"RED\" or unset) denies."), "deny_on_pending": z.boolean().describe("If true, deny while the applicant's reviewStatus is one of init/pending/prechecked/queued. If false, pending applicants are not denied solely on pending state (review_status_not_passing may still deny them via review_answer).") }).describe("KYC gating thresholds for SumSub-backed vault deposits").strict();
+export const ParamsSchema = z
+	.object({
+		max_age_days: z
+			.number()
+			.describe(
+				"Maximum age (in days, since the SumSub applicant record was created) before KYC is considered stale and must be re-verified.",
+			),
+		allowed_countries: z
+			.array(z.string())
+			.describe(
+				'Allow-list of ISO 3166-1 alpha-2 country codes (e.g. "US","GB"). If the applicant\'s country is not in this list the deposit is denied.',
+			),
+		min_age_years: z
+			.number()
+			.describe("Minimum applicant age in whole years derived from the SumSub date of birth."),
+		required_review_answer: z
+			.string()
+			.describe(
+				'The SumSub reviewAnswer value required to pass (typically "GREEN"). Any other value ("RED" or unset) denies.',
+			),
+		deny_on_pending: z
+			.boolean()
+			.describe(
+				"If true, deny while the applicant's reviewStatus is one of init/pending/prechecked/queued. If false, pending applicants are not denied solely on pending state (review_status_not_passing may still deny them via review_answer).",
+			),
+	})
+	.describe("KYC gating thresholds for SumSub-backed vault deposits")
+	.strict();
 
 export type Params = z.infer<typeof ParamsSchema>;
 
 export const ParamsJsonSchema = {
-  "type": "object",
-  "description": "KYC gating thresholds for SumSub-backed vault deposits",
-  "properties": {
-    "max_age_days": {
-      "type": "number",
-      "description": "Maximum age (in days, since the SumSub applicant record was created) before KYC is considered stale and must be re-verified."
-    },
-    "allowed_countries": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Allow-list of ISO 3166-1 alpha-2 country codes (e.g. \"US\",\"GB\"). If the applicant's country is not in this list the deposit is denied."
-    },
-    "min_age_years": {
-      "type": "number",
-      "description": "Minimum applicant age in whole years derived from the SumSub date of birth."
-    },
-    "required_review_answer": {
-      "type": "string",
-      "description": "The SumSub reviewAnswer value required to pass (typically \"GREEN\"). Any other value (\"RED\" or unset) denies."
-    },
-    "deny_on_pending": {
-      "type": "boolean",
-      "description": "If true, deny while the applicant's reviewStatus is one of init/pending/prechecked/queued. If false, pending applicants are not denied solely on pending state (review_status_not_passing may still deny them via review_answer)."
-    }
-  },
-  "required": [
-    "max_age_days",
-    "allowed_countries",
-    "min_age_years",
-    "required_review_answer",
-    "deny_on_pending"
-  ]
+	type: "object",
+	description: "KYC gating thresholds for SumSub-backed vault deposits",
+	properties: {
+		max_age_days: {
+			type: "number",
+			description:
+				"Maximum age (in days, since the SumSub applicant record was created) before KYC is considered stale and must be re-verified.",
+		},
+		allowed_countries: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				'Allow-list of ISO 3166-1 alpha-2 country codes (e.g. "US","GB"). If the applicant\'s country is not in this list the deposit is denied.',
+		},
+		min_age_years: {
+			type: "number",
+			description: "Minimum applicant age in whole years derived from the SumSub date of birth.",
+		},
+		required_review_answer: {
+			type: "string",
+			description:
+				'The SumSub reviewAnswer value required to pass (typically "GREEN"). Any other value ("RED" or unset) denies.',
+		},
+		deny_on_pending: {
+			type: "boolean",
+			description:
+				"If true, deny while the applicant's reviewStatus is one of init/pending/prechecked/queued. If false, pending applicants are not denied solely on pending state (review_status_not_passing may still deny them via review_answer).",
+		},
+	},
+	required: [
+		"max_age_days",
+		"allowed_countries",
+		"min_age_years",
+		"required_review_answer",
+		"deny_on_pending",
+	],
 } as const;

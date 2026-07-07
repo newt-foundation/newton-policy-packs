@@ -39,4 +39,3 @@ export const redstone = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

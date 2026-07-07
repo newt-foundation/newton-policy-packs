@@ -111,13 +111,7 @@ export interface PrepareQueryResult<TWasmArgs> {
  *                       package for the safe lookup.
  * - `metadata`       — static identity from the pack's `policy_metadata.json`.
  */
-export interface PolicyPack<
-	TId extends string,
-	TParams,
-	TWasmArgs,
-	TSecrets,
-	TOptions = unknown,
-> {
+export interface PolicyPack<TId extends string, TParams, TWasmArgs, TSecrets, TOptions = unknown> {
 	readonly id: TId;
 	readonly paramsSchema: z.ZodType<TParams>;
 	readonly wasmArgsSchema: z.ZodType<TWasmArgs>;

@@ -3,6 +3,6 @@
 // Source schema: guardrail/secrets_schema.json
 import { z } from "zod";
 
-export const SecretsSchema = z.object({ "GUARDRAIL_API_KEY": z.string().min(1).optional() }).strict();
+export const SecretsSchema = z.object({ GUARDRAIL_API_KEY: z.string().min(1).optional() }).strict();
 
 export type Secrets = z.infer<typeof SecretsSchema>;

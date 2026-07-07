@@ -3,6 +3,14 @@
 // Source schema: chainalysis/wasm_args_schema.json
 import { z } from "zod";
 
-export const WasmArgsSchema = z.object({ "address": z.string().describe("Wallet address (0x-prefixed) to screen against the Chainalysis sanctions and screening APIs.") }).describe("Inputs passed to the Chainalysis policy WASM at evaluation time");
+export const WasmArgsSchema = z
+	.object({
+		address: z
+			.string()
+			.describe(
+				"Wallet address (0x-prefixed) to screen against the Chainalysis sanctions and screening APIs.",
+			),
+	})
+	.describe("Inputs passed to the Chainalysis policy WASM at evaluation time");
 
 export type WasmArgs = z.infer<typeof WasmArgsSchema>;

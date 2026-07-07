@@ -2,6 +2,7 @@
 // Source: AVS-side artifacts in this repo (run `pnpm gen:bindings` to regenerate).
 export const PACK_NAME = "webacy" as const;
 export const PACK_VERSION = "0.1.0" as const;
-export const PACK_DESCRIPTION = "Gates transactions touching pegged tokens based on Webacy's depeg-monitor: token collapse, recent depeg events in a lookback window, days-below-peg streak, and oracle staleness" as const;
+export const PACK_DESCRIPTION =
+	"Gates transactions touching pegged tokens based on Webacy's depeg-monitor: token collapse, recent depeg events in a lookback window, days-below-peg streak, and oracle staleness" as const;
 export const PACK_LINK = "https://webacy.com" as const;
 export const PACK_AUTHOR = "" as const;

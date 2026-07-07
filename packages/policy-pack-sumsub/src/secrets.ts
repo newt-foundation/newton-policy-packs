@@ -3,6 +3,8 @@
 // Source schema: sumsub/secrets_schema.json
 import { z } from "zod";
 
-export const SecretsSchema = z.object({ "SUMSUB_APP_TOKEN": z.string().min(1), "SUMSUB_SECRET_KEY": z.string().min(1) }).strict();
+export const SecretsSchema = z
+	.object({ SUMSUB_APP_TOKEN: z.string().min(1), SUMSUB_SECRET_KEY: z.string().min(1) })
+	.strict();
 
 export type Secrets = z.infer<typeof SecretsSchema>;

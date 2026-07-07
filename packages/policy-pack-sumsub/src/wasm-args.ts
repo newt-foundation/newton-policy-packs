@@ -3,6 +3,12 @@
 // Source schema: sumsub/wasm_args_schema.json
 import { z } from "zod";
 
-export const WasmArgsSchema = z.object({ "walletAddress": z.string().describe("Wallet address (0x-prefixed) to look up in Sumsub for a KYC applicant record.") }).describe("Inputs passed to the Sumsub KYC policy WASM at evaluation time");
+export const WasmArgsSchema = z
+	.object({
+		walletAddress: z
+			.string()
+			.describe("Wallet address (0x-prefixed) to look up in Sumsub for a KYC applicant record."),
+	})
+	.describe("Inputs passed to the Sumsub KYC policy WASM at evaluation time");
 
 export type WasmArgs = z.infer<typeof WasmArgsSchema>;

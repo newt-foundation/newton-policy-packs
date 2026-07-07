@@ -31,7 +31,10 @@ const CHAINALYSIS_DEPLOYMENT: Deployment = {
 	deployedAt: "2026-06-16",
 };
 
-function makeModule(id: string, deployment: Deployment): PolicyPack<string, unknown, unknown, unknown> {
+function makeModule(
+	id: string,
+	deployment: Deployment,
+): PolicyPack<string, unknown, unknown, unknown> {
 	return {
 		id,
 		paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,

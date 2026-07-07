@@ -38,4 +38,3 @@ export const guardrail = definePolicyPack({
 		link: PACK_LINK || undefined,
 	},
 });
-

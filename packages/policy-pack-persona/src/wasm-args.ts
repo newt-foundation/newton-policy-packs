@@ -3,6 +3,14 @@
 // Source schema: persona/wasm_args_schema.json
 import { z } from "zod";
 
-export const WasmArgsSchema = z.object({ "walletAddress": z.string().describe("Wallet address (0x-prefixed) to look up in Persona for a KYC verification record.") }).describe("Inputs passed to the Persona KYC policy WASM at evaluation time");
+export const WasmArgsSchema = z
+	.object({
+		walletAddress: z
+			.string()
+			.describe(
+				"Wallet address (0x-prefixed) to look up in Persona for a KYC verification record.",
+			),
+	})
+	.describe("Inputs passed to the Persona KYC policy WASM at evaluation time");
 
 export type WasmArgs = z.infer<typeof WasmArgsSchema>;
