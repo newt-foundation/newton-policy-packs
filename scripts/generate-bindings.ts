@@ -291,6 +291,36 @@ export const deployments = ${jsLiteral(
 `;
 }
 
+/**
+ * Emit the shared package's audited-provenance map: first-party pack short id ->
+ * chainId -> env -> policyData address, PROD ENV ONLY (filterPublishedEnvs). Read
+ * by classifyProvenance to tell an audited pack from a lookalike. Lives INSIDE
+ * policy-pack-shared, so it imports its types relatively (not the package
+ * specifier - that would be circular).
+ */
+function emitProvenance(packs: string[], deploymentsFile: DeploymentsFile): string {
+	const map: Record<string, Record<string, Partial<Record<GatewayEnv, string>>>> = {};
+	for (const packName of packs) {
+		const perChain = filterPublishedEnvs(deploymentsFile.packs[packName] ?? {});
+		const byChain: Record<string, Partial<Record<GatewayEnv, string>>> = {};
+		for (const [chainId, byEnv] of Object.entries(perChain)) {
+			const cell: Partial<Record<GatewayEnv, string>> = {};
+			for (const [env, entry] of Object.entries(byEnv) as [GatewayEnv, DeploymentEntry][]) {
+				cell[env] = entry.policyData;
+			}
+			byChain[chainId] = cell;
+		}
+		map[packName] = byChain;
+	}
+	return `${BANNER}import type { ChainId, GatewayEnv } from "./deployment";
+import type { KnownPackId } from "./known-pack-ids";
+
+export const AUDITED_POLICY_DATA = ${jsLiteral(
+		map,
+	)} as const satisfies Readonly<Record<KnownPackId, Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>>>;
+`;
+}
+
 function emitIndex(hasPackFile: boolean): string {
 	const generatedReExports = `export * from "./wasm-args";
 export * from "./secrets";
@@ -576,6 +606,12 @@ function main(): void {
 
 		console.log(`  ✓ ${packName} → packages/policy-pack-${packName}/`);
 	}
+
+	writeFile(
+		path.join(SHARED_PACKAGE_DIR, "src/known-pack-provenance.generated.ts"),
+		emitProvenance(packs, deploymentsFile),
+	);
+	console.log("  provenance -> packages/policy-pack-shared/src/known-pack-provenance.generated.ts");
 
 	// Formatting is the responsibility of `pnpm lint:fix`, not codegen. The
 	// previous in-codegen biome call swallowed errors and could silently emit

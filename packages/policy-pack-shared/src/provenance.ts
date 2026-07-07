@@ -40,7 +40,7 @@ export function classifyProvenance(args: {
 	if (!isKnownPackId(args.shortId)) {
 		return "custom";
 	}
-	const audited = registry[args.shortId]?.[args.chainId]?.[args.env];
+	const audited = (registry as Record<string, Readonly<Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, string>>>>>>>)[args.shortId]?.[args.chainId]?.[args.env];
 	if (audited && audited.toLowerCase() === args.resolvedPolicyData.toLowerCase()) {
 		return "audited";
 	}
