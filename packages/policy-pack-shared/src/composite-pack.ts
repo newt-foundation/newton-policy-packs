@@ -5,7 +5,6 @@ import {
 	shortPackIdFromModuleId,
 } from "./composite-manifest";
 import type { ChainId, GatewayEnv } from "./deployment";
-import { isKnownPackId, type KnownPackId } from "./known-pack-ids";
 import {
 	getDeployment,
 	type PolicyPack,
@@ -79,16 +78,6 @@ export interface DefineCompositeArgs {
 	readonly policyAddress: Address;
 	readonly expectedPolicyDataAddresses?: ReadonlyArray<Address>;
 	readonly expectedWasmCids?: ReadonlyArray<string>;
-	/**
-	 * Opt out of the `KNOWN_PACK_IDS` membership gate (default `false`). When
-	 * `true`, a module whose short id isn't a published pack id no longer throws
-	 * `UnknownPackIdError` — for curators composing a bespoke or unpublished
-	 * pack. The duplicate-short-id guard and every on-chain check
-	 * (`getPolicyData()` set-match, `getWasmCid()` identity) still run; this flag
-	 * relaxes ONLY the registry gate. Leave it off for the published packs so
-	 * typos and registry desync are still caught.
-	 */
-	readonly allowUnknownPackIds?: boolean;
 }
 
 export interface CompositePolicyPack {
@@ -144,9 +133,10 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		throw new ChainMismatchError(args.chainId, String(onChainChainId));
 	}
 
-	// Short-id collision + KNOWN_PACK_IDS membership. The duplicate guard is
-	// unconditional; the membership gate is skipped when `allowUnknownPackIds`
-	// is set (bespoke/unpublished packs). On-chain checks below run regardless.
+	// Short-id collision guard (unconditional). Two modules deriving the same
+	// short id would make params.<shortId> ambiguous. There is NO membership
+	// gate: an unknown short id is a normal custom oracle (Q7), not a typo to
+	// reject - provenance is surfaced as metadata, not enforced here.
 	const shortIds: string[] = [];
 	for (const module of args.modules) {
 		const shortId = shortPackIdFromModuleId(module.id);
@@ -154,9 +144,6 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 			throw new CompositeBuilderError(
 				`duplicate short pack id \`${shortId}\` derived from module id \`${module.id}\``,
 			);
-		}
-		if (!args.allowUnknownPackIds && !isKnownPackId(shortId)) {
-			throw new UnknownPackIdError(shortId, module.id);
 		}
 		shortIds.push(shortId);
 	}
@@ -446,25 +433,6 @@ export class ChainMismatchError extends Error {
 	}
 }
 
-/**
- * Module's short pack id (derived via `shortPackIdFromModuleId`) is not in
- * `KNOWN_PACK_IDS`. Catches typos and packs that haven't been published.
- */
-export class UnknownPackIdError extends Error {
-	override readonly name = "UnknownPackIdError";
-	constructor(
-		readonly shortId: string,
-		readonly moduleId: string,
-	) {
-		super(
-			`module \`${moduleId}\` derives short pack id \`${shortId}\` which is not in KNOWN_PACK_IDS — typo or unpublished pack?`,
-		);
-	}
-
-	get knownPackId(): KnownPackId | undefined {
-		return isKnownPackId(this.shortId) ? this.shortId : undefined;
-	}
-}
 
 /**
  * `INewtonPolicy(policyAddress).getPolicyData()` returned an array whose

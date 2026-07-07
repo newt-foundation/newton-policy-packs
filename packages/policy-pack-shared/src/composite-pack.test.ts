@@ -13,7 +13,6 @@ import {
 	PinnedWasmCidMismatchError,
 	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,
-	UnknownPackIdError,
 } from "./composite-pack";
 import type { Deployment, PolicyPack, PrepareQueryArgs, PrepareQueryResult } from "./index";
 import { UnsupportedChainError, UnsupportedEnvError } from "./pack";
@@ -175,27 +174,28 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 		assert.equal(result.kind, "composite");
 	});
 
-	it("throws UnknownPackIdError on a module with an unregistered short id", async () => {
-		const ROGUE = makePack("rogue/v1", {
+	it("composes a module with an unknown short id (no membership gate)", async () => {
+		// Post-gate-removal: an unknown short id is normal (Q7). This must NOT throw.
+		const BIZANTINE_PD: Address = "0xCcCc000000000000000000000000000000000000";
+		const BIZANTINE = makePack("bizantine_ltv/max/v1", {
 			...VAULTSFYI_DEPLOYMENT,
-			policyData: "0xCcCC000000000000000000000000000000000000",
+			policyData: BIZANTINE_PD,
 		});
-		const fake = makeFakeClient();
-		await assert.rejects(
-			defineComposite({
-				modules: [ROGUE],
-				chainId: "11155111",
-				env: "stagef",
-				// biome-ignore lint/suspicious/noExplicitAny: fake client
-				publicClient: fake.client as any,
-				policyAddress: POLICY,
-			}),
-			(err: unknown) =>
-				err instanceof UnknownPackIdError && (err as UnknownPackIdError).shortId === "rogue",
-		);
+		const fake = makeFakeClient({ onChainPolicyData: [BIZANTINE_PD] });
+		const result = await defineComposite({
+			modules: [BIZANTINE],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+		});
+		assert.equal(result.kind, "composite");
+		assert.equal(result.modules.length, 1);
 	});
 
-	it("allows an unregistered short id when allowUnknownPackIds is true", async () => {
+	it("composes with an unregistered short id (gate removed)", async () => {
+		// Post-gate-removal: allowUnknownPackIds flag is gone; unknown ids compose normally.
 		const ROGUE_PD: Address = "0xCcCc000000000000000000000000000000000000";
 		const ROGUE = makePack("rogue/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: ROGUE_PD });
 		const fake = makeFakeClient({ onChainPolicyData: [ROGUE_PD] });
@@ -206,15 +206,14 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 			// biome-ignore lint/suspicious/noExplicitAny: fake client
 			publicClient: fake.client as any,
 			policyAddress: POLICY,
-			allowUnknownPackIds: true,
 		});
 		assert.equal(result.kind, "composite");
 		assert.equal(result.modules.length, 1);
 	});
 
-	it("still throws CompositeBuilderError on duplicate short ids even with allowUnknownPackIds", async () => {
-		// Both derive shortId="rogue" — the duplicate guard is independent of the
-		// registry gate, so relaxing membership must not relax uniqueness.
+	it("still throws CompositeBuilderError on duplicate short ids (gate removed)", async () => {
+		// Both derive shortId="rogue" — the duplicate guard is unconditional and
+		// independent of the removed registry gate.
 		const ROGUE_V1 = makePack("rogue/v1", {
 			...VAULTSFYI_DEPLOYMENT,
 			policyData: "0xCcCc000000000000000000000000000000000000",
@@ -232,7 +231,6 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
 				publicClient: fake.client as any,
 				policyAddress: POLICY,
-				allowUnknownPackIds: true,
 			}),
 			(err: unknown) =>
 				err instanceof CompositeBuilderError &&
@@ -240,11 +238,11 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 		);
 	});
 
-	it("still enforces the on-chain set-match with allowUnknownPackIds (flag relaxes only the registry gate)", async () => {
+	it("still enforces the on-chain set-match (gate removed)", async () => {
 		const ROGUE_PD: Address = "0xCcCc000000000000000000000000000000000000";
 		const ROGUE = makePack("rogue/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: ROGUE_PD });
 		// on-chain getPolicyData() returns a DIFFERENT address → the set-match
-		// must still fire even though the registry gate is relaxed.
+		// must still fire (gate removal doesn't relax on-chain checks).
 		const fake = makeFakeClient({
 			onChainPolicyData: ["0xEeEe000000000000000000000000000000000000"],
 		});
@@ -256,7 +254,6 @@ describe("defineComposite — invariant checks (cheap, no RPC)", () => {
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
 				publicClient: fake.client as any,
 				policyAddress: POLICY,
-				allowUnknownPackIds: true,
 			}),
 			(err: unknown) => err instanceof CompositeModuleSetMismatchError,
 		);
@@ -669,12 +666,11 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 		assert.equal(result.kind, "composite");
 	});
 
-	it("allowUnknownPackIds relaxes only the registry gate — historical-pin wasmCid check still fires", async () => {
+	it("gate removed — historical-pin wasmCid check still fires", async () => {
 		// A bespoke pack (short id not in KNOWN_PACK_IDS) on the historical-pin
-		// path. allowUnknownPackIds lets it past the membership gate, but the
-		// pinned-address getWasmCid() identity check (a) must STILL fire: here the
-		// pinned address serves a different cid than the curator declared, so it
-		// throws PinnedWasmCidMismatchError despite the relaxed gate.
+		// path. Registry gate is removed, but the pinned-address getWasmCid()
+		// identity check (a) must STILL fire: here the pinned address serves a
+		// different cid than the curator declared, so it throws PinnedWasmCidMismatchError.
 		const BESPOKE_ADDR: Address = "0x7777777777777777777777777777777777777777";
 		const bespoke = makePack("bespoke/v1", { ...VAULTSFYI_DEPLOYMENT, policyData: BESPOKE_ADDR });
 		const fake = makeFakeClient({
@@ -689,7 +685,6 @@ describe("defineComposite — historical-pin path with wasmCid identity check", 
 				// biome-ignore lint/suspicious/noExplicitAny: fake client
 				publicClient: fake.client as any,
 				policyAddress: POLICY,
-				allowUnknownPackIds: true,
 				expectedPolicyDataAddresses: [BESPOKE_ADDR],
 				expectedWasmCids: ["bafydeclaredbutwrong"],
 			}),
