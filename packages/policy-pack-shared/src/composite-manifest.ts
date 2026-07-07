@@ -1,7 +1,7 @@
 import { type Address, getAddress, type Hex, hexToBytes, toHex } from "viem";
 import type { ZodIssue } from "zod";
 import { sortKeysDeep } from "./encoding";
-import type { OracleModule } from "./oracle-module";
+import type { PolicyPack } from "./pack";
 
 /**
  * Composite-policy manifest format. Phase 1.5 of the composite-policy rollout
@@ -225,6 +225,15 @@ function assertRegorusSupportedKeywords(schema: unknown, path: string): void {
 		}
 		// `const`/`enum` carry arbitrary value payloads, not schemas — don't walk.
 		if (key === "const" || key === "enum" || key === "value" || key === "values") continue;
+		// FIX 2 (NEWT-1865): `items` value-shape check. newton-rego models `items` as
+		// a SINGLE Schema, not an array. JSON-Schema tuple form (items = array of
+		// schemas) is allowlist-passed on the keyword NAME check above, but regorus
+		// rejects it at parse. Zod `.tuple()` derives this form. Detect and reject.
+		if (key === "items" && Array.isArray(value)) {
+			throw new MalformedManifestError(
+				`\`items\` is an array (JSON-Schema tuple form) at \`${path ? `${path}.${key}` : key}\`; newton-rego models \`items\` as a single schema, not a tuple. Use a homogeneous array (single \`items\` schema), not a fixed tuple, in the pack's params.`,
+			);
+		}
 		assertRegorusSupportedKeywords(value, path ? `${path}.${key}` : key);
 	}
 }
@@ -384,7 +393,7 @@ export interface CompositeManifest {
  *   `pack.ts`) on cell mismatch.
  */
 export interface MinimalCompositePack {
-	readonly modules: ReadonlyArray<OracleModule<unknown, unknown, unknown>>;
+	readonly modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>;
 	readonly chainId: string;
 	readonly env: "stagef" | "prod";
 }

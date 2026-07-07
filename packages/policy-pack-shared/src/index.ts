@@ -39,11 +39,11 @@ export {
 	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,
 	PolicyDataOrderingMismatchError,
-	UnknownPackIdError,
 } from "./composite-pack";
-export type { DefineCustomModuleArgs } from "./define-custom-module";
-export { CustomModuleError, defineCustomModule } from "./define-custom-module";
+export type { DefinePolicyPackArgs } from "./define-policy-pack";
+export { definePolicyPack, PolicyPackDefinitionError } from "./define-policy-pack";
 export type { ChainId, Deployment, GatewayEnv } from "./deployment";
+export { deriveParamsJsonSchema, ParamsSchemaDerivationError } from "./derive-params-json-schema";
 export { decodePolicyParams, encodePolicyParams } from "./encoding";
 export type {
 	GetPolicyManifestArgs,
@@ -55,8 +55,7 @@ export {
 } from "./get-policy-manifest";
 export type { KnownPackId } from "./known-pack-ids";
 export { isKnownPackId, KNOWN_PACK_IDS } from "./known-pack-ids";
-export type { OracleModule } from "./oracle-module";
-export { oracleModuleFromPack } from "./oracle-module";
+export { AUDITED_POLICY_DATA } from "./known-pack-provenance.generated";
 export type {
 	PolicyPack,
 	PrepareQueryArgs,
@@ -67,4 +66,6 @@ export {
 	UnsupportedChainError,
 	UnsupportedEnvError,
 } from "./pack";
+export type { Provenance } from "./provenance";
+export { classifyProvenance } from "./provenance";
 export { wrapOutput } from "./wrap";

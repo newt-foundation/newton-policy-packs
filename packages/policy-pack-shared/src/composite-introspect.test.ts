@@ -11,7 +11,7 @@ import {
 import { z } from "zod";
 import { introspectComposite } from "./composite-introspect";
 import { encodeCompositeParams, type MinimalCompositePack } from "./composite-manifest";
-import type { Deployment, OracleModule } from "./index";
+import type { Deployment, PolicyPack } from "./index";
 
 const SHIELD: Address = "0x9999999999999999999999999999999999999999";
 const POLICY: Address = "0x8888888888888888888888888888888888888888";
@@ -31,7 +31,10 @@ const CHAINALYSIS_DEPLOYMENT: Deployment = {
 	deployedAt: "2026-06-16",
 };
 
-function makeModule(id: string, deployment: Deployment): OracleModule<unknown, unknown, unknown> {
+function makeModule(
+	id: string,
+	deployment: Deployment,
+): PolicyPack<string, unknown, unknown, unknown> {
 	return {
 		id,
 		paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
@@ -39,6 +42,7 @@ function makeModule(id: string, deployment: Deployment): OracleModule<unknown, u
 		secretsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 		paramsJsonSchema: { type: "object" },
 		deployments: { "11155111": { stagef: deployment } },
+		metadata: { name: id.split("/")[0] ?? id, version: "1.0.0", description: "test" },
 	};
 }
 

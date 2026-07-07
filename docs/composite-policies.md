@@ -1,16 +1,15 @@
 # Composite policies
 
-> **Status:** All four phases done. The rollout shipped — Phase 0 = pack-side namespacing one-shot break + `wrapOutput` helper (DONE); Phase 1 = `OracleModule` exports per pack (DONE in [PR #67](https://github.com/newt-foundation/newton-policy-packs/pull/67)); Phase 1.5 = on-chain manifest format + decode/encode/introspect helpers (DONE in [PR #70](https://github.com/newt-foundation/newton-policy-packs/pull/70)); Phase 2 = `defineComposite` builder + `KNOWN_PACK_IDS` registry + SDK consumption helpers (DONE in [PR #73](https://github.com/newt-foundation/newton-policy-packs/pull/73)). Shipping artifacts:
+> **Status:** Composites are live. The phased rollout (Phase 0: pack namespacing, Phase 1: module projection API, Phase 2: defineComposite builder) shipped and was superseded by the v2 authoring surface. Packs are now authored with `definePolicyPack({...})` (the one factory in each pack's `src/pack.ts`) and passed DIRECTLY to `defineComposite` and `generateCompositeParamsSchema` without a projection step. The Phase-1 `OracleModule` type, `oracleModuleFromPack(pack)` helper, and per-pack `<name>OracleModule` exports (vaultsfyiOracleModule, chainalysisOracleModule, etc.) were DELETED in the v2 refactor. Current stable artifacts:
 >
-> - **Phase 0 (done)** — Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing — `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo now namespaces correctly; copy-as-is into a composite works.
-> - **Phase 0 (done)** — `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.
-> - **Phase 0 (done)** — `wrapping_test.rego` per-pack tests asserting namespace correctness, present in all 9 packs.
-> - **Phase 0 (done)** — AST-lint CI guard (`scripts/lint-policy-js.ts`) flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput`. A runtime-simulation harness that exercises actual output shape on every code path is a recommended follow-up once a host-import (`newton:provider/{http,secrets}`) mocking story lands.
-> - **Phase 2 prerequisite (done)** — `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData). NOT required for Phase 0 single-pack redeploys.
-> - **Phase 1 (done)** — `OracleModule` type + `oracleModuleFromPack(pack)` helper in `@newton-xyz/policy-pack-shared`, plus `<name>OracleModule` exports per `@newton-xyz/policy-pack-<name>` package, covering all 9 packs: `vaultsfyiOracleModule`, `chainalysisOracleModule`, `redstoneOracleModule`, `personaOracleModule`, `sumsubOracleModule`, `blockaidOracleModule`, `guardrailOracleModule`, `webacyOracleModule`, `balancerOracleModule`. `getDeployment` accepts both `PolicyPack` and `OracleModule`.
-> - **Phase 2 (done)** — `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared` + the `defineComposite` builder that consumes it.
+> - **Phase 0 (shipped, unchanged)** - Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing via `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo namespaces correctly; copy-as-is into a composite works.
+> - **Phase 0 (shipped, unchanged)** - `wrapOutput` helper exported from `@newton-xyz/policy-pack-shared`.
+> - **Phase 0 (shipped, unchanged)** - `wrapping_test.rego` per-pack tests asserting namespace correctness, present in all 9 packs.
+> - **Phase 0 (shipped, unchanged)** - AST-lint CI guard (`scripts/lint-policy-js.ts`) flagging raw `JSON.stringify(...)` returns in `policy.js` that bypass `wrapOutput`.
+> - **Phase 2 prerequisite (shipped, unchanged)** - `newton-cli` multi-PolicyData support: `--policy-data-address` repeated-flag (one invocation per PolicyData).
+> - **Phase 2 (shipped, unchanged)** - `KNOWN_PACK_IDS` registry constant in `@newton-xyz/policy-pack-shared` + the `defineComposite` builder that consumes it.
 >
-> The composite-deploy workflow below describes the shipped end state — `defineComposite(...)`, `KNOWN_PACK_IDS`, the namespacing convention, and the `OracleModule` exports are all live in `@newton-xyz/policy-pack-shared` today.
+> The composite-deploy workflow below describes the current stable v2 surface: `defineComposite(...)` and `KNOWN_PACK_IDS` remain; the intermediate `OracleModule` projection was removed.
 
 Authoring one Newton policy that consumes **multiple oracle modules** under one auditable on-chain artifact. This is how a vault curator gates a single action (say, MetaMorpho `reallocate`) with risk + sanctions + oracle-divergence simultaneously, while preserving "one policy address per vault" for depositor verification.
 
@@ -27,15 +26,15 @@ The Newton AVS evaluates such a policy by:
 3. Evaluating your hand-authored Rego against `data.wasm.<pack-id>.*` + `data.params.<pack-id>.*` + `input.*`.
 4. Returning `allow` only if every deny rule across every namespace passes.
 
-No new infrastructure. No new WASM build per composite — you reuse existing PolicyData addresses from [`deployments.json`](../deployments.json). The composite-specific work is your Rego, your `params_schema.json`, and a single `(NewtonPolicy + composite-PolicyData-array)` deploy via `newton-cli`.
+No new infrastructure. No new WASM build per composite - you reuse existing PolicyData addresses from [`deployments.json`](../deployments.json). The composite-specific work is your Rego, your `params_schema.json`, and a single `(NewtonPolicy + composite-PolicyData-array)` deploy via `newton-cli`.
 
 ## When you want this vs a single pack
 
 | Use case | Shape |
 |---|---|
-| "Gate `reallocate` with VaultsFYI's risk envelope, nothing else" | Single pack — deploy your own `NewtonPolicy` referencing `vaultsfyi`'s `policyData`. |
-| "Gate `reallocate` with VaultsFYI AND deny if curator wallet is sanctioned" | **Composite** — author Rego over `vaultsfyi + chainalysis`. |
-| "Gate `reallocate` with VaultsFYI for risk AND RedStone for oracle health AND Webacy for the depositor's reputation" | **Composite** — three modules. |
+| "Gate `reallocate` with VaultsFYI's risk envelope, nothing else" | Single pack - deploy your own `NewtonPolicy` referencing `vaultsfyi`'s `policyData`. |
+| "Gate `reallocate` with VaultsFYI AND deny if curator wallet is sanctioned" | **Composite** - author Rego over `vaultsfyi + chainalysis`. |
+| "Gate `reallocate` with VaultsFYI for risk AND RedStone for oracle health AND Webacy for the depositor's reputation" | **Composite** - three modules. |
 | "Gate `reallocate` with VaultsFYI but `submitCap` with KYC" | Out of scope for composite. v2 design question. |
 
 ## Namespacing
@@ -58,7 +57,7 @@ data.wasm.chainalysis.sanctioned    # bool
 data.wasm.redstone.divergence_pct   # number
 ```
 
-**Status today:** every pack in this repo emits namespaced outputs (`{ <pack-id>: { score, risk_score, ... } }`) via `wrapOutput("<pack-id>", ...)` and references `data.wasm.<pack-id>.*` in Rego. Phase 0 landed across all 9 packs. New packs MUST adopt the same convention — `policy.js` MUST wrap its return value via `wrapOutput`, and `policy.rego` MUST reference `data.wasm.<pack-id>.*`. The AST-lint CI guard (`scripts/lint-policy-js.ts`) and per-pack `wrapping_test.rego` enforce both halves on PRs.
+**Status today:** every pack in this repo emits namespaced outputs (`{ <pack-id>: { score, risk_score, ... } }`) via `wrapOutput("<pack-id>", ...)` and references `data.wasm.<pack-id>.*` in Rego. Phase 0 landed across all 9 packs. New packs MUST adopt the same convention - `policy.js` MUST wrap its return value via `wrapOutput`, and `policy.rego` MUST reference `data.wasm.<pack-id>.*`. The AST-lint CI guard (`scripts/lint-policy-js.ts`) and per-pack `wrapping_test.rego` enforce both halves on PRs.
 
 Params follow the same convention:
 
@@ -67,19 +66,19 @@ data.params.vaultsfyi.risk_score_floor    # number
 data.params.chainalysis.deny_on_sanctioned # bool
 ```
 
-## Authoring a composite — five concrete steps
+## Authoring a composite - five concrete steps
 
 ### 1. Pick the modules
 
-Read [`deployments.json`](../deployments.json) for the canonical `(policyData, wasmCid)` oracle per pack per chain. Pick the modules you want — you reference their `policyData` addresses from your composite.
+Read [`deployments.json`](../deployments.json) for the canonical `(policyData, wasmCid)` oracle per pack per chain. Pick the modules you want - you reference their `policyData` addresses from your composite.
 
 For each module, also note the typed schemas in its TypeScript binding under [`packages/policy-pack-<name>/src/`](../packages):
 
-- `params.ts` → what params the module's WASM expects
-- `wasm-args.ts` → what wasm_args the module's WASM consumes
-- `secrets.ts` → what secrets the module reads (if any)
+- `params.ts` - what params the module's WASM expects
+- `wasm-args.ts` - what wasm_args the module's WASM consumes
+- `secrets.ts` - what secrets the module reads (if any)
 
-These define what your composite's `params_schema.json` for that module's namespace must look like.
+These define what your composite's `params_schema.json` for that module's namespace must look like. Each pack exposes a `PolicyPack` object (built with `definePolicyPack({...})` in `src/pack.ts`) that you reference directly in `defineComposite` - no projection step.
 
 ### 2. Author your `policy.rego`
 
@@ -126,7 +125,7 @@ Notes:
 
 - Each pack's reference `policy.rego` (e.g. [`vaultsfyi/policy.rego`](../vaultsfyi/policy.rego), [`chainalysis/policy.rego`](../chainalysis/policy.rego)) is the starting template for the deny rules over THAT module's outputs. The bundled per-pack templates already reference `data.wasm.<pack-id>.<field>` (e.g. `v := data.wasm.vaultsfyi`) so copy-as-is into a composite works.
 - Errors are namespaced too (post-Phase-0). `data.wasm.vaultsfyi.error` is set when vaultsfyi's WASM hit an exception; you decide whether to deny on it. The bundled per-pack reference Rego documents each module's error semantics.
-- Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data — see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) walkthrough shows the merge convention in practice; verify against your composite's simulation output before relying on it.
+- Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data - see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) walkthrough shows the merge convention in practice; verify against your composite's simulation output before relying on it.
 
 Run `opa test` against your Rego before deploying:
 
@@ -171,19 +170,19 @@ The composite's params schema covers BOTH the per-module params AND any top-leve
 }
 ```
 
-The per-module sub-schemas should be a subset of (or compatible with) the published `<pack>/params_schema.json` for that module — only declare the fields YOUR Rego actually consumes. The AVS won't validate your composite's params against each module's full schema; that's your Rego's job.
+The per-module sub-schemas should be a subset of (or compatible with) the published `<pack>/params_schema.json` for that module - only declare the fields YOUR Rego actually consumes. The AVS won't validate your composite's params against each module's full schema; that's your Rego's job.
 
 ### 4. Deploy with `newton-cli`
 
 The composite has its own `policy.rego` + `params_schema.json` + `policy_metadata.json`, but its **WASM is the existing per-pack WASMs** referenced by `policyDataAddresses[]`. You don't build a new WASM.
 
-> **CLI usage — repeated-flag form.** `newton-cli policy deploy` accepts `--policy-data-address` once per PolicyData (zero invocations = empty array, one = single-pack, N = composite). The flag name stays singular — clap's derive macros automatically infer repeated-flag semantics for `Vec<Address>` fields, so the same flag can appear N times in one invocation without breaking existing single-pack scripts. Tracked under [NEWT-1534](https://linear.app/magiclabs/issue/NEWT-1534).
+> **CLI usage - repeated-flag form.** `newton-cli policy deploy` accepts `--policy-data-address` once per PolicyData (zero invocations = empty array, one = single-pack, N = composite). The flag name stays singular - clap's derive macros automatically infer repeated-flag semantics for `Vec<Address>` fields, so the same flag can appear N times in one invocation without breaking existing single-pack scripts. Tracked under [NEWT-1534](https://linear.app/magiclabs/issue/NEWT-1534).
 
 Three deploy steps from your composite directory (post-CLI-update):
 
 ```bash
 # 1. Upload composite policy artifacts (Rego + params schema + metadata)
-#    NOTE: your composite has NO `dist/policy.wasm` of its own — it references
+#    NOTE: your composite has NO `dist/policy.wasm` of its own - it references
 #    existing PolicyData contracts. `policy-files generate-cids` should be
 #    invoked with --skip-wasm or equivalent (see newton-cli docs for the
 #    composite flow when it ships).
@@ -199,46 +198,46 @@ newton-cli policy deploy \
   --policy-data-address 0xVAULTSFYI_PD \
   --policy-data-address 0xCHAINALYSIS_PD \
   --policy-file ./my_composite/policy.rego
-# → "Policy deployed successfully at address: 0xACME..."
+# -> "Policy deployed successfully at address: 0xACME..."
 ```
 
 The repeated-flag shape shipped in `newton-prover-avs` PR #672 (merged 2026-06-13). Run `newton-cli policy deploy --help` to confirm the flag accepts repeated invocations on your local install.
 
-Capture the deployed `0xACME...` address — that's your composite's `NewtonPolicy` address. The composite's `getPolicyData()` view returns the array of addresses you passed via repeated `--policy-data-address` flags, in invocation order. **Note:** order matters — `PolicyValidationLib.sol:51-57` enforces positional equality between the submitted policyData array and on-chain `INewtonPolicy.getPolicyData()`, so don't reorder by hand once deployed.
+Capture the deployed `0xACME...` address - that's your composite's `NewtonPolicy` address. The composite's `getPolicyData()` view returns the array of addresses you passed via repeated `--policy-data-address` flags, in invocation order. **Note:** order matters - `PolicyValidationLib.sol:51-57` enforces positional equality between the submitted policyData array and on-chain `INewtonPolicy.getPolicyData()`, so don't reorder by hand once deployed.
 
 ### 5. Bind on-chain via `setPolicyAddress`
 
-This step is curator-side, in the consuming Shield clone. Your composite's address goes into `Shield.setPolicyAddress(0xACME...)`, then the curator's params manifest goes into `Shield.setPolicy(policyParams, expireAfter)`. On the curator side, `defineComposite(...)` from [`@newton-xyz/policy-pack-shared`](https://www.npmjs.com/package/@newton-xyz/policy-pack-shared) (npm) is the **builder + manifest encoder** — it's async (curators `await defineComposite({ ..., publicClient })` because the builder reads the deployed `INewtonPolicy.getPolicyData()` at construction time to enforce positional ordering against the curator's `policyDataAddresses`) and resolves to a `CompositePolicyPack` describing the composite. The bytes for `Shield.setPolicy(...)` come from the free function `encodeCompositeParams(pack, curatorParams)` (also in `policy-pack-shared`). The two on-chain transactions (`setPolicyAddress` and `setPolicy`) are submitted by the curator using [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) (which consumes the `CompositePolicyPack`); `defineComposite` itself does not wrap or send them. See the SDK's consumer-side `composite-policy-packs` doc for the curator-side recipe.
+This step is curator-side, in the consuming Shield clone. Your composite's address goes into `Shield.setPolicyAddress(0xACME...)`, then the curator's params manifest goes into `Shield.setPolicy(policyParams, expireAfter)`. On the curator side, `defineComposite(...)` from [`@newton-xyz/policy-pack-shared`](https://www.npmjs.com/package/@newton-xyz/policy-pack-shared) (npm) is the **builder + manifest encoder** - it's async (curators `await defineComposite({ ..., publicClient })` because the builder reads the deployed `INewtonPolicy.getPolicyData()` at construction time to enforce positional ordering against the curator's `policyDataAddresses`) and resolves to a `CompositePolicyPack` describing the composite. The bytes for `Shield.setPolicy(...)` come from the free function `encodeCompositeParams(pack, curatorParams)` (also in `policy-pack-shared`). The two on-chain transactions (`setPolicyAddress` and `setPolicy`) are submitted by the curator using [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) (which consumes the `CompositePolicyPack`); `defineComposite` itself does not wrap or send them. See the SDK's consumer-side `composite-policy-packs` doc for the curator-side recipe.
 
 ## The on-chain manifest
 
-You don't author this manifest manually — `defineComposite(...)` from `@newton-xyz/policy-pack-shared` encodes it from your published params + the modules you wired up. The curator-side flow is the audience for the byte-level details.
+You don't author this manifest manually - `defineComposite(...)` from `@newton-xyz/policy-pack-shared` encodes it from your published params + the modules you wired up. The curator-side flow is the audience for the byte-level details.
 
-For pack-author awareness: when curators bind your composite to a Shield, the on-chain `policyParams` blob is **a single UTF-8 JSON object** (not an ABI tuple) carrying a `_manifest` magic-byte discriminator, a `modules[]` array (one entry per module: full `id`, `policyDataAddress`, `wasmCid`), and a `params` object keyed by **short pack id** (e.g. `params.vaultsfyi`, matching the `data.wasm.vaultsfyi` Phase 0 namespacing — Rego authors use plain dot notation). The JSON shape lets the AVS host's existing `serde_json::from_str` decoder consume it without protocol-level changes ([NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516)). `@newton-xyz/policy-pack-shared` exposes `decodeManifest(...)`, `isCompositeManifest(...)`, and `introspectComposite(...)` for depositor verification — depositors verify the manifest's `modules[*].policyDataAddress` ordered array (positional, not set-equal) against the on-chain `INewtonPolicy(addr).getPolicyData()` AND each module's `wasmCid` against the on-chain `INewtonPolicyData(addr).getWasmCid()`, so any stale module list or incorrect CID surfaces before a transaction executes.
+For pack-author awareness: when curators bind your composite to a Shield, the on-chain `policyParams` blob is **a single UTF-8 JSON object** (not an ABI tuple) carrying a `_manifest` magic-byte discriminator, a `modules[]` array (one entry per module: full `id`, `policyDataAddress`, `wasmCid`), and a `params` object keyed by **short pack id** (e.g. `params.vaultsfyi`, matching the `data.wasm.vaultsfyi` Phase 0 namespacing - Rego authors use plain dot notation). The JSON shape lets the AVS host's existing `serde_json::from_str` decoder consume it without protocol-level changes ([NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516)). `@newton-xyz/policy-pack-shared` exposes `decodeManifest(...)`, `isCompositeManifest(...)`, and `introspectComposite(...)` for depositor verification - depositors verify the manifest's `modules[*].policyDataAddress` ordered array (positional, not set-equal) against the on-chain `INewtonPolicy(addr).getPolicyData()` AND each module's `wasmCid` against the on-chain `INewtonPolicyData(addr).getWasmCid()`, so any stale module list or incorrect CID surfaces before a transaction executes.
 
-For the full byte layout, magic-byte format, error semantics, and on-chain verification helper API, see [`composite-manifest-spec.md`](./composite-manifest-spec.md) (NEWT-1541). The pack-author concern is making sure your `<name>OracleModule.deployments[chainId][env].wasmCid` value matches what the AVS actually serves at the deployed PolicyData address for that `(chainId, env)` cell — that's what depositor integrity checks against. Use `getDeployment(pack, chainId, env)` from `@newton-xyz/policy-pack-shared` rather than indexing `deployments` by hand to surface unsupported-cell errors immediately.
+For the full byte layout, magic-byte format, error semantics, and on-chain verification helper API, see [`composite-manifest-spec.md`](./composite-manifest-spec.md) (NEWT-1541). The pack-author concern is making sure your pack's `deployments[chainId][env].wasmCid` value matches what the AVS actually serves at the deployed PolicyData address for that `(chainId, env)` cell - that's what depositor integrity checks against. Use `getDeployment(pack, chainId, env)` from `@newton-xyz/policy-pack-shared` (pass the `PolicyPack` object directly) rather than indexing `deployments` by hand to surface unsupported-cell errors immediately.
 
 ## Why it works this way
 
-The on-chain split between `NewtonPolicy` (Rego) and `NewtonPolicyData[]` (oracle WASMs) is part of the Newton Policy Protocol from day one — see [`INewtonPolicy.sol`](https://github.com/newt-foundation/newton-contracts) on the upstream protocol for the contract surface. Single-pack policies happen to be the degenerate case where `policyData[]` has length 1; composites are length N.
+The on-chain split between `NewtonPolicy` (Rego) and `NewtonPolicyData[]` (oracle WASMs) is part of the Newton Policy Protocol from day one - see [`INewtonPolicy.sol`](https://github.com/newt-foundation/newton-contracts) on the upstream protocol for the contract surface. Single-pack policies happen to be the degenerate case where `policyData[]` has length 1; composites are length N.
 
 What this repo adds on top of the protocol primitive:
 
 1. A naming convention (`PACK_ID` namespacing in `policy.js` outputs) so multi-oracle Rego can reference outputs without key collisions.
 2. Reference Rego files per pack so curators don't author against an unfamiliar oracle shape from scratch.
-3. The TypeScript bindings (`@newton-xyz/policy-pack-<name>` on npm) that `defineComposite(...)` (in `@newton-xyz/policy-pack-shared`) consumes to wire the composite into a `PolicyPack` for the Shield SDK to execute.
+3. The TypeScript bindings (`@newton-xyz/policy-pack-<name>` on npm) - each pack exports a `PolicyPack` object (built via `definePolicyPack({...})`) that `defineComposite(...)` (in `@newton-xyz/policy-pack-shared`) consumes directly to wire the composite.
 
 ## What composites CAN'T express
 
-- **Conditional gates.** "Only call Chainalysis if VaultsFYI is high-risk" — every PolicyData WASM runs every call. Conditional flow inside one composite WASM is a different shape; ask before going there.
+- **Conditional gates.** "Only call Chainalysis if VaultsFYI is high-risk" - every PolicyData WASM runs every call. Conditional flow inside one composite WASM is a different shape; ask before going there.
 - **Per-action gates from one composite.** Same Rego applies to every action your Shield routes. If you need different gates for `reallocate` vs `submitCap`, that's a v2 protocol-level question.
 - **Live updates to one module's params.** Updating `vaultsfyi.risk_score_floor` re-encodes the WHOLE composite manifest and `setPolicy(...)`'s the new bytes. Acceptable for low-frequency tuning; not a hot path.
 
-These follow from the AVS's "all PolicyData WASMs execute, then Rego evaluates merged data" model. They're not bugs — they're the design boundary.
+These follow from the AVS's "all PolicyData WASMs execute, then Rego evaluates merged data" model. They're not bugs - they're the design boundary.
 
 ## Building a new module that's composable
 
-If you're contributing a new pack to this repo and want it to be usable in composites (post-Phase-2 of the rework — the namespacing convention from Phase 0 + the `OracleModule` export from Phase 1 + the `KNOWN_PACK_IDS` registry consumer that ships in Phase 2 all need to land first):
+If you're contributing a new pack to this repo and want it to be usable in composites:
 
 1. Wrap every output path in `policy.js` under a top-level `PACK_ID` key, including error returns:
 
@@ -246,7 +245,7 @@ If you're contributing a new pack to this repo and want it to be usable in compo
 return JSON.stringify({ [PACK_ID]: existingOutputOrError });
 ```
 
-A repo-level AST-lint CI check flags raw `JSON.stringify(...)` returns that bypass `wrapOutput`; the source-level check fires on PRs without needing per-pack runtime fixtures. The canonical pack-id registry (`KNOWN_PACK_IDS`) lives in `@newton-xyz/policy-pack-shared` post-Phase-2 — add your pack id there in the PR that wires Phase 2's defensive-check guard. The registry shape is `readonly string[]` exported from `@newton-xyz/policy-pack-shared`, with each entry matching the `id` field on the corresponding `<name>OracleModule`.
+A repo-level AST-lint CI check flags raw `JSON.stringify(...)` returns that bypass `wrapOutput`; the source-level check fires on PRs without needing per-pack runtime fixtures. The canonical pack-id registry (`KNOWN_PACK_IDS`) lives in `@newton-xyz/policy-pack-shared` - add your pack id there when contributing a new pack.
 
 2. Reference your namespaced output from `policy.rego`:
 
@@ -255,16 +254,16 @@ v := data.wasm.<your-pack-id>
 deny contains msg if { v.<field> < data.params.<your-pack-id>.<threshold>; ... }
 ```
 
-3. Publish a `<your-pack>OracleModule` export from `packages/policy-pack-<your-pack>/src/index.ts` (via `oracleModuleFromPack(<your-pack>)`) with `paramsSchema` + `wasmArgsSchema` + `secretsSchema` derived from the schema files. `OracleModule` is the manifest-only subset (no `prepareQuery`); `defineComposite(...)` consumes the **runtime** `PolicyPack` form (so it can call each module's `prepareQuery` per intent), while the manifest-encoding layer (`encodeCompositeParams`) accepts the lighter `OracleModule` shape. Pack packages export both — your pack PR ships a `pack.ts` that defines both the runtime `<name>: PolicyPack<...>` and the manifest `<name>OracleModule = oracleModuleFromPack(<name>)`. The `OracleModule` type ships in `@newton-xyz/policy-pack-shared` post-Phase-1.
+3. Author your pack with `definePolicyPack` in `packages/policy-pack-<your-pack>/src/pack.ts`. The pack object is passed directly to `generateCompositeParamsSchema` and `defineComposite` for multi-oracle composition. Curators consume the pack via its published `@newton-xyz/policy-pack-<your-pack>` export.
 
 The reference walkthrough at [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) is the worked example showing the full composite path end-to-end (Rego + OPA tests + deploy recipe + TypeScript).
 
 ## See also
 
-- [`writing-composite-policies.md`](./writing-composite-policies.md) — the step-by-step developer how-to for composing multiple oracles into one policy.
-- [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) — complete copy-paste composite example.
-- [`README.md`](../README.md) — repo overview, single-pack deploy flow, environment setup.
-- [`OPERATING.md`](../OPERATING.md) — post-deploy lifecycle (PolicyClient + secrets).
-- [`deployments.json`](../deployments.json) — canonical PolicyData addresses per pack per chain.
-- [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) on npm — the curator-facing SDK that consumes composites you deploy.
-- Newton Protocol developer docs — [`docs.newton.xyz`](https://docs.newton.xyz/developers/overview/core-concepts) covers `NewtonPolicy`, `NewtonPolicyData`, `Task`, `Attestation` semantics that this guide builds on.
+- [`writing-composite-policies.md`](./writing-composite-policies.md) - the step-by-step developer how-to for composing multiple oracles into one policy.
+- [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) - complete copy-paste composite example.
+- [`README.md`](../README.md) - repo overview, single-pack deploy flow, environment setup.
+- [`OPERATING.md`](../OPERATING.md) - post-deploy lifecycle (PolicyClient + secrets).
+- [`deployments.json`](../deployments.json) - canonical PolicyData addresses per pack per chain.
+- [`@newton-xyz/newton-shield-sdk`](https://www.npmjs.com/package/@newton-xyz/newton-shield-sdk) on npm - the curator-facing SDK that consumes composites you deploy.
+- Newton Protocol developer docs - [`docs.newton.xyz`](https://docs.newton.xyz/developers/overview/core-concepts) covers `NewtonPolicy`, `NewtonPolicyData`, `Task`, `Attestation` semantics that this guide builds on.

@@ -333,10 +333,10 @@ Before opening the pack PR, verify:
 Once your pack ships:
 
 - Curators install your pack: `pnpm add @newton-xyz/policy-pack-<your-pack>`
-- The pack exports a `PolicyPack<Params, WasmArgs, Secrets>` shape consumed by `@newton-xyz/newton-shield-sdk`
+- The pack exports the pack's `PolicyPack` type consumed by `@newton-xyz/newton-shield-sdk`
 - Curators set per-vault params via `Shield.setPolicy(...)` (the SDK encodes them as UTF-8 JSON with sorted keys per [NEWT-1516](https://linear.app/magiclabs/issue/NEWT-1516))
 - Curators upload encrypted secrets (your API keys) via `newton-cli secrets upload` — see [`OPERATING.md`](../OPERATING.md)
-- Composites: curators stack your pack with others via `defineComposite(...)` from `@newton-xyz/policy-pack-shared` (shipped — see [`docs/writing-composite-policies.md`](./writing-composite-policies.md)). Because your pack already namespaces its WASM output under `PACK_ID` and exports a `<name>OracleModule`, it's composable from day one — a curator can drop it into a multi-oracle policy with no extra work on your side.
+- Composites: curators stack your pack with others via `defineComposite(...)` from `@newton-xyz/policy-pack-shared` (shipped — see [`docs/writing-composite-policies.md`](./writing-composite-policies.md)). Because your pack already namespaces its WASM output under `PACK_ID`, it's composable from day one — a curator can drop it into a multi-oracle policy with no extra work on your side.
 
 ## Reviewing your pack against existing ones
 

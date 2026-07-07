@@ -10,7 +10,7 @@ import {
 	NotJsonError,
 } from "./composite-manifest";
 import { getPolicyManifest, SinglePackParamsValidationError } from "./get-policy-manifest";
-import type { Deployment, OracleModule } from "./index";
+import type { Deployment, PolicyPack } from "./index";
 
 const SHIELD: Address = "0x9999999999999999999999999999999999999999";
 const POLICY: Address = "0x8888888888888888888888888888888888888888";
@@ -23,13 +23,14 @@ const DEPLOYMENT: Deployment = {
 	deployedAt: "2026-06-16",
 };
 
-const VAULTSFYI_MODULE: OracleModule<unknown, unknown, unknown> = {
+const VAULTSFYI_MODULE: PolicyPack<string, unknown, unknown, unknown> = {
 	id: "vaultsfyi/risk-envelope/v1",
 	paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 	wasmArgsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 	secretsSchema: z.object({}).passthrough() as z.ZodType<unknown>,
 	paramsJsonSchema: { type: "object" },
 	deployments: { "11155111": { stagef: DEPLOYMENT } },
+	metadata: { name: "vaultsfyi", version: "1.0.0", description: "test" },
 };
 
 const PACK: MinimalCompositePack = {

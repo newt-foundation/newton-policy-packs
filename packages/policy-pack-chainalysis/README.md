@@ -14,7 +14,7 @@ pnpm add @newton-xyz/policy-pack-chainalysis
 
 | Export | Source | Purpose |
 |---|---|---|
-| `chainalysis` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
+| `chainalysis` (the pack's `PolicyPack` type) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
 | `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Reads the screened wallet `address` from the SDK options bag. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |

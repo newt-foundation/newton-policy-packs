@@ -14,7 +14,7 @@ pnpm add @newton-xyz/policy-pack-blockaid
 
 | Export | Source | Purpose |
 |---|---|---|
-| `blockaid` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
+| `blockaid` (the pack's `PolicyPack` type) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
 | `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Derives Blockaid `chain` from `publicClient.chain.id`; reads `from`/`to`/`value`/`data` from the SDK options bag. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |

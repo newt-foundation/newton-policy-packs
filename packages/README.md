@@ -6,7 +6,7 @@ Per-pack TypeScript bindings for the AVS-side policy packs at the repo root. Eac
 
 ```
 packages/
-├── policy-pack-shared/       # @newton-xyz/policy-pack-shared (the PolicyPack<P, W, S> contract)
+├── policy-pack-shared/       # @newton-xyz/policy-pack-shared (the PolicyPack contract)
 ├── policy-pack-vaultsfyi/    # @newton-xyz/policy-pack-vaultsfyi (first real pack — has prepare-query)
 ├── policy-pack-balancer/     # @newton-xyz/policy-pack-balancer (scaffolded; no prepare-query yet)
 ├── policy-pack-blockaid/

@@ -1,14 +1,10 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import {
-	type OracleModule,
-	oracleModuleFromPack,
-	type PolicyPack,
-} from "@newton-xyz/policy-pack-shared";
+import { definePolicyPack } from "@newton-xyz/policy-pack-shared";
 import { z } from "zod";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsJsonSchema, ParamsSchema } from "./params";
+import { type Params, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
@@ -76,10 +72,9 @@ export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>
  * const policyParams = encodePolicyParams(vaultsfyi, params);
  * ```
  */
-export const vaultsfyi: PolicyPack<Params, WasmArgs, Secrets> = {
+export const vaultsfyi = definePolicyPack({
 	id: `${PACK_NAME}/risk-envelope/v1`,
 	paramsSchema: RefinedParamsSchema,
-	paramsJsonSchema: ParamsJsonSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	prepareQuery,
@@ -91,14 +86,4 @@ export const vaultsfyi: PolicyPack<Params, WasmArgs, Secrets> = {
 		author: PACK_AUTHOR || undefined,
 		link: PACK_LINK || undefined,
 	},
-};
-
-/**
- * Composite-policy view of the vaultsfyi pack. Pass to `defineComposite(...)`
- * (Phase 2 — see `docs/composite-policies.md`) when stacking vaultsfyi with
- * other packs in one Shield. Strict subset of the `PolicyPack` above —
- * shares the same `id`, the basis-point-refined `paramsSchema`, the other
- * two schemas, and deployments.
- */
-export const vaultsfyiOracleModule: OracleModule<Params, WasmArgs, Secrets> =
-	oracleModuleFromPack(vaultsfyi);
+});

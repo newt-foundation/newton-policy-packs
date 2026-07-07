@@ -2,21 +2,21 @@
  * Canonical registry of every published `@newton-xyz/policy-pack-<name>`
  * package's short pack id. Order doesn't matter; presence does.
  *
- * `defineComposite(...)` (Phase 2 — see `docs/define-composite-spec.md`)
- * rejects modules whose short pack id isn't here. Catches typos,
- * abandoned-but-not-unpublished packs, and registry desync.
+ * ROLE (v2): this is a PROVENANCE registry, NOT a composition gate. Composition
+ * never blocks on membership - an unknown short id is a normal custom oracle
+ * (see definePolicyPack). Presence here means "this short id is a first-party
+ * name", which `classifyProvenance` (provenance.ts) uses together with the
+ * generated audited-address map (`known-pack-provenance.generated.ts`) to tell
+ * Newton's audited pack from a curator lookalike. `isKnownPackId` narrows a
+ * `string` to `KnownPackId` at that boundary.
  *
- * **Adding a new pack**: add its short id here in the same PR that adds
- * the pack code. `scripts/generate-bindings.ts` cross-checks the discovered
- * pack list against this registry at regen time and fails on missing or
- * extra entries — a pack PR that forgets to update the registry fails CI
- * before merge.
+ * Adding a new pack: add its short id here in the same PR that adds the pack
+ * code. `scripts/generate-bindings.ts` cross-checks the discovered pack list
+ * against this registry at regen time and fails on drift.
  *
- * **Why hand-curated, not generated**: a generated string array would lose
- * the literal-union narrowing that `KnownPackId` provides. SDK consumers
- * dispatching on a specific pack (e.g. UI rendering Chainalysis-specific
- * verdict text) need the literal-union; an array typed as `string[]` can't
- * narrow.
+ * Why hand-curated, not generated: a generated `string[]` would lose the
+ * literal-union narrowing `KnownPackId` provides; SDK consumers dispatching on a
+ * specific pack need the literal union.
  */
 export const KNOWN_PACK_IDS = [
 	"balancer",

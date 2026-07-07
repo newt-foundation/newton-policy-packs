@@ -1,5 +1,11 @@
 # `defineComposite` builder + composite SDK consumption — design spec
 
+> SUPERSEDED (2026-07). This document describes the pre-v2 public `defineComposite`
+> surface, including a `defineComposite([pack])` bare-array form that never
+> typechecked. The v2 authoring surface is `definePolicyPack` (to author a
+> pack/oracle) and `defineComposite` (to compose a multi-oracle policy). Do not
+> follow the API below.
+
 **Status:** Shipped (`@newton-xyz/policy-pack-shared`). `defineComposite` and the surrounding composite SDK are live; this doc is the design rationale for the delivered API, kept as the reference for how the pieces fit together.
 
 This spec answers: how does a curator build a composite policy in TypeScript, and how do downstream consumers (the Shield SDK, depositor UIs) work with the resulting object? It binds together `wrapOutput`, `OracleModule`, and the manifest codec (`encodeCompositeParams` / `decodeManifest` / `introspectComposite`) into one curator-facing API.

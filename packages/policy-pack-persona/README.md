@@ -14,7 +14,7 @@ pnpm add @newton-xyz/policy-pack-persona
 
 | Export | Source | Purpose |
 |---|---|---|
-| `persona` (`PolicyPack<Params, WasmArgs, Secrets>`) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
+| `persona` (the pack's `PolicyPack` type) | `pack.ts` | Canonical pack object; pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. |
 | `prepareQuery`, `PrepareQueryOptions` | `prepare-query.ts` | Reads the depositor `walletAddress` from the SDK options bag. |
 | `WasmArgsSchema` (zod) + `WasmArgs` (type) | `wasm_args_schema.json` | Inputs the pack's WASM receives at evaluation time. |
 | `SecretsSchema` (zod) + `Secrets` (type) | `secrets_schema.json` | API credentials uploaded before run/sim. |

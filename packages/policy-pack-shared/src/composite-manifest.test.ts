@@ -18,7 +18,7 @@ import {
 	NotJsonError,
 	UnsupportedManifestVersionError,
 } from "./composite-manifest";
-import type { Deployment, OracleModule } from "./index";
+import type { Deployment, PolicyPack } from "./index";
 
 function jsonHex(value: unknown): Hex {
 	return toHex(JSON.stringify(value));
@@ -48,7 +48,7 @@ function makeModule<P, W, S>(
 	secretsSchema: z.ZodType<S>,
 	deployment: Deployment,
 	paramsJsonSchema: object,
-): OracleModule<P, W, S> {
+): PolicyPack<string, P, W, S> {
 	return {
 		id,
 		paramsSchema,
@@ -56,6 +56,7 @@ function makeModule<P, W, S>(
 		secretsSchema,
 		paramsJsonSchema,
 		deployments: { [SEPOLIA]: { stagef: deployment } },
+		metadata: { name: id.split("/")[0] ?? id, version: "1.0.0", description: "test" },
 	};
 }
 
@@ -646,7 +647,8 @@ describe("generateCompositeParamsSchema", () => {
 			wasmArgsSchema: z.object({}),
 			secretsSchema: z.object({}),
 			deployments: { [SEPOLIA]: { stagef: VAULTSFYI_DEPLOYMENT } },
-		} as OracleModule<unknown, unknown, unknown>;
+			metadata: { name: "noschema", version: "1.0.0", description: "test" },
+		} as PolicyPack<string, unknown, unknown, unknown>;
 		assert.throws(
 			() => generateCompositeParamsSchema({ modules: [noSchemaModule] }),
 			(err: unknown) =>
@@ -705,7 +707,9 @@ describe("generateCompositeParamsSchema", () => {
 	});
 
 	it("throws on an empty modules list", () => {
-		const emptyPack = { modules: [] as ReadonlyArray<OracleModule<unknown, unknown, unknown>> };
+		const emptyPack = {
+			modules: [] as ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>,
+		};
 		assert.throws(
 			() => generateCompositeParamsSchema(emptyPack),
 			(err: unknown) => err instanceof MalformedManifestError,
@@ -794,6 +798,49 @@ describe("generateCompositeParamsSchema", () => {
 		);
 		// Does not throw.
 		const schema = generateCompositeParamsSchema({ modules: [richModule] });
+		assert.ok(schema);
+	});
+
+	it("rejects items-as-array (JSON-Schema tuple form) — newton-rego models items as single schema", () => {
+		// FIX 2 (NEWT-1865): zod `.tuple()` derives `items: [ {schema}, {schema} ]`
+		// (tuple form). Newton-rego's Schema deserializer models `items` as a SINGLE
+		// schema, not an array, so the tuple form fail-closes at attestation.
+		const tupleModule = makeModule(
+			"tuple/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				properties: {
+					pair: { type: "array", items: [{ type: "string" }, { type: "number" }] },
+				},
+			},
+		);
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [tupleModule] }),
+			(err: unknown) =>
+				err instanceof MalformedManifestError && /items.*is an array.*tuple form/.test(err.message),
+		);
+	});
+
+	it("accepts items-as-single-schema (homogeneous array)", () => {
+		// Anti-vacuous: a schema with `items: {type:"string"}` (single, not tuple)
+		// must still PASS after the tuple-reject fix.
+		const homogeneousModule = makeModule(
+			"homogeneous/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				properties: { tags: { type: "array", items: { type: "string" } } },
+			},
+		);
+		// Does not throw.
+		const schema = generateCompositeParamsSchema({ modules: [homogeneousModule] });
 		assert.ok(schema);
 	});
 });
