@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { describe, it } from "node:test";
+import { describe, it, test } from "node:test";
 import { z } from "zod";
 import type { Deployment, GatewayEnv, PolicyPack } from "./index";
 import { getDeployment, UnsupportedChainError, UnsupportedEnvError } from "./index";
@@ -105,4 +105,12 @@ describe("getDeployment", () => {
 			},
 		);
 	});
+});
+
+test("PolicyPack preserves the literal id in TId", () => {
+	type P = PolicyPack<"vaultsfyi/risk-envelope/v1", { a: number }, unknown, unknown>;
+	// A pack typed with a literal id must expose that literal on `.id`, not `string`.
+	type IdIsLiteral = P["id"] extends "vaultsfyi/risk-envelope/v1" ? true : false;
+	const ok: IdIsLiteral = true;
+	assert.equal(ok, true);
 });

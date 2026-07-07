@@ -72,7 +72,7 @@ const POLICY_DATA_ABI = [
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
 export interface DefineCompositeArgs {
-	readonly modules: ReadonlyArray<PolicyPack<unknown, unknown, unknown>>;
+	readonly modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>;
 	readonly chainId: ChainId;
 	readonly env: GatewayEnv;
 	readonly publicClient: PublicClient;
@@ -93,7 +93,7 @@ export interface DefineCompositeArgs {
 
 export interface CompositePolicyPack {
 	readonly kind: "composite";
-	readonly modules: ReadonlyArray<PolicyPack<unknown, unknown, unknown>>;
+	readonly modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>;
 	readonly chainId: ChainId;
 	readonly env: GatewayEnv;
 	readonly policyAddress: Address;
@@ -186,7 +186,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 	// `modules` and `expectedWasmCids`).
 	const usingHistoricalPin = !!args.expectedPolicyDataAddresses;
 	type ModuleEntry = {
-		readonly module: PolicyPack<unknown, unknown, unknown>;
+		readonly module: PolicyPack<string, unknown, unknown, unknown>;
 		readonly expectedAddr: Address;
 		readonly expectedCid?: string;
 	};
@@ -376,7 +376,7 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
  * error. Other modules' results are discarded (Promise.all semantics).
  */
 function makeAggregatedPrepareQuery(
-	modules: ReadonlyArray<PolicyPack<unknown, unknown, unknown>>,
+	modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>,
 ): (
 	args: PrepareQueryArgs,
 	options?: Record<string, unknown>,
