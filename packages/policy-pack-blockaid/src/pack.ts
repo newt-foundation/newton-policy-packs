@@ -1,13 +1,9 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import {
-	type OracleModule,
-	oracleModuleFromPack,
-	type PolicyPack,
-} from "@newton-xyz/policy-pack-shared";
+import { definePolicyPack } from "@newton-xyz/policy-pack-shared";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsJsonSchema, ParamsSchema } from "./params";
+import { type Params, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
 import { type Secrets, SecretsSchema } from "./secrets";
 import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
@@ -27,10 +23,9 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  * these mirror the on-chain transaction the depositor is about to submit, so
  * they can't be inferred from `PrepareQueryArgs` alone.
  */
-export const blockaid: PolicyPack<Params, WasmArgs, Secrets> = {
+export const blockaid = definePolicyPack({
 	id: `${PACK_NAME}/transaction-scan/v1`,
 	paramsSchema: ParamsSchema,
-	paramsJsonSchema: ParamsJsonSchema,
 	wasmArgsSchema: WasmArgsSchema,
 	secretsSchema: SecretsSchema,
 	prepareQuery,
@@ -42,13 +37,5 @@ export const blockaid: PolicyPack<Params, WasmArgs, Secrets> = {
 		author: PACK_AUTHOR || undefined,
 		link: PACK_LINK || undefined,
 	},
-};
+});
 
-/**
- * Composite-policy view of the blockaid pack. Pass to `defineComposite(...)`
- * (Phase 2 — see `docs/composite-policies.md`) when stacking blockaid with
- * other packs in one Shield. Strict subset of the `PolicyPack` above —
- * shares the same `id`, schemas, and deployments.
- */
-export const blockaidOracleModule: OracleModule<Params, WasmArgs, Secrets> =
-	oracleModuleFromPack(blockaid);
