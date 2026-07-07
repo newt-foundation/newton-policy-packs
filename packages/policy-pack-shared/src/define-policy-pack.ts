@@ -144,7 +144,7 @@ export function definePolicyPack<
 		paramsJsonSchema = deriveParamsJsonSchema(spec.paramsSchema, { id: spec.id });
 	} else {
 		const override = spec.unsafeParamsJsonSchemaOverride;
-		if (typeof override !== "object" || Array.isArray(override)) {
+		if (override === null || typeof override !== "object" || Array.isArray(override)) {
 			throw new PolicyPackDefinitionError(
 				"unsafeParamsJsonSchemaOverride must be a JSON Schema object - prefer omitting it so the schema derives from paramsSchema",
 			);

@@ -800,4 +800,48 @@ describe("generateCompositeParamsSchema", () => {
 		const schema = generateCompositeParamsSchema({ modules: [richModule] });
 		assert.ok(schema);
 	});
+
+	it("rejects items-as-array (JSON-Schema tuple form) — newton-rego models items as single schema", () => {
+		// FIX 2 (NEWT-1865): zod `.tuple()` derives `items: [ {schema}, {schema} ]`
+		// (tuple form). Newton-rego's Schema deserializer models `items` as a SINGLE
+		// schema, not an array, so the tuple form fail-closes at attestation.
+		const tupleModule = makeModule(
+			"tuple/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				properties: {
+					pair: { type: "array", items: [{ type: "string" }, { type: "number" }] },
+				},
+			},
+		);
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [tupleModule] }),
+			(err: unknown) =>
+				err instanceof MalformedManifestError &&
+				/items.*is an array.*tuple form/.test(err.message),
+		);
+	});
+
+	it("accepts items-as-single-schema (homogeneous array)", () => {
+		// Anti-vacuous: a schema with `items: {type:"string"}` (single, not tuple)
+		// must still PASS after the tuple-reject fix.
+		const homogeneousModule = makeModule(
+			"homogeneous/params/v1",
+			z.object({}),
+			z.object({ x: z.string() }),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{
+				type: "object",
+				properties: { tags: { type: "array", items: { type: "string" } } },
+			},
+		);
+		// Does not throw.
+		const schema = generateCompositeParamsSchema({ modules: [homogeneousModule] });
+		assert.ok(schema);
+	});
 });

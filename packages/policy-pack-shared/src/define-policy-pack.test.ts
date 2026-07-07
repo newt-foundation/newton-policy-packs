@@ -95,3 +95,162 @@ test("rejects an unsafeParamsJsonSchemaOverride whose keys drift from paramsSche
 		/describe different fields|maxLtv/,
 	);
 });
+
+test("rejects null unsafeParamsJsonSchemaOverride", () => {
+	// FIX 1: typeof null === "object" and Array.isArray(null) === false, so null
+	// must be explicitly guarded before the type check to produce the actionable
+	// message instead of "Cannot read properties of null".
+	assert.throws(
+		() =>
+			definePolicyPack({
+				id: "example/null-override/v1",
+				...base,
+				unsafeParamsJsonSchemaOverride: null as unknown as object,
+			}),
+		(err: unknown) => {
+			assert.ok(err instanceof PolicyPackDefinitionError);
+			// Assert the message is the actionable shape-guard one, not a null-deref.
+			assert.match(err.message, /must be a JSON Schema object/);
+			return true;
+		},
+	);
+});
+
+// FIX 3: Re-homed negative validation cases from the deleted defineCustomModule tests.
+// Each drives a real branch in define-policy-pack.ts that lacks direct test coverage.
+
+test("rejects non-string id", () => {
+	assert.throws(
+		() => definePolicyPack({ ...base, id: 123 as unknown as string }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects empty-string id", () => {
+	assert.throws(
+		() => definePolicyPack({ ...base, id: "" }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects id starting with slash", () => {
+	assert.throws(
+		() => definePolicyPack({ ...base, id: "/bad/id/v1" }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects short id with leading digit", () => {
+	// Derived short id "1bad" violates ^[a-z][a-z0-9_]*$
+	assert.throws(
+		() => definePolicyPack({ ...base, id: "1bad/x/v1" }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects short id with uppercase", () => {
+	assert.throws(
+		() => definePolicyPack({ ...base, id: "BadCase/x/v1" }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects short id with hyphen", () => {
+	// Hyphen makes Rego read `data.params.bad-id` as subtraction
+	assert.throws(
+		() => definePolicyPack({ ...base, id: "bad-id/x/v1" }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects non-object deployments", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				deployments: "not-object" as unknown as typeof base.deployments,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects array deployments", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({ ...base, id: "x/y/v1", deployments: [] as unknown as typeof base.deployments }),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects missing metadata.name", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				metadata: { version: "1.0.0", description: "desc" } as unknown as typeof base.metadata,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects non-string metadata.version", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				metadata: { name: "X", version: 1, description: "desc" } as unknown as typeof base.metadata,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects missing metadata.description", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				metadata: { name: "X", version: "1.0.0" } as unknown as typeof base.metadata,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects non-zod paramsSchema", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				paramsSchema: { type: "object" } as unknown as z.ZodType<unknown>,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects non-zod wasmArgsSchema", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				wasmArgsSchema: null as unknown as z.ZodType<unknown>,
+			}),
+		PolicyPackDefinitionError,
+	);
+});
+
+test("rejects non-zod secretsSchema", () => {
+	assert.throws(
+		() =>
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				secretsSchema: {} as unknown as z.ZodType<unknown>,
+			}),
+		PolicyPackDefinitionError,
+	);
+});

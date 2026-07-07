@@ -225,6 +225,15 @@ function assertRegorusSupportedKeywords(schema: unknown, path: string): void {
 		}
 		// `const`/`enum` carry arbitrary value payloads, not schemas — don't walk.
 		if (key === "const" || key === "enum" || key === "value" || key === "values") continue;
+		// FIX 2 (NEWT-1865): `items` value-shape check. newton-rego models `items` as
+		// a SINGLE Schema, not an array. JSON-Schema tuple form (items = array of
+		// schemas) is allowlist-passed on the keyword NAME check above, but regorus
+		// rejects it at parse. Zod `.tuple()` derives this form. Detect and reject.
+		if (key === "items" && Array.isArray(value)) {
+			throw new MalformedManifestError(
+				`\`items\` is an array (JSON-Schema tuple form) at \`${path ? `${path}.${key}` : key}\`; newton-rego models \`items\` as a single schema, not a tuple. Use a homogeneous array (single \`items\` schema), not a fixed tuple, in the pack's params.`,
+			);
+		}
 		assertRegorusSupportedKeywords(value, path ? `${path}.${key}` : key);
 	}
 }
