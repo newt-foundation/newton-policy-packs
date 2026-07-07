@@ -18,7 +18,7 @@ import {
 	NotJsonError,
 	UnsupportedManifestVersionError,
 } from "./composite-manifest";
-import type { Deployment, OracleModule } from "./index";
+import type { Deployment, PolicyPack } from "./index";
 
 function jsonHex(value: unknown): Hex {
 	return toHex(JSON.stringify(value));
@@ -48,7 +48,7 @@ function makeModule<P, W, S>(
 	secretsSchema: z.ZodType<S>,
 	deployment: Deployment,
 	paramsJsonSchema: object,
-): OracleModule<P, W, S> {
+): PolicyPack<string, P, W, S> {
 	return {
 		id,
 		paramsSchema,
@@ -56,6 +56,7 @@ function makeModule<P, W, S>(
 		secretsSchema,
 		paramsJsonSchema,
 		deployments: { [SEPOLIA]: { stagef: deployment } },
+		metadata: { name: id.split("/")[0] ?? id, version: "1.0.0", description: "test" },
 	};
 }
 
@@ -646,7 +647,8 @@ describe("generateCompositeParamsSchema", () => {
 			wasmArgsSchema: z.object({}),
 			secretsSchema: z.object({}),
 			deployments: { [SEPOLIA]: { stagef: VAULTSFYI_DEPLOYMENT } },
-		} as OracleModule<unknown, unknown, unknown>;
+			metadata: { name: "noschema", version: "1.0.0", description: "test" },
+		} as PolicyPack<string, unknown, unknown, unknown>;
 		assert.throws(
 			() => generateCompositeParamsSchema({ modules: [noSchemaModule] }),
 			(err: unknown) =>
@@ -705,7 +707,7 @@ describe("generateCompositeParamsSchema", () => {
 	});
 
 	it("throws on an empty modules list", () => {
-		const emptyPack = { modules: [] as ReadonlyArray<OracleModule<unknown, unknown, unknown>> };
+		const emptyPack = { modules: [] as ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>> };
 		assert.throws(
 			() => generateCompositeParamsSchema(emptyPack),
 			(err: unknown) => err instanceof MalformedManifestError,

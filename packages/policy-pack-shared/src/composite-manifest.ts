@@ -1,7 +1,7 @@
 import { type Address, getAddress, type Hex, hexToBytes, toHex } from "viem";
 import type { ZodIssue } from "zod";
 import { sortKeysDeep } from "./encoding";
-import type { OracleModule } from "./oracle-module";
+import type { PolicyPack } from "./pack";
 
 /**
  * Composite-policy manifest format. Phase 1.5 of the composite-policy rollout
@@ -384,7 +384,7 @@ export interface CompositeManifest {
  *   `pack.ts`) on cell mismatch.
  */
 export interface MinimalCompositePack {
-	readonly modules: ReadonlyArray<OracleModule<unknown, unknown, unknown>>;
+	readonly modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>;
 	readonly chainId: string;
 	readonly env: "stagef" | "prod";
 }

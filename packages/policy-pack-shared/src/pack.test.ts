@@ -20,7 +20,7 @@ const PROD_BALANCER: Deployment = {
 
 function makePack(
 	deployments: Readonly<Partial<Record<string, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>>,
-): PolicyPack<unknown, unknown, unknown> {
+): PolicyPack<string, unknown, unknown, unknown> {
 	return {
 		id: "balancer/risk-envelope/v1",
 		paramsSchema: z.object({}),

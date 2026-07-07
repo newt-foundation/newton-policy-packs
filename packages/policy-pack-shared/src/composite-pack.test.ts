@@ -46,7 +46,7 @@ function makePack(
 		args: PrepareQueryArgs,
 		options?: unknown,
 	) => Promise<PrepareQueryResult<unknown>>,
-): PolicyPack<unknown, unknown, unknown> {
+): PolicyPack<string, unknown, unknown, unknown> {
 	return {
 		id,
 		paramsSchema: z.object({}).passthrough() as z.ZodType<unknown>,

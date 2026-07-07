@@ -13,7 +13,7 @@ export class ParamsSchemaDerivationError extends Error {
 	override readonly name = "ParamsSchemaDerivationError";
 	constructor(
 		message: string,
-		readonly cause?: unknown,
+		override readonly cause?: unknown,
 	) {
 		super(message);
 	}
