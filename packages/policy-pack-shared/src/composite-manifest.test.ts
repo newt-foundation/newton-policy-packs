@@ -821,8 +821,7 @@ describe("generateCompositeParamsSchema", () => {
 		assert.throws(
 			() => generateCompositeParamsSchema({ modules: [tupleModule] }),
 			(err: unknown) =>
-				err instanceof MalformedManifestError &&
-				/items.*is an array.*tuple form/.test(err.message),
+				err instanceof MalformedManifestError && /items.*is an array.*tuple form/.test(err.message),
 		);
 	});
 

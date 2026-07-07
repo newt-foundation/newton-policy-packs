@@ -127,40 +127,25 @@ test("rejects non-string id", () => {
 });
 
 test("rejects empty-string id", () => {
-	assert.throws(
-		() => definePolicyPack({ ...base, id: "" }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ ...base, id: "" }), PolicyPackDefinitionError);
 });
 
 test("rejects id starting with slash", () => {
-	assert.throws(
-		() => definePolicyPack({ ...base, id: "/bad/id/v1" }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ ...base, id: "/bad/id/v1" }), PolicyPackDefinitionError);
 });
 
 test("rejects short id with leading digit", () => {
 	// Derived short id "1bad" violates ^[a-z][a-z0-9_]*$
-	assert.throws(
-		() => definePolicyPack({ ...base, id: "1bad/x/v1" }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ ...base, id: "1bad/x/v1" }), PolicyPackDefinitionError);
 });
 
 test("rejects short id with uppercase", () => {
-	assert.throws(
-		() => definePolicyPack({ ...base, id: "BadCase/x/v1" }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ ...base, id: "BadCase/x/v1" }), PolicyPackDefinitionError);
 });
 
 test("rejects short id with hyphen", () => {
 	// Hyphen makes Rego read `data.params.bad-id` as subtraction
-	assert.throws(
-		() => definePolicyPack({ ...base, id: "bad-id/x/v1" }),
-		PolicyPackDefinitionError,
-	);
+	assert.throws(() => definePolicyPack({ ...base, id: "bad-id/x/v1" }), PolicyPackDefinitionError);
 });
 
 test("rejects non-object deployments", () => {
@@ -178,7 +163,11 @@ test("rejects non-object deployments", () => {
 test("rejects array deployments", () => {
 	assert.throws(
 		() =>
-			definePolicyPack({ ...base, id: "x/y/v1", deployments: [] as unknown as typeof base.deployments }),
+			definePolicyPack({
+				...base,
+				id: "x/y/v1",
+				deployments: [] as unknown as typeof base.deployments,
+			}),
 		PolicyPackDefinitionError,
 	);
 });
