@@ -67,8 +67,17 @@ export function deriveParamsJsonSchema(
 	// Dry-run the exact gate the composite runs. It throws MalformedManifestError
 	// on a regorus-hostile keyword. Wrap it with authoring guidance so the pack
 	// author knows which refinement to change.
+	//
+	// Use a FIXED, guaranteed-valid placeholder module id for the gate rather than
+	// routing `ctx.id` through it: this helper also derives the reserved `_policy`
+	// slice's schema (ctx.id === "_policy"), which `generateCompositeParamsSchema`
+	// -> `shortPackIdFromModuleId` now rejects as a module id. The gate only
+	// inspects the SCHEMA's keywords, not the id, so the placeholder is immaterial
+	// to what's validated; `ctx.id` stays in the error message for the author.
 	try {
-		generateCompositeParamsSchema({ modules: [{ id: ctx.id, paramsJsonSchema: derived }] });
+		generateCompositeParamsSchema({
+			modules: [{ id: "derive_dryrun/params/v1", paramsJsonSchema: derived }],
+		});
 	} catch (err) {
 		if (err instanceof MalformedManifestError) {
 			throw new ParamsSchemaDerivationError(

@@ -459,6 +459,20 @@ describe("shortPackIdFromModuleId validation", () => {
 			(err: unknown) => err instanceof MalformedManifestError,
 		);
 	});
+
+	it("throws when a module derives the reserved `_policy` short id", async () => {
+		const { shortPackIdFromModuleId } = await import("./composite-manifest");
+		// `_policy` is the policy-level params key, not an oracle slice. A module
+		// claiming it (bypassing definePolicyPack's SHORT_ID_RE) must be rejected at
+		// the derivation chokepoint so every manifest surface enforces it.
+		for (const id of [POLICY_PARAMS_KEY, `${POLICY_PARAMS_KEY}/foo/v1`]) {
+			assert.throws(
+				() => shortPackIdFromModuleId(id),
+				(err: unknown) =>
+					err instanceof MalformedManifestError && err.message.includes(POLICY_PARAMS_KEY),
+			);
+		}
+	});
 });
 
 describe("CompositeManifest type assertion", () => {
@@ -1016,6 +1030,53 @@ describe("_policy reserved policy-level params", () => {
 		};
 		assert.equal(POLICY_PARAMS_KEY in schema.properties.params.properties, false);
 		assert.equal(schema.properties.params.required.includes(POLICY_PARAMS_KEY), false);
+	});
+
+	it("rejects a module that derives the reserved `_policy` short id across ALL surfaces", () => {
+		// A hand-built PolicyPack (bypassing definePolicyPack's SHORT_ID_RE) whose id
+		// derives `_policy`. Every manifest surface must reject it - else the module
+		// slice and the reserved policy-level slice collide (schema-vs-code divergence).
+		const rogue = makeModule(
+			`${POLICY_PARAMS_KEY}/foo/v1`,
+			z.object({ x: z.number() }),
+			z.object({}),
+			z.object({}),
+			VAULTSFYI_DEPLOYMENT,
+			{ type: "object", properties: { x: { type: "number" } } },
+		);
+		// schema generation
+		assert.throws(
+			() => generateCompositeParamsSchema({ modules: [rogue] }),
+			(err: unknown) =>
+				err instanceof MalformedManifestError && err.message.includes(POLICY_PARAMS_KEY),
+		);
+		// encode
+		const roguePack: MinimalCompositePack = {
+			modules: [rogue],
+			chainId: SEPOLIA,
+			env: STAGEF,
+		};
+		assert.throws(
+			() => encodeCompositeParams(roguePack, { [POLICY_PARAMS_KEY]: { x: 1 } }),
+			(err: unknown) => err instanceof Error && err.message.includes(POLICY_PARAMS_KEY),
+		);
+		// decode: a manifest whose modules[] carries the reserved-deriving id
+		const blob = {
+			_manifest: { magic: MANIFEST_MAGIC, version: 1 },
+			modules: [
+				{
+					id: `${POLICY_PARAMS_KEY}/foo/v1`,
+					policyDataAddress: VAULTSFYI_DEPLOYMENT.policyData,
+					wasmCid: "bafytest",
+				},
+			],
+			params: { [POLICY_PARAMS_KEY]: { x: 1 } },
+		};
+		assert.throws(
+			() => decodeManifest(jsonHex(blob)),
+			(err: unknown) =>
+				err instanceof MalformedManifestError && err.message.includes(POLICY_PARAMS_KEY),
+		);
 	});
 
 	it("runs the regorus keyword guard over the `_policy` schema (rejects a hostile keyword)", () => {

@@ -90,6 +90,21 @@ export function shortPackIdFromModuleId(moduleId: string): string {
 			`derived short pack id is empty for module id ${JSON.stringify(moduleId)}`,
 		);
 	}
+	// `_policy` is the reserved policy-level params key, NOT an oracle slice. An
+	// oracle module deriving it (e.g. id `_policy/foo/v1`) would collide with the
+	// reserved slot: schema generation would pin `params._policy` as an oracle
+	// schema while the encoder treats the same key as policy-level params, a
+	// schema-vs-code divergence. Reject it at the derivation point so every
+	// manifest surface (schema-gen, encode, decode) AND definePolicyPack /
+	// defineComposite - all of which route module ids through here - enforce the
+	// reservation, not just `definePolicyPack`'s SHORT_ID_RE. (Published packs all
+	// match `^[a-z][a-z0-9_]*$`, so none derive `_policy`; this guards a raw,
+	// hand-built PolicyPack that bypassed definePolicyPack.)
+	if (shortId === POLICY_PARAMS_KEY) {
+		throw new MalformedManifestError(
+			`module id ${JSON.stringify(moduleId)} derives short pack id ${JSON.stringify(POLICY_PARAMS_KEY)}, which is reserved for policy-level params (data.params.params._policy) and cannot name an oracle module`,
+		);
+	}
 	return shortId;
 }
 
