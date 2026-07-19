@@ -21,6 +21,7 @@ export {
 	ManifestDeploymentMissingError,
 	NotAManifestError,
 	NotJsonError,
+	POLICY_PARAMS_KEY,
 	shortPackIdFromModuleId,
 	UnsupportedManifestVersionError,
 } from "./composite-manifest";
@@ -35,6 +36,7 @@ export {
 	CompositePrepareQueryError,
 	defineComposite,
 	encodeCompositePolicyPack,
+	generateCompositePinnedSchema,
 	PinnedWasmCidMismatchError,
 	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,

@@ -1,8 +1,9 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import type { Address } from "viem";
+import { hexToBytes } from "viem";
 import { z } from "zod";
-import { decodeManifest } from "./composite-manifest";
+import { decodeManifest, POLICY_PARAMS_KEY } from "./composite-manifest";
 import {
 	ChainMismatchError,
 	CompositeBuilderError,
@@ -10,6 +11,7 @@ import {
 	CompositePrepareQueryError,
 	defineComposite,
 	encodeCompositePolicyPack,
+	generateCompositePinnedSchema,
 	PinnedWasmCidMismatchError,
 	PinnedWasmCidNotInModuleHistoryError,
 	PolicyDataLengthMismatchError,
@@ -890,5 +892,120 @@ describe("encodeCompositePolicyPack", () => {
 			VAULTSFYI_DEPLOYMENT.policyData.toLowerCase(),
 		);
 		assert.equal(manifest.modules[0]?.wasmCid, VAULTSFYI_DEPLOYMENT.wasmCid);
+	});
+});
+
+describe("_policy reserved slice — end-to-end (encode ↔ pinned schema agree)", () => {
+	const POLICY_PARAMS_SCHEMA = z.object({
+		allowed_sources: z.array(z.string()),
+		max_fee_bps: z.number().int().min(0).max(10000),
+	});
+	const GOOD_POLICY = {
+		allowed_sources: ["0x1111111111111111111111111111111111111111"],
+		max_fee_bps: 200,
+	};
+
+	async function composeWithPolicy() {
+		const fake = makeFakeClient({ onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData] });
+		return defineComposite({
+			modules: [VAULTSFYI],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+			policyParamsSchema: POLICY_PARAMS_SCHEMA,
+		});
+	}
+
+	it("carries the derived `_policy` JSON schema on the composite", async () => {
+		const composite = await composeWithPolicy();
+		assert.ok(composite.policyParamsSchema, "zod carried");
+		assert.ok(composite.policyParamsJsonSchema, "derived JSON schema carried");
+		// Derived from the zod (regorus-clean: object with the two fields).
+		const js = composite.policyParamsJsonSchema as {
+			type: string;
+			properties: Record<string, unknown>;
+		};
+		assert.equal(js.type, "object");
+		assert.deepEqual(Object.keys(js.properties).sort(), ["allowed_sources", "max_fee_bps"]);
+	});
+
+	// THE guard the review flagged as missing: encode a `_policy` manifest, then
+	// assert the composite's OWN pinned schema (what the AVS validates the raw blob
+	// against, as-is) admits exactly that manifest — same required keys, `_policy`
+	// pinned + closed. A drift here is the fail-closed attestation outage.
+	it("pinned schema's params keys EXACTLY match the encoded `_policy` manifest", async () => {
+		const composite = await composeWithPolicy();
+		const bytes = encodeCompositePolicyPack(composite, {
+			vaultsfyi: {},
+			[POLICY_PARAMS_KEY]: GOOD_POLICY,
+		});
+		const manifest = JSON.parse(new TextDecoder().decode(hexToBytes(bytes))) as {
+			params: Record<string, unknown>;
+		};
+		const schema = generateCompositePinnedSchema(composite) as {
+			properties: {
+				params: {
+					additionalProperties: boolean;
+					required: string[];
+					properties: Record<string, { additionalProperties?: boolean }>;
+				};
+			};
+		};
+		const paramsSchema = schema.properties.params;
+		// Every key the encoder emitted is required + a property in the pinned schema,
+		// and vice-versa. `_policy` MUST be on both sides — this is the exact
+		// encoder↔pinned-schema agreement that closes finding 1.
+		assert.deepEqual([...paramsSchema.required].sort(), Object.keys(manifest.params).sort());
+		assert.deepEqual(
+			Object.keys(paramsSchema.properties).sort(),
+			Object.keys(manifest.params).sort(),
+		);
+		assert.ok(paramsSchema.required.includes(POLICY_PARAMS_KEY));
+		// `_policy` node is closed (regorus fail-open guard).
+		assert.equal(paramsSchema.properties[POLICY_PARAMS_KEY]?.additionalProperties, false);
+	});
+
+	it("a composite WITHOUT policyParamsSchema pins no `_policy` (and the manifest has none)", async () => {
+		const fake = makeFakeClient({ onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData] });
+		const composite = await defineComposite({
+			modules: [VAULTSFYI],
+			chainId: "11155111",
+			env: "stagef",
+			// biome-ignore lint/suspicious/noExplicitAny: fake client
+			publicClient: fake.client as any,
+			policyAddress: POLICY,
+		});
+		assert.equal(composite.policyParamsJsonSchema, undefined);
+		const bytes = encodeCompositePolicyPack(composite, { vaultsfyi: {} });
+		const manifest = JSON.parse(new TextDecoder().decode(hexToBytes(bytes))) as {
+			params: Record<string, unknown>;
+		};
+		assert.equal(POLICY_PARAMS_KEY in manifest.params, false);
+		const schema = generateCompositePinnedSchema(composite) as {
+			properties: { params: { required: string[] } };
+		};
+		assert.equal(schema.properties.params.required.includes(POLICY_PARAMS_KEY), false);
+	});
+
+	it("rejects a regorus-hostile `_policy` zod at defineComposite (not at attestation)", async () => {
+		// A `.url()` refinement derives `format:"uri"` — regorus-hostile. It must
+		// throw at defineComposite (derivation runs the keyword gate), not silently
+		// pass and fail-close on-chain.
+		const fake = makeFakeClient({ onChainPolicyData: [VAULTSFYI_DEPLOYMENT.policyData] });
+		await assert.rejects(
+			defineComposite({
+				modules: [VAULTSFYI],
+				chainId: "11155111",
+				env: "stagef",
+				// biome-ignore lint/suspicious/noExplicitAny: fake client
+				publicClient: fake.client as any,
+				policyAddress: POLICY,
+				policyParamsSchema: z.object({ endpoint: z.string().url() }),
+			}),
+			// ParamsSchemaDerivationError (from deriveParamsJsonSchema); assert by shape.
+			(err: unknown) => err instanceof Error && /regorus|format|derive/i.test(err.message),
+		);
 	});
 });

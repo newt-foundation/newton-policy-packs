@@ -16,6 +16,7 @@ import {
 	type MinimalCompositePack,
 	NotAManifestError,
 	NotJsonError,
+	POLICY_PARAMS_KEY,
 	UnsupportedManifestVersionError,
 } from "./composite-manifest";
 import type { Deployment, PolicyPack } from "./index";
@@ -842,5 +843,191 @@ describe("generateCompositeParamsSchema", () => {
 		// Does not throw.
 		const schema = generateCompositeParamsSchema({ modules: [homogeneousModule] });
 		assert.ok(schema);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Reserved `_policy` policy-level params slice.
+//
+// `_policy` holds composite-level values no oracle owns (a source allowlist, a
+// fee-bps ceiling, ...). It is the ONE sanctioned non-oracle key under `params`;
+// the oracle-short-id bijection otherwise holds. On-chain the AVS injects
+// `policyParams` verbatim as Rego `data.params`, so a gate reads it at
+// `data.params.params._policy.<field>` (the envelope is NOT unwrapped).
+// ---------------------------------------------------------------------------
+describe("_policy reserved policy-level params", () => {
+	// A composite that declares a `_policy` schema: an approved-source allowlist +
+	// a max-fee-bps ceiling — the canonical policy-level shape.
+	const POLICY_PARAMS_SCHEMA = z.object({
+		allowed_sources: z.array(z.string()),
+		max_fee_bps: z.number().int().min(0).max(10000),
+	});
+	const PACK_WITH_POLICY: MinimalCompositePack = {
+		modules: [VAULTSFYI],
+		chainId: SEPOLIA,
+		env: STAGEF,
+		policyParamsSchema: POLICY_PARAMS_SCHEMA,
+	};
+	const GOOD_POLICY = {
+		allowed_sources: ["0x1111111111111111111111111111111111111111"],
+		max_fee_bps: 200,
+	};
+
+	it("encodes + decodes `_policy` alongside the oracle slice", () => {
+		const bytes = encodeCompositeParams(PACK_WITH_POLICY, {
+			vaultsfyi: { floor: 80 },
+			[POLICY_PARAMS_KEY]: GOOD_POLICY,
+		});
+		const manifest = decodeManifest(bytes);
+		assert.deepEqual(manifest.params[POLICY_PARAMS_KEY], GOOD_POLICY);
+		assert.deepEqual(manifest.params.vaultsfyi, { floor: 80 });
+	});
+
+	it("round-trips byte-identical regardless of `_policy` field insertion order", () => {
+		const a = encodeCompositeParams(PACK_WITH_POLICY, {
+			vaultsfyi: { floor: 80 },
+			[POLICY_PARAMS_KEY]: {
+				allowed_sources: ["0x1111111111111111111111111111111111111111"],
+				max_fee_bps: 200,
+			},
+		});
+		const b = encodeCompositeParams(PACK_WITH_POLICY, {
+			[POLICY_PARAMS_KEY]: {
+				max_fee_bps: 200,
+				allowed_sources: ["0x1111111111111111111111111111111111111111"],
+			},
+			vaultsfyi: { floor: 80 },
+		});
+		assert.equal(a, b);
+	});
+
+	it("validates `_policy` against the declared schema (fail-closed on bad value)", () => {
+		assert.throws(
+			() =>
+				encodeCompositeParams(PACK_WITH_POLICY, {
+					vaultsfyi: { floor: 80 },
+					[POLICY_PARAMS_KEY]: { allowed_sources: [], max_fee_bps: 99999 }, // exceeds max(10000)
+				}),
+			(err: unknown) => {
+				assert.ok(err instanceof CompositeParamsValidationError);
+				assert.equal(err.moduleId, POLICY_PARAMS_KEY);
+				assert.ok(err.zodIssues.length > 0);
+				return true;
+			},
+		);
+	});
+
+	it("requires `_policy` when the composite declares a policyParamsSchema", () => {
+		assert.throws(
+			() => encodeCompositeParams(PACK_WITH_POLICY, { vaultsfyi: { floor: 80 } }),
+			(err: unknown) =>
+				err instanceof CompositeParamsValidationError && err.moduleId === POLICY_PARAMS_KEY,
+		);
+	});
+
+	it("rejects a `_policy` entry when NO policyParamsSchema is declared (no unvalidated on-chain params)", () => {
+		// PACK (no policyParamsSchema) + a `_policy` entry must fail closed.
+		assert.throws(
+			() =>
+				encodeCompositeParams(PACK, {
+					vaultsfyi: { floor: 80 },
+					chainalysis: { deny_on_sanctioned: true },
+					[POLICY_PARAMS_KEY]: { anything: 1 },
+				}),
+			(err: unknown) =>
+				err instanceof CompositeParamsValidationError && err.moduleId === POLICY_PARAMS_KEY,
+		);
+	});
+
+	it("still rejects a non-`_policy` orphan key when a policyParamsSchema IS declared", () => {
+		// The bijection holds for every key except the one reserved `_policy`.
+		assert.throws(
+			() =>
+				encodeCompositeParams(PACK_WITH_POLICY, {
+					vaultsfyi: { floor: 80 },
+					[POLICY_PARAMS_KEY]: GOOD_POLICY,
+					orphan: { unused: true },
+				}),
+			(err: unknown) => err instanceof CompositeParamsValidationError && err.moduleId === "orphan",
+		);
+	});
+
+	it("decodeManifest accepts a manifest carrying `_policy` (the one allowed non-oracle key)", () => {
+		const blob = {
+			_manifest: { magic: MANIFEST_MAGIC, version: 1 },
+			modules: [
+				{
+					id: "vaultsfyi/risk-envelope/v1",
+					policyDataAddress: VAULTSFYI_DEPLOYMENT.policyData,
+					wasmCid: "bafytest",
+				},
+			],
+			params: { vaultsfyi: { floor: 80 }, [POLICY_PARAMS_KEY]: GOOD_POLICY },
+		};
+		const manifest = decodeManifest(jsonHex(blob));
+		assert.deepEqual(manifest.params[POLICY_PARAMS_KEY], GOOD_POLICY);
+	});
+
+	it("decodeManifest still rejects a NON-`_policy` orphan params key", () => {
+		const blob = {
+			_manifest: { magic: MANIFEST_MAGIC, version: 1 },
+			modules: [
+				{
+					id: "vaultsfyi/risk-envelope/v1",
+					policyDataAddress: VAULTSFYI_DEPLOYMENT.policyData,
+					wasmCid: "bafytest",
+				},
+			],
+			params: { vaultsfyi: { floor: 80 }, orphan: { x: 1 } },
+		};
+		assert.throws(
+			() => decodeManifest(jsonHex(blob)),
+			(err: unknown) => err instanceof MalformedManifestError,
+		);
+	});
+
+	it("generateCompositeParamsSchema pins `_policy` (closed + required) when given its JSON Schema", () => {
+		const policyJsonSchema = {
+			type: "object",
+			properties: {
+				allowed_sources: { type: "array", items: { type: "string" } },
+				max_fee_bps: { type: "integer", minimum: 0, maximum: 10000 },
+			},
+			required: ["allowed_sources", "max_fee_bps"],
+		};
+		const schema = generateCompositeParamsSchema(PACK, policyJsonSchema) as {
+			properties: {
+				params: {
+					required: string[];
+					properties: Record<string, { additionalProperties?: boolean }>;
+				};
+			};
+		};
+		const paramsSchema = schema.properties.params;
+		// `_policy` is required alongside the oracle short id.
+		assert.deepEqual([...paramsSchema.required].sort(), ["_policy", "chainalysis", "vaultsfyi"]);
+		// Its inlined schema is closed (regorus fail-open guard).
+		assert.equal(paramsSchema.properties[POLICY_PARAMS_KEY]?.additionalProperties, false);
+	});
+
+	it("omitting the `_policy` JSON Schema leaves `params` requiring only the oracle short ids", () => {
+		const schema = generateCompositeParamsSchema(PACK) as {
+			properties: { params: { required: string[]; properties: Record<string, unknown> } };
+		};
+		assert.equal(POLICY_PARAMS_KEY in schema.properties.params.properties, false);
+		assert.equal(schema.properties.params.required.includes(POLICY_PARAMS_KEY), false);
+	});
+
+	it("runs the regorus keyword guard over the `_policy` schema (rejects a hostile keyword)", () => {
+		// A `_policy` schema carrying `format` must be rejected at generation, same
+		// as an oracle slice — else it fail-closes at attestation.
+		assert.throws(
+			() =>
+				generateCompositeParamsSchema(PACK, {
+					type: "object",
+					properties: { when: { type: "string", format: "date-time" } },
+				}),
+			(err: unknown) => err instanceof MalformedManifestError && err.message.includes("format"),
+		);
 	});
 });

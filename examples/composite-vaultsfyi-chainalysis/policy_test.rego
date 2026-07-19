@@ -4,8 +4,13 @@ import data.vaultsfyi_chainalysis_gate
 
 import future.keywords
 
-# Params namespaced by short pack id (composite manifest convention).
-default_params := {
+# `data.params` is the on-chain policyParams blob VERBATIM — the AVS does not
+# unwrap the composite manifest envelope. So the value bound to `data.params` in
+# these tests is the NPM1 manifest shape `{ params: { <shortId>: {...} } }`, and
+# the gate reads a pack's curator params at `data.params.params.<shortId>`. Only
+# the `params` key matters to Rego evaluation (`_manifest` / `modules` are inert
+# here), so the fixtures inject just that — matching how the gate reads.
+default_params := {"params": {
 	"vaultsfyi": {
 		"apy_z_max": 4,
 		"tvl_drawdown_24h_max_pct": 25,
@@ -20,7 +25,7 @@ default_params := {
 		"deny_on_high_risk_category": true,
 		"risk_categories_blocklist": ["mixer", "stolen_funds", "ransomware"],
 	},
-}
+}}
 
 # Clean WASM output for both oracles (well-formed, nothing tripping a deny).
 clean_vaultsfyi := {
@@ -87,7 +92,10 @@ test_deny_chainalysis_blocklisted_category if {
 # --- per-pack param toggles work independently across the namespaces ---
 
 test_chainalysis_sanctioned_toggle_off_still_allows if {
-	p := object.union(default_params, {"chainalysis": object.union(default_params.chainalysis, {"deny_on_sanctioned": false})})
+	# Toggle deny_on_sanctioned off under the manifest envelope: patch
+	# default_params.params.chainalysis, then re-wrap under `params`.
+	patched_chainalysis := object.union(default_params.params.chainalysis, {"deny_on_sanctioned": false})
+	p := {"params": object.union(default_params.params, {"chainalysis": patched_chainalysis})}
 	d := wasm_with("chainalysis", {"sanctioned": true})
 	not "chainalysis:sanctioned" in vaultsfyi_chainalysis_gate.deny with data.params as p with data.wasm as d
 	vaultsfyi_chainalysis_gate.allow with data.params as p with data.wasm as d

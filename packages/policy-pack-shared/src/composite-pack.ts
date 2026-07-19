@@ -1,10 +1,14 @@
 import { type Address, getAddress, type Hex, type PublicClient } from "viem";
+import type { z } from "zod";
 import {
 	encodeCompositeParams,
+	generateCompositeParamsSchema,
 	type HistoricalBinding,
+	POLICY_PARAMS_KEY,
 	shortPackIdFromModuleId,
 } from "./composite-manifest";
 import type { ChainId, GatewayEnv } from "./deployment";
+import { deriveParamsJsonSchema } from "./derive-params-json-schema";
 import {
 	getDeployment,
 	type PolicyPack,
@@ -78,6 +82,16 @@ export interface DefineCompositeArgs {
 	readonly policyAddress: Address;
 	readonly expectedPolicyDataAddresses?: ReadonlyArray<Address>;
 	readonly expectedWasmCids?: ReadonlyArray<string>;
+	/**
+	 * OPTIONAL zod schema for the reserved policy-level `_policy` params slice -
+	 * values the composite's Rego needs that no oracle owns and guarantee 2 can't
+	 * express (a yield-source allowlist, a fee-bps ceiling, ...). When supplied,
+	 * `encodeCompositePolicyPack` validates `params._policy` against it and emits
+	 * it under `params._policy`; on-chain the gate reads it at
+	 * `data.params.params._policy.<field>`. Omit for a composite with no
+	 * policy-level params. Carried onto the returned {@link CompositePolicyPack}.
+	 */
+	readonly policyParamsSchema?: z.ZodType<unknown>;
 }
 
 export interface CompositePolicyPack {
@@ -94,6 +108,23 @@ export interface CompositePolicyPack {
 	 * current `module.deployments`. Consumed by `encodeCompositePolicyPack`.
 	 */
 	readonly historicalBindings?: ReadonlyArray<HistoricalBinding>;
+	/**
+	 * The composite-level `_policy` params zod schema, if one was passed to
+	 * {@link defineComposite}. `encodeCompositePolicyPack` threads it to the
+	 * encoder so `params._policy` is validated + emitted. `undefined` for a
+	 * composite with no policy-level params.
+	 */
+	readonly policyParamsSchema?: z.ZodType<unknown>;
+	/**
+	 * The regorus-clean JSON Schema DERIVED from {@link policyParamsSchema} at
+	 * `defineComposite` (one source of truth, exactly like an oracle module's
+	 * `paramsJsonSchema` derives from its zod). {@link generateCompositePinnedSchema}
+	 * inlines it under `params._policy` so the pinned envelope schema the AVS
+	 * validates against ALWAYS includes `_policy` when the composite declares one -
+	 * closing the "encoder emits `_policy` but the pinned schema rejects it"
+	 * fail-closed gap. `undefined` iff `policyParamsSchema` is.
+	 */
+	readonly policyParamsJsonSchema?: object;
 	prepareQuery(
 		args: PrepareQueryArgs,
 		options?: Record<string, unknown>,
@@ -338,6 +369,20 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 			}))
 		: undefined;
 
+	// Derive the `_policy` JSON Schema from its zod at construction (one source of
+	// truth, exactly as each oracle module derives paramsJsonSchema from its zod).
+	// This is what closes both review gaps: the SAME schema gates encode-time
+	// validation (via the zod) and the on-chain pinned schema (via this derived
+	// JSON), so they cannot drift; and `generateCompositePinnedSchema` always has
+	// a `_policy` schema to pin, so the pinned envelope can't omit `_policy` while
+	// the encoder emits it. `deriveParamsJsonSchema` runs the regorus keyword gate,
+	// so a hostile `_policy` schema throws HERE, at defineComposite, not at
+	// attestation.
+	const policyParamsJsonSchema =
+		args.policyParamsSchema !== undefined
+			? deriveParamsJsonSchema(args.policyParamsSchema, { id: POLICY_PARAMS_KEY })
+			: undefined;
+
 	return {
 		kind: "composite",
 		modules: orderedModules,
@@ -346,6 +391,10 @@ export async function defineComposite(args: DefineCompositeArgs): Promise<Compos
 		policyAddress: getAddress(args.policyAddress),
 		onChainPolicyData,
 		historicalBindings,
+		...(args.policyParamsSchema !== undefined
+			? { policyParamsSchema: args.policyParamsSchema }
+			: {}),
+		...(policyParamsJsonSchema !== undefined ? { policyParamsJsonSchema } : {}),
 		prepareQuery: makeAggregatedPrepareQuery(orderedModules),
 	};
 }
@@ -400,10 +449,36 @@ export function encodeCompositePolicyPack(
 	params: Record<string, unknown>,
 ): Hex {
 	return encodeCompositeParams(
-		{ modules: pack.modules, chainId: pack.chainId, env: pack.env },
+		{
+			modules: pack.modules,
+			chainId: pack.chainId,
+			env: pack.env,
+			...(pack.policyParamsSchema !== undefined
+				? { policyParamsSchema: pack.policyParamsSchema }
+				: {}),
+		},
 		params,
 		pack.historicalBindings,
 	);
+}
+
+/**
+ * Produce the pinned envelope JSON Schema for a composite - the schema a curator
+ * stores on the `NewtonPolicy` (`setPolicy`'s pinned-schema slot / a committed
+ * `params_schema.json`) and the AVS validates the raw on-chain `policyParams`
+ * blob against AS-IS. This is the CANONICAL producer: it inlines the composite's
+ * derived `_policy` schema (when present) so the pinned schema ALWAYS matches what
+ * `encodeCompositePolicyPack` emits.
+ *
+ * Prefer this over calling `generateCompositeParamsSchema` directly: the raw
+ * generator's `_policy` argument is optional, so a caller that forgets it emits a
+ * pinned schema that rejects a `_policy`-carrying manifest (`additionalProperties`
+ * closed) - a fail-closed attestation outage. Threading it through the composite
+ * removes that footgun (the composite already derived + validated the `_policy`
+ * JSON schema at {@link defineComposite}).
+ */
+export function generateCompositePinnedSchema(pack: CompositePolicyPack): object {
+	return generateCompositeParamsSchema({ modules: pack.modules }, pack.policyParamsJsonSchema);
 }
 
 /**

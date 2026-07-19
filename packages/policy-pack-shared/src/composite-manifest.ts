@@ -1,7 +1,28 @@
 import { type Address, getAddress, type Hex, hexToBytes, toHex } from "viem";
-import type { ZodIssue } from "zod";
+import type { ZodIssue, z } from "zod";
 import { sortKeysDeep } from "./encoding";
 import type { PolicyPack } from "./pack";
+
+/**
+ * The ONE reserved, non-oracle key allowed inside a composite manifest's
+ * `params`. It holds POLICY-LEVEL values that no oracle owns and that the
+ * on-chain exact-tx attestation binding (guarantee 2) cannot express - e.g. a
+ * yield-source allowlist for `manageYieldSource`, a fee-bps ceiling, a cap
+ * ceiling checked against decoded args. Everything else under `params` MUST be
+ * an oracle short pack id (the bijection with `modules[]` still holds); `_policy`
+ * is the single sanctioned exception, validated against a composite-declared
+ * schema.
+ *
+ * Its leading underscore is load-bearing: a valid oracle short id must match
+ * `^[a-z][a-z0-9_]*$` (see `define-policy-pack.ts` SHORT_ID_RE), so `_policy` can
+ * never collide with any oracle slice - the same one-sided separator principle
+ * the `_manifest` key uses.
+ *
+ * On-chain, the AVS injects `policyParams` verbatim as Rego `data.params`, so a
+ * gate reads this slice at `data.params.params._policy.<field>` (the manifest
+ * envelope is NOT unwrapped - see `generateCompositeParamsSchema`).
+ */
+export const POLICY_PARAMS_KEY = "_policy" as const;
 
 /**
  * Composite-policy manifest format. Phase 1.5 of the composite-policy rollout
@@ -275,9 +296,21 @@ function assertRegorusSupportedKeywords(schema: unknown, path: string): void {
  * @returns the envelope JSON Schema as a plain object, ready to ABI-/JSON-encode
  *   into the policy's pinned-schema slot.
  */
-export function generateCompositeParamsSchema(pack: {
-	readonly modules: ReadonlyArray<ParamsSchemaModule>;
-}): object {
+export function generateCompositeParamsSchema(
+	pack: {
+		readonly modules: ReadonlyArray<ParamsSchemaModule>;
+	},
+	/**
+	 * OPTIONAL composite-level `_policy` JSON Schema. When supplied, the emitted
+	 * envelope pins it (closed) under `params._policy` and marks `_policy`
+	 * required, so the AVS validates the reserved policy-level slice exactly as it
+	 * validates each oracle slice. Omit it for a composite with no policy-level
+	 * params (the common case) - `params` then requires only the oracle short ids.
+	 * The schema is walked by the same regorus keyword guard as the oracle
+	 * schemas, so a hostile keyword throws at generation, not at attestation.
+	 */
+	policyParamsJsonSchema?: object,
+): object {
 	if (pack.modules.length === 0) {
 		throw new MalformedManifestError(
 			"pack.modules is empty — a composite params schema must describe at least one module",
@@ -311,6 +344,16 @@ export function generateCompositeParamsSchema(pack: {
 		// Closing each object keeps the two surfaces identical.
 		paramsProperties[shortId] = closeObjectSchema(cloneJsonSchema(module.paramsJsonSchema));
 		paramsRequired.push(shortId);
+	}
+
+	// The reserved policy-level slice, pinned + required alongside the oracle
+	// slices when the composite declares one. Closed like every other object node
+	// (regorus fail-opens on an absent `additionalProperties`).
+	if (policyParamsJsonSchema !== undefined) {
+		paramsProperties[POLICY_PARAMS_KEY] = closeObjectSchema(
+			cloneJsonSchema(policyParamsJsonSchema),
+		);
+		paramsRequired.push(POLICY_PARAMS_KEY);
 	}
 
 	const envelope = {
@@ -396,6 +439,16 @@ export interface MinimalCompositePack {
 	readonly modules: ReadonlyArray<PolicyPack<string, unknown, unknown, unknown>>;
 	readonly chainId: string;
 	readonly env: "stagef" | "prod";
+	/**
+	 * OPTIONAL zod schema for the reserved policy-level `_policy` params slice.
+	 * When present, `encodeCompositeParams` validates `params._policy` against it
+	 * (fail-closed, mirroring each module's `paramsSchema`) and emits it under
+	 * `params._policy`. When ABSENT, passing a `params._policy` entry is an error
+	 * (a curator can't smuggle unvalidated policy-level params on-chain). Its
+	 * regorus-clean JSON Schema form (for the pinned envelope) is
+	 * {@link policyParamsJsonSchema}.
+	 */
+	readonly policyParamsSchema?: z.ZodType<unknown>;
 }
 
 /**
@@ -552,9 +605,12 @@ export function decodeManifest(encoded: Hex): CompositeManifest {
 		}
 	}
 	for (const k of paramKeys) {
+		// `_policy` is the one sanctioned non-oracle key (policy-level params). Every
+		// other key MUST be a declared oracle short id (the bijection holds).
+		if (k === POLICY_PARAMS_KEY) continue;
 		if (!declaredShortIds.has(k)) {
 			throw new MalformedManifestError(
-				`params[${JSON.stringify(k)}] declared but no matching short pack id in modules[]`,
+				`params[${JSON.stringify(k)}] declared but no matching short pack id in modules[] (the only allowed non-oracle key is the reserved ${JSON.stringify(POLICY_PARAMS_KEY)})`,
 			);
 		}
 	}
@@ -721,10 +777,49 @@ export function encodeCompositeParams(
 		}
 		validatedParams[shortId] = result.data;
 	}
+	// The reserved policy-level `_policy` slice. Validate it against the
+	// composite's declared `policyParamsSchema` (fail-closed, exactly as each
+	// oracle slice is validated) and emit it under `params._policy`. Two
+	// fail-closed asymmetries a curator must not slip past:
+	//   - `_policy` present in params but NO schema declared -> reject. Emitting
+	//     unvalidated policy-level params on-chain would let junk reach Rego's
+	//     `data.params.params._policy` unchecked.
+	//   - schema declared but `_policy` absent from params -> reject. A composite
+	//     that declares policy-level params requires them, mirroring the
+	//     every-module-must-have-a-params-entry rule above.
+	const hasPolicyKey = POLICY_PARAMS_KEY in params;
+	if (pack.policyParamsSchema) {
+		if (!hasPolicyKey) {
+			throw new CompositeParamsValidationError(
+				`params[${JSON.stringify(POLICY_PARAMS_KEY)}] missing — this composite declares a policyParamsSchema, so the policy-level params slice is required`,
+				POLICY_PARAMS_KEY,
+				[],
+			);
+		}
+		const result = pack.policyParamsSchema.safeParse(params[POLICY_PARAMS_KEY]);
+		if (!result.success) {
+			throw new CompositeParamsValidationError(
+				`policy-level params (${JSON.stringify(POLICY_PARAMS_KEY)}) failed schema validation`,
+				POLICY_PARAMS_KEY,
+				result.error.issues,
+			);
+		}
+		validatedParams[POLICY_PARAMS_KEY] = result.data;
+	} else if (hasPolicyKey) {
+		throw new CompositeParamsValidationError(
+			`params[${JSON.stringify(POLICY_PARAMS_KEY)}] supplied but this composite declares no policyParamsSchema — refusing to write unvalidated policy-level params on-chain. Add policyParamsSchema to the composite, or drop the ${JSON.stringify(POLICY_PARAMS_KEY)} entry`,
+			POLICY_PARAMS_KEY,
+			[],
+		);
+	}
+
 	for (const k of Object.keys(params)) {
+		// `_policy` is handled above (validated against policyParamsSchema); every
+		// other key MUST be a declared oracle short id.
+		if (k === POLICY_PARAMS_KEY) continue;
 		if (!shortIds.has(k)) {
 			throw new CompositeParamsValidationError(
-				`params[${JSON.stringify(k)}] declared but no matching short pack id in pack.modules`,
+				`params[${JSON.stringify(k)}] declared but no matching short pack id in pack.modules (the only allowed non-oracle key is the reserved ${JSON.stringify(POLICY_PARAMS_KEY)})`,
 				k,
 				[],
 			);

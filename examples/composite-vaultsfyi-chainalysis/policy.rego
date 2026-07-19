@@ -7,26 +7,33 @@ import future.keywords
 # oracles (reused from the published packs — no new WASM build).
 #
 # Namespacing conventions this composite relies on:
-#   - WASM outputs:  data.wasm.<short-pack-id>.<field>   (Phase 0 — wrapOutput)
-#   - Curator params: data.params.<short-pack-id>.<field> (Phase 1.5 — manifest)
+#   - WASM outputs:   data.wasm.<short-pack-id>.<field>          (Phase 0 — wrapOutput, merged output)
+#   - Curator params: data.params.params.<short-pack-id>.<field> (composite manifest)
 #
 # Both halves are namespaced by SHORT pack id ("vaultsfyi", "chainalysis"),
 # so the two oracles' outputs never collide even though, e.g., vaultsfyi
 # emits `risk_score` as a number and chainalysis emits it as a string.
+#
+# Why params sit under `data.params.params` (a doubled `params`): the AVS injects
+# the on-chain `policyParams` blob VERBATIM as Rego `data.params` and does NOT
+# unwrap the composite manifest envelope. That blob is the NPM1 manifest
+# `{ _manifest, modules, params: { <shortId>: {...} } }`, so the curator's slice
+# for a pack lives at `data.params.params.<shortId>`. (WASM output, by contrast,
+# is the AVS-merged oracle result and sits at the top level, `data.wasm.<shortId>`.)
 
 default allow := false
 
-# vaultsfyi oracle slice + its params slice
+# vaultsfyi oracle slice + its params slice (params under the manifest envelope)
 vf := data.wasm.vaultsfyi
-vfp := data.params.vaultsfyi
+vfp := data.params.params.vaultsfyi
 
 # chainalysis oracle slice + its params slice
 ca := data.wasm.chainalysis
-cap := data.params.chainalysis
+cap := data.params.params.chainalysis
 
 # ---------------------------------------------------------------------------
 # vaultsfyi deny rules (copied from vaultsfyi/policy.rego, params re-namespaced
-# from flat `data.params` to `data.params.vaultsfyi`)
+# from flat `data.params` to `data.params.params.vaultsfyi`)
 # ---------------------------------------------------------------------------
 
 deny contains "vaultsfyi:apy_spike" if vf.apy_z_score > vfp.apy_z_max
@@ -57,7 +64,7 @@ deny contains "vaultsfyi:allocation_changed" if {
 
 # ---------------------------------------------------------------------------
 # chainalysis deny rules (copied from chainalysis/policy.rego, params
-# re-namespaced to `data.params.chainalysis`)
+# re-namespaced to `data.params.params.chainalysis`)
 # ---------------------------------------------------------------------------
 
 deny contains "chainalysis:sanctioned" if {

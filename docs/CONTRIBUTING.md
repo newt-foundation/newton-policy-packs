@@ -110,7 +110,7 @@ The pack name is **load-bearing** in six places — they all have to match:
 1. The top-level directory: `<your-pack>/`
 2. The npm package suffix: `@newton-xyz/policy-pack-<your-pack>`
 3. The `PACK_ID` literal in `policy.js` (used for output namespacing — `wrapOutput("<your-pack>", ...)`)
-4. The Rego WASM-output namespace key: `data.wasm.<your-pack>.*` (your pack's params live in flat `data.params.*` today, no namespace needed)
+4. The Rego WASM-output namespace key: `data.wasm.<your-pack>.*` (your standalone pack's params are flat `data.params.*`; in a composite, the envelope adds a layer: `data.params.params.<pack-id>.*`)
 5. The pack registry: [`scripts/lib/packs.sh`](../scripts/lib/packs.sh) (`<pack-name>:<rego-package-name>` entry)
 6. The top-level `deployments.json` key under `packs.<your-pack>` (the codegen reads this slice to emit `packages/policy-pack-<your-pack>/src/deployments.ts`)
 

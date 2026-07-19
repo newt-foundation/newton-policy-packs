@@ -47,9 +47,9 @@ For each oracle, also read its TypeScript binding (`packages/policy-pack-<name>/
 
 ## Step 2 — Write your Rego
 
-Each oracle's WASM output is namespaced under its **short pack id** (`data.wasm.vaultsfyi.*`, `data.wasm.chainalysis.*` — the Phase 0 `wrapOutput` convention). Your params are namespaced the same way (`data.params.vaultsfyi.*` — the composite manifest convention).
+Each oracle's WASM output is namespaced under its **short pack id** (`data.wasm.vaultsfyi.*`, `data.wasm.chainalysis.*` — the Phase 0 `wrapOutput` convention). Your params are namespaced under the composite manifest envelope: the AVS injects the on-chain policyParams (the NPM1 `{_manifest,modules,params}` envelope) verbatim as `data.params` without unwrapping, so the pack slice is at `data.params.params.<short-id>.*`.
 
-Start from each pack's standalone `<pack>/policy.rego` as a template for the deny rules over that oracle. **The one rewrite you must make:** each standalone pack reads its params via flat `t := data.params`; in a composite, params are namespaced — rewrite to `data.params.<short-id>`. The WASM-output side (`data.wasm.<short-id>.*`) is identical in both.
+Start from each pack's standalone `<pack>/policy.rego` as a template for the deny rules over that oracle. **The one rewrite you must make:** each standalone pack reads its params via flat `t := data.params`; in a composite, params are under the manifest envelope — rewrite to `data.params.params.<short-id>`. The WASM-output side (`data.wasm.<short-id>.*`) is identical in both.
 
 ```rego
 package my_vault_gate
@@ -58,9 +58,9 @@ import future.keywords
 default allow := false
 
 vf := data.wasm.vaultsfyi
-vfp := data.params.vaultsfyi
+vfp := data.params.params.vaultsfyi
 ca := data.wasm.chainalysis
-cap := data.params.chainalysis
+cap := data.params.params.chainalysis
 
 deny contains "vaultsfyi:risk_below_floor" if {
     vf.risk_score != null
@@ -208,7 +208,7 @@ import { z } from "zod";
 const myLtvGate = defineCustomModule({
   // `<short-id>/<purpose>/<version>`. The short id (`bizantine_ltv`) namespaces
   // your oracle's output and params: `data.wasm.bizantine_ltv.*`,
-  // `data.params.bizantine_ltv.*`. It MUST be a Rego-dot-safe identifier
+  // `data.params.params.bizantine_ltv.*` (doubled params - the envelope). It MUST be a Rego-dot-safe identifier
   // (`^[a-z][a-z0-9_]*$` - snake_case, no hyphens/dots/uppercase: `data.params.a-b`
   // parses in Rego as subtraction, not a key) and must NOT collide with a
   // published pack id.
@@ -257,15 +257,15 @@ const composite = await defineComposite({
 });
 ```
 
-Everything downstream is identical to the all-published case: `encodeCompositePolicyPack` validates your params against `myLtvGate.paramsSchema`, the aggregated `prepareQuery` runs your module's alongside the packs', and `introspectComposite` verifies your oracle's on-chain address + wasmCid the same way. Your Rego reads `data.wasm.bizantine-ltv.*` / `data.params.bizantine-ltv.*` exactly as it reads the published oracles.
+Everything downstream is identical to the all-published case: `encodeCompositePolicyPack` validates your params against `myLtvGate.paramsSchema`, the aggregated `prepareQuery` runs your module's alongside the packs', and `introspectComposite` verifies your oracle's on-chain address + wasmCid the same way. Your Rego reads `data.wasm.bizantine_ltv.*` / `data.params.params.bizantine_ltv.*` exactly as it reads the published oracles.
 
 ## Gotchas
 
-- **Params flat → namespaced.** The single biggest copy mistake. Each pack's standalone Rego uses `t := data.params` (flat); composites use `data.params.<short-id>`. Rewrite every params reference when you copy deny rules in.
+- **Params flat → under the envelope.** The single biggest copy mistake. Each pack's standalone Rego uses `t := data.params` (flat); composites use `data.params.params.<short-id>` (the AVS injects the on-chain policyParams envelope verbatim, so pack params are nested). Rewrite every params reference when you copy deny rules in.
 - **On-chain module order is load-bearing, but the SDK aligns to it for you.** The `--policy-data-address` flag order fixes the on-chain `getPolicyData()` array order, and `PolicyValidationLib.sol` enforces it on every execution. You do NOT have to pass `modules` to `defineComposite` in that same order — it reorders your array to match `getPolicyData()` automatically, so the emitted manifest is always position-correct. Only the **set** must agree; a module whose oracle isn't in the deployed policy throws `CompositeModuleSetMismatchError`.
 - **Fail closed by construction.** Don't write `default allow := true` or an `allow` that's just `count(deny) == 0` — an oracle error produces zero denies. Require the well-formedness probes.
-- **Short-pack-id uniqueness.** Two modules deriving the same short id (e.g. two versions of the same pack) make `data.params.<short-id>` ambiguous. `defineComposite` rejects this.
-- **Custom module short id must not shadow a published pack.** A custom `id` like `vaultsfyi/mine/v1` derives short id `vaultsfyi`, which would hijack the published pack's `data.wasm.vaultsfyi` / `data.params.vaultsfyi` namespace. `defineCustomModule` rejects any short id in `KNOWN_PACK_IDS`. Pick a distinct short id.
+- **Short-pack-id uniqueness.** Two modules deriving the same short id (e.g. two versions of the same pack) make `data.params.params.<short-id>` ambiguous. `defineComposite` rejects this.
+- **Custom module short id must not shadow a published pack.** A custom `id` like `vaultsfyi/mine/v1` derives short id `vaultsfyi`, which would hijack the published pack's `data.wasm.vaultsfyi` / `data.params.params.vaultsfyi` namespace. `defineCustomModule` rejects any short id in `KNOWN_PACK_IDS`. Pick a distinct short id.
 - **`allowUnknownPackIds` is the custom-module switch, and it's opt-in.** Without it, a non-published short id throws `UnknownPackIdError` (typo safety for the published packs). Set it `true` only for the composite calls that intentionally include a custom module; it relaxes the registry gate alone, never the on-chain checks.
 - **Redeploy drift.** If a pack redeploys its `policyData` after you deployed your composite, your composite is still valid on-chain but `module.deployments` no longer matches. Pass `expectedPolicyDataAddresses` + `expectedWasmCids` to `defineComposite` to pin to the historical addresses. See [`define-composite-spec.md`](./define-composite-spec.md) § "historical pin".
 

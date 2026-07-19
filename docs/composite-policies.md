@@ -23,7 +23,7 @@ The Newton AVS evaluates such a policy by:
 
 1. Running each referenced PolicyData's WASM oracle.
 2. Merging every oracle's JSON output into one `data.wasm` blob (top-level keys per pack id; see [Namespacing](#namespacing) below).
-3. Evaluating your hand-authored Rego against `data.wasm.<pack-id>.*` + `data.params.<pack-id>.*` + `input.*`.
+3. Evaluating your hand-authored Rego against `data.wasm.<pack-id>.*` + `data.params.params.<pack-id>.*` (the envelope) + `input.*`.
 4. Returning `allow` only if every deny rule across every namespace passes.
 
 No new infrastructure. No new WASM build per composite - you reuse existing PolicyData addresses from [`deployments.json`](../deployments.json). The composite-specific work is your Rego, your `params_schema.json`, and a single `(NewtonPolicy + composite-PolicyData-array)` deploy via `newton-cli`.
@@ -57,13 +57,13 @@ data.wasm.chainalysis.sanctioned    # bool
 data.wasm.redstone.divergence_pct   # number
 ```
 
-**Status today:** every pack in this repo emits namespaced outputs (`{ <pack-id>: { score, risk_score, ... } }`) via `wrapOutput("<pack-id>", ...)` and references `data.wasm.<pack-id>.*` in Rego. Phase 0 landed across all 9 packs. New packs MUST adopt the same convention - `policy.js` MUST wrap its return value via `wrapOutput`, and `policy.rego` MUST reference `data.wasm.<pack-id>.*`. The AST-lint CI guard (`scripts/lint-policy-js.ts`) and per-pack `wrapping_test.rego` enforce both halves on PRs.
+**Status today:** every pack in this repo emits namespaced outputs (`{ <pack-id>: { score, risk_score, ... } }`) via `wrapOutput("<pack-id>", ...")` and references `data.wasm.<pack-id>.*` in Rego. Phase 0 landed across all 9 packs. New packs MUST adopt the same convention - `policy.js` MUST wrap its return value via `wrapOutput`, and `policy.rego` MUST reference `data.wasm.<pack-id>.*`. The AST-lint CI guard (`scripts/lint-policy-js.ts`) and per-pack `wrapping_test.rego` enforce both halves on PRs.
 
-Params follow the same convention:
+Params are under the composite manifest envelope (the AVS injects the on-chain policyParams verbatim, which for a composite is the NPM1 `{_manifest,modules,params}` envelope):
 
 ```rego
-data.params.vaultsfyi.risk_score_floor    # number
-data.params.chainalysis.deny_on_sanctioned # bool
+data.params.params.vaultsfyi.risk_score_floor    # number
+data.params.params.chainalysis.deny_on_sanctioned # bool
 ```
 
 ## Authoring a composite - five concrete steps
@@ -102,7 +102,7 @@ allow if {
 # Deny if VaultsFYI risk score is below the configured floor
 deny contains msg if {
     score := data.wasm.vaultsfyi.risk_score
-    floor := data.params.vaultsfyi.risk_score_floor
+    floor := data.params.params.vaultsfyi.risk_score_floor
     score < floor
     msg := sprintf("vaultsfyi risk score %v below floor %v", [score, floor])
 }
@@ -116,7 +116,7 @@ deny contains msg if {
 # Deny if VaultsFYI errored AND we configured strict mode
 deny contains msg if {
     data.wasm.vaultsfyi.error
-    data.params.my_composite.strict_mode == true
+    data.params.params._policy.strict_mode == true
     msg := sprintf("vaultsfyi oracle error in strict mode: %v", [data.wasm.vaultsfyi.error])
 }
 ```
@@ -125,7 +125,7 @@ Notes:
 
 - Each pack's reference `policy.rego` (e.g. [`vaultsfyi/policy.rego`](../vaultsfyi/policy.rego), [`chainalysis/policy.rego`](../chainalysis/policy.rego)) is the starting template for the deny rules over THAT module's outputs. The bundled per-pack templates already reference `data.wasm.<pack-id>.<field>` (e.g. `v := data.wasm.vaultsfyi`) so copy-as-is into a composite works.
 - Errors are namespaced too (post-Phase-0). `data.wasm.vaultsfyi.error` is set when vaultsfyi's WASM hit an exception; you decide whether to deny on it. The bundled per-pack reference Rego documents each module's error semantics.
-- Top-level params under your composite's namespace (e.g. `my_composite.strict_mode` above) follow from how the AVS evaluates merged policy data - see [`docs.newton.xyz`](https://docs.newton.xyz/developers/guides/writing-policies) for the canonical Rego authoring guide. The [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) walkthrough shows the merge convention in practice; verify against your composite's simulation output before relying on it.
+- Policy-level params - values your composite's Rego needs that no oracle owns (a `strict_mode` toggle, a bound-vault allowlist, a fee ceiling) - live under the reserved `_policy` slice, read at `data.params.params._policy.<field>` (as `strict_mode` above). Declare their shape by passing `policyParamsSchema` (a zod schema) to `defineComposite`; `encodeCompositePolicyPack` then validates and emits `params._policy`, and `generateCompositePinnedSchema` pins it into the on-chain schema. `_policy` is the ONE sanctioned non-oracle key under `params` (every other key must be an oracle short id). Retune a policy-level value with `setParams` - no Rego edit, no re-pin. See [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/) and verify against your composite's simulation output before relying on it.
 
 Run `opa test` against your Rego before deploying:
 
@@ -133,44 +133,30 @@ Run `opa test` against your Rego before deploying:
 opa test ./my_composite/policy.rego ./my_composite/policy_test.rego -v
 ```
 
-### 3. Author `params_schema.json`
+### 3. The pinned params schema (generated, not hand-authored)
 
-The composite's params schema covers BOTH the per-module params AND any top-level composite-author params:
+The AVS validates the raw on-chain `policyParams` blob against a pinned JSON Schema that must describe the WHOLE manifest envelope (`{ _manifest, modules, params }`), because it does not unwrap the envelope. Do NOT hand-write that envelope schema - `generateCompositePinnedSchema(composite)` produces it from the composite's modules (each pack's own `paramsJsonSchema`, derived from its zod) so the pinned schema always matches what `encodeCompositePolicyPack` writes:
 
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["vaultsfyi", "chainalysis", "my_composite"],
-  "properties": {
-    "vaultsfyi": {
-      "type": "object",
-      "required": ["risk_score_floor", "tvl_drawdown_24h_max_pct"],
-      "properties": {
-        "risk_score_floor": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "tvl_drawdown_24h_max_pct": { "type": "number", "minimum": 0, "maximum": 100 }
-      }
-    },
-    "chainalysis": {
-      "type": "object",
-      "required": ["deny_on_sanctioned"],
-      "properties": {
-        "deny_on_sanctioned": { "type": "boolean" },
-        "deny_on_high_risk": { "type": "boolean" }
-      }
-    },
-    "my_composite": {
-      "type": "object",
-      "properties": {
-        "strict_mode": { "type": "boolean" }
-      }
-    }
-  }
-}
+```ts
+import { defineComposite, generateCompositePinnedSchema } from "@newton-xyz/policy-pack-shared";
+import { z } from "zod";
+
+const composite = await defineComposite({
+  modules: [vaultsfyi, chainalysis],
+  chainId, env, publicClient, policyAddress,
+  // Policy-level `_policy` params (optional): declare their shape here. The
+  // JSON Schema is DERIVED from this zod, so encode-time validation and the
+  // on-chain pinned schema can't drift.
+  policyParamsSchema: z.object({ strict_mode: z.boolean() }),
+});
+
+const pinnedSchema = generateCompositePinnedSchema(composite);
+// -> the envelope schema: params.properties = { vaultsfyi, chainalysis, _policy },
+//    each closed (additionalProperties:false), _policy included because the
+//    composite declared policyParamsSchema. Pin this on the NewtonPolicy.
 ```
 
-The per-module sub-schemas should be a subset of (or compatible with) the published `<pack>/params_schema.json` for that module - only declare the fields YOUR Rego actually consumes. The AVS won't validate your composite's params against each module's full schema; that's your Rego's job.
+Only declare the oracle params fields YOUR Rego actually consumes - each pack's `paramsJsonSchema` is its published schema, inlined verbatim. The `_policy` slice is validated by `policyParamsSchema` (encode-time) and its derived JSON schema (on-chain); omit `policyParamsSchema` entirely if your composite has no policy-level params.
 
 ### 4. Deploy with `newton-cli`
 
@@ -251,7 +237,7 @@ A repo-level AST-lint CI check flags raw `JSON.stringify(...)` returns that bypa
 
 ```rego
 v := data.wasm.<your-pack-id>
-deny contains msg if { v.<field> < data.params.<your-pack-id>.<threshold>; ... }
+deny contains msg if { v.<field> < data.params.params.<your-pack-id>.<threshold>; ... }
 ```
 
 3. Author your pack with `definePolicyPack` in `packages/policy-pack-<your-pack>/src/pack.ts`. The pack object is passed directly to `generateCompositeParamsSchema` and `defineComposite` for multi-oracle composition. Curators consume the pack via its published `@newton-xyz/policy-pack-<your-pack>` export.
