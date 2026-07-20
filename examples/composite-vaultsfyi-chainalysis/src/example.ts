@@ -53,9 +53,12 @@ export async function buildComposite() {
 
 // ---------------------------------------------------------------------------
 // 2. Encode the curator's per-module params into the manifest bytes for
-//    Shield.setPolicy(...). Params are keyed by SHORT pack id — the same
-//    identifier the composite Rego reads via data.params.<short-id>.*.
-//    encodeCompositePolicyPack validates each slice against that module's
+//    Shield.setPolicy(...). Params are keyed by SHORT pack id under the
+//    manifest's `params.<short-id>` slice. The AVS injects these on-chain bytes
+//    verbatim as Rego `data.params` (no manifest unwrap), so the composite Rego
+//    reads them at the DOUBLED path `data.params.params.<short-id>.*` — reading
+//    the single `data.params.<short-id>` yields undefined and fails the gate
+//    OPEN. encodeCompositePolicyPack validates each slice against that module's
 //    paramsSchema before emitting bytes.
 // ---------------------------------------------------------------------------
 

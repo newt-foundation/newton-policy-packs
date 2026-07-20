@@ -45,7 +45,7 @@
 		"build": "tsup",
 		"dev": "tsup --watch",
 		"typecheck": "tsc --noEmit",
-		"test": "echo 'no tests yet'"
+		"test": "node --import tsx --test src/*.test.ts"
 	},
 	"peerDependencies": {
 		"@newton-xyz/policy-core": ">=0.2.0 <1.0.0"
@@ -53,6 +53,7 @@
 	"devDependencies": {
 		"@newton-xyz/policy-core": "^0.2.0",
 		"tsup": "^8.5.1",
+		"tsx": "^4.19.0",
 		"typescript": "^5.5.0"
 	}
 }

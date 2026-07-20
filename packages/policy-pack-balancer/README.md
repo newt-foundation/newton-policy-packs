@@ -25,7 +25,7 @@ pnpm add @newton-xyz/policy-pack-balancer
 
 ```ts
 import { balancer } from "@newton-xyz/policy-pack-balancer";
-import { encodePolicyParams } from "@newton-xyz/policy-pack-shared";
+import { encodePolicyParams } from "@newton-xyz/policy-core";
 
 const params = balancer.paramsSchema.parse({
   max_token_weight_pct: 80,

@@ -5,7 +5,7 @@
 // fetching, no Rego coupling. It exists to lock the AST-lint contract:
 // the only thing that matters is the return-statement shape.
 
-import { wrapOutput } from "@newton-xyz/policy-pack-shared";
+import { wrapOutput } from "@newton-xyz/policy-core";
 
 const PACK_ID = "fixture-good";
 

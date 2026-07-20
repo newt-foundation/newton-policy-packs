@@ -13,8 +13,8 @@
  *  - `bad.js`  — four distinct violation patterns. Lint MUST reject and
  *                surface all four with line numbers.
  *
- * Runs via the same test runner as `policy-pack-shared/src/wrap.test.ts`:
- * `node --import tsx --test`. Wired to CI under the `lint:policy-js:test` script.
+ * Runs via the node test runner (`node --import tsx --test`), the same one the
+ * packages use. Wired to CI under the `lint:policy-js:test` script.
  */
 
 import { strict as assert } from "node:assert";

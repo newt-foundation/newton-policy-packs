@@ -2,7 +2,7 @@
 
 A worked, end-to-end example of composing two published policy packs into **one** Newton policy: a vault deposit must pass **both** vaultsfyi's risk envelope **and** chainalysis's sanctions screening.
 
-This is the reference partners copy. It exercises the full composite-policy surface shipped across the four-phase rollout (`@newton-xyz/policy-pack-shared`). For the conceptual guide, see [`docs/writing-composite-policies.md`](../../docs/writing-composite-policies.md).
+This is the reference partners copy. It exercises the full composite-policy surface shipped in `@newton-xyz/policy-core`. For the conceptual guide, see [`docs/writing-composite-policies.md`](../../docs/writing-composite-policies.md).
 
 ## What's here
 
@@ -28,7 +28,7 @@ At eval time the AVS runs both WASMs, merges their outputs into one `data.wasm` 
 
 ## 1. The Rego
 
-Each oracle's output lives under its short pack id (`data.wasm.vaultsfyi.*`, `data.wasm.chainalysis.*` — the Phase 0 namespacing). Params live under the same short id (`data.params.vaultsfyi.*` — the composite manifest convention). The deny rules are copied from each pack's standalone `policy.rego`; the only rewrite is the params side from flat `data.params` to namespaced `data.params.<short-id>`.
+Each oracle's output lives under its short pack id (`data.wasm.vaultsfyi.*`, `data.wasm.chainalysis.*` — the Phase 0 namespacing). Params live under their short id inside the manifest's `params` slice, and the AVS injects the on-chain `policyParams` bytes verbatim as `data.params` (no manifest unwrap), so the Rego reads curator params at the DOUBLED path `data.params.params.vaultsfyi.*`. The deny rules are copied from each pack's standalone `policy.rego`; the only rewrite is the params side from flat `data.params` to `data.params.params.<short-id>`. Reading the single `data.params.<short-id>` yields undefined and fails the gate open.
 
 `allow` is **fail-closed**: it requires both oracles' fields to be well-formed AND zero denies, so an oracle error payload (`{"vaultsfyi": {"error": "..."}}`) can't fail open.
 
@@ -63,7 +63,7 @@ newton-cli policy deploy \
 See [`src/example.ts`](./src/example.ts) for the full flow. The shape:
 
 ```ts
-import { defineComposite, encodeCompositePolicyPack } from "@newton-xyz/policy-pack-shared";
+import { defineComposite, encodeCompositePolicyPack } from "@newton-xyz/policy-core";
 import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 
