@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
-import { generateCompositeParamsSchema } from "@newton-xyz/policy-pack-shared";
+import { generateCompositeParamsSchema } from "@newton-xyz/policy-core";
 import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

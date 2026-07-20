@@ -1,7 +1,7 @@
 /**
  * Worked example — composing the vaultsfyi + chainalysis packs into one
  * composite Newton policy, end to end, using the published
- * `@newton-xyz/policy-pack-shared` composite API.
+ * `@newton-xyz/policy-core` composite API.
  *
  * This file typechecks against the real workspace packages — it is the
  * executable proof that the composite curator path in
@@ -14,7 +14,7 @@ import {
 	encodeCompositePolicyPack,
 	getPolicyManifest,
 	introspectComposite,
-} from "@newton-xyz/policy-pack-shared";
+} from "@newton-xyz/policy-core";
 import { chainalysis } from "@newton-xyz/policy-pack-chainalysis";
 import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
 import { type Address, createPublicClient, http } from "viem";

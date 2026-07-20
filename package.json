@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
+    "@newton-xyz/policy-core": "^0.2.0",
     "@bytecodealliance/componentize-js": "^0.21.0",
     "@bytecodealliance/jco": "^1.23.0",
     "@changesets/cli": "^2.27.0",

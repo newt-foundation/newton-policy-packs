@@ -1,4 +1,4 @@
-import type { PrepareQueryArgs, PrepareQueryResult } from "@newton-xyz/policy-pack-shared";
+import type { PrepareQueryArgs, PrepareQueryResult } from "@newton-xyz/policy-core";
 import type { WasmArgs } from "./wasm-args";
 
 /**
