@@ -10,7 +10,7 @@
     "test": "node --import tsx --test src/*.test.ts"
   },
   "dependencies": {
-    "@newton-xyz/policy-pack-shared": "workspace:*",
+    "@newton-xyz/policy-core": "^0.2.0",
     "@newton-xyz/policy-pack-vaultsfyi": "workspace:*",
     "@newton-xyz/policy-pack-chainalysis": "workspace:*"
   },

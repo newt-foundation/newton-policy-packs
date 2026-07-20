@@ -1,13 +1,13 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import { definePolicyPack } from "@newton-xyz/policy-pack-shared";
+import { defineOracle } from "@newton-xyz/policy-core";
 import { z } from "zod";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
 import { type Params, ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
-import { type Secrets, SecretsSchema } from "./secrets";
-import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
+import { SecretsSchema } from "./secrets";
+import { WasmArgsSchema } from "./wasm-args";
 
 export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
 
@@ -54,11 +54,11 @@ export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>
  * Pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. The
  * on-chain `policyParams` byte format is handled by the canonical
  * `encodePolicyParams` / `decodePolicyParams` utilities in
- * `@newton-xyz/policy-pack-shared` (UTF-8 JSON, sorted keys) — not per-pack.
+ * `@newton-xyz/policy-core` (UTF-8 JSON, sorted keys) — not per-pack.
  *
  * ```ts
  * import { vaultsfyi } from "@newton-xyz/policy-pack-vaultsfyi";
- * import { encodePolicyParams } from "@newton-xyz/policy-pack-shared";
+ * import { encodePolicyParams } from "@newton-xyz/policy-core";
  *
  * const params = {
  *   apy_z_max: 3,
@@ -72,7 +72,7 @@ export const RefinedParamsSchema = (ParamsSchema as unknown as z.ZodType<Params>
  * const policyParams = encodePolicyParams(vaultsfyi, params);
  * ```
  */
-export const vaultsfyi = definePolicyPack({
+export const vaultsfyi = defineOracle({
 	id: `${PACK_NAME}/risk-envelope/v1`,
 	paramsSchema: RefinedParamsSchema,
 	wasmArgsSchema: WasmArgsSchema,

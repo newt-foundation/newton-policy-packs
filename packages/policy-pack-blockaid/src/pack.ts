@@ -1,12 +1,12 @@
 // Hand-written canonical export — survives `pnpm gen:bindings` regen.
 // The generated `index.ts` re-exports `pack.ts` when present.
-import { definePolicyPack } from "@newton-xyz/policy-pack-shared";
+import { defineOracle } from "@newton-xyz/policy-core";
 import { deployments } from "./deployments";
 import { PACK_AUTHOR, PACK_DESCRIPTION, PACK_LINK, PACK_NAME, PACK_VERSION } from "./metadata";
-import { type Params, ParamsSchema } from "./params";
+import { ParamsSchema } from "./params";
 import { prepareQuery } from "./prepare-query";
-import { type Secrets, SecretsSchema } from "./secrets";
-import { type WasmArgs, WasmArgsSchema } from "./wasm-args";
+import { SecretsSchema } from "./secrets";
+import { WasmArgsSchema } from "./wasm-args";
 
 export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
 
@@ -15,7 +15,7 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  *
  * Pass to `createShield(...)` from `@newton-xyz/newton-shield-sdk`. Encoding
  * for the on-chain `policyParams` blob is handled by `encodePolicyParams` /
- * `decodePolicyParams` in `@newton-xyz/policy-pack-shared` (UTF-8 JSON,
+ * `decodePolicyParams` in `@newton-xyz/policy-core` (UTF-8 JSON,
  * sorted keys) — not per-pack.
  *
  * `prepareQuery` derives the Blockaid `chain` slug from `publicClient.chain.id`
@@ -23,7 +23,7 @@ export { type PrepareQueryOptions, prepareQuery } from "./prepare-query";
  * these mirror the on-chain transaction the depositor is about to submit, so
  * they can't be inferred from `PrepareQueryArgs` alone.
  */
-export const blockaid = definePolicyPack({
+export const blockaid = defineOracle({
 	id: `${PACK_NAME}/transaction-scan/v1`,
 	paramsSchema: ParamsSchema,
 	wasmArgsSchema: WasmArgsSchema,

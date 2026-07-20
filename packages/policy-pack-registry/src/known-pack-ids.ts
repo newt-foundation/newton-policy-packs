@@ -4,11 +4,12 @@
  *
  * ROLE (v2): this is a PROVENANCE registry, NOT a composition gate. Composition
  * never blocks on membership - an unknown short id is a normal custom oracle
- * (see definePolicyPack). Presence here means "this short id is a first-party
- * name", which `classifyProvenance` (provenance.ts) uses together with the
- * generated audited-address map (`known-pack-provenance.generated.ts`) to tell
- * Newton's audited pack from a curator lookalike. `isKnownPackId` narrows a
- * `string` to `KnownPackId` at that boundary.
+ * (see `defineOracle` in `@newton-xyz/policy-core`). Presence here means "this
+ * short id is a first-party name", which `classifyProvenance` (in policy-core)
+ * uses together with the generated audited-address map
+ * (`known-pack-provenance.generated.ts`) to tell Newton's audited pack from a
+ * curator lookalike. `isKnownPackId` narrows a `string` to `KnownPackId` at that
+ * boundary.
  *
  * Adding a new pack: add its short id here in the same PR that adds the pack
  * code. `scripts/generate-bindings.ts` cross-checks the discovered pack list

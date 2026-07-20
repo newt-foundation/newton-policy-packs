@@ -1,14 +1,14 @@
 {
-	"name": "@newton-xyz/policy-pack-shared",
-	"version": "0.9.0",
-	"description": "Shared TypeScript contract for Newton policy packs. Defines the PolicyPack<Params, WasmArgs, Secrets> interface that @newton-xyz/newton-shield-sdk consumes.",
+	"name": "@newton-xyz/policy-pack-registry",
+	"version": "0.1.0",
+	"description": "Provider-owned trust data for Newton policy packs: the first-party pack-id registry and the audited policyData address map. Injected into @newton-xyz/policy-core's classifyProvenance.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
-	"homepage": "https://github.com/newt-foundation/newton-policy-packs/tree/main/packages/policy-pack-shared",
+	"homepage": "https://github.com/newt-foundation/newton-policy-packs/tree/main/packages/policy-pack-registry",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/newt-foundation/newton-policy-packs.git",
-		"directory": "packages/policy-pack-shared"
+		"directory": "packages/policy-pack-registry"
 	},
 	"bugs": {
 		"url": "https://github.com/newt-foundation/newton-policy-packs/issues"
@@ -18,8 +18,8 @@
 		"newton-protocol",
 		"policy-pack",
 		"shield",
-		"vault",
-		"curator"
+		"provenance",
+		"registry"
 	],
 	"publishConfig": {
 		"access": "public"
@@ -48,17 +48,12 @@
 		"test": "node --import tsx --test src/*.test.ts"
 	},
 	"peerDependencies": {
-		"viem": "^2.0.0",
-		"zod": "^3.0.0"
-	},
-	"dependencies": {
-		"zod-to-json-schema": "^3.25.2"
+		"@newton-xyz/policy-core": ">=0.2.0 <1.0.0"
 	},
 	"devDependencies": {
+		"@newton-xyz/policy-core": "^0.2.0",
 		"tsup": "^8.5.1",
 		"tsx": "^4.19.0",
-		"typescript": "^5.5.0",
-		"viem": "^2.0.0",
-		"zod": "^3.23.0"
+		"typescript": "^5.5.0"
 	}
 }

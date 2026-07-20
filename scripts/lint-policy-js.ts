@@ -5,7 +5,7 @@
  * **What this enforces.** Any `return JSON.stringify(...)` callsite inside a
  * `<pack>/policy.js` file is a violation. The canonical post-Phase-0 shape is
  * `return wrapOutput(PACK_ID, payload);` directly — `wrapOutput` (from
- * `@newton-xyz/policy-pack-shared`) already returns a JSON-stringified
+ * `@newton-xyz/policy-core`) already returns a JSON-stringified
  * `{ [PACK_ID]: payload }`, so wrapping it again with `JSON.stringify` would
  * produce double-escaped garbage. Any path that calls `JSON.stringify`
  * explicitly in a `return` statement is bypassing the wrapper.
@@ -301,13 +301,13 @@ function main(): void {
 
 	if (newViolations.length > 0) {
 		console.error(
-			`✗ lint-policy-js: ${newViolations.length} NEW violation(s) — \`return JSON.stringify(...)\` is not allowed in <pack>/policy.js. Use \`return wrapOutput(PACK_ID, payload);\` directly (\`wrapOutput\` already returns JSON-stringified output, so wrapping it with \`JSON.stringify\` would double-escape). Helper ships in @newton-xyz/policy-pack-shared (Phase 0 § Stream A).\n`,
+			`✗ lint-policy-js: ${newViolations.length} NEW violation(s) — \`return JSON.stringify(...)\` is not allowed in <pack>/policy.js. Use \`return wrapOutput(PACK_ID, payload);\` directly (\`wrapOutput\` already returns JSON-stringified output, so wrapping it with \`JSON.stringify\` would double-escape). Helper ships in @newton-xyz/policy-core (Phase 0 § Stream A).\n`,
 		);
 		for (const v of newViolations) {
 			console.error(`  ${v.file}:${v.line}:${v.column}  ${v.snippet}`);
 		}
 		console.error(
-			'\nFix: import { wrapOutput } from "@newton-xyz/policy-pack-shared" and replace `return JSON.stringify(payload)` with `return wrapOutput(PACK_ID, payload)`.\n',
+			'\nFix: import { wrapOutput } from "@newton-xyz/policy-core" and replace `return JSON.stringify(payload)` with `return wrapOutput(PACK_ID, payload)`.\n',
 		);
 	}
 

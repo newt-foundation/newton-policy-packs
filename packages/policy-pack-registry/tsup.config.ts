@@ -8,5 +8,5 @@ export default defineConfig({
 	clean: true,
 	platform: "neutral",
 	target: "es2022",
-	external: ["viem", "zod"],
+	external: ["@newton-xyz/policy-core"],
 });

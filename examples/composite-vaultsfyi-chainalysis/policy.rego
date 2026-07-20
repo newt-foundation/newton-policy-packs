@@ -7,26 +7,34 @@ import future.keywords
 # oracles (reused from the published packs — no new WASM build).
 #
 # Namespacing conventions this composite relies on:
-#   - WASM outputs:  data.wasm.<short-pack-id>.<field>   (Phase 0 — wrapOutput)
-#   - Curator params: data.params.<short-pack-id>.<field> (Phase 1.5 — manifest)
+#   - WASM outputs:  data.wasm.<short-pack-id>.<field>          (Phase 0 — wrapOutput)
+#   - Curator params: data.params.params.<short-pack-id>.<field> (Phase 1.5 — manifest)
 #
 # Both halves are namespaced by SHORT pack id ("vaultsfyi", "chainalysis"),
 # so the two oracles' outputs never collide even though, e.g., vaultsfyi
 # emits `risk_score` as a number and chainalysis emits it as a string.
+#
+# Why params live under a DOUBLED `params`: the AVS injects the on-chain
+# `policyParams` blob verbatim as `data.params` with NO manifest unwrap. The
+# blob is the composite manifest envelope `{_manifest, modules, params}`, so a
+# curator param authored under `params.<shortId>` is read on-chain at
+# `data.params.params.<shortId>`. Reading `data.params.<shortId>` (single
+# `params`) yields undefined -> every threshold compares against undefined ->
+# no deny fires -> the gate fails OPEN. This doubled path is the fix.
 
 default allow := false
 
 # vaultsfyi oracle slice + its params slice
 vf := data.wasm.vaultsfyi
-vfp := data.params.vaultsfyi
+vfp := data.params.params.vaultsfyi
 
 # chainalysis oracle slice + its params slice
 ca := data.wasm.chainalysis
-cap := data.params.chainalysis
+cap := data.params.params.chainalysis
 
 # ---------------------------------------------------------------------------
 # vaultsfyi deny rules (copied from vaultsfyi/policy.rego, params re-namespaced
-# from flat `data.params` to `data.params.vaultsfyi`)
+# from flat `data.params` to `data.params.params.vaultsfyi`)
 # ---------------------------------------------------------------------------
 
 deny contains "vaultsfyi:apy_spike" if vf.apy_z_score > vfp.apy_z_max
@@ -57,7 +65,7 @@ deny contains "vaultsfyi:allocation_changed" if {
 
 # ---------------------------------------------------------------------------
 # chainalysis deny rules (copied from chainalysis/policy.rego, params
-# re-namespaced to `data.params.chainalysis`)
+# re-namespaced to `data.params.params.chainalysis`)
 # ---------------------------------------------------------------------------
 
 deny contains "chainalysis:sanctioned" if {
