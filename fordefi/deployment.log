@@ -1,0 +1,140 @@
+=== Tue Aug  4 14:48:58 PDT 2026 :: fordefi jco componentize ===
+=== Tue Aug  4 14:49:02 PDT 2026 :: fordefi sync source policy.rego -> dist ===
+=== Tue Aug  4 14:49:02 PDT 2026 :: fordefi generate-cids (Pinata IPFS upload) ===
+./scripts/upload.sh: line 106: newton-cli: command not found
+=== Tue Aug  4 14:51:34 PDT 2026 :: fordefi policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Tue Aug  4 14:51:34 PDT 2026 :: fordefi sync source policy.rego -> dist ===
+=== Tue Aug  4 14:51:34 PDT 2026 :: fordefi generate-cids (Pinata IPFS upload) ===
+Error: Failed to deserialize configuration: missing field `eth_rpc_url`
+
+Location:
+    bin/newton-cli/src/cli/mod.rs:121:56
+=== Tue Aug  4 14:52:50 PDT 2026 :: fordefi policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Tue Aug  4 14:52:50 PDT 2026 :: fordefi sync source policy.rego -> dist ===
+=== Tue Aug  4 14:52:50 PDT 2026 :: fordefi generate-cids (Pinata IPFS upload) ===
+Error: params_schema.json not found in "./fordefi/dist"
+
+Location:
+    bin/newton-cli/src/commands/policy_files.rs:103:9
+=== Tue Aug  4 14:53:58 PDT 2026 :: fordefi policy.wasm is up-to-date (cache stamp matches) — reusing ===
+=== Tue Aug  4 14:53:58 PDT 2026 :: fordefi sync source policy.rego -> dist ===
+=== Tue Aug  4 14:53:58 PDT 2026 :: fordefi generate-cids (Pinata IPFS upload) ===
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./fordefi/dist"
+policyCodeHash: 0xdff79cb88f82a89746e7ac186418fef9f6b16589dbf54fd060c9026581a5633f
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./fordefi/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+Public IPFS Link: https://ipfs.io/ipfs/bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./fordefi/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreia4q3wcqmculxzh5qm5d6wq3fs5oa4cjuka6z3rfsjyqaieub72ey
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafkreia4q3wcqmculxzh5qm5d6wq3fs5oa4cjuka6z3rfsjyqaieub72ey
+Public IPFS Link: https://ipfs.io/ipfs/bafkreia4q3wcqmculxzh5qm5d6wq3fs5oa4cjuka6z3rfsjyqaieub72ey
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./fordefi/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidicejbrr4rzdkpmwzeo6woowktphitbi6hpxj3zvmctakvlpcsp4
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafkreidicejbrr4rzdkpmwzeo6woowktphitbi6hpxj3zvmctakvlpcsp4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidicejbrr4rzdkpmwzeo6woowktphitbi6hpxj3zvmctakvlpcsp4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./fordefi/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifvin644azofqx5y7km3n7g5butk6d632464f4gw3x6j7hrljnlwa
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafkreifvin644azofqx5y7km3n7g5butk6d632464f4gw3x6j7hrljnlwa
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifvin644azofqx5y7km3n7g5butk6d632464f4gw3x6j7hrljnlwa
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./fordefi/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./fordefi/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+Direct IPFS Link gateway_link=copper-charming-constrictor-615.mypinata.cloud/bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+Public IPFS Link: https://ipfs.io/ipfs/bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./fordefi/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge",
+  "policyCid": "bafkreia4q3wcqmculxzh5qm5d6wq3fs5oa4cjuka6z3rfsjyqaieub72ey",
+  "schemaCid": "bafkreidicejbrr4rzdkpmwzeo6woowktphitbi6hpxj3zvmctakvlpcsp4",
+  "entrypoint": "fordefi_transaction_safety.allow",
+  "policyMetadataCid": "bafkreifvin644azofqx5y7km3n7g5butk6d632464f4gw3x6j7hrljnlwa",
+  "policyDataMetadataCid": "bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq",
+  "secretsSchemaCid": "bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba",
+  "policyCodeHash": "0xdff79cb88f82a89746e7ac186418fef9f6b16589dbf54fd060c9026581a5633f"
+}
+=== Tue Aug  4 14:54:09 PDT 2026 :: fordefi UPLOAD DONE ===
+wrote ./fordefi/dist/policy_cids.json
+=== Tue Aug  4 14:55:26 PDT 2026 :: fordefi policy-data deploy (prod/11155111) ===
+Using expire_after_blocks from command: 500 blocks
+Deploying policy data:
+  wasmCid: bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+  secretsSchemaCid: bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+  metadataCid: bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+  expireAfter: 500 blocks 
+
+Policy data deployed successfully at address: 0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
+Policy Data Address: 0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
+DATA_ADDR=0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
+=== Tue Aug  4 14:55:49 PDT 2026 :: fordefi DEPLOY DONE (prod/11155111) ===
+fordefi DATA=0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
+wrote ./fordefi/dist/last_deploy.json
+
+Policy Address: 0x5Ee4A170C1B97A7918A17D4B85823994b6f1FF83=== Tue Aug  4 15:18:31 PDT 2026 :: fordefi policy-data deploy (prod/84532) ===
+Error: Failed to deserialize configuration: missing field `eth_rpc_url`
+
+Location:
+    bin/newton-cli/src/cli/mod.rs:121:56
+=== Tue Aug  4 15:19:42 PDT 2026 :: fordefi policy-data deploy (prod/84532) ===
+Using expire_after_blocks from command: 500 blocks
+Deploying policy data:
+  wasmCid: bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+  secretsSchemaCid: bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+  metadataCid: bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+  expireAfter: 500 blocks 
+
+Policy data deployed successfully at address: 0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+Policy Data Address: 0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+DATA_ADDR=0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+=== Tue Aug  4 15:19:43 PDT 2026 :: fordefi DEPLOY DONE (prod/84532) ===
+fordefi DATA=0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+wrote ./fordefi/dist/last_deploy.json
+
+Policy Address: 0x7AA6F4e0250695f2d029968D157561404d55f7DA
