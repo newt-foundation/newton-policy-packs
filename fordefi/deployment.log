@@ -117,4 +117,24 @@ DATA_ADDR=0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
 fordefi DATA=0xAd8F87Ab9305B55ABD3E077353464d8D11aCE747
 wrote ./fordefi/dist/last_deploy.json
 
-Policy Address: 0x5Ee4A170C1B97A7918A17D4B85823994b6f1FF83
+Policy Address: 0x5Ee4A170C1B97A7918A17D4B85823994b6f1FF83=== Tue Aug  4 15:18:31 PDT 2026 :: fordefi policy-data deploy (prod/84532) ===
+Error: Failed to deserialize configuration: missing field `eth_rpc_url`
+
+Location:
+    bin/newton-cli/src/cli/mod.rs:121:56
+=== Tue Aug  4 15:19:42 PDT 2026 :: fordefi policy-data deploy (prod/84532) ===
+Using expire_after_blocks from command: 500 blocks
+Deploying policy data:
+  wasmCid: bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge
+  secretsSchemaCid: bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba
+  metadataCid: bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq
+  expireAfter: 500 blocks 
+
+Policy data deployed successfully at address: 0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+Policy Data Address: 0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+DATA_ADDR=0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+=== Tue Aug  4 15:19:43 PDT 2026 :: fordefi DEPLOY DONE (prod/84532) ===
+fordefi DATA=0x9A0Da356Bc6454dF4eE1298993F3dA7f6f99e92e
+wrote ./fordefi/dist/last_deploy.json
+
+Policy Address: 0x7AA6F4e0250695f2d029968D157561404d55f7DA
