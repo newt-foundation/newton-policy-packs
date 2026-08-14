@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Accountable DVN attestation policy WASM at evaluation time. Shape confirmed 2026-08-13 against a live Accountable node (axis.accountable.capital:8443/dashboard) — see README 'Verified against a live node'.",
+  "properties": {
+    "nodeUrl": {
+      "type": "string",
+      "description": "Base URL of the specific attested entity's Accountable node (e.g. 'https://axis.accountable.capital:8443'). Accountable runs one self-hosted node per attested entity, not one shared multi-tenant API — this identifies which entity's book is being evaluated."
+    },
+    "dataSource": {
+      "type": "string",
+      "description": "Key into that node's dataSources map (e.g. 'Blockchain', or an exchange/custodian source name) — which of the entity's connected sources this evaluation gates on."
+    },
+    "rpcUrl": {
+      "type": "string",
+      "description": "Ethereum-compatible JSON-RPC endpoint used to read the on-chain price the attested value is compared against."
+    },
+    "onchainPrice": {
+      "type": "object",
+      "description": "On-chain price source the mandate author trusts as authoritative for this entity's token (e.g. an ERC-4626 share-price accessor). Caller-supplied, not a pack default — which price counts as authoritative is a mandate-author decision.",
+      "properties": {
+        "address": { "type": "string", "description": "Contract address to call (0x-prefixed)." },
+        "selector": { "type": "string", "description": "4-byte function selector to call (0x-prefixed)." },
+        "decimals": {
+          "type": "integer",
+          "description": "Decimals to scale the raw eth_call return by. Defaults to 18 when omitted."
+        }
+      },
+      "required": ["address", "selector"]
+    },
+    "prevSnapshot": {
+      "type": ["object", "null"],
+      "description": "Optional prior evaluation's snapshot_last_updated_ms for this exact (nodeUrl, dataSource) pair. No 'carry-forward' field exists on Accountable's node API, so this pack detects a reused (non-fresh) reading by diffing lastUpdated against the previous check, the same way the redstone pack detects sustained divergence. Omit or set to null on the first-ever evaluation.",
+      "properties": {
+        "lastUpdatedMs": {
+          "type": "number",
+          "description": "The dataSource's lastUpdated value (ms epoch) recorded at the previous evaluation."
+        }
+      }
+    },
+    "roster": {
+      "type": ["object", "null"],
+      "description": "Whether this entity/node is on the mandate author's covered-entity roster. A single Accountable node has no visibility into which other entities the DVN covers, so this is a caller-supplied fact (from whatever layer aggregates across nodes), not something this oracle fetches.",
+      "properties": {
+        "onRoster": { "type": "boolean" }
+      }
+    },
+    "networkStatus": {
+      "type": ["object", "null"],
+      "description": "Network-wide success/total counts for the circuit-breaker check. Same reasoning as roster: a single node cannot report on the health of the network as a whole, so this is caller-supplied.",
+      "properties": {
+        "successCount": { "type": "number" },
+        "totalCount": { "type": "number" }
+      }
+    }
+  },
+  "required": ["nodeUrl", "dataSource", "rpcUrl", "onchainPrice"]
+}

@@ -1,0 +1,10 @@
+{
+  "entrypoint": "accountable_dvn_attestation.allow",
+  "policyCid": "bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q",
+  "policyCodeHash": "0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942",
+  "policyDataMetadataCid": "bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom",
+  "policyMetadataCid": "bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze",
+  "schemaCid": "bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm",
+  "secretsSchemaCid": "bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi",
+  "wasmCid": "bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy"
+}

@@ -1,0 +1,124 @@
+Loading cli config from: "/Users/cheyenne/.newton/newton-cli.toml"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./accountable/dist"
+policyCodeHash: 0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./accountable/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy
+Public IPFS Link: https://ipfs.io/ipfs/bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./accountable/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./accountable/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./accountable/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./accountable/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./accountable/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi
+Direct IPFS Link gateway_link=lime-calm-shark-184.mypinata.cloud/bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./accountable/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy",
+  "policyCid": "bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q",
+  "schemaCid": "bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm",
+  "entrypoint": "accountable_dvn_attestation.allow",
+  "policyMetadataCid": "bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze",
+  "policyDataMetadataCid": "bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom",
+  "secretsSchemaCid": "bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi",
+  "policyCodeHash": "0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942"
+}
+Loading cli config from: "/Users/cheyenne/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=12000ms (12s), result=25 blocks
+Deploying policy data:
+  wasmCid: bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy
+  secretsSchemaCid: bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi
+  metadataCid: bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom
+  expireAfter: 25 blocks 
+
+Policy data deployed successfully at address: 0x732C4F0e79b63A6c6e7B2f960ca4F35314AdE0C7
+Policy Data Address: 0x732C4F0e79b63A6c6e7B2f960ca4F35314AdE0C7
+Loading cli config from: "/Users/cheyenne/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942
+Pinned policyCodeHash 0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942 in "./accountable/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: accountable_dvn_attestation.allow
+  policyCid: bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q
+  schemaCid: bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm
+  policyData: [0x732c4f0e79b63a6c6e7b2f960ca4f35314ade0c7]
+  metadataCid: bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze 
+
+Policy deployed successfully at address: 0x16f9a825354c728c592e89A415B45d0acD77e2b7
+Loading cli config from: "/Users/cheyenne/.newton/newton-cli.toml"
+Converting 300 seconds to blocks: block_time=2000ms (2s), result=150 blocks
+Deploying policy data:
+  wasmCid: bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy
+  secretsSchemaCid: bafkreihh66lcgoh2a3ju2sk7ep4d3gd7kunlzs72rjlfadmpdqttj6mffi
+  metadataCid: bafkreifv4rv4jncjkefloi55i533dm24rrj3pa72fj3bddd5bxjxbq7gom
+  expireAfter: 150 blocks 
+
+Policy data deployed successfully at address: 0x1E5eD81A28970b082A2B7E1983588DB97F3055ea
+Policy Data Address: 0x1E5eD81A28970b082A2B7E1983588DB97F3055ea
+Loading cli config from: "/Users/cheyenne/.newton/newton-cli.toml"
+Using policyCodeHash from policy_cids.json: 0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942
+Pinned policyCodeHash 0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942 in "./accountable/dist/policy_cids.json"
+Deploying policy:
+  entrypoint: accountable_dvn_attestation.allow
+  policyCid: bafkreifezvwbbv3fcunl2ms3kmb73mtr3wc2usc6emesqxdiv6e5fddk4q
+  schemaCid: bafkreidgt4iu7dklw6ruwqn6o2mskwpvhb3tohvqabpbfpqgglexyueabm
+  policyData: [0x1e5ed81a28970b082a2b7e1983588db97f3055ea]
+  metadataCid: bafkreidueuuf4vcmzpxgce7fwccvl3hzrzuzp6isl4yffnhdlcsbzfmeze 
+
+Policy deployed successfully at address: 0xdAcE26Bdf9235Ca3189F31ddE2b8d77Bd1D1Fe47

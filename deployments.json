@@ -8,6 +8,24 @@
     "11155111": "Ethereum Sepolia"
   },
   "packs": {
+    "accountable": {
+      "11155111": {
+        "stagef": {
+          "policyData": "0x732C4F0e79b63A6c6e7B2f960ca4F35314AdE0C7",
+          "wasmCid": "bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy",
+          "policyCodeHash": "0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942",
+          "deployedAt": "2026-08-13"
+        }
+      },
+      "84532": {
+        "stagef": {
+          "policyData": "0x1E5eD81A28970b082A2B7E1983588DB97F3055ea",
+          "wasmCid": "bafybeicn5b52ira5zmvskiad5qhzzdn4dr4rrqawhvvu5o5qkku4wwayzy",
+          "policyCodeHash": "0x82d057541a771855b103f11e374ecb5dcc6562c4a1e1f72f76a7771ac4d6e942",
+          "deployedAt": "2026-08-13"
+        }
+      }
+    },
     "balancer": {
       "1": {
         "prod": {

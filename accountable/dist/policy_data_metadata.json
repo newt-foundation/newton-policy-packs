@@ -1,0 +1,7 @@
+{
+  "name": "accountable Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://accountable.capital/dvn",
+  "description": "Fetches Accountable's published claim for a venue (verifiability, attested value, snapshot timestamp/status, carry-forward flag), the network-wide roster and success/total counts, and the on-chain price via eth_call, returning normalized fields for the Rego gate"
+}

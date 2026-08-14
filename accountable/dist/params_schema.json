@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Accountable DVN attestation gate. Parameter names match Tempora's own published aCV mandate vocabulary (proof_max_age_seconds, min_verifiability_rung, max_nav_deviation_pct) one-to-one.",
+  "properties": {
+    "proof_max_age_seconds": {
+      "type": "number",
+      "description": "Maximum allowed age, in seconds, of Accountable's snapshot for the venue under consideration. A proof older than this denies."
+    },
+    "min_verifiability_rung": {
+      "type": "integer",
+      "description": "Floor on Accountable's ordinal verifiability rating for the venue (their published scale, currently 1-6). A proof weaker than this denies."
+    },
+    "max_nav_deviation_pct": {
+      "type": "number",
+      "description": "Maximum allowed divergence, as a percentage, between Accountable's attested value and the on-chain price read at evaluation time. A wider divergence denies."
+    },
+    "deny_on_carry_forward_proof": {
+      "type": "boolean",
+      "description": "Deny when Accountable flags the snapshot as a carried-forward (reused prior) value rather than a fresh proof, even if it is still within proof_max_age_seconds."
+    },
+    "require_roster_membership": {
+      "type": "boolean",
+      "description": "Deny when the venue is absent from Accountable's covered-venue roster."
+    },
+    "min_success_ratio": {
+      "type": "number",
+      "description": "Circuit breaker on Accountable's network-wide success_count/total_count. Denies when the ratio drops below this floor, e.g. during a provider-side degradation."
+    }
+  },
+  "required": [
+    "proof_max_age_seconds",
+    "min_verifiability_rung",
+    "max_nav_deviation_pct",
+    "deny_on_carry_forward_proof",
+    "require_roster_membership",
+    "min_success_ratio"
+  ]
+}

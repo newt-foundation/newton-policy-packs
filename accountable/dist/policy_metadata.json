@@ -1,0 +1,7 @@
+{
+  "name": "accountable",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://accountable.capital/dvn",
+  "description": "Gates vault allocations on Accountable's DVN attestations: proof freshness, verifiability-rung floor, venue roster admission, network-degradation circuit breaker, and NAV-vs-onchain-price divergence"
+}
