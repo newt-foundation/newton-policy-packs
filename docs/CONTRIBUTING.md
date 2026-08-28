@@ -332,6 +332,157 @@ The changeset file lands in `.changeset/` as part of the deploy PR. After the de
 
 > **Pre-1.0 caret-rule note.** `@newton-xyz/policy-pack-shared` is at `0.x.y` today. In semver, `^0.4.0` for a 0.x version pins to `>=0.4.0 <0.5.0`. So a `minor` bump on `shared` (`0.4.0 → 0.5.0`) is *outside* the existing peer range and will cascade every dependent pack as a `major`. If you need a true non-cascading shared bump, use `patch`. See [ADR 0001](./architecture/0001-policy-pack-shared-as-peer-dep.md).
 
+## WASM runtime constraints (learned the hard way)
+
+`policy.js` runs inside a componentize-js/StarlingMonkey WASM component with a
+constrained heap and no host-side decompression. Several things that are
+unremarkable in Node will crash the component outright, and the failure mode is
+unhelpful — `WASM execution failed: Parse error: wasm execution failed: error
+while executing at wasm backtrace:` with no line number. Budget for these
+before you pick your endpoints.
+
+### Do not use `Map` or `Set` for anything large
+
+A `Map` keyed by ~1,950 entries **crashes the component**. The same payload
+fetches and `JSON.parse`s successfully; only the `Map` build fails. Plain
+objects with classic indexed `for` loops handle the identical data fine.
+
+```js
+// CRASHES on a few thousand entries
+const byDay = new Map();
+for (const [chain, series] of Object.entries(payload)) { /* ... */ }
+
+// Works
+const byDay = {};
+const keys = Object.keys(payload);
+for (let i = 0; i < keys.length; i++) { /* ... */ }
+```
+
+Small `Set`s (a handful of tags) are fine. The threshold is somewhere in the
+low thousands — don't go looking for it, just use plain objects when the size
+is driven by response data.
+
+### Watch the total payload size
+
+Rough ceilings observed against the current runtime:
+
+| Operation | Outcome |
+|---|---|
+| Fetch + decode a 2.98MB body (and nothing else) | works |
+| Fetch + `JSON.parse` a 273KB body | works |
+| `JSON.parse` a 1.14MB body | **traps** |
+| Hold a decoded document + slice one object out of it | works to **1.6MB**, traps at **1.7MB** |
+| Hold a 1.2MB document + brace-scan the *whole* thing | **traps** |
+
+Two separate limits are at work: how much you can hold, and how much you can
+then *do* with it. Decoding 2.98MB succeeds only because nothing follows it —
+add a slice and it traps. Scan length matters independently: a bounded scan
+(`indexOf` the key, then walk to its matching brace) is cheap regardless of
+document size, while scanning the full document traps well below the hold
+limit.
+
+`JSON.parse` on a multi-hundred-KB document builds a large object graph and is
+the usual culprit. Prefer endpoints that filter server-side. Check the
+provider's OpenAPI spec rather than guessing — parameters that "look
+obvious" are often silently ignored.
+
+### Slicing a bulk document you cannot filter
+
+When a provider only offers a bulk endpoint keyed by id (Pharos's
+`/api/redemption-backstops` returns all ~328 coins as 1.1MB with zero query
+parameters), cut your object out of the **raw text** and parse only that:
+
+```js
+function sliceKeyedObject(text, key) {
+  const needle = `"${key}":`;
+  const at = text.indexOf(needle);
+  if (at < 0) return null;
+  const start = text.indexOf("{", at + needle.length);
+  if (start < 0) return null;
+  const QUOTE = 34, BACKSLASH = 92, OPEN = 123, CLOSE = 125;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text.charCodeAt(i);   // NOT text[i] — see below
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === BACKSLASH) esc = true;
+      else if (c === QUOTE) inStr = false;
+      continue;
+    }
+    if (c === QUOTE) inStr = true;
+    else if (c === OPEN) depth++;
+    else if (c === CLOSE) { depth--; if (depth === 0) return text.slice(start, i + 1); }
+  }
+  return null;
+}
+```
+
+Use `charCodeAt(i)`, never `text[i]`: indexing a string allocates a fresh
+one-character string per iteration. The scan must also be string-aware, or a
+brace inside a string value throws off the depth count.
+
+This turns a 1.1MB document into a ~3KB parse. It does **not** save the
+download — you still pay the bytes and the rate limit — so treat it as a
+workaround, and ask the provider for a per-asset endpoint.
+
+### Guard the size, because a trap is worse than a deny
+
+Exceeding these limits **traps the component**: the evaluation returns no
+verdict at all rather than a deny a curator can act on. That is strictly worse
+than failing closed. If you slice a bulk document, refuse oversized ones
+explicitly so the failure arrives as a normal error envelope:
+
+```js
+const MAX_SLICEABLE_BYTES = 1500000;   // below the ~1.6MB measured ceiling
+
+if (text.length > MAX_SLICEABLE_BYTES) {
+  throw new Error(`provider: bulk document too large to slice (${text.length} bytes)`);
+}
+```
+
+The throw routes into `wrapOutput(PACK_ID, { error })`, and the Rego's
+groundedness checks turn that into a fail-closed deny with a readable reason.
+Size the threshold against the endpoint's growth: `/api/redemption-backstops`
+is ~1.14MB across 328 coins (~3.5KB each), so a 1.5MB guard leaves room for
+roughly 100 more coins before a curator sees a clear error instead of a crash.
+
+### gzip does not help
+
+The host returns the **raw compressed bytes** when you send
+`Accept-Encoding: gzip` (verified: response begins `0x1f 0x8b`), and there is no
+gunzip available inside the component. It shrinks the wire transfer but leaves
+you holding bytes you cannot decode.
+
+### No streaming, and no byte ranges you can rely on
+
+`newton-provider.wit` models the body as a single `list<u8>`:
+
+```wit
+record http-response { status: u16, headers: list<tuple<string, string>>, body: list<u8> }
+```
+
+There is no chunked or streaming primitive, so a response cannot be consumed
+incrementally. Some providers advertise `accept-ranges: bytes` and then ignore
+`Range` entirely (Pharos returns the full 2.98MB with a `200` for
+`Range: bytes=0-999`) — verify before relying on it.
+
+### Timestamps are not always unix numbers
+
+Arkham returns `updated_at` as an ISO-8601 string (`"2026-08-28T17:21:43Z"`).
+`Number()` on that yields `NaN`, which silently nulls out every freshness
+check rather than failing loudly. Parse defensively:
+
+```js
+const asNumber = Number(value);
+const seconds = Number.isFinite(asNumber) && asNumber > 0
+  ? (asNumber > 1e12 ? asNumber / 1000 : asNumber)
+  : Date.parse(String(value)) / 1000;
+```
+
+Also distinguish an *observation* timestamp from a *bucket* timestamp: a daily
+history row's `date` is the bucket, and reads as up to 24h stale even when the
+underlying observations are seconds old.
+
 ## Pack design checklist
 
 Before opening the pack PR, verify:

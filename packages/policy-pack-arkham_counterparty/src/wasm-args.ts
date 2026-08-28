@@ -18,9 +18,8 @@ export const WasmArgsSchema = z
 		chains: z
 			.string()
 			.describe(
-				"Optional comma-separated Arkham chain identifiers to scope the counterparty and flow lookups (e.g. 'ethereum,base'). Omitting this aggregates across every supported chain.",
-			)
-			.optional(),
+				"Comma-separated Arkham chain identifiers scoping the counterparty and flow lookups (e.g. 'ethereum' or 'ethereum,base'). REQUIRED: unscoped, /flow/address returns every chain's full daily history - over 1MB for an active wallet, which exhausts the WASM heap. Scoping to one chain brings it to roughly 270KB.",
+			),
 		transaction_amount_usd: z
 			.number()
 			.gte(0)

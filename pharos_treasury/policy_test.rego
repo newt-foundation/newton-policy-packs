@@ -8,11 +8,12 @@ default_params := {
 	"max_peg_deviation_bps": 50,
 	"max_stress_score": 40,
 	"require_redemption": true,
-	"approved_redemption_route_families": ["issuer-direct", "authorised-participant"],
-	"approved_access_models": ["permissionless", "kyc-gated"],
+	"approved_redemption_route_families": ["offchain-issuer", "authorised-participant"],
+	"approved_access_models": ["issuer-api", "permissionless"],
+	"required_route_status": "open",
 	"min_exit_capacity_multiple": 3,
 	"min_liquidity_score": 60,
-	"max_data_age_seconds": 900,
+	"max_data_age_seconds": 21600,
 }
 
 # A healthy, deeply liquid, directly redeemable stablecoin — $1M position
@@ -20,34 +21,37 @@ default_params := {
 clean_data := {
 	"stablecoin_id": "usdc-circle",
 	"symbol": "USDC",
-	"issuer": "Circle",
-	"price": 1.0002,
+	"issuer": "circle",
+	"contract_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+	"price": 1,
 	"peg_target": 1,
-	"peg_deviation_bps": 2,
+	"peg_deviation_bps": 0,
 	"depeg_active": false,
 	"depeg_severity": null,
 	"depeg_direction": null,
-	"supply": 60000000000,
-	"market_cap_usd": 60000000000,
-	"chains": ["ethereum", "base", "arbitrum"],
-	"stress_score": 8,
+	"depeg_pending_count": 0,
+	"supply": 73905912414,
+	"market_cap_usd": 73902401514,
+	"chain_count": 26,
+	"stress_score": 13,
 	"stress_band": "calm",
+	"stress_signals": {"supply": 0.22, "pool": 32.4, "liq": 34.4, "flow": 22.8, "yield": 30},
 	"active_stress_indicators": [],
-	"liquidity_score": 94,
-	"effective_tvl_usd": 850000000,
-	"exit_capacity_usd": 50000000,
-	"pool_count": 142,
-	"chain_count": 3,
-	"liquidity_concentration": 0.18,
+	"liquidity_score": 76,
+	"effective_tvl_usd": 1080490286,
+	"exit_capacity_usd": 25000000,
+	"pool_count": 2362,
+	"liquidity_concentration": 0.0171,
+	"durability_score": 81,
 	"redemption_available": true,
-	"redemption_route_family": "issuer-direct",
-	"redemption_access_model": "kyc-gated",
-	"redemption_route_status": "active",
-	"daily_limit_usd": 1000000000,
-	"immediate_capacity_usd": 250000000,
+	"redemption_route_family": "offchain-issuer",
+	"redemption_access_model": "issuer-api",
+	"redemption_route_status": "open",
+	"redemption_score": 63,
+	"immediate_capacity_usd": 5152335530,
 	"transaction_amount_usd": 1000000,
-	"exit_capacity_multiple": 50,
-	"data_age_seconds": 45,
+	"exit_capacity_multiple": 25,
+	"data_age_seconds": 8346,
 }
 
 wrap(inner) := {"pharos_treasury": inner}
@@ -86,7 +90,7 @@ test_small_negative_deviation_still_allows if {
 }
 
 test_deny_stress_above_max if {
-	d := with_data({"stress_score": 78, "stress_band": "elevated", "active_stress_indicators": ["liquidity_drain", "mint_burn_anomaly"]})
+	d := with_data({"stress_score": 78, "stress_band": "elevated", "active_stress_indicators": ["liq", "pool"]})
 	"stress_above_max" in pharos_treasury_risk.deny with data.params as default_params with data.wasm as d
 	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 }
@@ -128,7 +132,7 @@ test_deny_unapproved_access_model if {
 
 test_deny_route_status_impaired if {
 	d := with_data({"redemption_route_status": "impaired"})
-	"route_status_impaired" in pharos_treasury_risk.deny with data.params as default_params with data.wasm as d
+	"route_status_not_approved" in pharos_treasury_risk.deny with data.params as default_params with data.wasm as d
 	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 }
 
@@ -152,7 +156,7 @@ test_deny_liquidity_score_below_min if {
 }
 
 test_deny_stale_data if {
-	d := with_data({"data_age_seconds": 7200})
+	d := with_data({"data_age_seconds": 200000})
 	"stale_data" in pharos_treasury_risk.deny with data.params as default_params with data.wasm as d
 	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 }
@@ -193,7 +197,7 @@ test_stressed_asset_multiple_denies if {
 	"stress_above_max" in deny
 	"liquidity_score_below_min" in deny
 	"insufficient_exit_capacity" in deny
-	"route_status_impaired" in deny
+	"route_status_not_approved" in deny
 	count(deny) >= 6
 	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 }
@@ -210,4 +214,19 @@ test_missing_groundedness_field_does_not_allow if {
 	d := wrap(object.remove(clean_data, {"depeg_active"}))
 	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 	count(pharos_treasury_risk.deny) == 0 with data.params as default_params with data.wasm as d
+}
+
+# The redemption feed lags by hours; a sub-hour ceiling would deny healthy
+# assets constantly. Pins that the shipped default tolerates real-world lag.
+test_real_world_age_passes_default_ceiling if {
+	d := with_data({"data_age_seconds": 8346})
+	not "stale_data" in pharos_treasury_risk.deny with data.params as default_params with data.wasm as d
+	pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
+}
+
+# Pharos reports "open", not "active". A curator guessing "active" denies
+# every healthy asset — pin the trap so it is visible.
+test_active_status_guess_denies_everything if {
+	wrong := object.union(default_params, {"required_route_status": "active"})
+	"route_status_not_approved" in pharos_treasury_risk.deny with data.params as wrong with data.wasm as wrap(clean_data)
 }

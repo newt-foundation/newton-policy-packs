@@ -7,45 +7,57 @@ export const ParamsSchema = z
 	.object({
 		require_redemption_available: z
 			.boolean()
-			.describe("When true, an asset with no working direct redemption route denies outright."),
+			.describe("When true, an asset with no redemption route reported by Pharos denies outright."),
 		approved_route_families: z
 			.array(z.string())
 			.describe(
-				"Pharos redemption route families the curator will accept (e.g. 'issuer-direct', 'authorised-participant').",
+				"Pharos redemption route families the curator will accept. Observed values include 'offchain-issuer'.",
 			),
 		approved_access_models: z
 			.array(z.string())
 			.describe(
-				"Pharos redemption access models the curator will accept (e.g. 'permissionless', 'kyc-gated'). Governs who may redeem.",
+				"Pharos redemption access models the curator will accept. Observed values include 'issuer-api'. Governs who may redeem.",
 			),
 		approved_settlement_models: z
 			.array(z.string())
 			.describe(
-				"Pharos settlement models the curator will accept (e.g. 'same-day', 't-plus-one'). Governs how quickly redemption settles.",
+				"Pharos settlement models the curator will accept. Observed values include 'same-day'.",
 			),
 		required_route_status: z
 			.string()
 			.describe(
-				"The route status the asset must report to be admissible, typically 'active'. Anything else - impaired, suspended, degraded - denies.",
+				"The route status the asset must report to be admissible. Pharos reports 'open' for a working route - NOT 'active'.",
 			),
-		min_confidence: z
+		min_route_score: z
 			.number()
 			.gte(0)
-			.lte(1)
+			.lte(100)
 			.describe(
-				"Minimum Pharos confidence (0-1) in the reported redemption route before the policy will act on it.",
+				"Minimum Pharos redemption route score (0-100), the composite quality measure across access, settlement, capacity, cost and execution certainty. Pharos exposes no 0-1 confidence value; capacity_confidence is a qualitative band, not a number.",
 			),
-		min_daily_limit_multiple: z
+		approved_capacity_confidence: z
+			.array(z.string())
+			.describe(
+				"Acceptable qualitative capacity-confidence bands. Observed values include 'documented-bound'. Empty array disables this check.",
+			),
+		min_capacity_multiple: z
 			.number()
 			.gte(0)
 			.describe(
-				"Minimum ratio of the route's daily redemption limit to the intended position. 2 requires the daily limit be at least twice the position, so it can be exited without queueing across days.",
+				"Minimum ratio of the route's IMMEDIATE redemption capacity to the intended position. Pharos publishes an immediate capacity bound rather than a daily limit, so this sizes the position against what can be redeemed right now.",
+			),
+		max_reserve_elevated_risk_pct: z
+			.number()
+			.gte(0)
+			.lte(100)
+			.describe(
+				"Maximum share (0-100) of reserves sitting in slices Pharos rates worse than low risk. Null reserve data fails soft.",
 			),
 		max_data_age_seconds: z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. Null ages fail soft.",
 			),
 	})
 	.strict()
@@ -60,7 +72,8 @@ export const ParamsJsonSchema = {
 	properties: {
 		require_redemption_available: {
 			type: "boolean",
-			description: "When true, an asset with no working direct redemption route denies outright.",
+			description:
+				"When true, an asset with no redemption route reported by Pharos denies outright.",
 		},
 		approved_route_families: {
 			type: "array",
@@ -68,7 +81,7 @@ export const ParamsJsonSchema = {
 				type: "string",
 			},
 			description:
-				"Pharos redemption route families the curator will accept (e.g. 'issuer-direct', 'authorised-participant').",
+				"Pharos redemption route families the curator will accept. Observed values include 'offchain-issuer'.",
 		},
 		approved_access_models: {
 			type: "array",
@@ -76,7 +89,7 @@ export const ParamsJsonSchema = {
 				type: "string",
 			},
 			description:
-				"Pharos redemption access models the curator will accept (e.g. 'permissionless', 'kyc-gated'). Governs who may redeem.",
+				"Pharos redemption access models the curator will accept. Observed values include 'issuer-api'. Governs who may redeem.",
 		},
 		approved_settlement_models: {
 			type: "array",
@@ -84,31 +97,46 @@ export const ParamsJsonSchema = {
 				type: "string",
 			},
 			description:
-				"Pharos settlement models the curator will accept (e.g. 'same-day', 't-plus-one'). Governs how quickly redemption settles.",
+				"Pharos settlement models the curator will accept. Observed values include 'same-day'.",
 		},
 		required_route_status: {
 			type: "string",
 			description:
-				"The route status the asset must report to be admissible, typically 'active'. Anything else - impaired, suspended, degraded - denies.",
+				"The route status the asset must report to be admissible. Pharos reports 'open' for a working route - NOT 'active'.",
 		},
-		min_confidence: {
+		min_route_score: {
 			type: "number",
 			minimum: 0,
-			maximum: 1,
+			maximum: 100,
 			description:
-				"Minimum Pharos confidence (0-1) in the reported redemption route before the policy will act on it.",
+				"Minimum Pharos redemption route score (0-100), the composite quality measure across access, settlement, capacity, cost and execution certainty. Pharos exposes no 0-1 confidence value; capacity_confidence is a qualitative band, not a number.",
 		},
-		min_daily_limit_multiple: {
+		approved_capacity_confidence: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Acceptable qualitative capacity-confidence bands. Observed values include 'documented-bound'. Empty array disables this check.",
+		},
+		min_capacity_multiple: {
 			type: "number",
 			minimum: 0,
 			description:
-				"Minimum ratio of the route's daily redemption limit to the intended position. 2 requires the daily limit be at least twice the position, so it can be exited without queueing across days.",
+				"Minimum ratio of the route's IMMEDIATE redemption capacity to the intended position. Pharos publishes an immediate capacity bound rather than a daily limit, so this sizes the position against what can be redeemed right now.",
+		},
+		max_reserve_elevated_risk_pct: {
+			type: "number",
+			minimum: 0,
+			maximum: 100,
+			description:
+				"Maximum share (0-100) of reserves sitting in slices Pharos rates worse than low risk. Null reserve data fails soft.",
 		},
 		max_data_age_seconds: {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. Null ages fail soft.",
 		},
 	},
 	required: [
@@ -117,8 +145,10 @@ export const ParamsJsonSchema = {
 		"approved_access_models",
 		"approved_settlement_models",
 		"required_route_status",
-		"min_confidence",
-		"min_daily_limit_multiple",
+		"min_route_score",
+		"approved_capacity_confidence",
+		"min_capacity_multiple",
+		"max_reserve_elevated_risk_pct",
 		"max_data_age_seconds",
 	],
 	additionalProperties: false,

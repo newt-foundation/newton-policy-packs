@@ -25,10 +25,14 @@ Three GET requests against `https://api.pharos.watch`, authenticated with the `X
 | Field | Description |
 |---|---|
 | `stablecoin_id` / `symbol` | Asset identity |
-| `stress_score` / `stress_band` / `active_indicators` | Stress posture |
+| `stress_score` / `stress_band` | From `current.score` / `current.band` (lowercased) |
+| `stress_signals` | Raw `{name: 0-100}` map from `current.signals`, skipping unavailable ones |
+| `active_indicators` | Convenience view of signals at or above 50. No rule depends on it |
+| `age_classification` | Pharos's own freshness label (e.g. `fresh`) |
 | `depeg_active` / `depeg_severity` / `peg_deviation_bps` | Active incident state |
 | `net_flow_usd` / `mint_volume_usd` / `burn_volume_usd` | Mint/burn flow |
-| `flow_anomaly` | Pharos's explicit flag, or derived from net flow against baseline when absent |
+| `flow_stress_score` / `burn_surge` | From the stress `flow` signal, which already folds burn surge and burn/mint ratio against a baseline |
+| `flow_anomaly` | True when `flow_stress_score` is at or above 50 |
 | `data_age_seconds` | Oldest age across all three responses |
 | `timestamp` | When this snapshot was taken |
 
@@ -84,6 +88,10 @@ Note what is deliberately **absent**: there is no blanket stress ceiling that de
 - Swap destinations are compared **case-insensitively**: the intent lowercases addresses while curator params are typically checksummed.
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
 - `input.chain_id` arrives as a *string* and is only populated when the intent JSON sets `chainId` (camelCase in, snake_case out). The `--chain-id` CLI flag does **not** populate it, so no rule here depends on it.
+
+- **`/api/mint-burn-flows` carries no anomaly flag of its own.** Pharos's judgement of flow abnormality lives in the stress `flow` signal, so the oracle uses that rather than inventing a threshold over raw mint/burn volumes.
+- Stress data is nested under `current` (`current.score`, `current.band`, `current.signals`) — not at the top level.
+- This is the lightest Pharos pack: all three endpoints filter by `stablecoin`, totalling roughly 11 KB per evaluation.
 
 ## Prerequisites
 

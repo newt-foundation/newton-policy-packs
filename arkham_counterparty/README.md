@@ -30,7 +30,7 @@ The baseline deliberately excludes the most recent bucket: that bucket is what i
 | `counterparty_transaction_count` | Prior transactions with this counterparty |
 | `counterparty_total_usd` | Cumulative USD transacted with them |
 | `counterparty_avg_usd` | Average prior transaction size, or `null` when there is no history to average |
-| `counterparty_last_seen_days` | Days since the last interaction, or `null` |
+| `counterparty_last_seen_days` | Always `null` — Arkham's counterparties endpoint returns no per-relationship timestamp |
 | `counterparty_concentration_pct` | This counterparty's share (0-100) of recent activity |
 | `normal_daily_outflow_usd` | Mean daily outflow across the window, excluding the latest bucket |
 | `recent_daily_outflow_usd` | Latest bucket's outflow |
@@ -47,7 +47,7 @@ Package `arkham_counterparty_activity`. Denies when **any** of these hold:
 | `unknown_counterparty` | `require_known_counterparty` and unknown | New recipients, when the curator forbids them outright |
 | `new_counterparty_over_limit` | unknown and amount over `max_new_counterparty_usd` | A first payment larger than the introductory cap |
 | `counterparty_too_new` | known but fewer than `min_counterparty_transactions` prior txs | A relationship too thin to count as established |
-| `stale_relationship` | last seen over `max_counterparty_last_seen_days` ago | A dormant counterparty suddenly reactivating |
+| `stale_relationship` | last seen over `max_counterparty_last_seen_days` ago | A dormant counterparty reactivating. **Currently inert** — see Notes |
 | `amount_anomaly` | amount over `max_amount_vs_avg_multiple` x the historical average | A payment wildly out of scale with the relationship |
 | `concentration_spike` | share over `max_counterparty_concentration_pct` | One destination suddenly dominating outflow |
 | `outflow_above_baseline` | ratio over `max_outflow_vs_baseline_multiple` | The wallet draining faster than it normally does |
@@ -74,6 +74,12 @@ Package `arkham_counterparty_activity`. Denies when **any** of these hold:
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
 - A **zero or null historical average** does not deny. A zero average would make every payment infinitely anomalous, so `counterparty_avg_usd` is emitted as `null` when there is no history and the anomaly rule fail-softs.
 - `data_age_seconds` is currently always `null` — the Arkham counterparties and flow endpoints do not expose an observation timestamp. The `stale_data` rule is wired and will activate as soon as one is available.
+
+- **`chains` is required.** Unscoped, `/flow/address` returns every chain's full daily history — over 1MB for an active wallet, which exhausts the WASM heap. Scoping to one chain brings it to roughly 270KB.
+- **The `stale_relationship` rule is currently inert.** Arkham's counterparties endpoint exposes no per-relationship timestamp, so `counterparty_last_seen_days` is always `null` and the rule fail-softs. The field and rule are kept so it activates automatically if Arkham adds timing; the param is documented but has no effect today.
+- **`history_window_days` materially changes the counterparty set.** A 90-day window on a wallet whose large relationships are older returns only small, recent ones — so an "established" counterparty can read as new. Widen the window to match the relationships you intend to recognise.
+- Aggregation deliberately uses plain objects and indexed loops rather than `Map`: a `Map` over the ~1,950-day flow series crashes the WASM component outright. See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#do-not-use-map-or-set-for-anything-large).
+- A zero or null historical average does not deny — `counterparty_avg_usd` is `null` when there is no history, and the anomaly rule fail-softs.
 
 ## Prerequisites
 

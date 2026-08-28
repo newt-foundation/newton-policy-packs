@@ -17,22 +17,26 @@ Requires a Pharos API key (`PHAROS_API_KEY`).
 
 Two GET requests against `https://api.pharos.watch`, authenticated with the `X-API-Key` header:
 
-1. `/api/redemption-backstops` — stablecoin-keyed redemption map.
-2. `/api/stablecoin-reserves/{id}` — reserve composition and provenance.
+1. `/api/redemption-backstops` — the redemption map. This endpoint takes **no query parameters at all** (confirmed against Pharos's OpenAPI spec) and returns all ~328 coins as a 1.1 MB document. `JSON.parse` on that exhausts the WASM heap, so this coin's object is cut out of the **raw text** and only that ~3 KB is parsed. See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#slicing-a-bulk-document-you-cannot-filter).
+2. `/api/stablecoin-reserves/{id}` — ~1.4 KB, reserve composition and provenance.
 
 "Available" means Pharos actually reported a route for this asset — an absent entry is a genuine "no redemption path", not a soft null.
 
 | Field | Description |
 |---|---|
-| `stablecoin_id` / `symbol` | Asset identity |
+| `stablecoin_id` / `symbol` / `issuer` | Identity, derived from the `ticker-issuer` id |
 | `redemption_available` | Whether a route was reported at all |
-| `route_family` / `access_model` / `settlement_model` | How redemption works, who may use it, how it settles |
-| `route_status` | Route health (`active`, `impaired`, ...) |
-| `holder_eligibility` | Who qualifies to redeem |
-| `immediate_capacity_usd` / `daily_limit_usd` / `min_redeem_usd` | Capacity and limits |
-| `daily_limit_multiple` | `daily_limit_usd / transaction_amount_usd`, or `null` when no amount was supplied |
-| `fees_bps` / `confidence` | Cost and Pharos's confidence in the route |
-| `reserve_composition` / `reserve_source_mode` / `reserve_sync_status` | Backing evidence |
+| `route_family` / `access_model` / `settlement_model` / `execution_model` | How redemption works, who may use it, how it settles |
+| `route_status` | Route health. Pharos reports **`open`** for a working route, not `active` |
+| `holder_eligibility` / `provider` / `source_mode` | Who qualifies, and who Pharos attributes the route to |
+| `immediate_capacity_usd` / `modeled_exit_size_usd` | What can be redeemed now, and the size Pharos modelled |
+| `capacity_multiple` | `immediate_capacity_usd / transaction_amount_usd`, or `null` when no amount was supplied |
+| `capacity_confidence` | Qualitative band (e.g. `documented-bound`) — a **string**, not a number |
+| `route_score` / `access_score` / `settlement_score` / `capacity_score` | Pharos's 0-100 quality measures |
+| `fee_bps` / `queue_enabled` | Cost and whether redemptions queue |
+| `reserve_composition` | `{slice name: percentage}` |
+| `reserve_elevated_risk_pct` | Share of reserves Pharos rates worse than low risk |
+| `reserve_mode` / `reserve_source` / `reserve_sync_status` / `reserve_stale` | Backing provenance |
 | `data_age_seconds` | Oldest age across both responses |
 | `timestamp` | When this snapshot was taken |
 
@@ -47,9 +51,10 @@ Package `pharos_redemption_backing`. Denies when **any** of these hold:
 | `unapproved_access_model` | access model not approved | The wrong parties can redeem |
 | `unapproved_settlement_model` | settlement model not approved | Settlement slower than the curator accepts |
 | `route_status_not_approved` | status is not `required_route_status` | An impaired or suspended route |
-| `below_min_redeem` | position below `min_redeem_usd` | A position too small to ever be redeemed |
-| `position_exceeds_daily_limit` | multiple below `min_daily_limit_multiple` | A position that cannot be exited without queueing across days |
-| `low_confidence` | confidence below `min_confidence` | A route Pharos is unsure about |
+| `position_exceeds_capacity` | multiple below `min_capacity_multiple` | A position larger than what can actually be redeemed now |
+| `low_route_score` | score below `min_route_score` | A route Pharos rates poorly |
+| `unapproved_capacity_confidence` | band not in `approved_capacity_confidence` | Capacity Pharos cannot evidence |
+| `reserve_risk_above_max` | elevated-risk share over `max_reserve_elevated_risk_pct` | Backing concentrated in riskier assets |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale data |
 
 `allow` is an explicit positive conjunction, not `count(deny) == 0`. Every deny rule silent-skips on an undefined field, so an error envelope would produce an empty deny set and a `count(deny) == 0` formulation would **fail open** on exactly the payload that most needs to fail closed. The groundedness checks at the top of `allow` are what enforce that.
@@ -59,20 +64,26 @@ Package `pharos_redemption_backing`. Denies when **any** of these hold:
 | Param | Type | Description |
 |---|---|---|
 | `require_redemption_available` | `boolean` | Require a working redemption route |
-| `approved_route_families` | `string[]` | Acceptable route families |
-| `approved_access_models` | `string[]` | Acceptable access models |
-| `approved_settlement_models` | `string[]` | Acceptable settlement models |
-| `required_route_status` | `string` | The status a route must report, typically `active` |
-| `min_confidence` | `number` | Confidence floor 0-1 |
-| `min_daily_limit_multiple` | `number` | Daily limit required as a multiple of the position |
-| `max_data_age_seconds` | `number` | Freshness ceiling |
+| `approved_route_families` | `string[]` | Acceptable route families (observed: `offchain-issuer`) |
+| `approved_access_models` | `string[]` | Acceptable access models (observed: `issuer-api`) |
+| `approved_settlement_models` | `string[]` | Acceptable settlement models (observed: `same-day`) |
+| `required_route_status` | `string` | Status a working route must report — **`open`**, not `active` |
+| `min_route_score` | `number` | Minimum 0-100 route score |
+| `approved_capacity_confidence` | `string[]` | Acceptable confidence bands; empty array disables the check |
+| `min_capacity_multiple` | `number` | Required immediate capacity as a multiple of the position |
+| `max_reserve_elevated_risk_pct` | `number` | Max share of reserves rated worse than low risk |
+| `max_data_age_seconds` | `number` | Freshness ceiling; the feed lags hours, so keep this generous |
 
 ## Notes
 
-- **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`, so a caller controls it. The attested alternative — `input.value` — is native-token wei rather than USD, and arrives as a *string*. A curator needing a tamper-proof ceiling should pair this pack with a native-value cap in a composite.
-- `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
-- **A position below `min_redeem_usd` denies**, because it could never be redeemed — the failure this pack exists to prevent, in miniature.
-- Passing no `transaction_amount_usd` leaves both size rules undefined and fail-soft, rather than reading a zero position as "below the minimum".
+- **Pharos publishes no daily limit and no redemption minimum.** The Notion brief mentioned `dailyLimitUsd` and `minRedeemUsd`; neither field exists on this endpoint. Sizing is therefore against `immediateCapacityUsd`, and there is no `below_min_redeem` rule.
+- **There is no numeric confidence either.** `capacityConfidence` is a qualitative band (`documented-bound`), so route quality is gated on the 0-100 `route_score`.
+- **`route_status` is `open`, not `active`** — configuring `active` denies every healthy asset. A test pins this.
+- **`transaction_amount_usd` is caller-supplied and NOT attested.** See the treasury pack's README for the same caveat.
+- `null` is the oracle's "not reported", distinct from `0`. Null optional fields fail-soft; a **missing** key blocks `allow`.
+- Passing no amount leaves `capacity_multiple` as `null` and the sizing rule fail-softs.
+
+- **This pack rides within about 40% of a hard runtime limit.** `/api/redemption-backstops` has no filter, so the oracle downloads all ~1.14MB and slices this coin's ~3KB object out of the raw text. Holding a document and slicing it works to roughly 1.6MB on this runtime; at ~3.5KB per coin that is around 130 more coins of headroom. A `MAX_SLICEABLE_BYTES` guard trips first and returns a readable error (which fails closed) rather than trapping the component with no verdict. The durable fix is a per-asset endpoint from Pharos.
 
 ## Prerequisites
 

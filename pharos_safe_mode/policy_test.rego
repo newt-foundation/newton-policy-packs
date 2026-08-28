@@ -13,24 +13,29 @@ default_params := {
 	"swap_functions": ["swap"],
 	"swap_destination_arg_index": 1,
 	"approved_safe_assets": ["0xDAC17F958D2ee523a2206206994597C13D831ec7"],
-	"max_data_age_seconds": 900,
+	"max_data_age_seconds": 7200,
 }
 
 # Calm market: low stress, no depeg, flows normal.
 calm_data := {
 	"stablecoin_id": "usdc-circle",
 	"symbol": "USDC",
-	"stress_score": 8,
+	"stress_score": 13,
 	"stress_band": "calm",
+	"stress_signals": {"supply": 0.22, "pool": 32.4, "liq": 34.4, "price": 0, "flow": 22.8, "yield": 30},
 	"active_indicators": [],
+	"age_classification": "fresh",
 	"depeg_active": false,
 	"depeg_severity": null,
-	"peg_deviation_bps": 2,
-	"net_flow_usd": 12000000,
-	"mint_volume_usd": 40000000,
-	"burn_volume_usd": 28000000,
+	"depeg_pending_count": 0,
+	"peg_deviation_bps": 0,
+	"net_flow_usd": 337500204,
+	"mint_volume_usd": 1415801595,
+	"burn_volume_usd": 1078301390,
+	"flow_stress_score": 22.8,
+	"burn_surge": 2.42,
 	"flow_anomaly": false,
-	"data_age_seconds": 45,
+	"data_age_seconds": 2316,
 }
 
 stressed := object.union(calm_data, {
@@ -253,5 +258,15 @@ test_missing_depeg_field_does_not_allow if {
 	not pharos_safe_mode.allow
 		with data.params as default_params
 		with data.wasm as d
+		with input as intent("withdraw", ["1000"])
+}
+
+# Observed lag on the live stress + flow feeds is ~40 minutes. Pins that the
+# shipped default tolerates it rather than denying every healthy asset.
+test_real_world_age_passes_default_ceiling if {
+	fresh := object.union(calm_data, {"data_age_seconds": 2316})
+	not "stale_data" in pharos_safe_mode.deny
+		with data.params as default_params
+		with data.wasm as wrap(fresh)
 		with input as intent("withdraw", ["1000"])
 }

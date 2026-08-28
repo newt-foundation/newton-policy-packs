@@ -36,6 +36,11 @@ export const ParamsSchema = z
 			.describe(
 				"Pharos redemption access models the curator will accept (e.g. 'permissionless', 'kyc-gated'). Governs WHO may redeem, not how.",
 			),
+		required_route_status: z
+			.string()
+			.describe(
+				"The redemption route status the asset must report. Pharos reports 'open' for a working route - NOT 'active'.",
+			),
 		min_exit_capacity_multiple: z
 			.number()
 			.gte(0)
@@ -53,7 +58,7 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. Null ages fail soft.",
 			),
 	})
 	.strict()
@@ -104,6 +109,11 @@ export const ParamsJsonSchema = {
 			description:
 				"Pharos redemption access models the curator will accept (e.g. 'permissionless', 'kyc-gated'). Governs WHO may redeem, not how.",
 		},
+		required_route_status: {
+			type: "string",
+			description:
+				"The redemption route status the asset must report. Pharos reports 'open' for a working route - NOT 'active'.",
+		},
 		min_exit_capacity_multiple: {
 			type: "number",
 			minimum: 0,
@@ -121,7 +131,7 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. Null ages fail soft.",
 		},
 	},
 	required: [
@@ -131,6 +141,7 @@ export const ParamsJsonSchema = {
 		"require_redemption",
 		"approved_redemption_route_families",
 		"approved_access_models",
+		"required_route_status",
 		"min_exit_capacity_multiple",
 		"min_liquidity_score",
 		"max_data_age_seconds",

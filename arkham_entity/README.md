@@ -29,10 +29,11 @@ Arkham returns **per-chain** results, because the same address can carry differe
 | `has_attribution` | True when Arkham has either a verified entity or a prediction |
 | `entity_name` | Real-world entity behind the address, or `null` |
 | `entity_category` | Arkham entity category (e.g. `cex`, `custodian`, `defi`), or `null` |
-| `address_role` | The address's function — deposit address, hot wallet, cold wallet |
-| `tags` | Behavioural/risk tags, lowercased and deduplicated |
+| `address_role` | From `arkhamLabel.name` — e.g. `Hot Wallet`, `Deposit` |
+| `is_contract` | Whether Arkham marks the address as a contract |
+| `tags` | From `populatedTags[].id` (the stable machine name, e.g. `cex`), lowercased and deduplicated — NOT the display `label` |
 | `attribution_type` | `verified`, `predicted`, or `none` |
-| `attribution_confidence` | Confidence 0-1 for the match, or `null` when unknown |
+| `attribution_confidence` | `1` for a verified `arkhamEntity` (Arkham asserts these and attaches no confidence field), the prediction's own value for a predicted match, `null` when unattributed |
 | `risk_level` | Arkham headline risk level |
 | `max_risk_score` | Highest category score driving the risk level, or `null` |
 | `transaction_amount_usd` | Echoed from wasm_args — see the attestation note below |
@@ -74,6 +75,10 @@ Package `arkham_entity_wallet`. Denies when **any** of these hold:
 - **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`, so a caller controls it, and every tier rule rests on it. The attested alternative — `input.value` — is native-token wei rather than USD, and arrives as a *string*. A curator who needs a tamper-proof ceiling should pair this pack with a native-value cap in a composite rather than relying on the USD tiers alone.
 - `null` is the oracle's "Arkham did not report this", and is deliberately distinct from `0`. Null optional fields fail-soft. A **missing** key (rather than an explicit null) leaves the groundedness checks undefined and correctly blocks `allow`.
 - Tags are lowercased by the oracle; `prohibited_tags` is matched case-sensitively against that normalised form, so configure it in lowercase.
+
+- **Verified attribution carries no confidence field.** Arkham asserts `arkhamEntity` rather than inferring it, so the oracle scores it `1`. Only `arkhamEntityPrediction` has a real confidence value, which is what `min_attribution_confidence` meaningfully gates.
+- **`updated_at` is an ISO-8601 string**, not a unix number, so it is date-parsed. Feeding it to `Number()` yields `NaN` and would silently disable the freshness check.
+- The enriched endpoint is keyed by chain slug (`ethereum`, `base`, `arbitrum_one`, ...). With no `chain` supplied the oracle takes the first slice that actually carries an entity and reports which, so the decision stays traceable to one network.
 
 ## Prerequisites
 

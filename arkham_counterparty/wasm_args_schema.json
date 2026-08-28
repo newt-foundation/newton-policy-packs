@@ -12,7 +12,7 @@
     },
     "chains": {
       "type": "string",
-      "description": "Optional comma-separated Arkham chain identifiers to scope the counterparty and flow lookups (e.g. 'ethereum,base'). Omitting this aggregates across every supported chain."
+      "description": "Comma-separated Arkham chain identifiers scoping the counterparty and flow lookups (e.g. 'ethereum' or 'ethereum,base'). REQUIRED: unscoped, /flow/address returns every chain's full daily history - over 1MB for an active wallet, which exhausts the WASM heap. Scoping to one chain brings it to roughly 270KB."
     },
     "transaction_amount_usd": {
       "type": "number",
@@ -26,5 +26,9 @@
       "description": "Lookback window (1-365 days) for counterparty aggregation and the outflow baseline. Defaults to 90. Out-of-range values are rejected by the WASM, and the Rego then denies on the oracle error."
     }
   },
-  "required": ["sender_address", "destination_address"]
+  "required": [
+    "sender_address",
+    "destination_address",
+    "chains"
+  ]
 }

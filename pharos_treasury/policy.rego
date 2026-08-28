@@ -42,9 +42,11 @@ deny contains "unapproved_access_model" if {
 	not v.redemption_access_model in t.approved_access_models
 }
 
-deny contains "route_status_impaired" if {
+# Pharos reports `open` for a working route, not `active` — a curator who
+# guesses "active" denies every healthy asset, so the value is a param.
+deny contains "route_status_not_approved" if {
 	v.redemption_route_status != null
-	v.redemption_route_status != "active"
+	v.redemption_route_status != t.required_route_status
 }
 
 # The differentiated Pharos signal: can this position actually be exited?
@@ -112,7 +114,7 @@ access_model_ok if v.redemption_access_model in t.approved_access_models
 
 route_status_ok if v.redemption_route_status == null
 
-route_status_ok if v.redemption_route_status == "active"
+route_status_ok if v.redemption_route_status == t.required_route_status
 
 # Undefined when the caller passed no amount (division by zero), which
 # fail-softs rather than fabricating a ratio.

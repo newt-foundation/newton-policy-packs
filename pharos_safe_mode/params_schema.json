@@ -14,17 +14,23 @@
     },
     "exposure_increasing_functions": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Bare function names that increase exposure to the asset (e.g. 'deposit', 'mint', 'supply'). Blocked while safe mode is engaged. Matched against the attested input.function.name."
     },
     "exposure_reducing_functions": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Bare function names that reduce exposure (e.g. 'withdraw', 'redeem', 'repay'). Always permitted, including while safe mode is engaged - that is the point of a graduated response."
     },
     "swap_functions": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Bare function names that swap the asset for another (e.g. 'swap', 'exchange'). Permitted in safe mode only when the destination token is in approved_safe_assets."
     },
     "swap_destination_arg_index": {
@@ -34,13 +40,15 @@
     },
     "approved_safe_assets": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Token contract addresses (0x-prefixed) considered safe destinations for a swap out of a stressed asset. Compared case-insensitively."
     },
     "max_data_age_seconds": {
       "type": "number",
       "minimum": 0,
-      "description": "Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule."
+      "description": "Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. Null ages fail soft."
     }
   },
   "required": [

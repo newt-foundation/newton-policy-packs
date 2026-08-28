@@ -86,32 +86,50 @@ function str(x) {
   return typeof x === "string" ? x : String(x);
 }
 
-// Arkham returns per-chain results because the same address can carry
-// different labels and activity on different networks. When the caller
-// names a chain we take that slice; otherwise we take the first populated
-// one and record which it was, so the Rego decision is traceable to a
-// specific network rather than silently blending several.
+// Arkham returns `updated_at` as an ISO-8601 STRING ("2026-08-28T17:21:43Z"),
+// not a unix number. Number() on that yields NaN, which would silently null
+// out the freshness check — so parse it as a date first.
+function ageSecondsFrom(value) {
+  if (value == null) return null;
+  const asNumber = Number(value);
+  let seconds;
+  if (Number.isFinite(asNumber) && asNumber > 0) {
+    seconds = asNumber > 1e12 ? asNumber / 1000 : asNumber;
+  } else {
+    const ms = Date.parse(String(value));
+    if (!Number.isFinite(ms)) return null;
+    seconds = ms / 1000;
+  }
+  return Math.max(0, Math.floor(Date.now() / 1000 - seconds));
+}
+
+// `/intelligence/address_enriched/{a}/all` is keyed by chain slug at the top
+// level (`ethereum`, `base`, `arbitrum_one`, ...) because the same address can
+// carry different labels and activity per network. When the caller names a
+// chain we take that slice; otherwise we take the first slice that actually
+// carries an entity, and report which — so the decision is traceable to one
+// network rather than silently blending several.
 function pickChainSlice(payload, chain) {
   if (!payload || typeof payload !== "object") return { slice: null, chain: null };
   if (chain && payload[chain]) return { slice: payload[chain], chain };
-  const keys = Object.keys(payload);
-  for (const k of keys) {
-    const candidate = payload[k];
-    if (candidate && typeof candidate === "object") return { slice: candidate, chain: k };
+  let firstAny = null;
+  for (const [key, candidate] of Object.entries(payload)) {
+    if (!candidate || typeof candidate !== "object") continue;
+    if (firstAny === null) firstAny = { slice: candidate, chain: key };
+    if (candidate.arkhamEntity) return { slice: candidate, chain: key };
   }
-  return { slice: payload, chain: chain ?? null };
+  return firstAny ?? { slice: null, chain: chain ?? null };
 }
 
+// Tags arrive as `populatedTags: [{ id, label, rank, ... }]`. The `id` is the
+// stable machine name ("cex"); `label` is display text ("Centralized
+// Exchange"). Match on `id`, lowercased, so curator params stay stable.
 function collectTags(slice) {
   const out = [];
   const seen = new Set();
-  const raw = Array.isArray(slice?.populatedTags)
-    ? slice.populatedTags
-    : Array.isArray(slice?.tags)
-      ? slice.tags
-      : [];
+  const raw = Array.isArray(slice?.populatedTags) ? slice.populatedTags : [];
   for (const t of raw) {
-    const name = typeof t === "string" ? t : str(t?.id ?? t?.name ?? t?.tag);
+    const name = typeof t === "string" ? t : str(t?.id);
     if (!name) continue;
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
@@ -124,16 +142,7 @@ function collectTags(slice) {
 export function run(input) {
   try {
     const parsed = JSON.parse(input);
-    // Phase 0 § Stream B input-unwrap shim. The AVS forwards one
-    // `wasm_args` blob to every PolicyData WASM in a policy, so composite
-    // execution produces `{ arkham_entity: {...}, pharos_treasury: {...} }`
-    // and each pack reads its own slice via the namespaced key. Nullish
-    // coalescing falls back to flat for single-pack callers. Mirrors
-    // ADR 0003's `args[PACK_ID] ?? args` shape verbatim.
     const myArgs = parsed[PACK_ID] ?? parsed;
-    // Strip our own slot from `_secrets` so it can't shadow a same-named
-    // host secret. Sibling pack slots are left in place — `secret(name)`
-    // only reads fixed named keys.
     _secrets = { ...parsed };
     delete _secrets[PACK_ID];
     loadHostSecrets();
@@ -156,12 +165,13 @@ export function run(input) {
 
     const { slice, chain: resolvedChain } = pickChainSlice(enriched, chain);
 
-    // Arkham distinguishes a verified label from a probabilistic entity
-    // prediction. Treat only a real entity match as attribution; a
-    // prediction is reported but carries its own lower confidence, which
-    // the Rego gates on separately.
-    const entity = slice?.entity ?? null;
-    const prediction = slice?.entityPrediction ?? slice?.prediction ?? null;
+    // Arkham distinguishes a verified attribution (`arkhamEntity`) from a
+    // probabilistic one (`arkhamEntityPrediction`). A verified entity carries
+    // no confidence field — it is asserted, not inferred — so it scores 1.0;
+    // a prediction carries its own, which the Rego gates on separately.
+    const entity = slice?.arkhamEntity ?? null;
+    const prediction =
+      slice?.arkhamEntityPrediction ?? slice?.entityPrediction ?? slice?.prediction ?? null;
     const hasEntity = Boolean(entity && (entity.name ?? entity.id));
     const hasPrediction = Boolean(prediction && (prediction.name ?? prediction.id));
 
@@ -170,30 +180,27 @@ export function run(input) {
     else if (hasPrediction) attributionType = "predicted";
 
     const source = hasEntity ? entity : hasPrediction ? prediction : null;
-    const confidence = hasEntity
-      ? (num(entity.confidence) ?? 1)
-      : hasPrediction
-        ? num(prediction.confidence)
-        : null;
+    const confidence = hasEntity ? 1 : hasPrediction ? num(prediction.confidence) : null;
 
-    const updatedAt = num(risk?.updated_at ?? risk?.updatedAt);
-    const dataAgeSeconds =
-      updatedAt == null ? null : Math.max(0, Math.floor(Date.now() / 1000 - updatedAt));
+    const riskLevel = str(risk?.risk_level);
 
     return wrapOutput(PACK_ID, {
       address,
       chain: resolvedChain,
       has_attribution: hasEntity || hasPrediction,
       entity_name: source ? str(source.name ?? source.id) : null,
-      entity_category: source ? str(source.type ?? source.category) : null,
-      address_role: str(slice?.addressType ?? slice?.role ?? slice?.label),
+      // `type` is the Arkham entity category ("cex", "defi", ...).
+      entity_category: source ? (str(source.type) ?? "").toLowerCase() || null : null,
+      // `arkhamLabel.name` is the address's role ("Hot Wallet", "Deposit").
+      address_role: str(slice?.arkhamLabel?.name),
+      is_contract: Boolean(slice?.contract ?? false),
       tags: collectTags(slice),
       attribution_type: attributionType,
       attribution_confidence: confidence,
-      risk_level: str(risk?.risk_level ?? risk?.riskLevel),
-      max_risk_score: num(risk?.max_score ?? risk?.maxScore),
+      risk_level: riskLevel == null ? null : riskLevel.toLowerCase(),
+      max_risk_score: num(risk?.max_score),
       transaction_amount_usd: amountUsd,
-      data_age_seconds: dataAgeSeconds,
+      data_age_seconds: ageSecondsFrom(risk?.updated_at),
       timestamp: Date.now(),
     });
   } catch (e) {

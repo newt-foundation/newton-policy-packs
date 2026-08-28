@@ -27,10 +27,11 @@ The oracle deliberately emits Arkham's **raw** paths rather than a precomputed v
 | `address` / `chain` | Echoed from wasm_args |
 | `risk_level` | Arkham headline risk level |
 | `max_score` | Highest category score, or `null` |
-| `category_scores` | Flat `{category: score}` map, normalised from either shape Arkham returns |
+| `category_scores` | `{category: score}` map, harvested from Arkham's flat `<name>_score` sibling keys (`hacker_score`, `privacy_score`, `sanctioned_1hop_score`, ...). The aggregate `max_score*` keys are excluded |
 | `top_risk_category` | Category driving the headline score |
 | `is_seed` | Whether the address is itself a known risky source, not merely exposed to one |
-| `paths[]` | `category`, `direction`, `hop_distance`, `seed_address`, `score`, `contributed_usd`, `contributed_pct`, `nodes[]`, `first_seen_days`, `last_seen_days` |
+| `hop_distance` / `risk_weighted_incoming_usd` / `risk_weighted_outgoing_usd` | Additional Arkham risk context |
+| `paths[]` | `category` (from `risk_category`), `direction`, `hop_distance`, `seed_address`, `score`, `contributed_usd` (from `contribution_usd`), `nodes[]` (flattened from `path_nodes[].address`). `contributed_pct`, `first_seen_days` and `last_seen_days` are always `null` — Arkham does not return them |
 | `data_age_seconds` | Age of the Arkham observation, or `null` |
 | `timestamp` | When this snapshot was taken |
 
@@ -43,7 +44,7 @@ Package `arkham_risk_exposure`. Paths are filtered in three stages — dust floo
 | `seed_address` | `deny_on_seed` and the address is a seed | The address IS the risky source |
 | `severe_exposure_within_hops` | severe category within `max_severe_hop_distance` | Direct and near-hop exposure, at any size above dust |
 | `material_distant_exposure` | severe, beyond the hop limit, over `material_exposure_usd` | Large exposure further out in the graph |
-| `recent_distant_exposure` | severe, beyond the hop limit, within `recent_exposure_days` | Fresh exposure further out, however small |
+| `recent_distant_exposure` | severe, beyond the hop limit, within `recent_exposure_days` | Fresh exposure further out. **Currently inert** — see Notes |
 | `risk_score_above_max` | score over `max_risk_score` | Elevated headline risk, independent of paths |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale intelligence |
 
@@ -72,6 +73,11 @@ Package `arkham_risk_exposure`. Paths are filtered in three stages — dust floo
 - **Dust tolerance is a strict `>` comparison**, so a path contributing exactly `dust_tolerance_usd` counts as dust and is ignored. Set it to `0` to consider every path.
 - A category outside `severe_categories` never trips the hop, materiality or recency rules, however large or direct. Only `max_risk_score` constrains it.
 - Path categories and seed addresses are lowercased by the oracle; configure `severe_categories` in lowercase.
+
+- **The `recent_distant_exposure` rule is currently inert.** Arkham's `/risk/address/{a}/paths` returns no first/last transaction timestamps, so `last_seen_days` is always `null` and the rule fail-softs. The field and rule are kept so it activates automatically if Arkham adds timing; `recent_exposure_days` has no effect today. Distant exposure is still caught by `material_distant_exposure` on value.
+- **`contributed_pct` is also unavailable**, so size-relative thresholds must use `contributed_usd`.
+- **`updated_at` is an ISO-8601 string**, not a unix number, so it is date-parsed rather than passed to `Number()`.
+- Arkham reports `risk_level` and category names in mixed case; the oracle lowercases both, so configure `severe_categories` in lowercase.
 
 ## Prerequisites
 

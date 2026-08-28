@@ -47,7 +47,7 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. Null ages fail soft.",
 			),
 	})
 	.strict()
@@ -114,7 +114,7 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. Null ages fail soft.",
 		},
 	},
 	required: [

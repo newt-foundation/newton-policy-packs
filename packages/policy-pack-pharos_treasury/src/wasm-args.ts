@@ -17,19 +17,19 @@ export const WasmArgsSchema = z
 				"USD notional of the proposed acquisition, used to size the position against available exit liquidity. CALLER-SUPPLIED and therefore NOT attested - see this pack's README. Defaults to 0 when omitted, which makes the exit-capacity ratio undefined and fail-soft.",
 			)
 			.optional(),
-		max_slippage_bps: z
-			.number()
-			.gte(1)
-			.lte(10000)
-			.describe(
-				"Slippage tolerance in basis points used to pick which exit-liquidity observation to read. Defaults to 50 (0.5%).",
-			)
-			.optional(),
 		stress_lookback_days: z
 			.number()
 			.gte(1)
 			.lte(365)
 			.describe("Lookback window in days for the Pharos stress-signal history. Defaults to 7.")
+			.optional(),
+		max_cost_bps: z
+			.number()
+			.gte(1)
+			.lte(10000)
+			.describe(
+				"Maximum acceptable execution cost in basis points when sizing exit liquidity. Compared against each capacity-curve rung's ACTUAL executionCostBps (a deep stablecoin prices around 9-10bps), NOT against the 200bps bound Pharos runs its simulations under. Defaults to 50.",
+			)
 			.optional(),
 	})
 	.describe("Inputs passed to the Pharos risk-adjusted treasury policy WASM at evaluation time");

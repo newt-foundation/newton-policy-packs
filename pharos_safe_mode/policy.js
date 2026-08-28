@@ -75,35 +75,48 @@ function str(x) {
   return typeof x === "string" ? x : String(x);
 }
 
-function metaAge(payload) {
-  const meta = payload?._meta ?? payload?.meta;
-  const direct = num(meta?.ageSeconds ?? meta?.age_seconds);
-  if (direct != null) return direct;
-  const updated = num(meta?.updatedAt ?? meta?.updated_at);
-  if (updated == null) return null;
-  const seconds = updated > 1e12 ? updated / 1000 : updated;
+function ageFromUnix(value) {
+  const t = num(value);
+  if (t == null || t <= 0) return null;
+  const seconds = t > 1e12 ? t / 1000 : t;
   return Math.max(0, Math.floor(Date.now() / 1000 - seconds));
 }
 
+// Oldest age across responses — the weakest link, not the freshest. Pharos
+// has no uniform `_meta` envelope; each endpoint carries its own timestamp.
 function oldestAge(ages) {
   const present = ages.filter((a) => a != null);
   if (present.length === 0) return null;
   return Math.max(...present);
 }
 
+// A confirmed incident. `pending` entries are unconfirmed threshold crossings
+// — the stress score surfaces those earlier, so they deliberately do not trip
+// `depeg_active` on their own.
 function activeDepeg(events) {
-  const list = Array.isArray(events)
-    ? events
-    : Array.isArray(events?.events)
-      ? events.events
-      : Array.isArray(events?.data)
-        ? events.data
-        : [];
+  const list = Array.isArray(events?.events) ? events.events : Array.isArray(events) ? events : [];
   for (const e of list) {
-    const isActive = e?.active === true || e?.status === "active";
-    if (isActive) return e;
+    if (e?.active === true || e?.status === "active" || e?.resolvedAt == null) return e;
   }
   return null;
+}
+
+// Signal sub-scores are 0-100 under `current.signals.<name>.value`, each with
+// an `available` flag. Emitting the whole map keeps the "raw data, curator
+// decides" posture; `active_indicators` is a convenience view at a documented
+// cutoff and no rule depends on it.
+const SIGNAL_ELEVATED_AT = 50;
+
+function stressSignals(current) {
+  const out = {};
+  const signals = current?.signals;
+  if (!signals || typeof signals !== "object") return out;
+  for (const [name, sig] of Object.entries(signals)) {
+    if (sig?.available === false) continue;
+    const v = num(sig?.value);
+    if (v != null) out[name] = v;
+  }
+  return out;
 }
 
 export function run(input) {
@@ -144,37 +157,43 @@ export function run(input) {
       apiKey,
     );
 
+    const current = stress?.current ?? null;
     const depeg = activeDepeg(depegs);
+    const signals = stressSignals(current);
+    const band = str(current?.band);
 
-    // Pharos exposes flow anomaly either as an explicit flag or as a net
-    // flow that has broken out of its historical baseline. Prefer the
-    // explicit flag; derive only when it is absent.
-    const netFlow = num(flows?.netFlowUsd ?? flows?.net_flow_usd);
-    const baseline = num(flows?.baselineNetFlowUsd ?? flows?.baseline?.netFlowUsd);
-    let flowAnomaly = flows?.anomalyDetected;
-    if (typeof flowAnomaly !== "boolean") {
-      flowAnomaly =
-        netFlow != null && baseline != null && baseline > 0
-          ? Math.abs(netFlow) > baseline * 2
-          : false;
-    }
+    // `/api/mint-burn-flows` carries no anomaly flag of its own. Pharos's own
+    // judgement of flow abnormality lives in the stress `flow` signal, which
+    // already folds in burn surge and the burn/mint ratio against a baseline —
+    // so use that rather than inventing a threshold over raw volumes here.
+    const flowSignal = current?.signals?.flow ?? null;
+    const flowScore = num(flowSignal?.value);
+    const burnSurge = num(flowSignal?.burnSurge);
+
+    const diverg = current?.signals?.diverg ?? null;
+    let deviationBps = num(diverg?.primaryDevBps);
+    if (deviationBps == null) deviationBps = num(diverg?.dexDevBps);
+    if (deviationBps == null && depeg) deviationBps = num(depeg.peakDeviationBps);
 
     return wrapOutput(PACK_ID, {
       stablecoin_id,
-      symbol: str(flows?.symbol ?? stress?.symbol),
-      stress_score: num(stress?.score ?? stress?.stressScore),
-      stress_band: str(stress?.band ?? stress?.stressBand),
-      active_indicators: Array.isArray(stress?.activeSignals)
-        ? stress.activeSignals.map((s) => str(s?.name ?? s))
-        : [],
+      symbol: str(flows?.symbol),
+      stress_score: num(current?.score),
+      stress_band: band == null ? null : band.toLowerCase(),
+      stress_signals: signals,
+      active_indicators: Object.keys(signals).filter((k) => signals[k] >= SIGNAL_ELEVATED_AT),
+      age_classification: str(current?.ageClassification),
       depeg_active: depeg !== null,
       depeg_severity: depeg ? str(depeg.severity) : null,
-      peg_deviation_bps: depeg ? (num(depeg.peakDeviationBps) ?? 0) : 0,
-      net_flow_usd: netFlow,
-      mint_volume_usd: num(flows?.mintVolumeUsd ?? flows?.mint_volume_usd),
-      burn_volume_usd: num(flows?.burnVolumeUsd ?? flows?.burn_volume_usd),
-      flow_anomaly: Boolean(flowAnomaly),
-      data_age_seconds: oldestAge([metaAge(stress), metaAge(depegs), metaAge(flows)]),
+      depeg_pending_count: Array.isArray(depegs?.pending) ? depegs.pending.length : 0,
+      peg_deviation_bps: deviationBps ?? 0,
+      net_flow_usd: num(flows?.netFlowUsd),
+      mint_volume_usd: num(flows?.mintVolumeUsd),
+      burn_volume_usd: num(flows?.burnVolumeUsd),
+      flow_stress_score: flowScore,
+      burn_surge: burnSurge,
+      flow_anomaly: flowScore != null && flowScore >= SIGNAL_ELEVATED_AT,
+      data_age_seconds: oldestAge([ageFromUnix(current?.computedAt), ageFromUnix(flows?.updatedAt)]),
       timestamp: Date.now(),
     });
   } catch (e) {

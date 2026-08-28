@@ -70,50 +70,96 @@ function num(x) {
   return Number.isFinite(n) ? n : null;
 }
 
-function asList(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.counterparties)) return payload.counterparties;
-  if (Array.isArray(payload?.data)) return payload.data;
-  return [];
+// Both Arkham endpoints key their payload by chain slug at the TOP level
+// (`ethereum`, `base`, `polygon`, ...), each holding its own array. There is
+// no flat list. When the caller scopes to specific chains we take those
+// slices; otherwise we aggregate across every chain, because "the wallet's
+// normal outflow" is a property of the wallet, not of one network.
+function chainSlices(payload, chainsArg) {
+  if (!payload || typeof payload !== "object") return [];
+  let wanted = null;
+  if (typeof chainsArg === "string" && chainsArg.length > 0) {
+    wanted = {};
+    const parts = chainsArg.split(",");
+    for (let i = 0; i < parts.length; i++) {
+      const c = parts[i].trim();
+      if (c) wanted[c] = true;
+    }
+  }
+  const out = [];
+  const keys = Object.keys(payload);
+  for (let i = 0; i < keys.length; i++) {
+    const chain = keys[i];
+    if (wanted && wanted[chain] !== true) continue;
+    const value = payload[chain];
+    if (Array.isArray(value)) out.push(value);
+  }
+  return out;
 }
 
-function addressOf(entry) {
-  const raw = entry?.address ?? entry?.counterpartyAddress ?? entry?.counterparty?.address;
+// A counterparty entry nests the full enriched address record under
+// `address`, so the raw hex lives at `entry.address.address` — NOT at
+// `entry.address`, which is an object.
+function counterpartyAddress(entry) {
+  const raw = entry?.address?.address;
   return typeof raw === "string" ? raw.toLowerCase() : null;
 }
 
-// Arkham reports the last interaction as a unix timestamp under one of a
-// few names depending on endpoint version. Null (not 0) when absent, so
-// the Rego's `!= null` guard fail-softs instead of reading "today".
-function lastSeenDays(entry) {
-  const ts = num(entry?.lastTransactionTime ?? entry?.lastSeen ?? entry?.last_transaction_time);
-  if (ts == null || ts <= 0) return null;
-  const seconds = ts > 1e12 ? ts / 1000 : ts;
-  return Math.max(0, (Date.now() / 1000 - seconds) / 86400);
+function counterpartyLabel(entry) {
+  const e = entry?.address?.arkhamEntity;
+  if (e && (e.name || e.id)) return String(e.name ?? e.id);
+  const l = entry?.address?.arkhamLabel;
+  return l?.name ? String(l.name) : null;
 }
 
-// Collapse the flow time-series into a "normal" daily outflow and a
-// "recent" one. The most recent bucket is what we are judging; the
-// baseline is the mean of everything before it, so a single anomalous day
-// cannot inflate its own baseline and hide itself.
-function outflowBaseline(flow) {
-  const series = Array.isArray(flow)
-    ? flow
-    : Array.isArray(flow?.flows)
-      ? flow.flows
-      : Array.isArray(flow?.data)
-        ? flow.data
-        : [];
-  const outflows = [];
-  for (const point of series) {
-    const v = num(point?.outflow ?? point?.outflowUsd ?? point?.usdOutflow);
-    if (v != null) outflows.push(Math.abs(v));
+// Collapse the per-chain daily flow series into one wallet-wide series,
+// summing outflow across chains for the same day. `time` is an ISO date
+// string, so it sorts lexicographically.
+//
+// Plain object + indexed loops on purpose. A `Map` keyed by day (~1950 entries
+// for an active wallet) crashes the componentize-js runtime outright — the
+// fetch and a full `JSON.parse` of the same payload both succeed, and only the
+// Map build fails. Same for `for...of` with destructuring. Keep aggregation
+// here to plain objects and classic `for` loops.
+function mergedOutflowByDay(payload, chainsArg) {
+  const byDay = {};
+  const slices = chainSlices(payload, chainsArg);
+  for (let si = 0; si < slices.length; si++) {
+    const series = slices[si];
+    for (let i = 0; i < series.length; i++) {
+      const point = series[i];
+      const day = point && point.time;
+      if (typeof day !== "string") continue;
+      const v = num(point.outflow);
+      if (v == null) continue;
+      byDay[day] = (byDay[day] || 0) + Math.abs(v);
+    }
   }
-  if (outflows.length === 0) return { normal: null, recent: null, ratio: null };
-  const recent = outflows[outflows.length - 1];
-  const prior = outflows.slice(0, -1);
-  if (prior.length === 0) return { normal: null, recent, ratio: null };
-  const normal = prior.reduce((a, b) => a + b, 0) / prior.length;
+  const days = Object.keys(byDay);
+  days.sort();
+  const out = [];
+  for (let i = 0; i < days.length; i++) out.push([days[i], byDay[days[i]]]);
+  return out;
+}
+
+// The most recent day is what we are judging; the baseline is the mean of the
+// `windowDays` days before it. Scoping the baseline to a recent window (rather
+// than all history, which can span years) keeps "normal" meaningful for a
+// wallet whose activity has changed. Excluding the latest day is deliberate:
+// otherwise a single anomalous day inflates its own baseline and hides itself.
+function outflowBaseline(payload, chainsArg, windowDays) {
+  const series = mergedOutflowByDay(payload, chainsArg);
+  if (series.length === 0) return { normal: null, recent: null, ratio: null };
+  const recent = series[series.length - 1][1];
+  const from = Math.max(0, series.length - 1 - windowDays);
+  let sum = 0;
+  let n = 0;
+  for (let i = from; i < series.length - 1; i++) {
+    sum += series[i][1];
+    n++;
+  }
+  if (n === 0) return { normal: null, recent, ratio: null };
+  const normal = sum / n;
   const ratio = normal > 0 ? recent / normal : null;
   return { normal, recent, ratio };
 }
@@ -129,6 +175,9 @@ export function run(input) {
     const { sender_address, destination_address, chains } = myArgs;
     if (!sender_address) throw new Error("missing sender_address");
     if (!destination_address) throw new Error("missing destination_address");
+    // Unscoped, /flow/address returns every chain's full daily history — over
+    // 1MB for an active wallet, which exhausts the WASM heap. Require a scope.
+    if (!chains) throw new Error("missing chains (required to bound the flow response)");
 
     const apiKey = secret("ARKHAM_API_KEY");
     if (!apiKey) throw new Error("missing ARKHAM_API_KEY");
@@ -147,43 +196,60 @@ export function run(input) {
       apiKey,
     );
     const flow = getJson(
-      `${ARKHAM_API}/flow/address/${sender_address}?${chainQuery.slice(1)}`,
+      `${ARKHAM_API}/flow/address/${sender_address}?chains=${encodeURIComponent(chains ?? "")}`,
       apiKey,
     );
 
-    const entries = asList(counterparties);
     const target = destination_address.toLowerCase();
 
-    let match = null;
+    // Sum across chains: the same counterparty can appear once per network.
+    let matchUsd = 0;
+    let matchTxCount = 0;
+    let matchFound = false;
+    let matchLabel = null;
+    let matchFlow = null;
     let totalUsdAllCounterparties = 0;
-    for (const entry of entries) {
-      const usd = Math.abs(num(entry?.usd ?? entry?.usdValue) ?? 0);
-      totalUsdAllCounterparties += usd;
-      if (addressOf(entry) === target) match = entry;
+
+    const cpSlices = chainSlices(counterparties, chains);
+    for (let si = 0; si < cpSlices.length; si++) {
+      const entries = cpSlices[si];
+      for (let ei = 0; ei < entries.length; ei++) {
+        const entry = entries[ei];
+        const usd = Math.abs(num(entry?.usd) ?? 0);
+        totalUsdAllCounterparties += usd;
+        if (counterpartyAddress(entry) !== target) continue;
+        matchFound = true;
+        matchUsd += usd;
+        matchTxCount += num(entry?.transactionCount) ?? 0;
+        matchLabel = matchLabel ?? counterpartyLabel(entry);
+        matchFlow = matchFlow ?? (entry?.flow ? String(entry.flow) : null);
+      }
     }
 
-    const isKnown = match !== null;
-    const txCount = isKnown ? (num(match.transactionCount ?? match.txCount) ?? 0) : 0;
-    const totalUsd = isKnown ? Math.abs(num(match.usd ?? match.usdValue) ?? 0) : 0;
-    // Null rather than 0 when there is no history to average — a zero
-    // average would read as "every payment is infinitely anomalous".
-    const avgUsd = isKnown && txCount > 0 ? totalUsd / txCount : null;
+    // Null rather than 0 when there is no history to average — a zero average
+    // would make every payment look infinitely anomalous.
+    const avgUsd = matchFound && matchTxCount > 0 ? matchUsd / matchTxCount : null;
     const concentration =
-      isKnown && totalUsdAllCounterparties > 0
-        ? (totalUsd / totalUsdAllCounterparties) * 100
+      matchFound && totalUsdAllCounterparties > 0
+        ? (matchUsd / totalUsdAllCounterparties) * 100
         : null;
 
-    const { normal, recent, ratio } = outflowBaseline(flow);
+    const { normal, recent, ratio } = outflowBaseline(flow, chains, windowDays);
 
     return wrapOutput(PACK_ID, {
       sender_address,
       destination_address,
       chains: chains ?? null,
-      is_known_counterparty: isKnown,
-      counterparty_transaction_count: txCount,
-      counterparty_total_usd: totalUsd,
+      is_known_counterparty: matchFound,
+      counterparty_label: matchLabel,
+      counterparty_flow_direction: matchFlow,
+      counterparty_transaction_count: matchTxCount,
+      counterparty_total_usd: matchUsd,
       counterparty_avg_usd: avgUsd,
-      counterparty_last_seen_days: isKnown ? lastSeenDays(match) : null,
+      // Arkham's counterparties endpoint returns no per-relationship
+      // timestamp, so recency is unavailable and the Rego's
+      // `stale_relationship` rule fail-softs on null. See README.
+      counterparty_last_seen_days: null,
       counterparty_concentration_pct: concentration,
       normal_daily_outflow_usd: normal,
       recent_daily_outflow_usd: recent,

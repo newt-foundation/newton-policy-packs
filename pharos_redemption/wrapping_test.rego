@@ -11,35 +11,48 @@ import future.keywords
 
 default_params := {
 	"require_redemption_available": true,
-	"approved_route_families": ["issuer-direct", "authorised-participant"],
-	"approved_access_models": ["permissionless", "kyc-gated"],
+	"approved_route_families": ["offchain-issuer", "authorised-participant"],
+	"approved_access_models": ["issuer-api", "permissionless"],
 	"approved_settlement_models": ["same-day", "t-plus-one"],
-	"required_route_status": "active",
-	"min_confidence": 0.7,
-	"min_daily_limit_multiple": 2,
-	"max_data_age_seconds": 900,
+	"required_route_status": "open",
+	"min_route_score": 50,
+	"approved_capacity_confidence": ["documented-bound", "measured"],
+	"min_capacity_multiple": 2,
+	"max_reserve_elevated_risk_pct": 25,
+	"max_data_age_seconds": 21600,
 }
 
 clean_inner := {
 	"stablecoin_id": "usdc-circle",
 	"symbol": "USDC",
+	"issuer": "circle",
 	"redemption_available": true,
-	"route_family": "issuer-direct",
-	"access_model": "kyc-gated",
+	"route_family": "offchain-issuer",
+	"access_model": "issuer-api",
 	"settlement_model": "same-day",
-	"route_status": "active",
-	"holder_eligibility": "verified-institutions",
-	"immediate_capacity_usd": 250000000,
-	"daily_limit_usd": 1000000000,
-	"min_redeem_usd": 100000,
-	"fees_bps": 0,
-	"confidence": 0.96,
-	"reserve_composition": {"cash": 0.2, "treasuries": 0.8},
-	"reserve_source_mode": "live",
-	"reserve_sync_status": "synced",
+	"execution_model": "rules-based-nav",
+	"route_status": "open",
+	"holder_eligibility": "verified-customer",
+	"provider": "supply-ratio-model",
+	"source_mode": "estimated",
+	"immediate_capacity_usd": 5152335530,
+	"modeled_exit_size_usd": 25000000,
+	"capacity_confidence": "documented-bound",
+	"route_score": 63,
+	"access_score": 40,
+	"settlement_score": 65,
+	"capacity_score": 69,
+	"fee_bps": null,
+	"queue_enabled": false,
+	"reserve_composition": {"<3-Month U.S. Treasuries": 67.1, "Other Bank Deposits": 14.6},
+	"reserve_elevated_risk_pct": 0,
+	"reserve_mode": "live-stale",
+	"reserve_source": "circle-transparency",
+	"reserve_sync_status": "ok",
+	"reserve_stale": true,
 	"transaction_amount_usd": 1000000,
-	"daily_limit_multiple": 1000,
-	"data_age_seconds": 45,
+	"capacity_multiple": 5152,
+	"data_age_seconds": 8833,
 }
 
 namespaced(overrides) := {"pharos_redemption": object.union(clean_inner, overrides)}
@@ -62,9 +75,9 @@ test_namespaced_deny_route_status_not_approved if {
 }
 
 test_namespaced_deny_low_confidence if {
-	"low_confidence" in pharos_redemption_backing.deny
+	"low_route_score" in pharos_redemption_backing.deny
 		with data.params as default_params
-		with data.wasm as namespaced({"confidence": 0.1})
+		with data.wasm as namespaced({"route_score": 5})
 }
 
 test_namespaced_deny_stale_data if {
@@ -78,8 +91,8 @@ test_flat_input_does_not_trigger_namespaced_rules if {
 		"redemption_available": false,
 		"route_family": "amm-only",
 		"route_status": "suspended",
-		"confidence": 0,
-		"daily_limit_multiple": 0.1,
+		"route_score": 0,
+		"capacity_multiple": 0.1,
 		"data_age_seconds": 99999,
 	})
 	count(pharos_redemption_backing.deny) == 0

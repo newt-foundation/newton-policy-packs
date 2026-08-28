@@ -31,28 +31,33 @@ deny contains "unapproved_settlement_model" if {
 	not v.settlement_model in t.approved_settlement_models
 }
 
+# Pharos reports `open` for a working route, not `active`.
 deny contains "route_status_not_approved" if {
 	v.route_status != null
 	v.route_status != t.required_route_status
 }
 
-# A position below the route's redemption minimum cannot be redeemed at
-# all, which defeats the point of a redemption-backed policy.
-deny contains "below_min_redeem" if {
-	v.min_redeem_usd != null
-	v.transaction_amount_usd != null
-	v.transaction_amount_usd > 0
-	v.transaction_amount_usd < v.min_redeem_usd
+# Sizing is against IMMEDIATE capacity: Pharos publishes no daily limit and no
+# redemption minimum on this endpoint.
+deny contains "position_exceeds_capacity" if {
+	v.capacity_multiple != null
+	v.capacity_multiple < t.min_capacity_multiple
 }
 
-deny contains "position_exceeds_daily_limit" if {
-	v.daily_limit_multiple != null
-	v.daily_limit_multiple < t.min_daily_limit_multiple
+deny contains "low_route_score" if {
+	v.route_score != null
+	v.route_score < t.min_route_score
 }
 
-deny contains "low_confidence" if {
-	v.confidence != null
-	v.confidence < t.min_confidence
+deny contains "unapproved_capacity_confidence" if {
+	count(t.approved_capacity_confidence) > 0
+	v.capacity_confidence != null
+	not v.capacity_confidence in t.approved_capacity_confidence
+}
+
+deny contains "reserve_risk_above_max" if {
+	v.reserve_elevated_risk_pct != null
+	v.reserve_elevated_risk_pct > t.max_reserve_elevated_risk_pct
 }
 
 deny contains "stale_data" if {
@@ -63,8 +68,8 @@ deny contains "stale_data" if {
 # --- allow -----------------------------------------------------------------
 
 # Explicit positive conjunction, not `count(deny) == 0` — every deny rule
-# silent-skips on undefined fields, so an error envelope would yield an
-# empty deny set and fail OPEN.
+# silent-skips on undefined fields, so an error envelope would yield an empty
+# deny set and fail OPEN. `is_boolean(v.redemption_available)` grounds it.
 allow if {
 	is_boolean(v.redemption_available)
 	availability_ok
@@ -72,9 +77,10 @@ allow if {
 	access_model_ok
 	settlement_model_ok
 	route_status_ok
-	min_redeem_ok
-	daily_limit_ok
-	confidence_ok
+	capacity_ok
+	route_score_ok
+	capacity_confidence_ok
+	reserve_ok
 	fresh_ok
 }
 
@@ -85,8 +91,8 @@ availability_ok if {
 	not t.require_redemption_available
 }
 
-# `null` is the oracle's "Pharos did not report this". Each of these
-# fail-softs on null but denies on a reported-but-unapproved value.
+# `null` is the oracle's "Pharos did not report this". Each of these fail-softs
+# on null but denies on a reported-but-unapproved value.
 route_family_ok if v.route_family == null
 
 route_family_ok if v.route_family in t.approved_route_families
@@ -103,21 +109,23 @@ route_status_ok if v.route_status == null
 
 route_status_ok if v.route_status == t.required_route_status
 
-min_redeem_ok if v.min_redeem_usd == null
+capacity_ok if v.capacity_multiple == null
 
-min_redeem_ok if v.transaction_amount_usd == null
+capacity_ok if v.capacity_multiple >= t.min_capacity_multiple
 
-min_redeem_ok if v.transaction_amount_usd == 0
+route_score_ok if v.route_score == null
 
-min_redeem_ok if v.transaction_amount_usd >= v.min_redeem_usd
+route_score_ok if v.route_score >= t.min_route_score
 
-daily_limit_ok if v.daily_limit_multiple == null
+capacity_confidence_ok if count(t.approved_capacity_confidence) == 0
 
-daily_limit_ok if v.daily_limit_multiple >= t.min_daily_limit_multiple
+capacity_confidence_ok if v.capacity_confidence == null
 
-confidence_ok if v.confidence == null
+capacity_confidence_ok if v.capacity_confidence in t.approved_capacity_confidence
 
-confidence_ok if v.confidence >= t.min_confidence
+reserve_ok if v.reserve_elevated_risk_pct == null
+
+reserve_ok if v.reserve_elevated_risk_pct <= t.max_reserve_elevated_risk_pct
 
 fresh_ok if v.data_age_seconds == null
 

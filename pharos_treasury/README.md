@@ -15,32 +15,35 @@ Requires a Pharos API key (`PHAROS_API_KEY`).
 
 ### Data Oracle (policy.js)
 
-Five GET requests against `https://api.pharos.watch`, authenticated with the `X-API-Key` header:
+Five GET requests against `https://api.pharos.watch`, authenticated with the `X-API-Key` header. **Four of the five are scoped to a single asset** — the Notion brief pointed at bulk endpoints, but Pharos's OpenAPI spec exposes per-asset alternatives that are orders of magnitude smaller:
 
-1. `/api/stablecoin/{id}` — identity, price, peg target, supply, chains.
-2. `/api/depeg-events?stablecoin={id}&active=true&includePending=true` — confirmed active incidents.
-3. `/api/stress-signals?stablecoin={id}&days={n}` — stress score, band, active signals.
-4. `/api/dex-liquidity` — stablecoin-keyed liquidity map.
-5. `/api/redemption-backstops` — stablecoin-keyed redemption map.
+| Call | Size | Why this one |
+|---|---|---|
+| `/api/stablecoin-summary/{id}` | ~0.6 KB | Identity, `priceUsd`, peg type/mechanism, supply, chain count. Replaces `/api/stablecoin/{id}`, which is a 345 KB circulating-supply time series with no price in it. |
+| `/api/depeg-events?stablecoin={id}&active=true&includePending=true` | ~0.3 KB | Confirmed active incidents. |
+| `/api/stress-signals?stablecoin={id}&days={n}` | ~7.5 KB | Stress score, band, per-signal sub-scores. |
+| `/api/dex-liquidity-history?stablecoin={id}&days=1` | ~47 KB | Liquidity score, TVL, and the `exitRouteObservations` capacity curves. Replaces `/api/dex-liquidity` (**2.98 MB**, all 377 assets, no query parameters) — a 63x reduction. |
+| `/api/redemption-backstops` | 1.1 MB | The one endpoint with **no filter at all**. Its object for this coin is cut out of the raw text and only that ~3 KB is parsed — `JSON.parse` on the full document exhausts the WASM heap. |
 
-This is the heaviest pack in the repo at five serial calls per evaluation. It is deliberately not split: this is the one policy that genuinely spans every Pharos signal family. Note that self-serve Pharos keys are rate-limited to 30 requests/minute.
-
-`exit_capacity_usd` reads only observations at or below the caller's `max_slippage_bps`. Including looser observations would overstate exit capacity — precisely the failure this pack exists to catch.
+**Reading exit capacity correctly.** Each observation's top-level `executableUsd` is capped at its `requestedNotionalUsd`, so a $1M simulation that fills completely reports $1M — which says nothing about the ceiling. The real ladder is `capacityCurve`: successive notionals (100k → 1M → 10M → 25M) each with the `executionCostBps` actually incurred (~9-12 bps for USDC). The oracle walks that curve and takes the largest rung within the caller's `max_cost_bps`. Note that an observation's own `maxCostBps` is the bound the *simulation ran under* (always 200), not the cost incurred — filtering on it would use the wrong number. Across routes it takes the **max**, not the sum: routes overlap (Pharos flags correlation via `commonModeKeys`), so summing double-counts shared liquidity.
 
 | Field | Description |
 |---|---|
-| `stablecoin_id` / `symbol` / `issuer` | Asset identity |
-| `price` / `peg_target` | Market price and the value the asset targets |
-| `peg_deviation_bps` | **Signed** deviation in bps (negative = below peg); the Rego threshold is symmetric via `abs()` |
-| `depeg_active` / `depeg_severity` / `depeg_direction` | Active incident state |
-| `supply` / `market_cap_usd` / `chains` | Market footprint |
-| `stress_score` / `stress_band` / `active_stress_indicators` | Stress posture |
-| `liquidity_score` / `effective_tvl_usd` / `pool_count` / `chain_count` / `liquidity_concentration` | Liquidity depth and diversity |
-| `exit_capacity_usd` | USD sellable within the slippage tolerance |
-| `exit_capacity_multiple` | `exit_capacity_usd / transaction_amount_usd`, or `null` when no amount was supplied |
-| `redemption_available` / `redemption_route_family` / `redemption_access_model` / `redemption_route_status` | Redemption posture |
-| `daily_limit_usd` / `immediate_capacity_usd` | Redemption capacity |
-| `data_age_seconds` | **Oldest** age across all five responses — the weakest link, not the freshest |
+| `stablecoin_id` / `symbol` / `name` | Asset identity |
+| `peg_type` / `peg_mechanism` | e.g. `peggedUSD`, `fiat-backed` |
+| `price` / `price_confidence` | Aggregated price and Pharos's confidence in it |
+| `peg_target` / `peg_deviation_bps` | Target (1) and **signed** deviation; the Rego threshold is symmetric via `abs()` |
+| `depeg_active` / `depeg_severity` / `depeg_direction` | Confirmed incident state |
+| `depeg_pending_count` | Unconfirmed threshold crossings; does NOT trip `depeg_active` |
+| `supply_usd` / `supply_change_7d_usd` / `chain_count` | Market footprint |
+| `stress_score` / `stress_band` / `stress_signals` | Stress posture; `stress_signals` is the raw `{name: 0-100}` map |
+| `active_stress_indicators` | Convenience view of signals at or above 50. No rule depends on it |
+| `liquidity_score` / `effective_tvl_usd` / `volume_24h_usd` / `pool_count` | Liquidity depth |
+| `exit_capacity_usd` / `exit_capacity_multiple` | Capacity within `max_cost_bps`, and its ratio to the position |
+| `redemption_available` / `redemption_route_family` / `redemption_access_model` / `redemption_route_status` / `redemption_score` | Redemption posture |
+| `immediate_capacity_usd` | Redeemable right now |
+| `price_data_age_seconds` / `stress_data_age_seconds` / `liquidity_data_age_seconds` / `redemption_data_age_seconds` | Per-source ages — these move on very different clocks |
+| `data_age_seconds` | The **oldest** of the above, which is what `stale_data` gates on |
 | `timestamp` | When this snapshot was taken |
 
 ### Policy Rules (policy.rego)
@@ -55,7 +58,7 @@ Package `pharos_treasury_risk`. Denies when **any** of these hold:
 | `redemption_unavailable` | `require_redemption` and no route | No credible exit at par |
 | `unapproved_redemption_route` | route family not approved | Redemption through an out-of-policy mechanism |
 | `unapproved_access_model` | access model not approved | The wrong parties can redeem |
-| `route_status_impaired` | status is not `active` | A route reported as impaired or suspended |
+| `route_status_not_approved` | status is not `required_route_status` | A route reported as impaired or suspended |
 | `insufficient_exit_capacity` | multiple below `min_exit_capacity_multiple` | A position that cannot realistically be exited |
 | `liquidity_score_below_min` | score below `min_liquidity_score` | Thin or fragile DEX liquidity |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale data |
@@ -72,16 +75,22 @@ Package `pharos_treasury_risk`. Denies when **any** of these hold:
 | `require_redemption` | `boolean` | Require a working redemption route |
 | `approved_redemption_route_families` | `string[]` | Acceptable route families |
 | `approved_access_models` | `string[]` | Acceptable access models |
+| `required_route_status` | `string` | Status a working route must report. Pharos reports **`open`**, not `active` |
 | `min_exit_capacity_multiple` | `number` | Required exit capacity as a multiple of the position |
 | `min_liquidity_score` | `number` | Liquidity score floor 0-100 |
-| `max_data_age_seconds` | `number` | Freshness ceiling |
+| `max_data_age_seconds` | `number` | Freshness ceiling on the oldest source. See the note below before tightening it |
 
 ## Notes
 
-- **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`, so a caller controls it. The attested alternative — `input.value` — is native-token wei rather than USD, and arrives as a *string*. A curator needing a tamper-proof ceiling should pair this pack with a native-value cap in a composite.
+- **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`. The attested alternative, `input.value`, is native-token wei (and a *string*), not USD. Pair with a native-value cap in a composite if you need a tamper-proof ceiling.
+- **Peg deviation is signed.** A drop below peg trips the same threshold as a rise above it, via `abs()` in the Rego. A naive unsigned comparison would miss the direction that matters most.
+- **`route_status` is `open`, not `active`.** Configuring `required_route_status: "active"` — the intuitive guess — denies every healthy asset. There is a test pinning this trap.
+- **Freshness ceilings need care.** The four sources move on very different clocks: price and stress refresh in minutes, `dex-liquidity-history` is a **daily bucket** (up to ~24h old by construction), and redemption-backstops lags by hours. `data_age_seconds` is the oldest of them, so a ceiling below ~24h denies permanently. The per-source ages are emitted separately so you can see which feed is actually driving it.
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
-- **Peg deviation is signed.** A drop below peg trips the same threshold as a rise above it, via `abs()` in the Rego. A naive unsigned comparison would miss exactly the direction that matters most.
-- Passing no `transaction_amount_usd` leaves `exit_capacity_multiple` as `null` rather than infinity, so the exit-capacity rule fail-softs instead of reading an unbounded ratio as safe.
+- Passing no `transaction_amount_usd` leaves `exit_capacity_multiple` as `null` rather than infinity, so the rule fail-softs rather than reading an unbounded ratio as safe.
+- This is the heaviest pack in the repo. Self-serve Pharos keys are rate limited to **30 requests/minute**, and this pack spends 5 of them per evaluation.
+
+- **This pack rides within about 40% of a hard runtime limit.** `/api/redemption-backstops` has no filter, so the oracle downloads all ~1.14MB and slices this coin's ~3KB object out of the raw text. Holding a document and slicing it works to roughly 1.6MB on this runtime; at ~3.5KB per coin that is around 130 more coins of headroom. A `MAX_SLICEABLE_BYTES` guard trips first and returns a readable error (which fails closed) rather than trapping the component with no verdict. The durable fix is a per-asset endpoint from Pharos.
 
 ## Prerequisites
 
