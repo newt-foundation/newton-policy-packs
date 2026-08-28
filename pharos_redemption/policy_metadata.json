@@ -1,0 +1,7 @@
+{
+  "name": "pharos_redemption",
+  "version": "0.0.1",
+  "author": "Pharos",
+  "link": "https://pharos.watch",
+  "description": "Redemption-backed asset gate: admits a stablecoin only when direct redemption is available through an approved provider and mechanism, applicable limits support the intended position size, and the oracle response is current"
+}

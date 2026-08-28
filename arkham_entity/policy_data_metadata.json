@@ -1,0 +1,7 @@
+{
+  "name": "arkham_entity Wasm",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Calls Arkham's enriched-address intelligence and address-risk endpoints and emits entity attribution, address role, behavioural tags, attribution type/confidence, and headline risk for the queried address"
+}

@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Pharos redemption-backed asset gate",
+  "properties": {
+    "require_redemption_available": {
+      "type": "boolean",
+      "description": "When true, an asset with no working direct redemption route denies outright."
+    },
+    "approved_route_families": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Pharos redemption route families the curator will accept (e.g. 'issuer-direct', 'authorised-participant')."
+    },
+    "approved_access_models": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Pharos redemption access models the curator will accept (e.g. 'permissionless', 'kyc-gated'). Governs who may redeem."
+    },
+    "approved_settlement_models": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Pharos settlement models the curator will accept (e.g. 'same-day', 't-plus-one'). Governs how quickly redemption settles."
+    },
+    "required_route_status": {
+      "type": "string",
+      "description": "The route status the asset must report to be admissible, typically 'active'. Anything else - impaired, suspended, degraded - denies."
+    },
+    "min_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum Pharos confidence (0-1) in the reported redemption route before the policy will act on it."
+    },
+    "min_daily_limit_multiple": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Minimum ratio of the route's daily redemption limit to the intended position. 2 requires the daily limit be at least twice the position, so it can be exited without queueing across days."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule."
+    }
+  },
+  "required": [
+    "require_redemption_available",
+    "approved_route_families",
+    "approved_access_models",
+    "approved_settlement_models",
+    "required_route_status",
+    "min_confidence",
+    "min_daily_limit_multiple",
+    "max_data_age_seconds"
+  ],
+  "additionalProperties": false
+}

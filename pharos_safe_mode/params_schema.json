@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "description": "Thresholds and action classification for the Pharos stablecoin safe-mode gate",
+  "properties": {
+    "safe_mode_stress_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Pharos stress score (0-100) at or above which safe mode engages. Below this, and absent a depeg, every classified action proceeds normally."
+    },
+    "deny_on_active_depeg": {
+      "type": "boolean",
+      "description": "When true, a confirmed active depeg engages safe mode on its own, independently of the stress score."
+    },
+    "exposure_increasing_functions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bare function names that increase exposure to the asset (e.g. 'deposit', 'mint', 'supply'). Blocked while safe mode is engaged. Matched against the attested input.function.name."
+    },
+    "exposure_reducing_functions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bare function names that reduce exposure (e.g. 'withdraw', 'redeem', 'repay'). Always permitted, including while safe mode is engaged - that is the point of a graduated response."
+    },
+    "swap_functions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bare function names that swap the asset for another (e.g. 'swap', 'exchange'). Permitted in safe mode only when the destination token is in approved_safe_assets."
+    },
+    "swap_destination_arg_index": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Zero-based index into input.decoded_function_arguments holding the destination token address for a swap. An out-of-range index leaves the destination undefined, which fails closed."
+    },
+    "approved_safe_assets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Token contract addresses (0x-prefixed) considered safe destinations for a swap out of a stressed asset. Compared case-insensitively."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Pharos observation. Null ages from the oracle fail-soft and do not trigger this rule."
+    }
+  },
+  "required": [
+    "safe_mode_stress_threshold",
+    "deny_on_active_depeg",
+    "exposure_increasing_functions",
+    "exposure_reducing_functions",
+    "swap_functions",
+    "swap_destination_arg_index",
+    "approved_safe_assets",
+    "max_data_age_seconds"
+  ],
+  "additionalProperties": false
+}

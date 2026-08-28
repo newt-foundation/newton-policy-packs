@@ -4,6 +4,9 @@ import type { ChainId, GatewayEnv } from "@newton-xyz/policy-core";
 import type { KnownPackId } from "./known-pack-ids";
 
 export const AUDITED_POLICY_DATA = {
+	arkham_counterparty: {},
+	arkham_entity: {},
+	arkham_risk: {},
 	balancer: {
 		"1": {
 			prod: "0xAd60980C077123A82c574624AC857Dc775b914bd",
@@ -74,6 +77,9 @@ export const AUDITED_POLICY_DATA = {
 			prod: "0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10",
 		},
 	},
+	pharos_redemption: {},
+	pharos_safe_mode: {},
+	pharos_treasury: {},
 	redstone: {
 		"1": {
 			prod: "0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9",

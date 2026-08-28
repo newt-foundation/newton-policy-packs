@@ -1,0 +1,7 @@
+{
+  "name": "arkham_entity",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Entity-aware spending gate: tiers a transaction limit by Arkham entity attribution, denying prohibited risk tags, unapproved entity categories, low-confidence attribution, and unlabelled destinations above an introductory cap"
+}

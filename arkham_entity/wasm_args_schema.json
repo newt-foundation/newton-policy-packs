@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Arkham entity-aware wallet policy WASM at evaluation time",
+  "properties": {
+    "address": {
+      "type": "string",
+      "description": "Destination address (0x-prefixed) to attribute and screen with Arkham."
+    },
+    "chain": {
+      "type": "string",
+      "description": "Optional Arkham chain identifier (e.g. 'ethereum', 'base', 'arbitrum_one'). Arkham returns per-chain labels, tags and activity for the same address, so omitting this widens the lookup to every supported chain."
+    },
+    "transaction_amount_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "USD notional of the proposed transaction, used by the Rego tiering rules. CALLER-SUPPLIED and therefore NOT attested - see this pack's README. Defaults to 0 when omitted, which places the transaction in the most permissive tier."
+    }
+  },
+  "required": ["address"]
+}

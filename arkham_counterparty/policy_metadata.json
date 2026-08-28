@@ -1,0 +1,7 @@
+{
+  "name": "arkham_counterparty",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Adaptive counterparty gate: allows routine payments to established counterparties whose amount and daily outflow match the wallet's historical baseline, and denies new recipients, anomalous amounts, and concentration or outflow spikes"
+}

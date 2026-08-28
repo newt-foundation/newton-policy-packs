@@ -114,7 +114,7 @@ The pack name is **load-bearing** in six places — they all have to match:
 5. The pack registry: [`scripts/lib/packs.sh`](../scripts/lib/packs.sh) (`<pack-name>:<rego-package-name>` entry)
 6. The top-level `deployments.json` key under `packs.<your-pack>` (the codegen reads this slice to emit `packages/policy-pack-<your-pack>/src/deployments.ts`)
 
-Use `kebab-case` if the name has multiple words (`my-service`). The Rego package name is `snake_case` derived from the pack name (`my_service`) — `policy.rego` declares it via `package my_service` at the top.
+Use `snake_case` if the name has multiple words (`my_service`). **Hyphens are rejected**: `defineOracle` in `@newton-xyz/policy-core` validates the short pack id against `SHORT_ID_RE = /^[a-z][a-z0-9_]*$/` and throws at construction otherwise, because Rego parses `a-b` as subtraction — a kebab-case id would break every `data.wasm.<id>` reference in your rules. The Rego package name is typically longer and more descriptive than the pack id (`balancer` declares `package balancer_pool_risk`); `policy.rego` declares it at the top.
 
 Pick a name that won't collide with an existing pack. The current set is in [`scripts/lib/packs.sh`](../scripts/lib/packs.sh).
 
@@ -214,7 +214,32 @@ Drop test fixtures under `<your-pack>/configs/` (gitignored):
 
 - `wasm_args.json` — sample per-call inputs
 - `params.json` — sample policy params
-- `intent.json` — sample transaction intent
+- `secrets.json` — plaintext API keys, exposed to `secret(...)` for this local run only
+- `intent.json` — sample transaction intent, in the **gateway shape** below
+
+The intent JSON takes **camelCase** keys, and Rego sees them as **snake_case**.
+`functionSignature` is the signature string hex-encoded as UTF-8 bytes (NOT a
+keccak selector), and `data` must ABI-decode against it or the CLI fails with
+`buffer overrun while deserializing`:
+
+```json
+{
+  "from": "0x8D84B1344cb6375694f5862c868BA2c78240c076",
+  "to":   "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+  "value": "1000000000000000000",
+  "chainId": 11155111,
+  "functionSignature": "0x77697468647261772875696e743235362c616464726573732c6164647265737329",
+  "data": "0xb460af94...<abi-encoded args>"
+}
+```
+
+Generate the signature hex with `printf 'withdraw(uint256,address,address)' | xxd -p | tr -d '\n'`.
+
+Rego then receives `input.from`, `input.to`, `input.value` (a **string**),
+`input.chain_id` (a **string**), `input.function.name` (the bare name),
+`input.function_signature`, `input.decoded_function_signature`, and
+`input.decoded_function_arguments` (an array of **strings**). See
+`pharos_safe_mode/` for the only pack that gates on the intent.
 
 Then simulate the full WASM + Rego flow:
 
@@ -231,7 +256,9 @@ newton-cli policy simulate \
   --wasm-args ./<your-pack>/configs/wasm_args.json \
   --intent-json ./<your-pack>/configs/intent.json \
   --policy-params-data ./<your-pack>/configs/params.json \
-  --policy-file ./<your-pack>/policy.rego \
+  --secrets-file ./<your-pack>/configs/secrets.json \
+  --rego-file ./<your-pack>/policy.rego \
+  --entrypoint <your_pack>.allow \
   --wasm-file ./<your-pack>/dist/policy.wasm
 ```
 

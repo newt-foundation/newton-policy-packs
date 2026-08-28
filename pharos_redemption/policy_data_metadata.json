@@ -1,0 +1,7 @@
+{
+  "name": "pharos_redemption Wasm",
+  "version": "0.0.1",
+  "author": "Pharos",
+  "link": "https://pharos.watch",
+  "description": "Calls Pharos's redemption-backstops and stablecoin-reserves endpoints and emits redemption route family, access and settlement model, route status, capacity and daily limits, fees, confidence, and reserve composition"
+}

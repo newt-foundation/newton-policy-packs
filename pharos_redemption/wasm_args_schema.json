@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Pharos redemption-backed asset policy WASM at evaluation time",
+  "properties": {
+    "stablecoin_id": {
+      "type": "string",
+      "description": "Canonical Pharos stablecoin identifier in ticker-issuer form, e.g. 'usdc-circle'."
+    },
+    "transaction_amount_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "USD notional of the intended position, checked against the redemption minimum and daily limit. CALLER-SUPPLIED and therefore NOT attested - see this pack's README. Defaults to 0 when omitted, which leaves the limit ratio undefined and fail-soft."
+    }
+  },
+  "required": ["stablecoin_id"]
+}

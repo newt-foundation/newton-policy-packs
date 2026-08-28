@@ -116,6 +116,12 @@ Verified by grepping each pack's `policy.js`:
 | sumsub | `SUMSUB_APP_TOKEN`, `SUMSUB_SECRET_KEY` |
 | vaultsfyi | `VAULTS_FYI_API_KEY` |
 | webacy | `WEBACY_API_KEY` |
+| arkham_entity | `ARKHAM_API_KEY` |
+| arkham_counterparty | `ARKHAM_API_KEY` |
+| arkham_risk | `ARKHAM_API_KEY` |
+| pharos_treasury | `PHAROS_API_KEY` |
+| pharos_safe_mode | `PHAROS_API_KEY` |
+| pharos_redemption | `PHAROS_API_KEY` |
 
 Example for sumsub:
 

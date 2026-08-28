@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Arkham explainable-risk policy WASM at evaluation time",
+  "properties": {
+    "address": {
+      "type": "string",
+      "description": "Address (0x-prefixed) to screen for risk exposure and to trace risk paths for."
+    },
+    "chain": {
+      "type": "string",
+      "description": "Optional Arkham chain identifier. Arkham scores the same address differently per chain, so omitting this aggregates across every supported network."
+    }
+  },
+  "required": ["address"]
+}
