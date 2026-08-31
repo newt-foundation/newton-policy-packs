@@ -16,13 +16,14 @@ import future.keywords
 
 default_params := {
 	"safe_mode_stress_threshold": 60,
-	"deny_on_active_depeg": true,
+	"safe_mode_on_active_depeg": true,
 	"exposure_increasing_functions": ["deposit", "mint", "supply"],
 	"exposure_reducing_functions": ["withdraw", "redeem", "repay"],
 	"swap_functions": ["swap"],
 	"swap_destination_arg_index": 1,
 	"approved_safe_assets": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
 	"max_data_age_seconds": 7200,
+	"deny_on_missing_data": false,
 }
 
 clean_inner := {

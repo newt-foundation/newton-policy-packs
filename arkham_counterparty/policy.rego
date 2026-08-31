@@ -14,7 +14,23 @@ v := data.wasm.arkham_counterparty
 # See README.md.
 amount := v.transaction_amount_usd
 
+# Fields the oracle reports as `null` when Arkham has nothing to say. `null` is
+# deliberately distinct from `0`: a null age means "not reported", a zero age
+# would mean "observed just now". Under `deny_on_missing_data` the curator has
+# asked for the former to block rather than fail soft.
+nullable_fields := {
+	"counterparty_last_seen_days": v.counterparty_last_seen_days,
+	"counterparty_avg_usd": v.counterparty_avg_usd,
+	"counterparty_concentration_pct": v.counterparty_concentration_pct,
+	"outflow_ratio": v.outflow_ratio,
+	"data_age_seconds": v.data_age_seconds,
+}
+
 # --- deny rules ------------------------------------------------------------
+#
+# `deny` is the single source of truth for every rule in this policy. `allow`
+# below consumes it; there is no parallel set of positive helper rules to drift
+# out of sync with these.
 
 deny contains "unknown_counterparty" if {
 	t.require_known_counterparty
@@ -38,11 +54,29 @@ deny contains "stale_relationship" if {
 
 # An established counterparty is no excuse for a payment wildly out of
 # scale with the relationship's history.
+#
+# A zero-or-null historical average skips this rule: multiplying by zero would
+# make every payment infinitely anomalous. That leaves a genuine gap — a
+# counterparty whose average is a true 0 admits any amount here, gated only by
+# the other rules. Deliberately out of scope for this policy; a curator who
+# wants it closed should set `deny_on_missing_data` and lean on
+# `max_new_counterparty_usd`.
 deny contains "amount_anomaly" if {
 	v.counterparty_avg_usd != null
 	v.counterparty_avg_usd > 0
 	amount > v.counterparty_avg_usd * t.max_amount_vs_avg_multiple
 }
+
+# Fail closed on a misconfigured multiplier. A `0` here would silently disable
+# the anomaly rule rather than tightening it.
+#
+# The check has to route through a helper: OPA hoists `t.max_amount_vs_avg_multiple`
+# out of a `not ... > 0` into its own conjunct, so an ABSENT param would make the
+# whole rule body undefined instead of negating to true. Negating a named rule
+# catches the absent case as well as the zero one.
+deny contains "misconfigured_max_amount_vs_avg_multiple" if not valid_avg_multiple
+
+valid_avg_multiple if t.max_amount_vs_avg_multiple > 0
 
 deny contains "concentration_spike" if {
 	v.counterparty_concentration_pct != null
@@ -59,55 +93,28 @@ deny contains "stale_data" if {
 	v.data_age_seconds > t.max_data_age_seconds
 }
 
+# A threshold the curator configured is worth nothing if the oracle never
+# reports the value it applies to. See README for which fields Arkham does not
+# populate today.
+deny contains sprintf("missing_%v", [name]) if {
+	t.deny_on_missing_data
+	some name, value in nullable_fields
+	value == null
+}
+
 # --- allow -----------------------------------------------------------------
 
-# Explicit positive conjunction, not `count(deny) == 0` — every deny rule
-# silent-skips on undefined fields, so an error envelope would produce an
-# empty deny set and fail OPEN. The `is_*` checks ground the payload.
+# `allow` is the ONLY on-chain entrypoint — scripts/upload.sh derives
+# `<package>.allow` and nothing else is evaluated.
+#
+# The groundedness probes are load-bearing, not decoration: every deny rule
+# silent-skips on an undefined field, so an error envelope or a partial payload
+# yields an EMPTY deny set and a bare `count(deny) == 0` would fail OPEN on
+# exactly the input that most needs to fail closed. The probes below are what
+# make it fail CLOSED.
 allow if {
+	not v.error
 	is_boolean(v.is_known_counterparty)
 	is_number(amount)
-	counterparty_ok
-	recency_ok
-	amount_ok
-	concentration_ok
-	outflow_ok
-	fresh_ok
+	count(deny) == 0
 }
-
-# Established relationship: known, and with enough history behind it.
-counterparty_ok if {
-	v.is_known_counterparty == true
-	v.counterparty_transaction_count >= t.min_counterparty_transactions
-}
-
-# New relationship: permitted only below the introductory cap, and only
-# when the curator has not demanded a known counterparty outright.
-counterparty_ok if {
-	v.is_known_counterparty == false
-	not t.require_known_counterparty
-	amount <= t.max_new_counterparty_usd
-}
-
-# `null` is the oracle's "Arkham did not report this", distinct from 0.
-recency_ok if v.counterparty_last_seen_days == null
-
-recency_ok if v.counterparty_last_seen_days <= t.max_counterparty_last_seen_days
-
-amount_ok if v.counterparty_avg_usd == null
-
-amount_ok if v.counterparty_avg_usd <= 0
-
-amount_ok if amount <= v.counterparty_avg_usd * t.max_amount_vs_avg_multiple
-
-concentration_ok if v.counterparty_concentration_pct == null
-
-concentration_ok if v.counterparty_concentration_pct <= t.max_counterparty_concentration_pct
-
-outflow_ok if v.outflow_ratio == null
-
-outflow_ok if v.outflow_ratio <= t.max_outflow_vs_baseline_multiple
-
-fresh_ok if v.data_age_seconds == null
-
-fresh_ok if v.data_age_seconds <= t.max_data_age_seconds

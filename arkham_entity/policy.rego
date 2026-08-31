@@ -18,6 +18,16 @@ v := data.wasm.arkham_entity
 # comparison below rests on it.
 amount := v.transaction_amount_usd
 
+# Fields the oracle reports as `null` when Arkham has nothing to say. `null` is
+# deliberately distinct from `0`: a null risk score means "not reported", a zero
+# score would be a genuine clean verdict. Under `deny_on_missing_data` the
+# curator has asked for the former to block rather than fail soft.
+nullable_fields := {
+	"attribution_confidence": v.attribution_confidence,
+	"max_risk_score": v.max_risk_score,
+	"data_age_seconds": v.data_age_seconds,
+}
+
 # Destination tags the curator has prohibited outright. A set (not a bare
 # boolean) so the deny reason can be traced back to the offending tag.
 prohibited_tag_hits contains tag if {
@@ -26,6 +36,10 @@ prohibited_tag_hits contains tag if {
 }
 
 # --- deny rules ------------------------------------------------------------
+#
+# `deny` is the single source of truth for every rule in this policy. `allow`
+# below consumes it; there is no parallel set of positive helper rules to drift
+# out of sync with these.
 
 deny contains "prohibited_tag" if count(prohibited_tag_hits) > 0
 
@@ -62,60 +76,32 @@ deny contains "stale_data" if {
 	v.data_age_seconds > t.max_data_age_seconds
 }
 
+# A threshold the curator configured is worth nothing if the oracle never
+# reports the value it applies to.
+deny contains sprintf("missing_%v", [name]) if {
+	t.deny_on_missing_data
+	some name, value in nullable_fields
+	value == null
+}
+
 # --- allow -----------------------------------------------------------------
 
-# Explicit positive conjunction rather than `count(deny) == 0`. Every deny
-# rule above silent-skips on an undefined field, so an error envelope or an
-# empty pack slot would produce an empty deny set and `count(deny) == 0`
-# would fail OPEN. The two `is_*` groundedness checks below are what make
-# this fail CLOSED: they are undefined — and so block `allow` — unless the
-# oracle actually emitted a well-formed payload.
+# `allow` is the ONLY on-chain entrypoint — scripts/upload.sh derives
+# `<package>.allow` and nothing else is evaluated.
+#
+# The groundedness probes are load-bearing, not decoration: every deny rule
+# silent-skips on an undefined field, so an error envelope or an empty pack slot
+# yields an EMPTY deny set and a bare `count(deny) == 0` would fail OPEN on
+# exactly the input that most needs to fail closed. The probes below are what
+# make it fail CLOSED.
+#
+# Note the no-attribution path is NOT a hole here: `deny_on_no_attribution` and
+# `tier_unlabelled_max_usd` are the explicit curator controls over it, and
+# `unapproved_entity_category` deliberately requires `has_attribution == true`
+# because an unattributed address has no category to judge.
 allow if {
+	not v.error
 	is_boolean(v.has_attribution)
 	is_number(amount)
-	count(prohibited_tag_hits) == 0
-	attribution_ok
-	category_ok
-	confidence_ok
-	amount <= t.tier_verified_max_usd
-	risk_ok
-	fresh_ok
+	count(deny) == 0
 }
-
-attribution_ok if v.has_attribution == true
-
-attribution_ok if {
-	v.has_attribution == false
-	not t.deny_on_no_attribution
-	amount <= t.tier_unlabelled_max_usd
-}
-
-# An attributed destination in an approved category gets the full tier; one
-# outside it is still allowed, but only up to the introductory cap.
-category_ok if {
-	v.has_attribution == true
-	v.entity_category in t.approved_entity_categories
-}
-
-category_ok if {
-	v.has_attribution == true
-	not v.entity_category in t.approved_entity_categories
-	amount <= t.tier_unlabelled_max_usd
-}
-
-category_ok if v.has_attribution == false
-
-# `null` is the oracle's "Arkham did not report this", distinct from a
-# genuine 0. The WASM always emits these keys so a MISSING key (rather than
-# an explicit null) leaves these undefined and correctly blocks `allow`.
-confidence_ok if v.attribution_confidence == null
-
-confidence_ok if v.attribution_confidence >= t.min_attribution_confidence
-
-risk_ok if v.max_risk_score == null
-
-risk_ok if v.max_risk_score <= t.max_risk_score
-
-fresh_ok if v.data_age_seconds == null
-
-fresh_ok if v.data_age_seconds <= t.max_data_age_seconds

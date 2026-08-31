@@ -7,13 +7,14 @@ USDT := "0xdac17f958d2ee523a2206206994597c13d831ec7"
 
 default_params := {
 	"safe_mode_stress_threshold": 60,
-	"deny_on_active_depeg": true,
+	"safe_mode_on_active_depeg": true,
 	"exposure_increasing_functions": ["deposit", "mint", "supply"],
 	"exposure_reducing_functions": ["withdraw", "redeem", "repay"],
 	"swap_functions": ["swap"],
 	"swap_destination_arg_index": 1,
 	"approved_safe_assets": ["0xDAC17F958D2ee523a2206206994597C13D831ec7"],
 	"max_data_age_seconds": 7200,
+	"deny_on_missing_data": false,
 }
 
 # Calm market: low stress, no depeg, flows normal.
@@ -132,7 +133,7 @@ test_allow_withdraw_when_depegged if {
 }
 
 test_depeg_does_not_engage_safe_mode_when_configured_off if {
-	p := object.union(default_params, {"deny_on_active_depeg": false})
+	p := object.union(default_params, {"safe_mode_on_active_depeg": false})
 	pharos_safe_mode.allow
 		with data.params as p
 		with data.wasm as wrap(depegged)
@@ -269,4 +270,43 @@ test_real_world_age_passes_default_ceiling if {
 		with data.params as default_params
 		with data.wasm as wrap(fresh)
 		with input as intent("withdraw", ["1000"])
+}
+
+# --- deny_on_missing_data --------------------------------------------------
+
+test_missing_data_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := wrap(object.union(calm_data, {"stress_score": null}))
+	"missing_stress_score" in pharos_safe_mode.deny with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+	not pharos_safe_mode.allow with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+}
+
+test_missing_data_names_every_null_field if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := wrap(object.union(calm_data, {"stress_score": null, "data_age_seconds": null}))
+	deny := pharos_safe_mode.deny with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+	"missing_stress_score" in deny
+	"missing_data_age_seconds" in deny
+}
+
+# A null stress score fails soft by default: safe mode can then only engage via
+# the depeg branch, which is exactly what the README documents.
+test_null_stress_score_fails_soft_by_default if {
+	d := wrap(object.union(calm_data, {"stress_score": null}))
+	pharos_safe_mode.allow with data.params as default_params with data.wasm as d with input as intent("deposit", ["1000"])
+}
+
+test_populated_fields_are_not_reported_missing if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	pharos_safe_mode.allow with data.params as p with data.wasm as wrap(calm_data) with input as intent("withdraw", ["1000"])
+}
+
+# The regression test for the refactor: an error envelope produces NO denies
+# beyond the unclassified-function one, and with a well-formed intent it
+# produces none at all — so the groundedness probes in `allow`, not
+# `count(deny) == 0`, are what keep it closed.
+test_error_envelope_yields_no_denies_and_no_allow if {
+	d := wrap({"error": "oracle failed"})
+	count(pharos_safe_mode.deny) == 0 with data.params as default_params with data.wasm as d with input as intent("withdraw", ["1000"])
+	not pharos_safe_mode.allow with data.params as default_params with data.wasm as d with input as intent("withdraw", ["1000"])
 }

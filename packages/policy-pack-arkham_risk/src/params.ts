@@ -50,7 +50,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Arkham observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+			),
+		deny_on_missing_data: z
+			.boolean()
+			.describe(
+				"When true, a value the oracle reports as null denies instead of failing soft: max_score, data_age_seconds, and the last_seen_days of any severe distant exposure path (which would otherwise slip past the recency rule entirely).",
 			),
 	})
 	.strict()
@@ -111,7 +116,12 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Arkham observation. Null ages from the oracle fail-soft and do not trigger this rule.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+		},
+		deny_on_missing_data: {
+			type: "boolean",
+			description:
+				"When true, a value the oracle reports as null denies instead of failing soft: max_score, data_age_seconds, and the last_seen_days of any severe distant exposure path (which would otherwise slip past the recency rule entirely).",
 		},
 	},
 	required: [
@@ -123,6 +133,7 @@ export const ParamsJsonSchema = {
 		"deny_on_seed",
 		"max_risk_score",
 		"max_data_age_seconds",
+		"deny_on_missing_data",
 	],
 	additionalProperties: false,
 } as const;

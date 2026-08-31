@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "comment": "Canonical deployed PolicyData (oracle) addresses + wasmCid, keyed by pack -> chainId (decimal string) -> env. A pack ships a reusable oracle, not a blessed NewtonPolicy \u2014 curators deploy their own policy (single-pack or composite) referencing these policyData addresses. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell has separate stagef/prod sub-records since the same pack may have distinct oracle addresses on the same chain under different AVS envs.",
+  "comment": "Canonical deployed PolicyData (oracle) addresses + wasmCid, keyed by pack -> chainId (decimal string) -> env. A pack ships a reusable oracle, not a blessed NewtonPolicy — curators deploy their own policy (single-pack or composite) referencing these policyData addresses. The dashboard reads this; OPERATING.md links here. Schema v2 (2026-06-14): each (pack, chainId) cell has separate stagef/prod sub-records since the same pack may have distinct oracle addresses on the same chain under different AVS envs.",
   "chains": {
     "1": "Ethereum",
     "8453": "Base",
@@ -538,7 +538,7 @@
     }
   },
   "envs": {
-    "stagef": "Newton AVS \u2014 Stagef (testnet gateway)",
-    "prod": "Newton AVS \u2014 Prod (mainnet-style gateway, also fronts testnet chains)"
+    "stagef": "Newton AVS — Stagef (testnet gateway)",
+    "prod": "Newton AVS — Prod (mainnet-style gateway, also fronts testnet chains)"
   }
 }

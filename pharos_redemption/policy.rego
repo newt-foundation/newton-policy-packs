@@ -9,7 +9,28 @@ t := data.params
 # Phase 0 § Stream B namespacing — see wrapping_test.rego.
 v := data.wasm.pharos_redemption
 
+# Fields the oracle reports as `null` when Pharos has nothing to say. `null` is
+# deliberately distinct from `0`: a null route score means "not reported", a
+# zero score would be a genuine bottom-of-the-range verdict. Under
+# `deny_on_missing_data` the curator has asked for the former to block rather
+# than fail soft.
+nullable_fields := {
+	"route_family": v.route_family,
+	"access_model": v.access_model,
+	"settlement_model": v.settlement_model,
+	"route_status": v.route_status,
+	"capacity_multiple": v.capacity_multiple,
+	"route_score": v.route_score,
+	"capacity_confidence": v.capacity_confidence,
+	"reserve_elevated_risk_pct": v.reserve_elevated_risk_pct,
+	"data_age_seconds": v.data_age_seconds,
+}
+
 # --- deny rules ------------------------------------------------------------
+#
+# `deny` is the single source of truth for every rule in this policy. `allow`
+# below consumes it; there is no parallel set of positive helper rules to drift
+# out of sync with these.
 
 deny contains "redemption_unavailable" if {
 	t.require_redemption_available
@@ -65,68 +86,25 @@ deny contains "stale_data" if {
 	v.data_age_seconds > t.max_data_age_seconds
 }
 
+# A threshold the curator configured is worth nothing if the oracle never
+# reports the value it applies to.
+deny contains sprintf("missing_%v", [name]) if {
+	t.deny_on_missing_data
+	some name, value in nullable_fields
+	value == null
+}
+
 # --- allow -----------------------------------------------------------------
 
-# Explicit positive conjunction, not `count(deny) == 0` — every deny rule
-# silent-skips on undefined fields, so an error envelope would yield an empty
-# deny set and fail OPEN. `is_boolean(v.redemption_available)` grounds it.
+# `allow` is the ONLY on-chain entrypoint — scripts/upload.sh derives
+# `<package>.allow` and nothing else is evaluated.
+#
+# The groundedness probe is load-bearing, not decoration: every deny rule
+# silent-skips on an undefined field, so an error envelope yields an EMPTY deny
+# set and a bare `count(deny) == 0` would fail OPEN on exactly the input that
+# most needs to fail closed.
 allow if {
+	not v.error
 	is_boolean(v.redemption_available)
-	availability_ok
-	route_family_ok
-	access_model_ok
-	settlement_model_ok
-	route_status_ok
-	capacity_ok
-	route_score_ok
-	capacity_confidence_ok
-	reserve_ok
-	fresh_ok
+	count(deny) == 0
 }
-
-availability_ok if v.redemption_available == true
-
-availability_ok if {
-	v.redemption_available == false
-	not t.require_redemption_available
-}
-
-# `null` is the oracle's "Pharos did not report this". Each of these fail-softs
-# on null but denies on a reported-but-unapproved value.
-route_family_ok if v.route_family == null
-
-route_family_ok if v.route_family in t.approved_route_families
-
-access_model_ok if v.access_model == null
-
-access_model_ok if v.access_model in t.approved_access_models
-
-settlement_model_ok if v.settlement_model == null
-
-settlement_model_ok if v.settlement_model in t.approved_settlement_models
-
-route_status_ok if v.route_status == null
-
-route_status_ok if v.route_status == t.required_route_status
-
-capacity_ok if v.capacity_multiple == null
-
-capacity_ok if v.capacity_multiple >= t.min_capacity_multiple
-
-route_score_ok if v.route_score == null
-
-route_score_ok if v.route_score >= t.min_route_score
-
-capacity_confidence_ok if count(t.approved_capacity_confidence) == 0
-
-capacity_confidence_ok if v.capacity_confidence == null
-
-capacity_confidence_ok if v.capacity_confidence in t.approved_capacity_confidence
-
-reserve_ok if v.reserve_elevated_risk_pct == null
-
-reserve_ok if v.reserve_elevated_risk_pct <= t.max_reserve_elevated_risk_pct
-
-fresh_ok if v.data_age_seconds == null
-
-fresh_ok if v.data_age_seconds <= t.max_data_age_seconds

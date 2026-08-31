@@ -57,7 +57,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+			),
+		deny_on_missing_data: z
+			.boolean()
+			.describe(
+				"When true, any field the oracle reports as null denies instead of failing soft: route_family, access_model, settlement_model, route_status, capacity_multiple, route_score, capacity_confidence, reserve_elevated_risk_pct, data_age_seconds. Pharos omits capacity_multiple whenever the caller passes no position size, so leave this false unless every call supplies one.",
 			),
 	})
 	.strict()
@@ -136,7 +141,12 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+		},
+		deny_on_missing_data: {
+			type: "boolean",
+			description:
+				"When true, any field the oracle reports as null denies instead of failing soft: route_family, access_model, settlement_model, route_status, capacity_multiple, route_score, capacity_confidence, reserve_elevated_risk_pct, data_age_seconds. Pharos omits capacity_multiple whenever the caller passes no position size, so leave this false unless every call supplies one.",
 		},
 	},
 	required: [
@@ -150,6 +160,7 @@ export const ParamsJsonSchema = {
 		"min_capacity_multiple",
 		"max_reserve_elevated_risk_pct",
 		"max_data_age_seconds",
+		"deny_on_missing_data",
 	],
 	additionalProperties: false,
 } as const;

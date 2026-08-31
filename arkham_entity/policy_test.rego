@@ -12,6 +12,7 @@ default_params := {
 	"deny_on_no_attribution": false,
 	"max_risk_score": 25,
 	"max_data_age_seconds": 3600,
+	"deny_on_missing_data": false,
 }
 
 # A verified Coinbase hot wallet moving $5k — comfortably inside every tier.
@@ -186,5 +187,41 @@ test_missing_groundedness_field_does_not_allow if {
 
 test_missing_amount_does_not_allow if {
 	d := wrap(object.remove(clean_data, {"transaction_amount_usd"}))
+	not arkham_entity_wallet.allow with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_data --------------------------------------------------
+
+test_missing_data_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"max_risk_score": null})
+	"missing_max_risk_score" in arkham_entity_wallet.deny with data.params as p with data.wasm as d
+	not arkham_entity_wallet.allow with data.params as p with data.wasm as d
+}
+
+test_missing_data_names_every_null_field if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({
+		"attribution_confidence": null,
+		"max_risk_score": null,
+		"data_age_seconds": null,
+	})
+	deny := arkham_entity_wallet.deny with data.params as p with data.wasm as d
+	"missing_attribution_confidence" in deny
+	"missing_max_risk_score" in deny
+	"missing_data_age_seconds" in deny
+}
+
+test_populated_fields_are_not_reported_missing if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	arkham_entity_wallet.allow with data.params as p with data.wasm as wrap(clean_data)
+}
+
+# The regression test for the refactor: an error envelope produces NO denies at
+# all, so the groundedness probes in `allow` — not `count(deny) == 0` — are what
+# keep it closed.
+test_error_envelope_yields_empty_deny_set_and_no_allow if {
+	d := wrap({"error": "oracle failed"})
+	count(arkham_entity_wallet.deny) == 0 with data.params as default_params with data.wasm as d
 	not arkham_entity_wallet.allow with data.params as default_params with data.wasm as d
 }

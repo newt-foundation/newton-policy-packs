@@ -20,6 +20,7 @@ default_params := {
 	"min_capacity_multiple": 2,
 	"max_reserve_elevated_risk_pct": 25,
 	"max_data_age_seconds": 21600,
+	"deny_on_missing_data": false,
 }
 
 clean_data := {
@@ -207,4 +208,52 @@ test_missing_groundedness_field_does_not_allow if {
 	d := wrap(object.remove(clean_data, {"redemption_available"}))
 	not pharos_redemption_backing.allow with data.params as default_params with data.wasm as d
 	count(pharos_redemption_backing.deny) == 0 with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_data --------------------------------------------------
+
+test_missing_data_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"capacity_multiple": null})
+	"missing_capacity_multiple" in pharos_redemption_backing.deny with data.params as p with data.wasm as d
+	not pharos_redemption_backing.allow with data.params as p with data.wasm as d
+}
+
+test_missing_data_names_every_null_field if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({
+		"route_family": null,
+		"access_model": null,
+		"settlement_model": null,
+		"route_status": null,
+		"capacity_multiple": null,
+		"route_score": null,
+		"capacity_confidence": null,
+		"reserve_elevated_risk_pct": null,
+		"data_age_seconds": null,
+	})
+	deny := pharos_redemption_backing.deny with data.params as p with data.wasm as d
+	"missing_route_family" in deny
+	"missing_access_model" in deny
+	"missing_settlement_model" in deny
+	"missing_route_status" in deny
+	"missing_capacity_multiple" in deny
+	"missing_route_score" in deny
+	"missing_capacity_confidence" in deny
+	"missing_reserve_elevated_risk_pct" in deny
+	"missing_data_age_seconds" in deny
+}
+
+test_populated_fields_are_not_reported_missing if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	pharos_redemption_backing.allow with data.params as p with data.wasm as wrap(clean_data)
+}
+
+# The regression test for the refactor: an error envelope produces NO denies at
+# all, so the groundedness probe in `allow` — not `count(deny) == 0` — is what
+# keeps it closed.
+test_error_envelope_yields_empty_deny_set_and_no_allow if {
+	d := wrap({"error": "oracle failed"})
+	count(pharos_redemption_backing.deny) == 0 with data.params as default_params with data.wasm as d
+	not pharos_redemption_backing.allow with data.params as default_params with data.wasm as d
 }

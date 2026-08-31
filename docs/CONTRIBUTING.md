@@ -196,6 +196,61 @@ ALL_PACKS=(
 
 ### 3. Author and test the Rego
 
+#### Shape `allow` as probes + `count(deny) == 0`
+
+Put every rule in the `deny` set and let `allow` consume it. Do **not** write a
+second, positive set of `*_ok` helper rules restating the same conditions — that
+duplication is exactly how the two drift apart, and the helpers are unreachable
+from the on-chain entrypoint anyway:
+
+```rego
+allow if {
+	not v.error
+	is_boolean(v.some_flag)     # groundedness probes: one per load-bearing field
+	is_number(v.some_number)
+	count(deny) == 0
+}
+```
+
+The probes are not decoration. Every deny rule silent-skips on an undefined
+field, so an error envelope produces an **empty** deny set — and a bare
+`count(deny) == 0` would fail OPEN on exactly the payload that most needs to fail
+closed. Probe each field the deny rules actually depend on, and prove it with a
+test asserting both `count(deny) == 0` and `not allow` on an error envelope.
+
+The `arkham_*` and `pharos_*` packs and
+[`examples/composite-vaultsfyi-chainalysis`](../examples/composite-vaultsfyi-chainalysis/policy.rego)
+follow this shape. The nine older packs (`balancer`, `blockaid`, `chainalysis`,
+`guardrail`, `persona`, `redstone`, `sumsub`, `vaultsfyi`, `webacy`) still carry
+the duplicated form and are a known follow-up — copy the newer packs, not those.
+
+#### Give the curator a say over missing data
+
+`null` from an oracle means "the provider did not report this", which is not the
+same as `0`. Fail soft on it by default, but let the curator opt into strictness
+with a `deny_on_missing_data` boolean that emits a named `missing_<field>` reason
+— a threshold nobody can enforce is worse than no threshold. Document per-pack
+which fields the provider structurally never populates: on `arkham_counterparty`
+two of the five are always null, so turning the flag on denies everything.
+
+#### Guard params you multiply by
+
+A param used as a multiplier must be checked `> 0` — a `0` silently *disables*
+the rule instead of tightening it. Route the check through a named helper:
+
+```rego
+deny contains "misconfigured_<param>" if not valid_<param>
+
+valid_<param> if t.<param> > 0
+```
+
+Not `not t.<param> > 0` directly: OPA hoists the ref into its own conjunct, so an
+**absent** param makes the whole body undefined rather than negating to true.
+Keep the bound out of `params_schema.json` — `exclusiveMinimum` is outside the
+regorus-clean keyword set the AVS-side schema sticks to.
+
+#### Run the tests
+
 Write `policy_test.rego` covering the deny paths. Run with OPA:
 
 ```bash
@@ -490,7 +545,9 @@ Before opening the pack PR, verify:
 - [ ] `policy.js` wraps every return path under `JSON.stringify({ [PACK_ID]: ... })`, including error paths (use `wrapOutput` from `@newton-xyz/policy-pack-shared`)
 - [ ] `wrapping_test.rego` passes
 - [ ] `policy.rego` references `data.wasm.<pack-id>.*` (not bare `data.wasm.*`) so the pack composes cleanly. Params stay flat: `t := data.params` and `t.<your_field>`, matching the existing reference packs
-- [ ] `policy_test.rego` covers every deny rule plus the happy-path allow
+- [ ] `allow` is `not v.error` + groundedness probes + `count(deny) == 0`, with no parallel `*_ok` helper rules
+- [ ] `policy_test.rego` covers every deny rule, the happy-path allow, and an error envelope asserting BOTH `count(deny) == 0` and `not allow`
+- [ ] Every nullable oracle field is listed in `nullable_fields` and covered by `deny_on_missing_data`; params used as multipliers deny when not `> 0`
 - [ ] `params_schema.json` has `additionalProperties: false` and lists `required` keys
 - [ ] `wasm_args_schema.json` matches what `policy.js` reads off `args`
 - [ ] `secrets_schema.json` lists every key passed to `secret(...)` in `policy.js`

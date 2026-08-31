@@ -58,7 +58,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. A null age fails soft here and is caught instead by deny_on_missing_data.",
+			),
+		deny_on_missing_data: z
+			.boolean()
+			.describe(
+				"When true, any field the oracle reports as null denies instead of failing soft: stress_score, redemption_route_family, redemption_access_model, redemption_route_status, exit_capacity_multiple, liquidity_score, data_age_seconds. Note exit_capacity_multiple is null whenever the caller passes no position size, so turning this on requires every call to supply one.",
 			),
 	})
 	.strict()
@@ -131,7 +136,12 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST across all sources. These move on very different clocks: price and stress refresh in minutes, but dex-liquidity-history is a DAILY bucket (up to ~24h) and redemption-backstops lags by hours. A ceiling below ~24h will deny permanently on the slow feeds. Per-source ages are emitted separately for diagnosis. A null age fails soft here and is caught instead by deny_on_missing_data.",
+		},
+		deny_on_missing_data: {
+			type: "boolean",
+			description:
+				"When true, any field the oracle reports as null denies instead of failing soft: stress_score, redemption_route_family, redemption_access_model, redemption_route_status, exit_capacity_multiple, liquidity_score, data_age_seconds. Note exit_capacity_multiple is null whenever the caller passes no position size, so turning this on requires every call to supply one.",
 		},
 	},
 	required: [
@@ -145,6 +155,7 @@ export const ParamsJsonSchema = {
 		"min_exit_capacity_multiple",
 		"min_liquidity_score",
 		"max_data_age_seconds",
+		"deny_on_missing_data",
 	],
 	additionalProperties: false,
 } as const;

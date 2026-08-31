@@ -4,7 +4,9 @@
   "properties": {
     "severe_categories": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Risk categories treated as severe (e.g. 'sanctions', 'hacker', 'ransomware', 'mixer', 'darkweb'). Only exposure in these categories can trigger the hop, materiality and recency rules."
     },
     "max_severe_hop_distance": {
@@ -40,7 +42,11 @@
     "max_data_age_seconds": {
       "type": "number",
       "minimum": 0,
-      "description": "Maximum tolerated age of the Arkham observation. Null ages from the oracle fail-soft and do not trigger this rule."
+      "description": "Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data."
+    },
+    "deny_on_missing_data": {
+      "type": "boolean",
+      "description": "When true, a value the oracle reports as null denies instead of failing soft: max_score, data_age_seconds, and the last_seen_days of any severe distant exposure path (which would otherwise slip past the recency rule entirely)."
     }
   },
   "required": [
@@ -51,7 +57,8 @@
     "dust_tolerance_usd",
     "deny_on_seed",
     "max_risk_score",
-    "max_data_age_seconds"
+    "max_data_age_seconds",
+    "deny_on_missing_data"
   ],
   "additionalProperties": false
 }

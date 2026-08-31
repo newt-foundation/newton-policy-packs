@@ -9,6 +9,15 @@ t := data.params
 # Phase 0 § Stream B namespacing — see wrapping_test.rego.
 v := data.wasm.arkham_risk
 
+# Fields the oracle reports as `null` when Arkham has nothing to say. `null` is
+# deliberately distinct from `0`: a null score means "not reported", a zero
+# score would be a genuine clean verdict. Under `deny_on_missing_data` the
+# curator has asked for the former to block rather than fail soft.
+nullable_fields := {
+	"max_score": v.max_score,
+	"data_age_seconds": v.data_age_seconds,
+}
+
 # --- path classification ---------------------------------------------------
 #
 # The oracle emits Arkham's raw exposure paths and this policy does the
@@ -49,6 +58,15 @@ recent_distant_paths contains p if {
 	p.last_seen_days <= t.recent_exposure_days
 }
 
+# ...or, under strict mode, when Arkham reports no date at all: an undated path
+# slips past `recent_distant_paths` above, so the missing recency is itself the
+# signal a curator asked to act on.
+undated_distant_paths contains p if {
+	some p in severe_paths
+	p.hop_distance > t.max_severe_hop_distance
+	p.last_seen_days == null
+}
+
 offending_paths := (severe_near_paths | material_distant_paths) | recent_distant_paths
 
 # Reviewer-facing explanation of WHY the policy denied: the category, the
@@ -67,6 +85,10 @@ risk_paths contains detail if {
 }
 
 # --- deny rules ------------------------------------------------------------
+#
+# `deny` is the single source of truth for every rule in this policy. `allow`
+# below consumes it; there is no parallel set of positive helper rules to drift
+# out of sync with these.
 
 deny contains "seed_address" if {
 	t.deny_on_seed
@@ -89,33 +111,32 @@ deny contains "stale_data" if {
 	v.data_age_seconds > t.max_data_age_seconds
 }
 
+# A threshold the curator configured is worth nothing if the oracle never
+# reports the value it applies to.
+deny contains sprintf("missing_%v", [name]) if {
+	t.deny_on_missing_data
+	some name, value in nullable_fields
+	value == null
+}
+
+deny contains "missing_path_last_seen_days" if {
+	t.deny_on_missing_data
+	count(undated_distant_paths) > 0
+}
+
 # --- allow -----------------------------------------------------------------
 
-# Explicit positive conjunction, not `count(deny) == 0`. `is_array(v.paths)`
-# is the load-bearing groundedness check: an error envelope has no `paths`
-# key, every path rule then yields an empty set, and a `count(deny) == 0`
-# formulation would fail OPEN on exactly the payload that most needs to
-# fail closed.
+# `allow` is the ONLY on-chain entrypoint — scripts/upload.sh derives
+# `<package>.allow` and nothing else is evaluated. `risk_paths` above is for
+# `opa eval`, local simulation and composites, never for the AVS.
+#
+# The groundedness probes are load-bearing, not decoration: `is_array(v.paths)`
+# in particular. An error envelope has no `paths` key, every path rule then
+# yields an empty set, and a bare `count(deny) == 0` would fail OPEN on exactly
+# the payload that most needs to fail closed.
 allow if {
+	not v.error
 	is_boolean(v.is_seed)
 	is_array(v.paths)
-	not seed_blocks
-	count(severe_near_paths) == 0
-	count(material_distant_paths) == 0
-	count(recent_distant_paths) == 0
-	risk_ok
-	fresh_ok
+	count(deny) == 0
 }
-
-seed_blocks if {
-	t.deny_on_seed
-	v.is_seed == true
-}
-
-risk_ok if v.max_score == null
-
-risk_ok if v.max_score <= t.max_risk_score
-
-fresh_ok if v.data_age_seconds == null
-
-fresh_ok if v.data_age_seconds <= t.max_data_age_seconds

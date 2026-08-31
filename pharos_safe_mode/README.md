@@ -55,7 +55,9 @@ The classifier is `input.function.name` — the bare function name, verified aga
 }
 ```
 
-Safe mode engages when a depeg is active (and `deny_on_active_depeg` is set) **or** stress reaches `safe_mode_stress_threshold`.
+Safe mode engages when a depeg is active (and `safe_mode_on_active_depeg` is set) **or** stress reaches `safe_mode_stress_threshold`.
+
+The param is named `safe_mode_on_active_depeg`, not `deny_on_active_depeg`, because that is what it does: a depeg **engages safe mode**, it does not deny outright. Exposure-reducing calls stay permitted throughout — that is the graduated response this pack exists for. If you want a depeg to stop everything, the `pharos_treasury` pack's `deny_on_active_depeg` is the blunt instrument; the two are deliberately named apart.
 
 | Deny reason | Condition | What it catches |
 |---|---|---|
@@ -63,8 +65,9 @@ Safe mode engages when a depeg is active (and `deny_on_active_depeg` is set) **o
 | `safe_mode_blocks_exposure_increase` | safe mode and an exposure-increasing call | Adding exposure to a stressed asset |
 | `unapproved_swap_destination` | safe mode, a swap, destination not approved | Rotating out of a stressed asset into another risky one |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale data |
+| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A stress threshold quietly doing nothing because Pharos never reported a score |
 
-`allow` is an explicit positive conjunction, not `count(deny) == 0`. Every deny rule silent-skips on an undefined field, so an error envelope would produce an empty deny set and a `count(deny) == 0` formulation would **fail open** on exactly the payload that most needs to fail closed. The groundedness checks at the top of `allow` are what enforce that.
+`deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.depeg_active)` / `is_string(fn)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
 Note what is deliberately **absent**: there is no blanket stress ceiling that denies everything. Withdrawals and redemptions stay permitted at any stress level.
 
@@ -73,13 +76,14 @@ Note what is deliberately **absent**: there is no blanket stress ceiling that de
 | Param | Type | Description |
 |---|---|---|
 | `safe_mode_stress_threshold` | `number` | Stress score at or above which safe mode engages |
-| `deny_on_active_depeg` | `boolean` | Let an active depeg engage safe mode on its own |
+| `safe_mode_on_active_depeg` | `boolean` | Let an active depeg engage safe mode on its own. Engages safe mode — does **not** deny outright |
 | `exposure_increasing_functions` | `string[]` | Bare names blocked in safe mode (e.g. `deposit`, `mint`) |
 | `exposure_reducing_functions` | `string[]` | Bare names always permitted (e.g. `withdraw`, `redeem`) |
 | `swap_functions` | `string[]` | Bare names treated as swaps |
 | `swap_destination_arg_index` | `number` | Index into `decoded_function_arguments` holding the destination token |
 | `approved_safe_assets` | `string[]` | Token addresses acceptable as swap destinations |
 | `max_data_age_seconds` | `number` | Freshness ceiling |
+| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) `stress_score` or age as a deny rather than a pass |
 
 ## Notes
 
@@ -87,6 +91,7 @@ Note what is deliberately **absent**: there is no blanket stress ceiling that de
 - **An out-of-range `swap_destination_arg_index` fails closed.** The destination is left undefined, which denies rather than reading as approved.
 - Swap destinations are compared **case-insensitively**: the intent lowercases addresses while curator params are typically checksummed.
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
+- **`deny_on_missing_data` turns that fail-soft into a deny** for a null `stress_score` or `data_age_seconds`. Worth turning on if you rely on `safe_mode_stress_threshold`: without a score, safe mode can only ever engage via the depeg branch.
 - `input.chain_id` arrives as a *string* and is only populated when the intent JSON sets `chainId` (camelCase in, snake_case out). The `--chain-id` CLI flag does **not** populate it, so no rule here depends on it.
 
 - **`/api/mint-burn-flows` carries no anomaly flag of its own.** Pharos's judgement of flow abnormality lives in the stress `flow` signal, so the oracle uses that rather than inventing a threshold over raw mint/burn volumes.

@@ -62,14 +62,15 @@ Package `pharos_treasury_risk`. Denies when **any** of these hold:
 | `insufficient_exit_capacity` | multiple below `min_exit_capacity_multiple` | A position that cannot realistically be exited |
 | `liquidity_score_below_min` | score below `min_liquidity_score` | Thin or fragile DEX liquidity |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale data |
+| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A configured threshold quietly doing nothing because Pharos never reported the value |
 
-`allow` is an explicit positive conjunction, not `count(deny) == 0`. Every deny rule silent-skips on an undefined field, so an error envelope would produce an empty deny set and a `count(deny) == 0` formulation would **fail open** on exactly the payload that most needs to fail closed. The groundedness checks at the top of `allow` are what enforce that.
+`deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.depeg_active)` / `is_boolean(v.redemption_available)` / `is_number(v.peg_deviation_bps)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
 ### Policy Parameters
 
 | Param | Type | Description |
 |---|---|---|
-| `deny_on_active_depeg` | `boolean` | Deny during a confirmed depeg |
+| `deny_on_active_depeg` | `boolean` | Deny outright during a confirmed depeg. Contrast `pharos_safe_mode`'s `safe_mode_on_active_depeg`, which only engages safe mode |
 | `max_peg_deviation_bps` | `number` | Symmetric deviation tolerance in bps |
 | `max_stress_score` | `number` | Stress ceiling 0-100 |
 | `require_redemption` | `boolean` | Require a working redemption route |
@@ -79,6 +80,7 @@ Package `pharos_treasury_risk`. Denies when **any** of these hold:
 | `min_exit_capacity_multiple` | `number` | Required exit capacity as a multiple of the position |
 | `min_liquidity_score` | `number` | Liquidity score floor 0-100 |
 | `max_data_age_seconds` | `number` | Freshness ceiling on the oldest source. See the note below before tightening it |
+| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) value as a deny. Requires every call to supply a position size |
 
 ## Notes
 
@@ -88,6 +90,7 @@ Package `pharos_treasury_risk`. Denies when **any** of these hold:
 - **Freshness ceilings need care.** The four sources move on very different clocks: price and stress refresh in minutes, `dex-liquidity-history` is a **daily bucket** (up to ~24h old by construction), and redemption-backstops lags by hours. `data_age_seconds` is the oldest of them, so a ceiling below ~24h denies permanently. The per-source ages are emitted separately so you can see which feed is actually driving it.
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
 - Passing no `transaction_amount_usd` leaves `exit_capacity_multiple` as `null` rather than infinity, so the rule fail-softs rather than reading an unbounded ratio as safe.
+- **`deny_on_missing_data` turns those fail-softs into denies**, emitting a `missing_<field>` reason for any null field. Because `exit_capacity_multiple` is null whenever the caller passes no position size, turning it on requires every call to supply one.
 - This is the heaviest pack in the repo. Self-serve Pharos keys are rate limited to **30 requests/minute**, and this pack spends 5 of them per evaluation.
 
 - **This pack rides within about 40% of a hard runtime limit.** `/api/redemption-backstops` has no filter, so the oracle downloads all ~1.14MB and slices this coin's ~3KB object out of the raw text. Holding a document and slicing it works to roughly 1.6MB on this runtime; at ~3.5KB per coin that is around 130 more coins of headroom. A `MAX_SLICEABLE_BYTES` guard trips first and returns a readable error (which fails closed) rather than trapping the component with no verdict. The durable fix is a per-asset endpoint from Pharos.

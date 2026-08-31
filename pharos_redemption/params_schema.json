@@ -8,17 +8,23 @@
     },
     "approved_route_families": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Pharos redemption route families the curator will accept. Observed values include 'offchain-issuer'."
     },
     "approved_access_models": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Pharos redemption access models the curator will accept. Observed values include 'issuer-api'. Governs who may redeem."
     },
     "approved_settlement_models": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Pharos settlement models the curator will accept. Observed values include 'same-day'."
     },
     "required_route_status": {
@@ -33,7 +39,9 @@
     },
     "approved_capacity_confidence": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Acceptable qualitative capacity-confidence bands. Observed values include 'documented-bound'. Empty array disables this check."
     },
     "min_capacity_multiple": {
@@ -50,7 +58,11 @@
     "max_data_age_seconds": {
       "type": "number",
       "minimum": 0,
-      "description": "Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. Null ages fail soft."
+      "description": "Maximum tolerated age of the Pharos observation. The redemption-backstops feed refreshes on the order of hours, so values below ~4h will deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data."
+    },
+    "deny_on_missing_data": {
+      "type": "boolean",
+      "description": "When true, any field the oracle reports as null denies instead of failing soft: route_family, access_model, settlement_model, route_status, capacity_multiple, route_score, capacity_confidence, reserve_elevated_risk_pct, data_age_seconds. Pharos omits capacity_multiple whenever the caller passes no position size, so leave this false unless every call supplies one."
     }
   },
   "required": [
@@ -63,7 +75,8 @@
     "approved_capacity_confidence",
     "min_capacity_multiple",
     "max_reserve_elevated_risk_pct",
-    "max_data_age_seconds"
+    "max_data_age_seconds",
+    "deny_on_missing_data"
   ],
   "additionalProperties": false
 }

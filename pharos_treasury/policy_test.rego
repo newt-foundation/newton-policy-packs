@@ -14,6 +14,7 @@ default_params := {
 	"min_exit_capacity_multiple": 3,
 	"min_liquidity_score": 60,
 	"max_data_age_seconds": 21600,
+	"deny_on_missing_data": false,
 }
 
 # A healthy, deeply liquid, directly redeemable stablecoin — $1M position
@@ -229,4 +230,48 @@ test_real_world_age_passes_default_ceiling if {
 test_active_status_guess_denies_everything if {
 	wrong := object.union(default_params, {"required_route_status": "active"})
 	"route_status_not_approved" in pharos_treasury_risk.deny with data.params as wrong with data.wasm as wrap(clean_data)
+}
+
+# --- deny_on_missing_data --------------------------------------------------
+
+test_missing_data_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"exit_capacity_multiple": null})
+	"missing_exit_capacity_multiple" in pharos_treasury_risk.deny with data.params as p with data.wasm as d
+	not pharos_treasury_risk.allow with data.params as p with data.wasm as d
+}
+
+test_missing_data_names_every_null_field if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({
+		"stress_score": null,
+		"redemption_route_family": null,
+		"redemption_access_model": null,
+		"redemption_route_status": null,
+		"exit_capacity_multiple": null,
+		"liquidity_score": null,
+		"data_age_seconds": null,
+	})
+	deny := pharos_treasury_risk.deny with data.params as p with data.wasm as d
+	"missing_stress_score" in deny
+	"missing_redemption_route_family" in deny
+	"missing_redemption_access_model" in deny
+	"missing_redemption_route_status" in deny
+	"missing_exit_capacity_multiple" in deny
+	"missing_liquidity_score" in deny
+	"missing_data_age_seconds" in deny
+}
+
+test_populated_fields_are_not_reported_missing if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	pharos_treasury_risk.allow with data.params as p with data.wasm as wrap(clean_data)
+}
+
+# The regression test for the refactor: an error envelope produces NO denies at
+# all, so the groundedness probes in `allow` — not `count(deny) == 0` — are what
+# keep it closed.
+test_error_envelope_yields_empty_deny_set_and_no_allow if {
+	d := wrap({"error": "oracle failed"})
+	count(pharos_treasury_risk.deny) == 0 with data.params as default_params with data.wasm as d
+	not pharos_treasury_risk.allow with data.params as default_params with data.wasm as d
 }

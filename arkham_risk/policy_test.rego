@@ -12,6 +12,7 @@ default_params := {
 	"deny_on_seed": true,
 	"max_risk_score": 40,
 	"max_data_age_seconds": 3600,
+	"deny_on_missing_data": false,
 }
 
 # A clean address: low headline score, and its only exposure path is a
@@ -204,4 +205,60 @@ test_missing_paths_does_not_allow if {
 	d := wrap(object.remove(clean_data, {"paths"}))
 	not arkham_risk_exposure.allow with data.params as default_params with data.wasm as d
 	count(arkham_risk_exposure.deny) == 0 with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_data --------------------------------------------------
+
+test_missing_data_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"max_score": null})
+	"missing_max_score" in arkham_risk_exposure.deny with data.params as p with data.wasm as d
+	not arkham_risk_exposure.allow with data.params as p with data.wasm as d
+}
+
+test_missing_data_names_every_null_field if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"max_score": null, "data_age_seconds": null})
+	deny := arkham_risk_exposure.deny with data.params as p with data.wasm as d
+	"missing_max_score" in deny
+	"missing_data_age_seconds" in deny
+}
+
+# An undated distant severe path slips past `recent_distant_paths` — under
+# strict mode the absent date is itself the deny.
+test_undated_distant_severe_path_denies_when_strict if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	d := with_data({"paths": [path({
+		"category": "mixer",
+		"hop_distance": 4,
+		"contributed_usd": 500,
+		"last_seen_days": null,
+	})]})
+	"missing_path_last_seen_days" in arkham_risk_exposure.deny with data.params as p with data.wasm as d
+	not arkham_risk_exposure.allow with data.params as p with data.wasm as d
+}
+
+# ...and stays permitted when the curator has not asked for strict mode.
+test_undated_distant_severe_path_fails_soft_by_default if {
+	d := with_data({"paths": [path({
+		"category": "mixer",
+		"hop_distance": 4,
+		"contributed_usd": 500,
+		"last_seen_days": null,
+	})]})
+	arkham_risk_exposure.allow with data.params as default_params with data.wasm as d
+}
+
+test_populated_fields_are_not_reported_missing if {
+	p := object.union(default_params, {"deny_on_missing_data": true})
+	arkham_risk_exposure.allow with data.params as p with data.wasm as wrap(clean_data)
+}
+
+# The regression test for the refactor: an error envelope produces NO denies at
+# all, so the groundedness probes in `allow` — not `count(deny) == 0` — are what
+# keep it closed.
+test_error_envelope_yields_empty_deny_set_and_no_allow if {
+	d := wrap({"error": "oracle failed"})
+	count(arkham_risk_exposure.deny) == 0 with data.params as default_params with data.wasm as d
+	not arkham_risk_exposure.allow with data.params as default_params with data.wasm as d
 }

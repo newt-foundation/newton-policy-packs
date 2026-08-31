@@ -12,10 +12,10 @@ export const ParamsSchema = z
 			.describe(
 				"Pharos stress score (0-100) at or above which safe mode engages. Below this, and absent a depeg, every classified action proceeds normally.",
 			),
-		deny_on_active_depeg: z
+		safe_mode_on_active_depeg: z
 			.boolean()
 			.describe(
-				"When true, a confirmed active depeg engages safe mode on its own, independently of the stress score.",
+				"When true, a confirmed active depeg ENGAGES SAFE MODE on its own, independently of the stress score. Safe mode blocks exposure-increasing calls and unapproved swap destinations; it does NOT block withdrawals or redemptions, which stay permitted by design. For an outright denial on depeg, use the pharos_treasury pack's deny_on_active_depeg.",
 			),
 		exposure_increasing_functions: z
 			.array(z.string())
@@ -47,7 +47,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+			),
+		deny_on_missing_data: z
+			.boolean()
+			.describe(
+				"When true, a field the oracle reports as null denies instead of failing soft: stress_score, data_age_seconds. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on the stress threshold should turn this on.",
 			),
 	})
 	.strict()
@@ -67,10 +72,10 @@ export const ParamsJsonSchema = {
 			description:
 				"Pharos stress score (0-100) at or above which safe mode engages. Below this, and absent a depeg, every classified action proceeds normally.",
 		},
-		deny_on_active_depeg: {
+		safe_mode_on_active_depeg: {
 			type: "boolean",
 			description:
-				"When true, a confirmed active depeg engages safe mode on its own, independently of the stress score.",
+				"When true, a confirmed active depeg ENGAGES SAFE MODE on its own, independently of the stress score. Safe mode blocks exposure-increasing calls and unapproved swap destinations; it does NOT block withdrawals or redemptions, which stay permitted by design. For an outright denial on depeg, use the pharos_treasury pack's deny_on_active_depeg.",
 		},
 		exposure_increasing_functions: {
 			type: "array",
@@ -114,18 +119,24 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. Null ages fail soft.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+		},
+		deny_on_missing_data: {
+			type: "boolean",
+			description:
+				"When true, a field the oracle reports as null denies instead of failing soft: stress_score, data_age_seconds. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on the stress threshold should turn this on.",
 		},
 	},
 	required: [
 		"safe_mode_stress_threshold",
-		"deny_on_active_depeg",
+		"safe_mode_on_active_depeg",
 		"exposure_increasing_functions",
 		"exposure_reducing_functions",
 		"swap_functions",
 		"swap_destination_arg_index",
 		"approved_safe_assets",
 		"max_data_age_seconds",
+		"deny_on_missing_data",
 	],
 	additionalProperties: false,
 } as const;

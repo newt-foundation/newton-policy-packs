@@ -54,8 +54,9 @@ Package `arkham_entity_wallet`. Denies when **any** of these hold:
 | `amount_over_verified_tier` | amount over `tier_verified_max_usd` | The hard ceiling, applied even to trusted destinations |
 | `risk_score_above_max` | score over `max_risk_score` | Elevated headline risk |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale intelligence |
+| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A configured threshold quietly doing nothing because Arkham never reported the value |
 
-`allow` is an explicit positive conjunction, not `count(deny) == 0`. Every deny rule silent-skips on an undefined field, so an error envelope would produce an empty deny set and a `count(deny) == 0` formulation would **fail open** on exactly the payload that most needs to fail closed. The `is_boolean(v.has_attribution)` / `is_number(amount)` groundedness checks are what enforce that.
+`deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.has_attribution)` / `is_number(amount)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
 ### Policy Parameters
 
@@ -69,11 +70,13 @@ Package `arkham_entity_wallet`. Denies when **any** of these hold:
 | `deny_on_no_attribution` | `boolean` | Refuse unattributed destinations outright |
 | `max_risk_score` | `number` | Maximum tolerated headline risk score 0-100 |
 | `max_data_age_seconds` | `number` | Freshness ceiling |
+| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) value as a deny rather than a pass |
 
 ## Notes
 
 - **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`, so a caller controls it, and every tier rule rests on it. The attested alternative — `input.value` — is native-token wei rather than USD, and arrives as a *string*. A curator who needs a tamper-proof ceiling should pair this pack with a native-value cap in a composite rather than relying on the USD tiers alone.
 - `null` is the oracle's "Arkham did not report this", and is deliberately distinct from `0`. Null optional fields fail-soft. A **missing** key (rather than an explicit null) leaves the groundedness checks undefined and correctly blocks `allow`.
+- **`deny_on_missing_data` turns that fail-soft into a deny**, emitting a `missing_<field>` reason for a null `attribution_confidence`, `max_risk_score`, or `data_age_seconds`. Arkham populates all three for an attributed address, so this is a safe setting for curators who would rather an unreported value block than pass.
 - Tags are lowercased by the oracle; `prohibited_tags` is matched case-sensitively against that normalised form, so configure it in lowercase.
 
 - **Verified attribution carries no confidence field.** Arkham asserts `arkhamEntity` rather than inferring it, so the oracle scores it `1`. Only `arkhamEntityPrediction` has a real confidence value, which is what `min_attribution_confidence` meaningfully gates.

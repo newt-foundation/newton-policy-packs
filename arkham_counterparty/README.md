@@ -52,8 +52,10 @@ Package `arkham_counterparty_activity`. Denies when **any** of these hold:
 | `concentration_spike` | share over `max_counterparty_concentration_pct` | One destination suddenly dominating outflow |
 | `outflow_above_baseline` | ratio over `max_outflow_vs_baseline_multiple` | The wallet draining faster than it normally does |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale intelligence |
+| `misconfigured_max_amount_vs_avg_multiple` | `max_amount_vs_avg_multiple` is absent or not > 0 | A multiplier that would silently disable the anomaly rule instead of tightening it |
+| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A configured threshold quietly doing nothing because Arkham never reported the value |
 
-`allow` is an explicit positive conjunction, not `count(deny) == 0`. Every deny rule silent-skips on an undefined field, so an error envelope would produce an empty deny set and a `count(deny) == 0` formulation would **fail open** on exactly the payload that most needs to fail closed. The groundedness checks at the top of `allow` are what enforce that.
+`deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.is_known_counterparty)` / `is_number(amount)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
 ### Policy Parameters
 
@@ -67,19 +69,21 @@ Package `arkham_counterparty_activity`. Denies when **any** of these hold:
 | `max_counterparty_concentration_pct` | `number` | Concentration ceiling 0-100 |
 | `max_outflow_vs_baseline_multiple` | `number` | Outflow ceiling as a multiple of normal |
 | `max_data_age_seconds` | `number` | Freshness ceiling |
+| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) value as a deny. **Denies everything today** — see Notes |
 
 ## Notes
 
 - **`transaction_amount_usd` is caller-supplied and NOT attested.** It arrives through `wasm_args`, so a caller controls it. The attested alternative — `input.value` — is native-token wei rather than USD, and arrives as a *string*. A curator needing a tamper-proof ceiling should pair this pack with a native-value cap in a composite.
-- `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
-- A **zero or null historical average** does not deny. A zero average would make every payment infinitely anomalous, so `counterparty_avg_usd` is emitted as `null` when there is no history and the anomaly rule fail-softs.
+- `null` is the oracle's "not reported", deliberately distinct from `0`. By default a null optional field fails soft; a **missing** key leaves the groundedness probes undefined and correctly blocks `allow`.
+- **`deny_on_missing_data` turns that fail-soft into a deny.** It emits a `missing_<field>` reason for any of `counterparty_last_seen_days`, `counterparty_avg_usd`, `counterparty_concentration_pct`, `outflow_ratio`, `data_age_seconds` that comes back `null`. ⚠️ **Two of those are always null today** (see the next two bullets), so setting it `true` denies *every* transaction until Arkham exposes them. It is wired for the day they do, and for curators composing this pack with an oracle that fills the gaps.
+- A **zero or null historical average** does not deny. A zero average would make every payment infinitely anomalous, so `counterparty_avg_usd` is emitted as `null` when there is no history and the anomaly rule skips. That leaves a real gap: a counterparty whose average is a genuine `0` admits any amount through `amount_anomaly`, gated only by the other rules. Closing it needs a notion of "expected size" this API does not provide, so it is deliberately out of scope — lean on `max_new_counterparty_usd` and `max_outflow_vs_baseline_multiple` instead.
+- **`max_amount_vs_avg_multiple` must be greater than zero.** A `0` would silently disable the anomaly rule rather than tightening it, so an absent or non-positive value denies with `misconfigured_max_amount_vs_avg_multiple`. The check lives in Rego rather than `params_schema.json` because `exclusiveMinimum` is outside the regorus-clean keyword set the AVS-side schema sticks to.
 - `data_age_seconds` is currently always `null` — the Arkham counterparties and flow endpoints do not expose an observation timestamp. The `stale_data` rule is wired and will activate as soon as one is available.
 
 - **`chains` is required.** Unscoped, `/flow/address` returns every chain's full daily history — over 1MB for an active wallet, which exhausts the WASM heap. Scoping to one chain brings it to roughly 270KB.
-- **The `stale_relationship` rule is currently inert.** Arkham's counterparties endpoint exposes no per-relationship timestamp, so `counterparty_last_seen_days` is always `null` and the rule fail-softs. The field and rule are kept so it activates automatically if Arkham adds timing; the param is documented but has no effect today.
+- **The `stale_relationship` rule is currently inert.** Arkham's counterparties endpoint exposes no per-relationship timestamp, so `counterparty_last_seen_days` is always `null` and the rule fail-softs. The field and rule are kept so it activates automatically if Arkham adds timing; the param is documented but has no effect today — and `deny_on_missing_data` would deny on it unconditionally.
 - **`history_window_days` materially changes the counterparty set.** A 90-day window on a wallet whose large relationships are older returns only small, recent ones — so an "established" counterparty can read as new. Widen the window to match the relationships you intend to recognise.
 - Aggregation deliberately uses plain objects and indexed loops rather than `Map`: a `Map` over the ~1,950-day flow series crashes the WASM component outright. See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md#do-not-use-map-or-set-for-anything-large).
-- A zero or null historical average does not deny — `counterparty_avg_usd` is `null` when there is no history, and the anomaly rule fail-softs.
 
 ## Prerequisites
 
