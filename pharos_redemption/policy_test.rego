@@ -20,7 +20,7 @@ default_params := {
 	"min_capacity_multiple": 2,
 	"max_reserve_elevated_risk_pct": 25,
 	"max_data_age_seconds": 21600,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 clean_data := {
@@ -210,17 +210,17 @@ test_missing_groundedness_field_does_not_allow if {
 	count(pharos_redemption_backing.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
-# --- deny_on_missing_data --------------------------------------------------
+# --- deny_on_missing_fields --------------------------------------------------
 
 test_missing_data_denies_when_strict if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["route_family", "access_model", "settlement_model", "route_status", "capacity_multiple", "route_score", "capacity_confidence", "reserve_elevated_risk_pct", "data_age_seconds"]})
 	d := with_data({"capacity_multiple": null})
 	"missing_capacity_multiple" in pharos_redemption_backing.deny with data.params as p with data.wasm as d
 	not pharos_redemption_backing.allow with data.params as p with data.wasm as d
 }
 
 test_missing_data_names_every_null_field if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["route_family", "access_model", "settlement_model", "route_status", "capacity_multiple", "route_score", "capacity_confidence", "reserve_elevated_risk_pct", "data_age_seconds"]})
 	d := with_data({
 		"route_family": null,
 		"access_model": null,
@@ -245,7 +245,7 @@ test_missing_data_names_every_null_field if {
 }
 
 test_populated_fields_are_not_reported_missing if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["route_family", "access_model", "settlement_model", "route_status", "capacity_multiple", "route_score", "capacity_confidence", "reserve_elevated_risk_pct", "data_age_seconds"]})
 	pharos_redemption_backing.allow with data.params as p with data.wasm as wrap(clean_data)
 }
 
@@ -256,4 +256,21 @@ test_error_envelope_yields_empty_deny_set_and_no_allow if {
 	d := wrap({"error": "oracle failed"})
 	count(pharos_redemption_backing.deny) == 0 with data.params as default_params with data.wasm as d
 	not pharos_redemption_backing.allow with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_fields is per-field, not all-or-nothing ---------------
+
+test_missing_fields_denies_only_what_was_listed if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["route_score"]})
+	d := with_data({"route_score": null, "data_age_seconds": null})
+	deny := pharos_redemption_backing.deny with data.params as p with data.wasm as d
+	"missing_route_score" in deny
+	not "missing_data_age_seconds" in deny
+	not pharos_redemption_backing.allow with data.params as p with data.wasm as d
+}
+
+test_unlisted_null_field_still_passes if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["route_score"]})
+	d := with_data({"data_age_seconds": null})
+	pharos_redemption_backing.allow with data.params as p with data.wasm as d
 }

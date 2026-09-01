@@ -11,10 +11,10 @@ default_params := {
 	"exposure_increasing_functions": ["deposit", "mint", "supply"],
 	"exposure_reducing_functions": ["withdraw", "redeem", "repay"],
 	"swap_functions": ["swap"],
-	"swap_destination_arg_index": 1,
+	"swap_destination_arg_index": {"swap": 1},
 	"approved_safe_assets": ["0xDAC17F958D2ee523a2206206994597C13D831ec7"],
 	"max_data_age_seconds": 7200,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 # Calm market: low stress, no depeg, flows normal.
@@ -272,17 +272,17 @@ test_real_world_age_passes_default_ceiling if {
 		with input as intent("withdraw", ["1000"])
 }
 
-# --- deny_on_missing_data --------------------------------------------------
+# --- deny_on_missing_fields --------------------------------------------------
 
 test_missing_data_denies_when_strict if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["stress_score", "data_age_seconds"]})
 	d := wrap(object.union(calm_data, {"stress_score": null}))
 	"missing_stress_score" in pharos_safe_mode.deny with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
 	not pharos_safe_mode.allow with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
 }
 
 test_missing_data_names_every_null_field if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["stress_score", "data_age_seconds"]})
 	d := wrap(object.union(calm_data, {"stress_score": null, "data_age_seconds": null}))
 	deny := pharos_safe_mode.deny with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
 	"missing_stress_score" in deny
@@ -297,7 +297,7 @@ test_null_stress_score_fails_soft_by_default if {
 }
 
 test_populated_fields_are_not_reported_missing if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["stress_score", "data_age_seconds"]})
 	pharos_safe_mode.allow with data.params as p with data.wasm as wrap(calm_data) with input as intent("withdraw", ["1000"])
 }
 
@@ -309,4 +309,87 @@ test_error_envelope_yields_no_denies_and_no_allow if {
 	d := wrap({"error": "oracle failed"})
 	count(pharos_safe_mode.deny) == 0 with data.params as default_params with data.wasm as d with input as intent("withdraw", ["1000"])
 	not pharos_safe_mode.allow with data.params as default_params with data.wasm as d with input as intent("withdraw", ["1000"])
+}
+
+# --- deny_on_missing_fields is per-field, not all-or-nothing ---------------
+
+test_missing_fields_denies_only_what_was_listed if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["stress_score"]})
+	d := wrap(object.union(calm_data, {"stress_score": null, "data_age_seconds": null}))
+	deny := pharos_safe_mode.deny with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+	"missing_stress_score" in deny
+	not "missing_data_age_seconds" in deny
+	not pharos_safe_mode.allow with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+}
+
+test_unlisted_null_field_still_passes if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["stress_score"]})
+	d := wrap(object.union(calm_data, {"data_age_seconds": null}))
+	pharos_safe_mode.allow with data.params as p with data.wasm as d with input as intent("withdraw", ["1000"])
+}
+
+# --- swap_destination_arg_index is keyed per function ----------------------
+#
+# Swap ABIs disagree on where the destination token sits, so one index across a
+# list of swap functions reads the wrong argument. `exchange(i, j, dx)` below is
+# the Curve shape: no address argument at all, so it belongs unmapped.
+
+multi_swap_params := object.union(default_params, {
+	"swap_functions": ["swap", "swapExactIn", "exchange"],
+	"swap_destination_arg_index": {"swap": 1, "swapExactIn": 0},
+})
+
+test_each_swap_function_reads_its_own_index if {
+	pharos_safe_mode.allow
+		with data.params as multi_swap_params
+		with data.wasm as wrap(stressed)
+		with input as intent("swap", ["1000", USDT])
+
+	pharos_safe_mode.allow
+		with data.params as multi_swap_params
+		with data.wasm as wrap(stressed)
+		with input as intent("swapExactIn", [USDT, "1000"])
+}
+
+# The bug this replaced: under a single index of 1, `swapExactIn` read "1000"
+# as its destination and denied a swap into an approved asset.
+test_shared_index_would_have_misread_the_destination if {
+	not pharos_safe_mode.allow
+		with data.params as object.union(default_params, {"swap_functions": ["swapExactIn"], "swap_destination_arg_index": {"swapExactIn": 1}})
+		with data.wasm as wrap(stressed)
+		with input as intent("swapExactIn", [USDT, "1000"])
+}
+
+# A swap function the curator listed but never mapped cannot be evaluated at
+# all, so it denies outright rather than only under safe mode.
+test_unmapped_swap_function_denies_when_stressed if {
+	"missing_swap_destination_index" in pharos_safe_mode.deny
+		with data.params as multi_swap_params
+		with data.wasm as wrap(stressed)
+		with input as intent("exchange", ["0", "1", "1000"])
+
+	not pharos_safe_mode.allow
+		with data.params as multi_swap_params
+		with data.wasm as wrap(stressed)
+		with input as intent("exchange", ["0", "1", "1000"])
+}
+
+test_unmapped_swap_function_denies_even_when_calm if {
+	not pharos_safe_mode.allow
+		with data.params as multi_swap_params
+		with data.wasm as wrap(calm_data)
+		with input as intent("exchange", ["0", "1", "1000"])
+}
+
+# Index 0 is a legitimate mapping, not an absent one - the guard tests
+# is_number rather than truthiness.
+test_index_zero_is_a_valid_mapping if {
+	p := object.union(default_params, {
+		"swap_functions": ["swapTo"],
+		"swap_destination_arg_index": {"swapTo": 0},
+	})
+	pharos_safe_mode.allow
+		with data.params as p
+		with data.wasm as wrap(stressed)
+		with input as intent("swapTo", [USDT, "1000"])
 }

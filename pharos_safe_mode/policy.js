@@ -186,7 +186,9 @@ export function run(input) {
       depeg_active: depeg !== null,
       depeg_severity: depeg ? str(depeg.severity) : null,
       depeg_pending_count: Array.isArray(depegs?.pending) ? depegs.pending.length : 0,
-      peg_deviation_bps: deviationBps ?? 0,
+      // `null`, never 0: a 0 here would read as a perfect peg. Informational
+      // in this pack - no rule reads it - but it must not assert a false calm.
+      peg_deviation_bps: deviationBps,
       net_flow_usd: num(flows?.netFlowUsd),
       mint_volume_usd: num(flows?.mintVolumeUsd),
       burn_volume_usd: num(flows?.burnVolumeUsd),

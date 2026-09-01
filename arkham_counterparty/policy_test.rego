@@ -12,7 +12,7 @@ default_params := {
 	"max_counterparty_concentration_pct": 50,
 	"max_outflow_vs_baseline_multiple": 2,
 	"max_data_age_seconds": 3600,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 # An established supplier: 40 prior payments averaging $10k, seen last week,
@@ -172,7 +172,7 @@ test_missing_groundedness_field_does_not_allow if {
 	count(arkham_counterparty_activity.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
-# --- deny_on_missing_data --------------------------------------------------
+# --- deny_on_missing_fields --------------------------------------------------
 #
 # Arkham's counterparties endpoint publishes no per-relationship timestamp and
 # no observation timestamp, so `counterparty_last_seen_days` and
@@ -180,14 +180,14 @@ test_missing_groundedness_field_does_not_allow if {
 # pack that denies everything until Arkham adds those fields — see README.
 
 test_missing_data_denies_when_strict if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["counterparty_last_seen_days", "counterparty_avg_usd", "counterparty_concentration_pct", "outflow_ratio", "data_age_seconds"]})
 	d := with_data({"data_age_seconds": null})
 	"missing_data_age_seconds" in arkham_counterparty_activity.deny with data.params as p with data.wasm as d
 	not arkham_counterparty_activity.allow with data.params as p with data.wasm as d
 }
 
 test_missing_data_names_every_null_field if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["counterparty_last_seen_days", "counterparty_avg_usd", "counterparty_concentration_pct", "outflow_ratio", "data_age_seconds"]})
 	d := with_data({
 		"counterparty_avg_usd": null,
 		"counterparty_last_seen_days": null,
@@ -204,7 +204,7 @@ test_missing_data_names_every_null_field if {
 }
 
 test_populated_fields_are_not_reported_missing if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["counterparty_last_seen_days", "counterparty_avg_usd", "counterparty_concentration_pct", "outflow_ratio", "data_age_seconds"]})
 	d := wrap(clean_data)
 	arkham_counterparty_activity.allow with data.params as p with data.wasm as d
 }
@@ -231,4 +231,26 @@ test_error_envelope_yields_empty_deny_set_and_no_allow if {
 	d := wrap({"error": "oracle failed"})
 	count(arkham_counterparty_activity.deny) == 0 with data.params as default_params with data.wasm as d
 	not arkham_counterparty_activity.allow with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_fields is per-field, not all-or-nothing ---------------
+#
+# The case the old blanket boolean could not express. Arkham's counterparties
+# endpoint publishes no observation timestamp, so `data_age_seconds` is always
+# null here; under a single switch a curator who needed `outflow_ratio` had to
+# accept a pack that denied every transaction.
+
+test_missing_fields_denies_only_what_was_listed if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["outflow_ratio"]})
+	d := with_data({"outflow_ratio": null, "data_age_seconds": null})
+	deny := arkham_counterparty_activity.deny with data.params as p with data.wasm as d
+	"missing_outflow_ratio" in deny
+	not "missing_data_age_seconds" in deny
+	not arkham_counterparty_activity.allow with data.params as p with data.wasm as d
+}
+
+test_unlisted_null_field_still_passes if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["outflow_ratio"]})
+	d := with_data({"data_age_seconds": null})
+	arkham_counterparty_activity.allow with data.params as p with data.wasm as d
 }

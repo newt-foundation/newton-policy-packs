@@ -56,7 +56,7 @@ Package `pharos_redemption_backing`. Denies when **any** of these hold:
 | `unapproved_capacity_confidence` | band not in `approved_capacity_confidence` | Capacity Pharos cannot evidence |
 | `reserve_risk_above_max` | elevated-risk share over `max_reserve_elevated_risk_pct` | Backing concentrated in riskier assets |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale data |
-| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A configured threshold quietly doing nothing because Pharos never reported the value |
+| `missing_<field>` | the field is named in `deny_on_missing_fields` and the oracle reported it as `null` | A configured threshold quietly doing nothing because Pharos never reported the value |
 
 `deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.redemption_available)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
@@ -74,7 +74,7 @@ Package `pharos_redemption_backing`. Denies when **any** of these hold:
 | `min_capacity_multiple` | `number` | Required immediate capacity as a multiple of the position |
 | `max_reserve_elevated_risk_pct` | `number` | Max share of reserves rated worse than low risk |
 | `max_data_age_seconds` | `number` | Freshness ceiling; the feed lags hours, so keep this generous |
-| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) value as a deny. Requires every call to supply a position size |
+| `deny_on_missing_fields` | `string[]` | Field names whose unreported (`null`) value denies. Listing `capacity_multiple` requires every call to supply a position size |
 
 ## Notes
 
@@ -84,7 +84,7 @@ Package `pharos_redemption_backing`. Denies when **any** of these hold:
 - **`transaction_amount_usd` is caller-supplied and NOT attested.** See the treasury pack's README for the same caveat.
 - `null` is the oracle's "not reported", distinct from `0`. Null optional fields fail-soft; a **missing** key blocks `allow`.
 - Passing no amount leaves `capacity_multiple` as `null` and the sizing rule fail-softs.
-- **`deny_on_missing_data` turns those fail-softs into denies**, emitting a `missing_<field>` reason for any null field. Because `capacity_multiple` is null whenever the caller passes no position size, turning it on requires every call to supply one.
+- **`deny_on_missing_fields` turns those fail-softs into denies**, per field, emitting a `missing_<field>` reason. Because `capacity_multiple` is null whenever the caller passes no position size, listing it requires every call to supply one — and because the list is per field, you can require the rest without that.
 
 - **This pack rides within about 40% of a hard runtime limit.** `/api/redemption-backstops` has no filter, so the oracle downloads all ~1.14MB and slices this coin's ~3KB object out of the raw text. Holding a document and slicing it works to roughly 1.6MB on this runtime; at ~3.5KB per coin that is around 130 more coins of headroom. A `MAX_SLICEABLE_BYTES` guard trips first and returns a readable error (which fails closed) rather than trapping the component with no verdict. The durable fix is a per-asset endpoint from Pharos.
 

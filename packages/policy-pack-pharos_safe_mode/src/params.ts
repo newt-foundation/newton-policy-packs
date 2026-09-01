@@ -33,10 +33,9 @@ export const ParamsSchema = z
 				"Bare function names that swap the asset for another (e.g. 'swap', 'exchange'). Permitted in safe mode only when the destination token is in approved_safe_assets.",
 			),
 		swap_destination_arg_index: z
-			.number()
-			.gte(0)
+			.record(z.string(), z.any())
 			.describe(
-				"Zero-based index into input.decoded_function_arguments holding the destination token address for a swap. An out-of-range index leaves the destination undefined, which fails closed.",
+				"Map from swap function name (as listed in swap_functions) to the zero-based index into input.decoded_function_arguments holding the destination token address. Keyed per function because ABIs differ: swap(tokenIn,tokenOut,amt) is 1, while a Curve-style exchange(i,j,dx) has no address argument and should be left unmapped. A swap function with no entry denies as missing_swap_destination_index; an out-of-range index leaves the destination undefined, which also fails closed.",
 			),
 		approved_safe_assets: z
 			.array(z.string())
@@ -47,12 +46,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 			),
-		deny_on_missing_data: z
-			.boolean()
+		deny_on_missing_fields: z
+			.array(z.enum(["stress_score", "data_age_seconds"]))
 			.describe(
-				"When true, a field the oracle reports as null denies instead of failing soft: stress_score, data_age_seconds. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on the stress threshold should turn this on.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on safe_mode_stress_threshold should list it.",
 			),
 	})
 	.strict()
@@ -102,10 +101,9 @@ export const ParamsJsonSchema = {
 				"Bare function names that swap the asset for another (e.g. 'swap', 'exchange'). Permitted in safe mode only when the destination token is in approved_safe_assets.",
 		},
 		swap_destination_arg_index: {
-			type: "number",
-			minimum: 0,
+			type: "object",
 			description:
-				"Zero-based index into input.decoded_function_arguments holding the destination token address for a swap. An out-of-range index leaves the destination undefined, which fails closed.",
+				"Map from swap function name (as listed in swap_functions) to the zero-based index into input.decoded_function_arguments holding the destination token address. Keyed per function because ABIs differ: swap(tokenIn,tokenOut,amt) is 1, while a Curve-style exchange(i,j,dx) has no address argument and should be left unmapped. A swap function with no entry denies as missing_swap_destination_index; an out-of-range index leaves the destination undefined, which also fails closed.",
 		},
 		approved_safe_assets: {
 			type: "array",
@@ -119,12 +117,16 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 		},
-		deny_on_missing_data: {
-			type: "boolean",
+		deny_on_missing_fields: {
+			type: "array",
+			items: {
+				type: "string",
+				enum: ["stress_score", "data_age_seconds"],
+			},
 			description:
-				"When true, a field the oracle reports as null denies instead of failing soft: stress_score, data_age_seconds. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on the stress threshold should turn this on.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on safe_mode_stress_threshold should list it.",
 		},
 	},
 	required: [
@@ -136,7 +138,7 @@ export const ParamsJsonSchema = {
 		"swap_destination_arg_index",
 		"approved_safe_assets",
 		"max_data_age_seconds",
-		"deny_on_missing_data",
+		"deny_on_missing_fields",
 	],
 	additionalProperties: false,
 } as const;

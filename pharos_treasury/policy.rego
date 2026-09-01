@@ -13,8 +13,8 @@ v := data.wasm.pharos_treasury
 
 # Fields the oracle reports as `null` when Pharos has nothing to say. `null` is
 # deliberately distinct from `0` — which for a stress score or a liquidity score
-# would be a very different claim. Under `deny_on_missing_data` the curator has
-# asked for the former to block rather than fail soft.
+# would be a very different claim. Naming one in `deny_on_missing_fields` asks
+# for the former to block rather than fail soft.
 nullable_fields := {
 	"stress_score": v.stress_score,
 	"redemption_route_family": v.redemption_route_family,
@@ -39,6 +39,13 @@ deny contains "active_depeg" if {
 # Deviation is signed by the oracle (negative = below peg) because the
 # direction matters to a reader; the threshold is symmetric.
 deny contains "peg_deviation_above_max" if abs(v.peg_deviation_bps) > t.max_peg_deviation_bps
+
+# Unconditional, deliberately NOT part of `deny_on_missing_fields`: this pack's
+# peg rule is built on the deviation, so an unresolvable one is never tolerable.
+# The oracle used to report `0` here when it could not resolve a price, which
+# reads as a perfect peg — the safest possible input — so it now reports `null`.
+# `allow`'s `is_number` probe already fails that closed; this names why.
+deny contains "missing_peg_deviation_bps" if v.peg_deviation_bps == null
 
 deny contains "stress_above_max" if {
 	v.stress_score != null
@@ -87,10 +94,14 @@ deny contains "stale_data" if {
 # reports the value it applies to. `exit_capacity_multiple` in particular is
 # null whenever the caller passed no position size, which would otherwise let
 # the pack's differentiated signal fail soft.
+#
+# Opt-in PER FIELD rather than one blanket switch. A provider that never
+# populates a given field would otherwise force the curator to choose between
+# requiring the field they actually care about and denying every transaction.
+# An empty list is the fail-soft default.
 deny contains sprintf("missing_%v", [name]) if {
-	t.deny_on_missing_data
-	some name, value in nullable_fields
-	value == null
+	some name in t.deny_on_missing_fields
+	nullable_fields[name] == null
 }
 
 # --- allow -----------------------------------------------------------------

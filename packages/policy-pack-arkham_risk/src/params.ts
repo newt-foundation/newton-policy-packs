@@ -50,12 +50,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 			),
-		deny_on_missing_data: z
-			.boolean()
+		deny_on_missing_fields: z
+			.array(z.enum(["max_score", "data_age_seconds", "path_last_seen_days"]))
 			.describe(
-				"When true, a value the oracle reports as null denies instead of failing soft: max_score, data_age_seconds, and the last_seen_days of any severe distant exposure path (which would otherwise slip past the recency rule entirely).",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. path_last_seen_days is not a top-level field but the per-path date: listing it denies any severe distant exposure path Arkham left undated, which would otherwise slip past the recency rule entirely.",
 			),
 	})
 	.strict()
@@ -116,12 +116,16 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 		},
-		deny_on_missing_data: {
-			type: "boolean",
+		deny_on_missing_fields: {
+			type: "array",
+			items: {
+				type: "string",
+				enum: ["max_score", "data_age_seconds", "path_last_seen_days"],
+			},
 			description:
-				"When true, a value the oracle reports as null denies instead of failing soft: max_score, data_age_seconds, and the last_seen_days of any severe distant exposure path (which would otherwise slip past the recency rule entirely).",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. path_last_seen_days is not a top-level field but the per-path date: listing it denies any severe distant exposure path Arkham left undated, which would otherwise slip past the recency rule entirely.",
 		},
 	},
 	required: [
@@ -133,7 +137,7 @@ export const ParamsJsonSchema = {
 		"deny_on_seed",
 		"max_risk_score",
 		"max_data_age_seconds",
-		"deny_on_missing_data",
+		"deny_on_missing_fields",
 	],
 	additionalProperties: false,
 } as const;

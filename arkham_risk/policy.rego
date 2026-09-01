@@ -11,8 +11,8 @@ v := data.wasm.arkham_risk
 
 # Fields the oracle reports as `null` when Arkham has nothing to say. `null` is
 # deliberately distinct from `0`: a null score means "not reported", a zero
-# score would be a genuine clean verdict. Under `deny_on_missing_data` the
-# curator has asked for the former to block rather than fail soft.
+# score would be a genuine clean verdict. Naming one in
+# `deny_on_missing_fields` asks for the former to block rather than fail soft.
 nullable_fields := {
 	"max_score": v.max_score,
 	"data_age_seconds": v.data_age_seconds,
@@ -113,14 +113,21 @@ deny contains "stale_data" if {
 
 # A threshold the curator configured is worth nothing if the oracle never
 # reports the value it applies to.
+#
+# Opt-in PER FIELD rather than one blanket switch. A provider that never
+# populates a given field would otherwise force the curator to choose between
+# requiring the field they actually care about and denying every transaction.
+# An empty list is the fail-soft default.
 deny contains sprintf("missing_%v", [name]) if {
-	t.deny_on_missing_data
-	some name, value in nullable_fields
-	value == null
+	some name in t.deny_on_missing_fields
+	nullable_fields[name] == null
 }
 
+# `path_last_seen_days` describes per-path data rather than a top-level field,
+# so it is a valid entry in `deny_on_missing_fields` without appearing in
+# `nullable_fields` above.
 deny contains "missing_path_last_seen_days" if {
-	t.deny_on_missing_data
+	"path_last_seen_days" in t.deny_on_missing_fields
 	count(undated_distant_paths) > 0
 }
 

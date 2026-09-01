@@ -20,10 +20,10 @@ default_params := {
 	"exposure_increasing_functions": ["deposit", "mint", "supply"],
 	"exposure_reducing_functions": ["withdraw", "redeem", "repay"],
 	"swap_functions": ["swap"],
-	"swap_destination_arg_index": 1,
+	"swap_destination_arg_index": {"swap": 1},
 	"approved_safe_assets": ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
 	"max_data_age_seconds": 7200,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 clean_inner := {

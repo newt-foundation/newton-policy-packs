@@ -47,8 +47,8 @@ Package `arkham_risk_exposure`. Paths are filtered in three stages — dust floo
 | `recent_distant_exposure` | severe, beyond the hop limit, within `recent_exposure_days` | Fresh exposure further out. **Currently inert** — see Notes |
 | `risk_score_above_max` | score over `max_risk_score` | Elevated headline risk, independent of paths |
 | `stale_data` | age over `max_data_age_seconds` | Decisions made on stale intelligence |
-| `missing_<field>` | `deny_on_missing_data` and the oracle reported that field as `null` | A configured threshold quietly doing nothing because Arkham never reported the value |
-| `missing_path_last_seen_days` | `deny_on_missing_data` and a severe distant path has no date | Undated exposure slipping past the recency rule entirely |
+| `missing_<field>` | the field is named in `deny_on_missing_fields` and the oracle reported it as `null` | A configured threshold quietly doing nothing because Arkham never reported the value |
+| `missing_path_last_seen_days` | `path_last_seen_days` is named in `deny_on_missing_fields` and a severe distant path has no date | Undated exposure slipping past the recency rule entirely |
 
 `deny` is the single source of truth for every rule above, and `allow` consumes it: `not v.error`, the `is_boolean(v.is_seed)` / `is_array(v.paths)` groundedness probes, then `count(deny) == 0`. The probes are load-bearing rather than decorative — every deny rule silent-skips on an undefined field, so an error envelope produces an **empty** deny set, and a bare `count(deny) == 0` would **fail open** on exactly the payload that most needs to fail closed. There is deliberately no parallel set of positive helper rules restating the deny conditions; that duplication is how the two drift apart.
 
@@ -68,12 +68,12 @@ Package `arkham_risk_exposure`. Paths are filtered in three stages — dust floo
 | `deny_on_seed` | `boolean` | Deny when the address is itself a risky source |
 | `max_risk_score` | `number` | Maximum tolerated headline score 0-100 |
 | `max_data_age_seconds` | `number` | Freshness ceiling |
-| `deny_on_missing_data` | `boolean` | Treat an unreported (`null`) value — including an undated exposure path — as a deny |
+| `deny_on_missing_fields` | `string[]` | Field names whose unreported (`null`) value denies. `path_last_seen_days` is its own entry, covering undated exposure paths |
 
 ## Notes
 
 - `null` is the oracle's "not reported", deliberately distinct from `0`. Null optional fields fail-soft; a **missing** key leaves the groundedness checks undefined and correctly blocks `allow`.
-- **`deny_on_missing_data` turns that fail-soft into a deny**, emitting `missing_max_score` / `missing_data_age_seconds`, plus `missing_path_last_seen_days` for a severe distant path Arkham gave no date for — exposure that otherwise slips past the recency rule entirely. ⚠️ `last_seen_days` is always null today (see below), so with this on, any address with a severe path beyond the hop limit denies.
+- **`deny_on_missing_fields` turns that fail-soft into a deny**, per field. `max_score` and `data_age_seconds` emit `missing_<field>`; `path_last_seen_days` is a separate entry that emits `missing_path_last_seen_days` for a severe distant path Arkham gave no date for — exposure that otherwise slips past the recency rule entirely. ⚠️ `last_seen_days` is always null today (see below), so listing `path_last_seen_days` denies any address with a severe path beyond the hop limit. Because the list is per field, you can require `max_score` without taking that on.
 - **Dust tolerance is a strict `>` comparison**, so a path contributing exactly `dust_tolerance_usd` counts as dust and is ignored. Set it to `0` to consider every path.
 - A category outside `severe_categories` never trips the hop, materiality or recency rules, however large or direct. Only `max_risk_score` constrains it.
 - Path categories and seed addresses are lowercased by the oracle; configure `severe_categories` in lowercase.

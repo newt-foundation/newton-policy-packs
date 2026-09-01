@@ -228,10 +228,29 @@ the duplicated form and are a known follow-up — copy the newer packs, not thos
 
 `null` from an oracle means "the provider did not report this", which is not the
 same as `0`. Fail soft on it by default, but let the curator opt into strictness
-with a `deny_on_missing_data` boolean that emits a named `missing_<field>` reason
-— a threshold nobody can enforce is worse than no threshold. Document per-pack
-which fields the provider structurally never populates: on `arkham_counterparty`
-two of the five are always null, so turning the flag on denies everything.
+— a threshold nobody can enforce is worse than no threshold.
+
+Make that opt-in **per field**, not a single boolean:
+
+```rego
+deny contains sprintf("missing_%v", [name]) if {
+	some name in t.deny_on_missing_fields
+	nullable_fields[name] == null
+}
+```
+
+with the param an `enum`-constrained array of that pack's own nullable field
+names. A blanket switch collapses the moment a provider structurally never
+populates one of the fields: on `arkham_counterparty` two of the five are always
+null, so a single flag forces the curator to choose between requiring the field
+they actually depend on and denying every transaction. A list lets them require
+`outflow_ratio` and leave the two inert fields out. An empty list is the
+fail-soft default. Document per-pack which fields are structurally always null.
+
+A field a rule cannot work without at all is the exception — deny on it
+unconditionally rather than putting it in the list. `pharos_treasury`'s
+`peg_deviation_bps` is the example: the peg rule is built on it, so an
+unresolvable deviation is never something to opt out of.
 
 #### Guard params you multiply by
 
@@ -547,7 +566,7 @@ Before opening the pack PR, verify:
 - [ ] `policy.rego` references `data.wasm.<pack-id>.*` (not bare `data.wasm.*`) so the pack composes cleanly. Params stay flat: `t := data.params` and `t.<your_field>`, matching the existing reference packs
 - [ ] `allow` is `not v.error` + groundedness probes + `count(deny) == 0`, with no parallel `*_ok` helper rules
 - [ ] `policy_test.rego` covers every deny rule, the happy-path allow, and an error envelope asserting BOTH `count(deny) == 0` and `not allow`
-- [ ] Every nullable oracle field is listed in `nullable_fields` and covered by `deny_on_missing_data`; params used as multipliers deny when not `> 0`
+- [ ] Every nullable oracle field is listed in `nullable_fields` and in the `deny_on_missing_fields` enum; a field no rule can work without denies unconditionally instead; params used as multipliers deny when not `> 0`
 - [ ] `params_schema.json` has `additionalProperties: false` and lists `required` keys
 - [ ] `wasm_args_schema.json` matches what `policy.js` reads off `args`
 - [ ] `secrets_schema.json` lists every key passed to `secret(...)` in `policy.js`

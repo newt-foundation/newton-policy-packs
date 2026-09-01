@@ -12,7 +12,7 @@ default_params := {
 	"deny_on_seed": true,
 	"max_risk_score": 40,
 	"max_data_age_seconds": 3600,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 # A clean address: low headline score, and its only exposure path is a
@@ -207,17 +207,17 @@ test_missing_paths_does_not_allow if {
 	count(arkham_risk_exposure.deny) == 0 with data.params as default_params with data.wasm as d
 }
 
-# --- deny_on_missing_data --------------------------------------------------
+# --- deny_on_missing_fields --------------------------------------------------
 
 test_missing_data_denies_when_strict if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score", "data_age_seconds", "path_last_seen_days"]})
 	d := with_data({"max_score": null})
 	"missing_max_score" in arkham_risk_exposure.deny with data.params as p with data.wasm as d
 	not arkham_risk_exposure.allow with data.params as p with data.wasm as d
 }
 
 test_missing_data_names_every_null_field if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score", "data_age_seconds", "path_last_seen_days"]})
 	d := with_data({"max_score": null, "data_age_seconds": null})
 	deny := arkham_risk_exposure.deny with data.params as p with data.wasm as d
 	"missing_max_score" in deny
@@ -227,7 +227,7 @@ test_missing_data_names_every_null_field if {
 # An undated distant severe path slips past `recent_distant_paths` — under
 # strict mode the absent date is itself the deny.
 test_undated_distant_severe_path_denies_when_strict if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score", "data_age_seconds", "path_last_seen_days"]})
 	d := with_data({"paths": [path({
 		"category": "mixer",
 		"hop_distance": 4,
@@ -250,7 +250,7 @@ test_undated_distant_severe_path_fails_soft_by_default if {
 }
 
 test_populated_fields_are_not_reported_missing if {
-	p := object.union(default_params, {"deny_on_missing_data": true})
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score", "data_age_seconds", "path_last_seen_days"]})
 	arkham_risk_exposure.allow with data.params as p with data.wasm as wrap(clean_data)
 }
 
@@ -261,4 +261,34 @@ test_error_envelope_yields_empty_deny_set_and_no_allow if {
 	d := wrap({"error": "oracle failed"})
 	count(arkham_risk_exposure.deny) == 0 with data.params as default_params with data.wasm as d
 	not arkham_risk_exposure.allow with data.params as default_params with data.wasm as d
+}
+
+# --- deny_on_missing_fields is per-field, not all-or-nothing ---------------
+
+test_missing_fields_denies_only_what_was_listed if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score"]})
+	d := with_data({"max_score": null, "data_age_seconds": null})
+	deny := arkham_risk_exposure.deny with data.params as p with data.wasm as d
+	"missing_max_score" in deny
+	not "missing_data_age_seconds" in deny
+	not arkham_risk_exposure.allow with data.params as p with data.wasm as d
+}
+
+test_unlisted_null_field_still_passes if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score"]})
+	d := with_data({"data_age_seconds": null})
+	arkham_risk_exposure.allow with data.params as p with data.wasm as d
+}
+
+# `path_last_seen_days` is its own entry: requiring the top-level scores must
+# NOT drag undated exposure paths in with them.
+test_undated_path_passes_when_only_scores_are_required if {
+	p := object.union(default_params, {"deny_on_missing_fields": ["max_score", "data_age_seconds"]})
+	d := with_data({"paths": [path({
+		"category": "mixer",
+		"hop_distance": 4,
+		"contributed_usd": 500,
+		"last_seen_days": null,
+	})]})
+	arkham_risk_exposure.allow with data.params as p with data.wasm as d
 }

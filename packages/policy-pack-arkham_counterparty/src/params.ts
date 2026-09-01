@@ -32,7 +32,7 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum ratio of the proposed amount to the historical average transaction with this counterparty. 3 denies a payment more than 3x the usual size.",
+				"Maximum ratio of the proposed amount to the historical average transaction with this counterparty. 3 denies a payment more than 3x the usual size. Must be greater than zero: a 0 would silently disable the anomaly rule rather than tighten it, so the policy denies as misconfigured_max_amount_vs_avg_multiple.",
 			),
 		max_counterparty_concentration_pct: z
 			.number()
@@ -51,12 +51,20 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 			),
-		deny_on_missing_data: z
-			.boolean()
+		deny_on_missing_fields: z
+			.array(
+				z.enum([
+					"counterparty_last_seen_days",
+					"counterparty_avg_usd",
+					"counterparty_concentration_pct",
+					"outflow_ratio",
+					"data_age_seconds",
+				]),
+			)
 			.describe(
-				"When true, any field the oracle reports as null denies instead of failing soft: counterparty_last_seen_days, counterparty_avg_usd, counterparty_concentration_pct, outflow_ratio, data_age_seconds. NOTE: Arkham's counterparties endpoint publishes no per-relationship timestamp and no observation timestamp, so counterparty_last_seen_days and data_age_seconds are ALWAYS null today - setting this true denies every transaction until Arkham exposes them.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. NOTE: Arkham's counterparties endpoint publishes no per-relationship timestamp and no observation timestamp, so counterparty_last_seen_days and data_age_seconds are ALWAYS null today - listing either denies every transaction until Arkham exposes them.",
 			),
 	})
 	.strict()
@@ -96,7 +104,7 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum ratio of the proposed amount to the historical average transaction with this counterparty. 3 denies a payment more than 3x the usual size.",
+				"Maximum ratio of the proposed amount to the historical average transaction with this counterparty. 3 denies a payment more than 3x the usual size. Must be greater than zero: a 0 would silently disable the anomaly rule rather than tighten it, so the policy denies as misconfigured_max_amount_vs_avg_multiple.",
 		},
 		max_counterparty_concentration_pct: {
 			type: "number",
@@ -115,12 +123,22 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 		},
-		deny_on_missing_data: {
-			type: "boolean",
+		deny_on_missing_fields: {
+			type: "array",
+			items: {
+				type: "string",
+				enum: [
+					"counterparty_last_seen_days",
+					"counterparty_avg_usd",
+					"counterparty_concentration_pct",
+					"outflow_ratio",
+					"data_age_seconds",
+				],
+			},
 			description:
-				"When true, any field the oracle reports as null denies instead of failing soft: counterparty_last_seen_days, counterparty_avg_usd, counterparty_concentration_pct, outflow_ratio, data_age_seconds. NOTE: Arkham's counterparties endpoint publishes no per-relationship timestamp and no observation timestamp, so counterparty_last_seen_days and data_age_seconds are ALWAYS null today - setting this true denies every transaction until Arkham exposes them.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. NOTE: Arkham's counterparties endpoint publishes no per-relationship timestamp and no observation timestamp, so counterparty_last_seen_days and data_age_seconds are ALWAYS null today - listing either denies every transaction until Arkham exposes them.",
 		},
 	},
 	required: [
@@ -132,7 +150,7 @@ export const ParamsJsonSchema = {
 		"max_counterparty_concentration_pct",
 		"max_outflow_vs_baseline_multiple",
 		"max_data_age_seconds",
-		"deny_on_missing_data",
+		"deny_on_missing_fields",
 	],
 	additionalProperties: false,
 } as const;

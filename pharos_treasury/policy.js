@@ -349,7 +349,9 @@ export function run(input) {
       price,
       price_confidence: str(summary?.priceConfidence),
       peg_target: 1,
-      peg_deviation_bps: deviationBps ?? 0,
+      // `null`, never 0: a 0 here reads as a perfect peg, which is the safest
+      // possible input for the Rego peg rule. The Rego denies on null instead.
+      peg_deviation_bps: deviationBps,
       depeg_active: depeg !== null,
       depeg_severity: depeg ? str(depeg.severity) : null,
       depeg_direction: depeg ? str(depeg.direction) : null,

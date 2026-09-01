@@ -16,8 +16,8 @@ amount := v.transaction_amount_usd
 
 # Fields the oracle reports as `null` when Arkham has nothing to say. `null` is
 # deliberately distinct from `0`: a null age means "not reported", a zero age
-# would mean "observed just now". Under `deny_on_missing_data` the curator has
-# asked for the former to block rather than fail soft.
+# would mean "observed just now". Naming one in `deny_on_missing_fields` asks
+# for the former to block rather than fail soft.
 nullable_fields := {
 	"counterparty_last_seen_days": v.counterparty_last_seen_days,
 	"counterparty_avg_usd": v.counterparty_avg_usd,
@@ -59,8 +59,8 @@ deny contains "stale_relationship" if {
 # make every payment infinitely anomalous. That leaves a genuine gap — a
 # counterparty whose average is a true 0 admits any amount here, gated only by
 # the other rules. Deliberately out of scope for this policy; a curator who
-# wants it closed should set `deny_on_missing_data` and lean on
-# `max_new_counterparty_usd`.
+# wants it closed should name `counterparty_avg_usd` in
+# `deny_on_missing_fields` and lean on `max_new_counterparty_usd`.
 deny contains "amount_anomaly" if {
 	v.counterparty_avg_usd != null
 	v.counterparty_avg_usd > 0
@@ -96,10 +96,14 @@ deny contains "stale_data" if {
 # A threshold the curator configured is worth nothing if the oracle never
 # reports the value it applies to. See README for which fields Arkham does not
 # populate today.
+#
+# Opt-in PER FIELD rather than one blanket switch. A provider that never
+# populates a given field would otherwise force the curator to choose between
+# requiring the field they actually care about and denying every transaction.
+# An empty list is the fail-soft default.
 deny contains sprintf("missing_%v", [name]) if {
-	t.deny_on_missing_data
-	some name, value in nullable_fields
-	value == null
+	some name in t.deny_on_missing_fields
+	nullable_fields[name] == null
 }
 
 # --- allow -----------------------------------------------------------------

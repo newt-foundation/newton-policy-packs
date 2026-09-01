@@ -48,12 +48,12 @@ export const ParamsSchema = z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 			),
-		deny_on_missing_data: z
-			.boolean()
+		deny_on_missing_fields: z
+			.array(z.enum(["attribution_confidence", "max_risk_score", "data_age_seconds"]))
 			.describe(
-				"When true, any field the oracle reports as null denies instead of failing soft: attribution_confidence, max_risk_score, data_age_seconds. Arkham populates all three for an attributed address, so this is a safe default for curators who want an unreported value treated as a failure rather than a pass.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. Arkham populates all three for an attributed address, so listing them is safe for curators who want an unreported value treated as a failure rather than a pass.",
 			),
 	})
 	.strict()
@@ -116,12 +116,16 @@ export const ParamsJsonSchema = {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum tolerated age of the Arkham observation. A null age fails soft here and is caught instead by deny_on_missing_data.",
+				"Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead.",
 		},
-		deny_on_missing_data: {
-			type: "boolean",
+		deny_on_missing_fields: {
+			type: "array",
+			items: {
+				type: "string",
+				enum: ["attribution_confidence", "max_risk_score", "data_age_seconds"],
+			},
 			description:
-				"When true, any field the oracle reports as null denies instead of failing soft: attribution_confidence, max_risk_score, data_age_seconds. Arkham populates all three for an attributed address, so this is a safe default for curators who want an unreported value treated as a failure rather than a pass.",
+				"Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. Arkham populates all three for an attributed address, so listing them is safe for curators who want an unreported value treated as a failure rather than a pass.",
 		},
 	},
 	required: [
@@ -133,7 +137,7 @@ export const ParamsJsonSchema = {
 		"deny_on_no_attribution",
 		"max_risk_score",
 		"max_data_age_seconds",
-		"deny_on_missing_data",
+		"deny_on_missing_fields",
 	],
 	additionalProperties: false,
 } as const;

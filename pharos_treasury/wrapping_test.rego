@@ -24,7 +24,7 @@ default_params := {
 	"min_exit_capacity_multiple": 3,
 	"min_liquidity_score": 60,
 	"max_data_age_seconds": 21600,
-	"deny_on_missing_data": false,
+	"deny_on_missing_fields": [],
 }
 
 clean_inner := {
