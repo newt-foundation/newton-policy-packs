@@ -75,7 +75,8 @@ newton-cli policy simulate \
   --wasm-args ./<name>/configs/wasm_args.json \
   --intent-json ./<name>/configs/intent.json \
   --policy-params-data ./<name>/configs/params.json \
-  --policy-file ./<name>/policy.rego \
+  --rego-file ./<name>/policy.rego \
+  --entrypoint <package_name>.allow \
   --wasm-file ./<name>/dist/policy.wasm
 ```
 

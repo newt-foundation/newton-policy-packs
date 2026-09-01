@@ -70,6 +70,69 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
 
+  packages/policy-pack-arkham_counterparty:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/policy-pack-arkham_entity:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/policy-pack-arkham_risk:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
   packages/policy-pack-balancer:
     devDependencies:
       '@newton-xyz/policy-core':
@@ -155,6 +218,69 @@ importers:
         version: 3.25.76
 
   packages/policy-pack-persona:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/policy-pack-pharos_redemption:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/policy-pack-pharos_safe_mode:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
+  packages/policy-pack-pharos_treasury:
     devDependencies:
       '@newton-xyz/policy-core':
         specifier: ^0.2.0

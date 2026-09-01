@@ -1,0 +1,7 @@
+{
+  "name": "arkham_risk Wasm",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Calls Arkham's address-risk and risk-paths endpoints and emits risk level, per-category scores, seed status, and up to ten ranked exposure paths with hop distance, direction, contributed USD, and intermediary nodes"
+}

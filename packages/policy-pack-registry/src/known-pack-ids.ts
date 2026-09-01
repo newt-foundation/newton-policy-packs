@@ -20,11 +20,17 @@
  * specific pack need the literal union.
  */
 export const KNOWN_PACK_IDS = [
+	"arkham_counterparty",
+	"arkham_entity",
+	"arkham_risk",
 	"balancer",
 	"blockaid",
 	"chainalysis",
 	"guardrail",
 	"persona",
+	"pharos_redemption",
+	"pharos_safe_mode",
+	"pharos_treasury",
 	"redstone",
 	"sumsub",
 	"vaultsfyi",

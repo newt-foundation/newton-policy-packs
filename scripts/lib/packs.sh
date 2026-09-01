@@ -13,11 +13,17 @@
 # or echoes nothing and returns 1 if the pack name is unknown.
 
 ALL_PACKS=(
+  "arkham_counterparty:arkham_counterparty_activity"
+  "arkham_entity:arkham_entity_wallet"
+  "arkham_risk:arkham_risk_exposure"
   "balancer:balancer_pool_risk"
   "blockaid:blockaid_tx_safety"
   "chainalysis:chainalysis_address_screening"
   "guardrail:guardrail_protocol_monitor"
   "persona:persona_kyc"
+  "pharos_redemption:pharos_redemption_backing"
+  "pharos_safe_mode:pharos_safe_mode"
+  "pharos_treasury:pharos_treasury_risk"
   "redstone:redstone_oracle_divergence"
   "sumsub:sumsub_kyc"
   "vaultsfyi:vault_risk_rating"

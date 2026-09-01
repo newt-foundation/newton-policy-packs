@@ -1,0 +1,7 @@
+{
+  "name": "arkham_counterparty Wasm",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Calls Arkham's counterparties and fund-flow endpoints and emits counterparty relationship history, concentration, recency, and the wallet's normal-versus-recent outflow baseline"
+}

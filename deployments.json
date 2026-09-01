@@ -8,6 +8,9 @@
     "11155111": "Ethereum Sepolia"
   },
   "packs": {
+    "arkham_counterparty": {},
+    "arkham_entity": {},
+    "arkham_risk": {},
     "balancer": {
       "1": {
         "prod": {
@@ -298,6 +301,9 @@
         }
       }
     },
+    "pharos_redemption": {},
+    "pharos_safe_mode": {},
+    "pharos_treasury": {},
     "redstone": {
       "1": {
         "prod": {

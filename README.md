@@ -48,7 +48,8 @@ newton-cli policy simulate \
   --wasm-args ./vaultsfyi/configs/wasm_args.json \
   --intent-json ./vaultsfyi/configs/intent.json \
   --policy-params-data ./vaultsfyi/configs/params.json \
-  --policy-file ./vaultsfyi/policy.rego \
+  --rego-file ./vaultsfyi/policy.rego \
+  --entrypoint vault_risk_rating.allow \
   --wasm-file ./vaultsfyi/dist/policy.wasm
 
 # 5. Deploy — three separate steps. Capture all output in deployment.log.
@@ -125,6 +126,12 @@ newton-policy-packs/
 ├── persona/               # KYC / identity gate
 ├── sumsub/                # KYC / applicant gate (HMAC-signed)
 ├── balancer/              # Composite Balancer pool-risk gate
+├── arkham_entity/         # Entity-aware spending-tier gate (Arkham)
+├── arkham_counterparty/   # Adaptive counterparty-baseline gate (Arkham)
+├── arkham_risk/           # Explainable risk-exposure gate (Arkham)
+├── pharos_treasury/       # Risk-adjusted stablecoin treasury gate (Pharos)
+├── pharos_safe_mode/      # Graduated stablecoin safe-mode gate (Pharos)
+├── pharos_redemption/     # Redemption-backed asset gate (Pharos)
 ├── .env.prod              # Starter env template
 └── package.json           # jco build deps
 ```
@@ -164,7 +171,7 @@ Each policy has a `configs/` subdirectory (gitignored) with:
 - `params.json` — Policy parameters evaluated by Rego
 - `intent.json` — Transaction intent being evaluated
 
-Pass these to `newton-cli policy simulate` via `--wasm-args`, `--policy-params-data`, and `--intent-json` (with `--policy-file` and `--wasm-file` — see the [Quick Start](#quick-start) for the full invocation).
+Pass these to `newton-cli policy simulate` via `--wasm-args`, `--policy-params-data`, and `--intent-json` (with `--rego-file`, `--entrypoint` and `--wasm-file`, plus `--secrets-file` for packs that read API keys — see the [Quick Start](#quick-start) for the full invocation).
 
 ## Included Policies
 
@@ -205,6 +212,30 @@ KYC/applicant gate using [SumSub](https://sumsub.com). Same shape as the Persona
 ### balancer
 
 Composite Balancer pool-risk gate (public API, no key). Token-weight drift, non-allowlisted tokens in pool, optional underlying-yield-source check, TVL floor + 24h/7d drawdowns. See [balancer/README.md](./balancer/README.md).
+
+### arkham_entity
+
+Entity-aware spending-tier gate using [Arkham Intelligence](https://arkm.com). Tiers the limit by who the destination is: a verified, approved-category entity gets the full tier, an unlabelled address gets an introductory cap, low-confidence attribution denies, and a prohibited tag denies outright. See [arkham_entity/README.md](./arkham_entity/README.md).
+
+### arkham_counterparty
+
+Adaptive counterparty gate using [Arkham Intelligence](https://arkm.com). Judges a payment against the sender's own history — established relationships clear, while new recipients, anomalous amounts, concentration spikes, and outflow above the wallet's normal baseline deny. See [arkham_counterparty/README.md](./arkham_counterparty/README.md).
+
+### arkham_risk
+
+Explainable risk-exposure gate using [Arkham Intelligence](https://arkm.com). Denies direct or near-hop exposure to curator-configured severe categories, escalates distant exposure only when materially large or recent, tolerates configured dust, and names the offending transaction path. See [arkham_risk/README.md](./arkham_risk/README.md).
+
+### pharos_treasury
+
+Risk-adjusted stablecoin treasury gate using [Pharos](https://pharos.watch). Admits an asset only when there is no active depeg, stress is below threshold, the redemption route is approved, and exit capacity comfortably exceeds the resulting position. See [pharos_treasury/README.md](./pharos_treasury/README.md).
+
+### pharos_safe_mode
+
+Graduated stablecoin safe-mode gate using [Pharos](https://pharos.watch). Under elevated stress or an active depeg it blocks exposure-increasing actions while leaving withdrawals, redemptions and swaps into approved safer assets open. The only pack that reads the attested intent (`input.function.name`). See [pharos_safe_mode/README.md](./pharos_safe_mode/README.md).
+
+### pharos_redemption
+
+Redemption-backed asset gate using [Pharos](https://pharos.watch). Admits a stablecoin only when direct redemption is available through an approved provider and mechanism, limits support the position size, and the response is current. See [pharos_redemption/README.md](./pharos_redemption/README.md).
 
 ## Contributing a new pack
 

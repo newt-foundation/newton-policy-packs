@@ -1,0 +1,7 @@
+{
+  "name": "pharos_treasury Wasm",
+  "version": "0.0.1",
+  "author": "Pharos",
+  "link": "https://pharos.watch",
+  "description": "Calls Pharos's stablecoin, depeg-events, stress-signals, dex-liquidity, and redemption-backstops endpoints and emits a combined peg, stress, exit-liquidity, and redemption snapshot for the queried stablecoin"
+}

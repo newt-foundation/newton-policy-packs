@@ -3,13 +3,19 @@ import { describe, it } from "node:test";
 import { isKnownPackId, KNOWN_PACK_IDS } from "./known-pack-ids";
 
 describe("KNOWN_PACK_IDS", () => {
-	it("contains exactly the 9 currently-published pack short ids", () => {
+	it("contains exactly the 15 currently-published pack short ids", () => {
 		assert.deepEqual([...KNOWN_PACK_IDS].sort(), [
+			"arkham_counterparty",
+			"arkham_entity",
+			"arkham_risk",
 			"balancer",
 			"blockaid",
 			"chainalysis",
 			"guardrail",
 			"persona",
+			"pharos_redemption",
+			"pharos_safe_mode",
+			"pharos_treasury",
 			"redstone",
 			"sumsub",
 			"vaultsfyi",

@@ -114,7 +114,7 @@ The pack name is **load-bearing** in six places — they all have to match:
 5. The pack registry: [`scripts/lib/packs.sh`](../scripts/lib/packs.sh) (`<pack-name>:<rego-package-name>` entry)
 6. The top-level `deployments.json` key under `packs.<your-pack>` (the codegen reads this slice to emit `packages/policy-pack-<your-pack>/src/deployments.ts`)
 
-Use `kebab-case` if the name has multiple words (`my-service`). The Rego package name is `snake_case` derived from the pack name (`my_service`) — `policy.rego` declares it via `package my_service` at the top.
+Use `snake_case` if the name has multiple words (`my_service`). **Hyphens are rejected**: `defineOracle` in `@newton-xyz/policy-core` validates the short pack id against `SHORT_ID_RE = /^[a-z][a-z0-9_]*$/` and throws at construction otherwise, because Rego parses `a-b` as subtraction — a kebab-case id would break every `data.wasm.<id>` reference in your rules. The Rego package name is typically longer and more descriptive than the pack id (`balancer` declares `package balancer_pool_risk`); `policy.rego` declares it at the top.
 
 Pick a name that won't collide with an existing pack. The current set is in [`scripts/lib/packs.sh`](../scripts/lib/packs.sh).
 
@@ -196,6 +196,80 @@ ALL_PACKS=(
 
 ### 3. Author and test the Rego
 
+#### Shape `allow` as probes + `count(deny) == 0`
+
+Put every rule in the `deny` set and let `allow` consume it. Do **not** write a
+second, positive set of `*_ok` helper rules restating the same conditions — that
+duplication is exactly how the two drift apart, and the helpers are unreachable
+from the on-chain entrypoint anyway:
+
+```rego
+allow if {
+	not v.error
+	is_boolean(v.some_flag)     # groundedness probes: one per load-bearing field
+	is_number(v.some_number)
+	count(deny) == 0
+}
+```
+
+The probes are not decoration. Every deny rule silent-skips on an undefined
+field, so an error envelope produces an **empty** deny set — and a bare
+`count(deny) == 0` would fail OPEN on exactly the payload that most needs to fail
+closed. Probe each field the deny rules actually depend on, and prove it with a
+test asserting both `count(deny) == 0` and `not allow` on an error envelope.
+
+The `arkham_*` and `pharos_*` packs and
+[`examples/composite-vaultsfyi-chainalysis`](../examples/composite-vaultsfyi-chainalysis/policy.rego)
+follow this shape. The nine older packs (`balancer`, `blockaid`, `chainalysis`,
+`guardrail`, `persona`, `redstone`, `sumsub`, `vaultsfyi`, `webacy`) still carry
+the duplicated form and are a known follow-up — copy the newer packs, not those.
+
+#### Give the curator a say over missing data
+
+`null` from an oracle means "the provider did not report this", which is not the
+same as `0`. Fail soft on it by default, but let the curator opt into strictness
+— a threshold nobody can enforce is worse than no threshold.
+
+Make that opt-in **per field**, not a single boolean:
+
+```rego
+deny contains sprintf("missing_%v", [name]) if {
+	some name in t.deny_on_missing_fields
+	nullable_fields[name] == null
+}
+```
+
+with the param an `enum`-constrained array of that pack's own nullable field
+names. A blanket switch collapses the moment a provider structurally never
+populates one of the fields: on `arkham_counterparty` two of the five are always
+null, so a single flag forces the curator to choose between requiring the field
+they actually depend on and denying every transaction. A list lets them require
+`outflow_ratio` and leave the two inert fields out. An empty list is the
+fail-soft default. Document per-pack which fields are structurally always null.
+
+A field a rule cannot work without at all is the exception — deny on it
+unconditionally rather than putting it in the list. `pharos_treasury`'s
+`peg_deviation_bps` is the example: the peg rule is built on it, so an
+unresolvable deviation is never something to opt out of.
+
+#### Guard params you multiply by
+
+A param used as a multiplier must be checked `> 0` — a `0` silently *disables*
+the rule instead of tightening it. Route the check through a named helper:
+
+```rego
+deny contains "misconfigured_<param>" if not valid_<param>
+
+valid_<param> if t.<param> > 0
+```
+
+Not `not t.<param> > 0` directly: OPA hoists the ref into its own conjunct, so an
+**absent** param makes the whole body undefined rather than negating to true.
+Keep the bound out of `params_schema.json` — `exclusiveMinimum` is outside the
+regorus-clean keyword set the AVS-side schema sticks to.
+
+#### Run the tests
+
 Write `policy_test.rego` covering the deny paths. Run with OPA:
 
 ```bash
@@ -214,7 +288,32 @@ Drop test fixtures under `<your-pack>/configs/` (gitignored):
 
 - `wasm_args.json` — sample per-call inputs
 - `params.json` — sample policy params
-- `intent.json` — sample transaction intent
+- `secrets.json` — plaintext API keys, exposed to `secret(...)` for this local run only
+- `intent.json` — sample transaction intent, in the **gateway shape** below
+
+The intent JSON takes **camelCase** keys, and Rego sees them as **snake_case**.
+`functionSignature` is the signature string hex-encoded as UTF-8 bytes (NOT a
+keccak selector), and `data` must ABI-decode against it or the CLI fails with
+`buffer overrun while deserializing`:
+
+```json
+{
+  "from": "0x8D84B1344cb6375694f5862c868BA2c78240c076",
+  "to":   "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+  "value": "1000000000000000000",
+  "chainId": 11155111,
+  "functionSignature": "0x77697468647261772875696e743235362c616464726573732c6164647265737329",
+  "data": "0xb460af94...<abi-encoded args>"
+}
+```
+
+Generate the signature hex with `printf 'withdraw(uint256,address,address)' | xxd -p | tr -d '\n'`.
+
+Rego then receives `input.from`, `input.to`, `input.value` (a **string**),
+`input.chain_id` (a **string**), `input.function.name` (the bare name),
+`input.function_signature`, `input.decoded_function_signature`, and
+`input.decoded_function_arguments` (an array of **strings**). See
+`pharos_safe_mode/` for the only pack that gates on the intent.
 
 Then simulate the full WASM + Rego flow:
 
@@ -231,7 +330,9 @@ newton-cli policy simulate \
   --wasm-args ./<your-pack>/configs/wasm_args.json \
   --intent-json ./<your-pack>/configs/intent.json \
   --policy-params-data ./<your-pack>/configs/params.json \
-  --policy-file ./<your-pack>/policy.rego \
+  --secrets-file ./<your-pack>/configs/secrets.json \
+  --rego-file ./<your-pack>/policy.rego \
+  --entrypoint <your_pack>.allow \
   --wasm-file ./<your-pack>/dist/policy.wasm
 ```
 
@@ -305,6 +406,157 @@ The changeset file lands in `.changeset/` as part of the deploy PR. After the de
 
 > **Pre-1.0 caret-rule note.** `@newton-xyz/policy-pack-shared` is at `0.x.y` today. In semver, `^0.4.0` for a 0.x version pins to `>=0.4.0 <0.5.0`. So a `minor` bump on `shared` (`0.4.0 → 0.5.0`) is *outside* the existing peer range and will cascade every dependent pack as a `major`. If you need a true non-cascading shared bump, use `patch`. See [ADR 0001](./architecture/0001-policy-pack-shared-as-peer-dep.md).
 
+## WASM runtime constraints (learned the hard way)
+
+`policy.js` runs inside a componentize-js/StarlingMonkey WASM component with a
+constrained heap and no host-side decompression. Several things that are
+unremarkable in Node will crash the component outright, and the failure mode is
+unhelpful — `WASM execution failed: Parse error: wasm execution failed: error
+while executing at wasm backtrace:` with no line number. Budget for these
+before you pick your endpoints.
+
+### Do not use `Map` or `Set` for anything large
+
+A `Map` keyed by ~1,950 entries **crashes the component**. The same payload
+fetches and `JSON.parse`s successfully; only the `Map` build fails. Plain
+objects with classic indexed `for` loops handle the identical data fine.
+
+```js
+// CRASHES on a few thousand entries
+const byDay = new Map();
+for (const [chain, series] of Object.entries(payload)) { /* ... */ }
+
+// Works
+const byDay = {};
+const keys = Object.keys(payload);
+for (let i = 0; i < keys.length; i++) { /* ... */ }
+```
+
+Small `Set`s (a handful of tags) are fine. The threshold is somewhere in the
+low thousands — don't go looking for it, just use plain objects when the size
+is driven by response data.
+
+### Watch the total payload size
+
+Rough ceilings observed against the current runtime:
+
+| Operation | Outcome |
+|---|---|
+| Fetch + decode a 2.98MB body (and nothing else) | works |
+| Fetch + `JSON.parse` a 273KB body | works |
+| `JSON.parse` a 1.14MB body | **traps** |
+| Hold a decoded document + slice one object out of it | works to **1.6MB**, traps at **1.7MB** |
+| Hold a 1.2MB document + brace-scan the *whole* thing | **traps** |
+
+Two separate limits are at work: how much you can hold, and how much you can
+then *do* with it. Decoding 2.98MB succeeds only because nothing follows it —
+add a slice and it traps. Scan length matters independently: a bounded scan
+(`indexOf` the key, then walk to its matching brace) is cheap regardless of
+document size, while scanning the full document traps well below the hold
+limit.
+
+`JSON.parse` on a multi-hundred-KB document builds a large object graph and is
+the usual culprit. Prefer endpoints that filter server-side. Check the
+provider's OpenAPI spec rather than guessing — parameters that "look
+obvious" are often silently ignored.
+
+### Slicing a bulk document you cannot filter
+
+When a provider only offers a bulk endpoint keyed by id (Pharos's
+`/api/redemption-backstops` returns all ~328 coins as 1.1MB with zero query
+parameters), cut your object out of the **raw text** and parse only that:
+
+```js
+function sliceKeyedObject(text, key) {
+  const needle = `"${key}":`;
+  const at = text.indexOf(needle);
+  if (at < 0) return null;
+  const start = text.indexOf("{", at + needle.length);
+  if (start < 0) return null;
+  const QUOTE = 34, BACKSLASH = 92, OPEN = 123, CLOSE = 125;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text.charCodeAt(i);   // NOT text[i] — see below
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === BACKSLASH) esc = true;
+      else if (c === QUOTE) inStr = false;
+      continue;
+    }
+    if (c === QUOTE) inStr = true;
+    else if (c === OPEN) depth++;
+    else if (c === CLOSE) { depth--; if (depth === 0) return text.slice(start, i + 1); }
+  }
+  return null;
+}
+```
+
+Use `charCodeAt(i)`, never `text[i]`: indexing a string allocates a fresh
+one-character string per iteration. The scan must also be string-aware, or a
+brace inside a string value throws off the depth count.
+
+This turns a 1.1MB document into a ~3KB parse. It does **not** save the
+download — you still pay the bytes and the rate limit — so treat it as a
+workaround, and ask the provider for a per-asset endpoint.
+
+### Guard the size, because a trap is worse than a deny
+
+Exceeding these limits **traps the component**: the evaluation returns no
+verdict at all rather than a deny a curator can act on. That is strictly worse
+than failing closed. If you slice a bulk document, refuse oversized ones
+explicitly so the failure arrives as a normal error envelope:
+
+```js
+const MAX_SLICEABLE_BYTES = 1500000;   // below the ~1.6MB measured ceiling
+
+if (text.length > MAX_SLICEABLE_BYTES) {
+  throw new Error(`provider: bulk document too large to slice (${text.length} bytes)`);
+}
+```
+
+The throw routes into `wrapOutput(PACK_ID, { error })`, and the Rego's
+groundedness checks turn that into a fail-closed deny with a readable reason.
+Size the threshold against the endpoint's growth: `/api/redemption-backstops`
+is ~1.14MB across 328 coins (~3.5KB each), so a 1.5MB guard leaves room for
+roughly 100 more coins before a curator sees a clear error instead of a crash.
+
+### gzip does not help
+
+The host returns the **raw compressed bytes** when you send
+`Accept-Encoding: gzip` (verified: response begins `0x1f 0x8b`), and there is no
+gunzip available inside the component. It shrinks the wire transfer but leaves
+you holding bytes you cannot decode.
+
+### No streaming, and no byte ranges you can rely on
+
+`newton-provider.wit` models the body as a single `list<u8>`:
+
+```wit
+record http-response { status: u16, headers: list<tuple<string, string>>, body: list<u8> }
+```
+
+There is no chunked or streaming primitive, so a response cannot be consumed
+incrementally. Some providers advertise `accept-ranges: bytes` and then ignore
+`Range` entirely (Pharos returns the full 2.98MB with a `200` for
+`Range: bytes=0-999`) — verify before relying on it.
+
+### Timestamps are not always unix numbers
+
+Arkham returns `updated_at` as an ISO-8601 string (`"2026-08-28T17:21:43Z"`).
+`Number()` on that yields `NaN`, which silently nulls out every freshness
+check rather than failing loudly. Parse defensively:
+
+```js
+const asNumber = Number(value);
+const seconds = Number.isFinite(asNumber) && asNumber > 0
+  ? (asNumber > 1e12 ? asNumber / 1000 : asNumber)
+  : Date.parse(String(value)) / 1000;
+```
+
+Also distinguish an *observation* timestamp from a *bucket* timestamp: a daily
+history row's `date` is the bucket, and reads as up to 24h stale even when the
+underlying observations are seconds old.
+
 ## Pack design checklist
 
 Before opening the pack PR, verify:
@@ -312,7 +564,9 @@ Before opening the pack PR, verify:
 - [ ] `policy.js` wraps every return path under `JSON.stringify({ [PACK_ID]: ... })`, including error paths (use `wrapOutput` from `@newton-xyz/policy-pack-shared`)
 - [ ] `wrapping_test.rego` passes
 - [ ] `policy.rego` references `data.wasm.<pack-id>.*` (not bare `data.wasm.*`) so the pack composes cleanly. Params stay flat: `t := data.params` and `t.<your_field>`, matching the existing reference packs
-- [ ] `policy_test.rego` covers every deny rule plus the happy-path allow
+- [ ] `allow` is `not v.error` + groundedness probes + `count(deny) == 0`, with no parallel `*_ok` helper rules
+- [ ] `policy_test.rego` covers every deny rule, the happy-path allow, and an error envelope asserting BOTH `count(deny) == 0` and `not allow`
+- [ ] Every nullable oracle field is listed in `nullable_fields` and in the `deny_on_missing_fields` enum; a field no rule can work without denies unconditionally instead; params used as multipliers deny when not `> 0`
 - [ ] `params_schema.json` has `additionalProperties: false` and lists `required` keys
 - [ ] `wasm_args_schema.json` matches what `policy.js` reads off `args`
 - [ ] `secrets_schema.json` lists every key passed to `secret(...)` in `policy.js`

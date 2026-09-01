@@ -1,0 +1,7 @@
+{
+  "name": "arkham_risk",
+  "version": "0.0.1",
+  "author": "Arkham Intelligence",
+  "link": "https://arkm.com",
+  "description": "Explainable risk gate: denies direct or near-hop exposure to curator-configured severe risk categories, escalates distant exposure only when materially large or recent, tolerates configured dust, and names the offending transaction path in the deny reason"
+}

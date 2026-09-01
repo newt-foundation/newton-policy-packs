@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Pharos stablecoin safe-mode policy WASM at evaluation time",
+  "properties": {
+    "stablecoin_id": {
+      "type": "string",
+      "description": "Canonical Pharos stablecoin identifier in ticker-issuer form, e.g. 'usdc-circle'."
+    },
+    "stress_lookback_days": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 365,
+      "description": "Lookback window in days for the Pharos stress-signal history. Defaults to 7."
+    },
+    "flow_window_hours": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 720,
+      "description": "Window in hours for the mint/burn flow-anomaly lookup. Defaults to 24."
+    }
+  },
+  "required": ["stablecoin_id"]
+}

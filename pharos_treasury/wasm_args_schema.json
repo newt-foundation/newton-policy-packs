@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Pharos risk-adjusted treasury policy WASM at evaluation time",
+  "properties": {
+    "stablecoin_id": {
+      "type": "string",
+      "description": "Canonical Pharos stablecoin identifier in ticker-issuer form, e.g. 'usdc-circle'. This is the key every Pharos endpoint is queried on."
+    },
+    "transaction_amount_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "USD notional of the proposed acquisition, used to size the position against available exit liquidity. CALLER-SUPPLIED and therefore NOT attested - see this pack's README. Defaults to 0 when omitted, which makes the exit-capacity ratio undefined and fail-soft."
+    },
+    "stress_lookback_days": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 365,
+      "description": "Lookback window in days for the Pharos stress-signal history. Defaults to 7."
+    },
+    "max_cost_bps": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "Maximum acceptable execution cost in basis points when sizing exit liquidity. Compared against each capacity-curve rung's ACTUAL executionCostBps (a deep stablecoin prices around 9-10bps), NOT against the 200bps bound Pharos runs its simulations under. Defaults to 50."
+    }
+  },
+  "required": [
+    "stablecoin_id"
+  ]
+}
