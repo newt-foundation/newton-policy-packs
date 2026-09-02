@@ -1,0 +1,10 @@
+{
+  "wasmCid": "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+  "policyCid": "bafkreidy6f7qinlyklqoqfaj3dp6owgjdxjkbugq6mcabgwzke2rq27hi4",
+  "schemaCid": "bafkreigrt44uc6o6mvu74ntuayuo5ugjdy2toszswj7accpq77pf73lsre",
+  "entrypoint": "arkham_entity_wallet.allow",
+  "policyMetadataCid": "bafkreiaqzhynfgtyp5xmko2yhva6wgfcuh5hdmgvtog5ue52wqgkme5aji",
+  "policyDataMetadataCid": "bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu",
+  "secretsSchemaCid": "bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq",
+  "policyCodeHash": "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d"
+}

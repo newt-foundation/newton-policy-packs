@@ -1,0 +1,7 @@
+{
+  "name": "pharos_safe_mode",
+  "version": "0.0.1",
+  "author": "Pharos",
+  "link": "https://pharos.watch",
+  "description": "Graduated stablecoin safe-mode gate: when Pharos reports elevated stress or an active depeg, blocks exposure-increasing actions while continuing to permit withdrawals, redemptions, and swaps into curator-approved safer assets"
+}

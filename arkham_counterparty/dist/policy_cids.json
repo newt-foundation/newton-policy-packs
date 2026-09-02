@@ -1,0 +1,10 @@
+{
+  "wasmCid": "bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee",
+  "policyCid": "bafkreighqhxdgs2ykcqp5z44xli5q6nmg37wwfsmilfzfovcrhaipalvna",
+  "schemaCid": "bafkreifqr6fhf4jdnnlad5cvorsfea5j442fzrunb7ia6xivrintdbmiy4",
+  "entrypoint": "arkham_counterparty_activity.allow",
+  "policyMetadataCid": "bafkreigeni4bkxb6tbg6lrujxceyilh37xvhvztrd2wa3amnkm3lxbxoym",
+  "policyDataMetadataCid": "bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza",
+  "secretsSchemaCid": "bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq",
+  "policyCodeHash": "0xcc72b3a914054bff72074b749d0898e62c929c8b62e924d6f1de0217b4fae3ba"
+}

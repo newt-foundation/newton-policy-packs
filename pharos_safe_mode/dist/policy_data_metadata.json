@@ -1,0 +1,7 @@
+{
+  "name": "pharos_safe_mode Wasm",
+  "version": "0.0.1",
+  "author": "Pharos",
+  "link": "https://pharos.watch",
+  "description": "Calls Pharos's stress-signals, depeg-events, and mint-burn-flows endpoints and emits stress score and band, active indicators, depeg status, and mint/burn flow-anomaly context for the queried stablecoin"
+}

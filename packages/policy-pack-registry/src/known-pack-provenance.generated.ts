@@ -4,9 +4,30 @@ import type { ChainId, GatewayEnv } from "@newton-xyz/policy-core";
 import type { KnownPackId } from "./known-pack-ids";
 
 export const AUDITED_POLICY_DATA = {
-	arkham_counterparty: {},
-	arkham_entity: {},
-	arkham_risk: {},
+	arkham_counterparty: {
+		"84532": {
+			prod: "0x9cA5dC35748265DBd67392b47d9521Dc594074E7",
+		},
+		"11155111": {
+			prod: "0x30a3dEb38F805CfdA370BCA0687D811399aA4751",
+		},
+	},
+	arkham_entity: {
+		"84532": {
+			prod: "0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628",
+		},
+		"11155111": {
+			prod: "0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb",
+		},
+	},
+	arkham_risk: {
+		"84532": {
+			prod: "0x48a22E362d555BF4a828BAD5Df93544ae267f012",
+		},
+		"11155111": {
+			prod: "0x5DB3f272D2064069C4Dc7ab386823F1dB085a21d",
+		},
+	},
 	balancer: {
 		"1": {
 			prod: "0xAd60980C077123A82c574624AC857Dc775b914bd",
@@ -77,9 +98,30 @@ export const AUDITED_POLICY_DATA = {
 			prod: "0x87C4AFf01D7bABAcaC791af4e9b2FB44637cFe10",
 		},
 	},
-	pharos_redemption: {},
-	pharos_safe_mode: {},
-	pharos_treasury: {},
+	pharos_redemption: {
+		"84532": {
+			prod: "0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397",
+		},
+		"11155111": {
+			prod: "0x2834F982143B755b1B71273816094d32E29fe919",
+		},
+	},
+	pharos_safe_mode: {
+		"84532": {
+			prod: "0xEda991d04F38C40F6cf3806295Ddf1Cec0562e74",
+		},
+		"11155111": {
+			prod: "0x1FBED9bB473baF5D422aBCF224519A81Ff45d6Ed",
+		},
+	},
+	pharos_treasury: {
+		"84532": {
+			prod: "0x171c225800Ffea592a8C823b45655f0d0DEf13B0",
+		},
+		"11155111": {
+			prod: "0xc46DC6df9F5AAf9cc319c7f43FEBC53F03B90386",
+		},
+	},
 	redstone: {
 		"1": {
 			prod: "0xc81371B54F5d71E8aA92a3601f30f3520c34A5a9",

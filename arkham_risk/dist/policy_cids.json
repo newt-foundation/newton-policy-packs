@@ -1,0 +1,10 @@
+{
+  "wasmCid": "bafybeib6tduuu52cwzorw6dugkfybrsbxcxtnpj65ezbk7eeetegefwqey",
+  "policyCid": "bafkreichuggltdphfgwxmmrivamqeobe3636zvnys72odh7zvpcgpiunqq",
+  "schemaCid": "bafkreihojotvuht525xg2qjey7tmke5umrvto2yywf2iysm2mads4xnfaq",
+  "entrypoint": "arkham_risk_exposure.allow",
+  "policyMetadataCid": "bafkreiaylixgm2pyvdbcypnjs7kuy5q2avsakovhrwx7t7xxoj4ltipuoi",
+  "policyDataMetadataCid": "bafkreia67pc2cdzullwcpu35u3fsip7t2rwsainkslzucyfugm2tdcjugm",
+  "secretsSchemaCid": "bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq",
+  "policyCodeHash": "0x38798255d2b4b45b7f6d078d85c922b785a96bcfcee0c6549542d8c507bd4bc0"
+}
