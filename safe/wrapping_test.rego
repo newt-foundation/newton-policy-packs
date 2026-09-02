@@ -1,0 +1,108 @@
+package safe_signer_threshold_wrapping_test
+
+import data.safe_signer_threshold
+
+# Phase 0 § Stream B Rego shape test for safe.
+#
+# Locks the namespacing contract: the policy reads from
+# `data.wasm.safe.<field>`, NOT `data.wasm.<field>`. Mirrors `policy.js`'s
+# `wrapOutput("safe", ...)` envelope.
+#
+# Per-pack negative-shape pattern: safe uses the silent-skip pattern (like
+# redstone/vaultsfyi/balancer). Every deny rule bottoms out in a comparison
+# or truthiness check that fail-skips when `v.<field>` is undefined, and
+# `allow` re-asserts field presence positively so the skip fails closed.
+# Flat-input assertion is therefore `count(deny) == 0` AND `not allow`.
+
+default_params := {
+    "safe_address": "0x1111111111111111111111111111111111111111",
+    "min_threshold": 2,
+    "min_owners": 3,
+    "max_owners": 5,
+}
+
+clean_inner := {
+    "safe_address": "0x1111111111111111111111111111111111111111",
+    "chain_id": 11155111,
+    "threshold": 3,
+    "owner_count": 4,
+}
+
+namespaced(overrides) := {"safe": object.union(clean_inner, overrides)}
+
+test_namespaced_allow_when_clean if {
+    safe_signer_threshold.allow with data.params as default_params with data.wasm as namespaced({})
+    count(safe_signer_threshold.deny) == 0 with data.params as default_params with data.wasm as namespaced({})
+}
+
+test_namespaced_deny_threshold_below_minimum if {
+    "threshold_below_minimum" in safe_signer_threshold.deny
+        with data.params as default_params
+        with data.wasm as namespaced({"threshold": 1})
+}
+
+test_namespaced_deny_owners_out_of_range if {
+    "owners_below_minimum" in safe_signer_threshold.deny
+        with data.params as default_params
+        with data.wasm as namespaced({"owner_count": 1})
+
+    "owners_above_maximum" in safe_signer_threshold.deny
+        with data.params as default_params
+        with data.wasm as namespaced({"owner_count": 99})
+}
+
+test_namespaced_deny_safe_address_mismatch if {
+    "safe_address_mismatch" in safe_signer_threshold.deny
+        with data.params as default_params
+        with data.wasm as namespaced({"safe_address": "0x2222222222222222222222222222222222222222"})
+}
+
+# Negative shape test: a flat (un-namespaced) `data.wasm` MUST NOT trigger
+# any deny rule, and MUST NOT allow either — every rule silent-skips on the
+# undefined `v.<field>`, and `allow`'s positive field assertions fail.
+test_flat_input_does_not_trigger_namespaced_rules if {
+    flat_with_violations := object.union(clean_inner, {
+        "safe_address": "0x9999999999999999999999999999999999999999",
+        "threshold": 0,
+        "owner_count": 99,
+    })
+    count(safe_signer_threshold.deny) == 0
+        with data.params as default_params
+        with data.wasm as flat_with_violations
+    not safe_signer_threshold.allow
+        with data.params as default_params
+        with data.wasm as flat_with_violations
+}
+
+# Error envelope: composite Rego can selectively deny on
+# `data.wasm.<pack-id>.error`.
+test_namespaced_error_does_not_allow if {
+    not safe_signer_threshold.allow
+        with data.params as default_params
+        with data.wasm as {"safe": {"error": "oracle failed"}}
+}
+
+# Fail-closed under malformed/empty namespaced output.
+test_namespaced_empty_pack_slot_does_not_allow if {
+    not safe_signer_threshold.allow
+        with data.params as default_params
+        with data.wasm as {"safe": {}}
+}
+
+# Cross-pack composition smoke: stuff sibling pack slots with extreme values
+# — safe's rules MUST only read its own slice via `v := data.wasm.safe`.
+test_other_pack_keys_do_not_interfere if {
+    composite := {
+        "safe": clean_inner,
+        "fordefi": {
+            "signed_externally": true,
+            "signatures": [],
+        },
+        "blockaid": {
+            "classification": "Malicious",
+            "simulation_succeeded": false,
+        },
+    }
+    safe_signer_threshold.allow with data.params as default_params with data.wasm as composite
+    count(safe_signer_threshold.deny) == 0 with data.params as default_params with data.wasm as composite
+}

@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Safe owner/threshold policy WASM at evaluation time. The JSON-RPC endpoints themselves are policy secrets, not wasm_args.",
+  "properties": {
+    "safeAddress": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$",
+      "description": "Address of the Safe (Gnosis Safe) contract to read. getThreshold() and getOwners() are called on it."
+    },
+    "chainId": {
+      "type": "integer",
+      "enum": [11155111, 84532],
+      "description": "Chain the Safe lives on. 11155111 = Ethereum Sepolia, 84532 = Base Sepolia. Selects which RPC-URL secret is used."
+    },
+    "chain": {
+      "type": "string",
+      "enum": ["eth-sepolia", "ethereum-sepolia", "sepolia", "base-sepolia"],
+      "description": "Optional human-readable alias for chainId. Only consulted when chainId is omitted."
+    }
+  },
+  "required": ["safeAddress"]
+}

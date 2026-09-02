@@ -25,6 +25,7 @@ ALL_PACKS=(
   "pharos_safe_mode:pharos_safe_mode"
   "pharos_treasury:pharos_treasury_risk"
   "redstone:redstone_oracle_divergence"
+  "safe:safe_signer_threshold"
   "sumsub:sumsub_kyc"
   "vaultsfyi:vault_risk_rating"
   "webacy:webacy_depeg_risk"

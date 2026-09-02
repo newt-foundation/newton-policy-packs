@@ -1,0 +1,7 @@
+{
+  "name": "safe Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://safe.global/",
+  "description": "Reads getThreshold() and getOwners() from a Safe contract via JSON-RPC on Ethereum Sepolia or Base Sepolia and reports the threshold and owner count"
+}

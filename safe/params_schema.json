@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "description": "Expected Safe identity and owner/threshold bounds for the Safe configuration gate",
+  "properties": {
+    "safe_address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$",
+      "description": "The Safe address this policy is bound to. The address the WASM actually read must match this (case-insensitive), otherwise deny."
+    },
+    "min_threshold": {
+      "type": "number",
+      "description": "Minimum signature threshold the Safe must require. Below this, deny."
+    },
+    "min_owners": {
+      "type": "number",
+      "description": "Minimum number of owners (signers) the Safe must have. Below this, deny."
+    },
+    "max_owners": {
+      "type": "number",
+      "description": "Maximum number of owners (signers) the Safe may have. Above this, deny."
+    }
+  },
+  "required": [
+    "safe_address",
+    "min_threshold",
+    "min_owners",
+    "max_owners"
+  ]
+}
