@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "description": "Thresholds and action classification for the Pharos stablecoin safe-mode gate",
+  "properties": {
+    "safe_mode_stress_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Pharos stress score (0-100) at or above which safe mode engages. Below this, and absent a depeg, every classified action proceeds normally."
+    },
+    "safe_mode_on_active_depeg": {
+      "type": "boolean",
+      "description": "When true, a confirmed active depeg ENGAGES SAFE MODE on its own, independently of the stress score. Safe mode blocks exposure-increasing calls and unapproved swap destinations; it does NOT block withdrawals or redemptions, which stay permitted by design. For an outright denial on depeg, use the pharos_treasury pack's deny_on_active_depeg."
+    },
+    "exposure_increasing_functions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Bare function names that increase exposure to the asset (e.g. 'deposit', 'mint', 'supply'). Blocked while safe mode is engaged. Matched against the attested input.function.name."
+    },
+    "exposure_reducing_functions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Bare function names that reduce exposure (e.g. 'withdraw', 'redeem', 'repay'). Always permitted, including while safe mode is engaged - that is the point of a graduated response."
+    },
+    "swap_functions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Bare function names that swap the asset for another (e.g. 'swap', 'exchange'). Permitted in safe mode only when the destination token is in approved_safe_assets."
+    },
+    "swap_destination_arg_index": {
+      "type": "object",
+      "description": "Map from swap function name (as listed in swap_functions) to the zero-based index into input.decoded_function_arguments holding the destination token address. Keyed per function because ABIs differ: swap(tokenIn,tokenOut,amt) is 1, while a Curve-style exchange(i,j,dx) has no address argument and should be left unmapped. A swap function with no entry denies as missing_swap_destination_index; an out-of-range index leaves the destination undefined, which also fails closed."
+    },
+    "approved_safe_assets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Token contract addresses (0x-prefixed) considered safe destinations for a swap out of a stressed asset. Compared case-insensitively."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Pharos observation, taken as the OLDEST of the stress and flow responses. Observed real-world lag is ~40 minutes, so sub-hour ceilings deny routinely. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead."
+    },
+    "deny_on_missing_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "stress_score",
+          "data_age_seconds"
+        ]
+      },
+      "description": "Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. A null stress_score means safe mode can only ever engage via the depeg branch, so a curator relying on safe_mode_stress_threshold should list it."
+    }
+  },
+  "required": [
+    "safe_mode_stress_threshold",
+    "safe_mode_on_active_depeg",
+    "exposure_increasing_functions",
+    "exposure_reducing_functions",
+    "swap_functions",
+    "swap_destination_arg_index",
+    "approved_safe_assets",
+    "max_data_age_seconds",
+    "deny_on_missing_fields"
+  ],
+  "additionalProperties": false
+}

@@ -145,8 +145,18 @@ else
   echo "=== $(date) :: $pack policy.wasm is up-to-date (cache stamp matches) — reusing ===" | tee -a "$log"
 fi
 
-echo "=== $(date) :: $pack sync source policy.rego -> dist ===" | tee -a "$log"
-cp -f "./$pack/policy.rego" "./$pack/dist/policy.rego"
+# generate-cids derives schemaCid / policyMetadataCid / policyDataMetadataCid from
+# files inside dist/, so every source artifact it reads must be mirrored there
+# first. secrets_schema.json is deliberately NOT mirrored - it is passed
+# explicitly below via --secrets-schema-file.
+echo "=== $(date) :: $pack sync source artifacts -> dist ===" | tee -a "$log"
+for f in policy.rego params_schema.json policy_data_metadata.json policy_metadata.json; do
+  if [[ ! -f "./$pack/$f" ]]; then
+    echo "ERROR: ./$pack/$f missing - generate-cids needs it in dist/" >&2
+    exit 1
+  fi
+  cp -f "./$pack/$f" "./$pack/dist/$f"
+done
 
 echo "=== $(date) :: $pack generate-cids (Pinata IPFS upload) ===" | tee -a "$log"
 run newton-cli policy-files generate-cids \

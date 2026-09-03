@@ -2,6 +2,23 @@
 // Source: AVS-side artifacts in this repo (run `pnpm gen:bindings` to regenerate).
 import type { ChainId, Deployment, GatewayEnv } from "@newton-xyz/policy-core";
 
-export const deployments = {} as const satisfies Readonly<
+export const deployments = {
+	"84532": {
+		prod: {
+			policyData: "0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628",
+			wasmCid: "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+			policyCodeHash: "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d",
+			deployedAt: "2026-09-02",
+		},
+	},
+	"11155111": {
+		prod: {
+			policyData: "0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb",
+			wasmCid: "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+			policyCodeHash: "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d",
+			deployedAt: "2026-09-02",
+		},
+	},
+} as const satisfies Readonly<
 	Partial<Record<ChainId, Readonly<Partial<Record<GatewayEnv, Deployment>>>>>
 >;

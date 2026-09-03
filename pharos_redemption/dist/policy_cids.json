@@ -1,0 +1,10 @@
+{
+  "wasmCid": "bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm",
+  "policyCid": "bafkreifafbyennsgqnbsw7gamf72vrzplskffppj53otjbhxemlrhvnorm",
+  "schemaCid": "bafkreigrlh37gt5az4drksj625dywdzcjmvv7ad2dhzz7hp36szbrq4ree",
+  "entrypoint": "pharos_redemption_backing.allow",
+  "policyMetadataCid": "bafkreif7a4j4eehwglszpgidx6e2cp4asetrtcj743ld22xv6ndbpjldfi",
+  "policyDataMetadataCid": "bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie",
+  "secretsSchemaCid": "bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge",
+  "policyCodeHash": "0x0b15aa7c0b9b87c7cdd75e91017ad37725f30ba2c616e1b9ea673901d63ef2bb"
+}

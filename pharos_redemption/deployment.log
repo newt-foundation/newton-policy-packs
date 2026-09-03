@@ -1,0 +1,117 @@
+=== Wed Sep  2 14:28:13 MDT 2026 :: pharos_redemption jco componentize ===
+=== Wed Sep  2 14:28:15 MDT 2026 :: pharos_redemption sync source artifacts -> dist ===
+=== Wed Sep  2 14:28:15 MDT 2026 :: pharos_redemption generate-cids (Pinata IPFS upload) ===
+Including secrets schema: "./pharos_redemption/secrets_schema.json"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./pharos_redemption/dist"
+policyCodeHash: 0x0b15aa7c0b9b87c7cdd75e91017ad37725f30ba2c616e1b9ea673901d63ef2bb
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm
+Public IPFS Link: https://ipfs.io/ipfs/bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifafbyennsgqnbsw7gamf72vrzplskffppj53otjbhxemlrhvnorm
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifafbyennsgqnbsw7gamf72vrzplskffppj53otjbhxemlrhvnorm
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifafbyennsgqnbsw7gamf72vrzplskffppj53otjbhxemlrhvnorm
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigrlh37gt5az4drksj625dywdzcjmvv7ad2dhzz7hp36szbrq4ree
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigrlh37gt5az4drksj625dywdzcjmvv7ad2dhzz7hp36szbrq4ree
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigrlh37gt5az4drksj625dywdzcjmvv7ad2dhzz7hp36szbrq4ree
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif7a4j4eehwglszpgidx6e2cp4asetrtcj743ld22xv6ndbpjldfi
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreif7a4j4eehwglszpgidx6e2cp4asetrtcj743ld22xv6ndbpjldfi
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif7a4j4eehwglszpgidx6e2cp4asetrtcj743ld22xv6ndbpjldfi
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie
+Public IPFS Link: https://ipfs.io/ipfs/bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./pharos_redemption/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge
+Public IPFS Link: https://ipfs.io/ipfs/bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./pharos_redemption/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm",
+  "policyCid": "bafkreifafbyennsgqnbsw7gamf72vrzplskffppj53otjbhxemlrhvnorm",
+  "schemaCid": "bafkreigrlh37gt5az4drksj625dywdzcjmvv7ad2dhzz7hp36szbrq4ree",
+  "entrypoint": "pharos_redemption_backing.allow",
+  "policyMetadataCid": "bafkreif7a4j4eehwglszpgidx6e2cp4asetrtcj743ld22xv6ndbpjldfi",
+  "policyDataMetadataCid": "bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie",
+  "secretsSchemaCid": "bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge",
+  "policyCodeHash": "0x0b15aa7c0b9b87c7cdd75e91017ad37725f30ba2c616e1b9ea673901d63ef2bb"
+}
+=== Wed Sep  2 14:28:29 MDT 2026 :: pharos_redemption UPLOAD DONE ===
+wrote ./pharos_redemption/dist/policy_cids.json
+=== Wed Sep  2 14:30:38 MDT 2026 :: pharos_redemption policy-data deploy (prod/11155111) ===
+Deployment chain ID: 11155111
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm
+  secretsSchemaCid: bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge
+  metadataCid: bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x2834F982143B755b1B71273816094d32E29fe919
+Policy Data Address: 0x2834F982143B755b1B71273816094d32E29fe919
+DATA_ADDR=0x2834F982143B755b1B71273816094d32E29fe919
+=== Wed Sep  2 14:30:53 MDT 2026 :: pharos_redemption DEPLOY DONE (prod/11155111) ===
+pharos_redemption DATA=0x2834F982143B755b1B71273816094d32E29fe919
+wrote ./pharos_redemption/dist/last_deploy.json
+=== Wed Sep  2 16:19:18 MDT 2026 :: pharos_redemption policy-data deploy (prod/84532) ===
+Deployment chain ID: 84532
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm
+  secretsSchemaCid: bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge
+  metadataCid: bafkreif4tbki7wmozkpuakss3dygn2gnj62yre6eu37f76emeniev42mie
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397
+Policy Data Address: 0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397
+DATA_ADDR=0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397
+=== Wed Sep  2 16:19:19 MDT 2026 :: pharos_redemption DEPLOY DONE (prod/84532) ===
+pharos_redemption DATA=0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397
+wrote ./pharos_redemption/dist/last_deploy.json

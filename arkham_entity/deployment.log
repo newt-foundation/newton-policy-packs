@@ -1,0 +1,117 @@
+=== Wed Sep  2 14:27:01 MDT 2026 :: arkham_entity jco componentize ===
+=== Wed Sep  2 14:27:03 MDT 2026 :: arkham_entity sync source artifacts -> dist ===
+=== Wed Sep  2 14:27:03 MDT 2026 :: arkham_entity generate-cids (Pinata IPFS upload) ===
+Including secrets schema: "./arkham_entity/secrets_schema.json"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./arkham_entity/dist"
+policyCodeHash: 0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary
+Public IPFS Link: https://ipfs.io/ipfs/bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreidy6f7qinlyklqoqfaj3dp6owgjdxjkbugq6mcabgwzke2rq27hi4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreidy6f7qinlyklqoqfaj3dp6owgjdxjkbugq6mcabgwzke2rq27hi4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreidy6f7qinlyklqoqfaj3dp6owgjdxjkbugq6mcabgwzke2rq27hi4
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigrt44uc6o6mvu74ntuayuo5ugjdy2toszswj7accpq77pf73lsre
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigrt44uc6o6mvu74ntuayuo5ugjdy2toszswj7accpq77pf73lsre
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigrt44uc6o6mvu74ntuayuo5ugjdy2toszswj7accpq77pf73lsre
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiaqzhynfgtyp5xmko2yhva6wgfcuh5hdmgvtog5ue52wqgkme5aji
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiaqzhynfgtyp5xmko2yhva6wgfcuh5hdmgvtog5ue52wqgkme5aji
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiaqzhynfgtyp5xmko2yhva6wgfcuh5hdmgvtog5ue52wqgkme5aji
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./arkham_entity/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./arkham_entity/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+  "policyCid": "bafkreidy6f7qinlyklqoqfaj3dp6owgjdxjkbugq6mcabgwzke2rq27hi4",
+  "schemaCid": "bafkreigrt44uc6o6mvu74ntuayuo5ugjdy2toszswj7accpq77pf73lsre",
+  "entrypoint": "arkham_entity_wallet.allow",
+  "policyMetadataCid": "bafkreiaqzhynfgtyp5xmko2yhva6wgfcuh5hdmgvtog5ue52wqgkme5aji",
+  "policyDataMetadataCid": "bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu",
+  "secretsSchemaCid": "bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq",
+  "policyCodeHash": "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d"
+}
+=== Wed Sep  2 14:27:13 MDT 2026 :: arkham_entity UPLOAD DONE ===
+wrote ./arkham_entity/dist/policy_cids.json
+=== Wed Sep  2 14:29:06 MDT 2026 :: arkham_entity policy-data deploy (prod/11155111) ===
+Deployment chain ID: 11155111
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary
+  secretsSchemaCid: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+  metadataCid: bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb
+Policy Data Address: 0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb
+DATA_ADDR=0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb
+=== Wed Sep  2 14:29:28 MDT 2026 :: arkham_entity DEPLOY DONE (prod/11155111) ===
+arkham_entity DATA=0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb
+wrote ./arkham_entity/dist/last_deploy.json
+=== Wed Sep  2 16:18:57 MDT 2026 :: arkham_entity policy-data deploy (prod/84532) ===
+Deployment chain ID: 84532
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary
+  secretsSchemaCid: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+  metadataCid: bafkreiafzcrmweutkrrljhtunyl3eqgysw53jku4lcnbvp54d4zkvgo7mu
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628
+Policy Data Address: 0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628
+DATA_ADDR=0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628
+=== Wed Sep  2 16:18:58 MDT 2026 :: arkham_entity DEPLOY DONE (prod/84532) ===
+arkham_entity DATA=0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628
+wrote ./arkham_entity/dist/last_deploy.json

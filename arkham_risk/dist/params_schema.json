@@ -1,0 +1,72 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Arkham explainable-risk gate",
+  "properties": {
+    "severe_categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Risk categories treated as severe (e.g. 'sanctions', 'hacker', 'ransomware', 'mixer', 'darkweb'). Only exposure in these categories can trigger the hop, materiality and recency rules."
+    },
+    "max_severe_hop_distance": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Exposure to a severe category within this many transaction hops denies outright, at any value above the dust floor. 1 means direct and one-hop exposure deny."
+    },
+    "material_exposure_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Beyond max_severe_hop_distance, severe exposure denies only once the contributed USD value exceeds this threshold."
+    },
+    "recent_exposure_days": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Beyond max_severe_hop_distance, severe exposure also denies when the most recent linking transaction is within this many days, regardless of value."
+    },
+    "dust_tolerance_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Paths contributing at or below this USD value are ignored entirely, so dusting attacks cannot brick a wallet. Set to 0 to consider every path."
+    },
+    "deny_on_seed": {
+      "type": "boolean",
+      "description": "When true, deny if the address is itself a known risky source rather than merely exposed to one."
+    },
+    "max_risk_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Maximum tolerated Arkham headline risk score (0-100), applied independently of the path analysis."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Arkham observation. A null age fails soft here; list data_age_seconds in deny_on_missing_fields to catch it instead."
+    },
+    "deny_on_missing_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "max_score",
+          "data_age_seconds",
+          "path_last_seen_days"
+        ]
+      },
+      "description": "Field names the oracle must actually report. A null on a listed field denies as missing_<field>; unlisted fields fail soft. An empty list opts out entirely. path_last_seen_days is not a top-level field but the per-path date: listing it denies any severe distant exposure path Arkham left undated, which would otherwise slip past the recency rule entirely."
+    }
+  },
+  "required": [
+    "severe_categories",
+    "max_severe_hop_distance",
+    "material_exposure_usd",
+    "recent_exposure_days",
+    "dust_tolerance_usd",
+    "deny_on_seed",
+    "max_risk_score",
+    "max_data_age_seconds",
+    "deny_on_missing_fields"
+  ],
+  "additionalProperties": false
+}

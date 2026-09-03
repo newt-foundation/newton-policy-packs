@@ -8,9 +8,60 @@
     "11155111": "Ethereum Sepolia"
   },
   "packs": {
-    "arkham_counterparty": {},
-    "arkham_entity": {},
-    "arkham_risk": {},
+    "arkham_counterparty": {
+      "84532": {
+        "prod": {
+          "policyData": "0x9cA5dC35748265DBd67392b47d9521Dc594074E7",
+          "wasmCid": "bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee",
+          "policyCodeHash": "0xcc72b3a914054bff72074b749d0898e62c929c8b62e924d6f1de0217b4fae3ba",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0x30a3dEb38F805CfdA370BCA0687D811399aA4751",
+          "wasmCid": "bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee",
+          "policyCodeHash": "0xcc72b3a914054bff72074b749d0898e62c929c8b62e924d6f1de0217b4fae3ba",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
+    "arkham_entity": {
+      "84532": {
+        "prod": {
+          "policyData": "0x4bfB3fFD3Ac2a11B2c4Ad653A408BD7aC8fE9628",
+          "wasmCid": "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+          "policyCodeHash": "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0x74f9949761ceCe19aDdafd0EBf45a3f8441742Bb",
+          "wasmCid": "bafybeib2zijldcty4gelcij2sis6kptuoh36rrarxjvo2zrjcp626quary",
+          "policyCodeHash": "0x8c7e34cf7857809e8124ae906fed48a94d970d4faf14934dbf6e8daf1508ec5d",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
+    "arkham_risk": {
+      "84532": {
+        "prod": {
+          "policyData": "0x48a22E362d555BF4a828BAD5Df93544ae267f012",
+          "wasmCid": "bafybeib6tduuu52cwzorw6dugkfybrsbxcxtnpj65ezbk7eeetegefwqey",
+          "policyCodeHash": "0x38798255d2b4b45b7f6d078d85c922b785a96bcfcee0c6549542d8c507bd4bc0",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0x5DB3f272D2064069C4Dc7ab386823F1dB085a21d",
+          "wasmCid": "bafybeib6tduuu52cwzorw6dugkfybrsbxcxtnpj65ezbk7eeetegefwqey",
+          "policyCodeHash": "0x38798255d2b4b45b7f6d078d85c922b785a96bcfcee0c6549542d8c507bd4bc0",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
     "balancer": {
       "1": {
         "prod": {
@@ -301,9 +352,60 @@
         }
       }
     },
-    "pharos_redemption": {},
-    "pharos_safe_mode": {},
-    "pharos_treasury": {},
+    "pharos_redemption": {
+      "84532": {
+        "prod": {
+          "policyData": "0x0F0aef2dCf5A57E8f457B07BF3cBab8A9b973397",
+          "wasmCid": "bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm",
+          "policyCodeHash": "0x0b15aa7c0b9b87c7cdd75e91017ad37725f30ba2c616e1b9ea673901d63ef2bb",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0x2834F982143B755b1B71273816094d32E29fe919",
+          "wasmCid": "bafybeib5ubxmcbglwd4l6ei5zcrhrf4ymlfxqyp44lgpgyvcl4xntoeurm",
+          "policyCodeHash": "0x0b15aa7c0b9b87c7cdd75e91017ad37725f30ba2c616e1b9ea673901d63ef2bb",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
+    "pharos_safe_mode": {
+      "84532": {
+        "prod": {
+          "policyData": "0xEda991d04F38C40F6cf3806295Ddf1Cec0562e74",
+          "wasmCid": "bafybeigav2tip7nwrypwqxx6u3fu47iaulspinlnhya2vf3zubq4mrzlwe",
+          "policyCodeHash": "0xfe207dedca28ceaa5f4fd4e6916bafb8a0a1b3a52aff3a34a4872f28d3b76f4c",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0x1FBED9bB473baF5D422aBCF224519A81Ff45d6Ed",
+          "wasmCid": "bafybeigav2tip7nwrypwqxx6u3fu47iaulspinlnhya2vf3zubq4mrzlwe",
+          "policyCodeHash": "0xfe207dedca28ceaa5f4fd4e6916bafb8a0a1b3a52aff3a34a4872f28d3b76f4c",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
+    "pharos_treasury": {
+      "84532": {
+        "prod": {
+          "policyData": "0x171c225800Ffea592a8C823b45655f0d0DEf13B0",
+          "wasmCid": "bafybeifuqjcsvrsvpahmumywl7tlelws5u7hazy5i2e4fvyfseehkqcmmy",
+          "policyCodeHash": "0x0190e263bacf60becbcc836509d41941fc2f60f8c05544a8627a2df7620fc3db",
+          "deployedAt": "2026-09-02"
+        }
+      },
+      "11155111": {
+        "prod": {
+          "policyData": "0xc46DC6df9F5AAf9cc319c7f43FEBC53F03B90386",
+          "wasmCid": "bafybeifuqjcsvrsvpahmumywl7tlelws5u7hazy5i2e4fvyfseehkqcmmy",
+          "policyCodeHash": "0x0190e263bacf60becbcc836509d41941fc2f60f8c05544a8627a2df7620fc3db",
+          "deployedAt": "2026-09-02"
+        }
+      }
+    },
     "redstone": {
       "1": {
         "prod": {

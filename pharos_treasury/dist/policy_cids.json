@@ -1,0 +1,10 @@
+{
+  "wasmCid": "bafybeifuqjcsvrsvpahmumywl7tlelws5u7hazy5i2e4fvyfseehkqcmmy",
+  "policyCid": "bafkreigtpgbibpnl6ahyegyjghjyib53cxbmfa2nx5siy2f3oneimuivp4",
+  "schemaCid": "bafkreicevtcwnqjitylwd32lccjocq6327fr2quncgz6hbeijvmpmx3e2u",
+  "entrypoint": "pharos_treasury_risk.allow",
+  "policyMetadataCid": "bafkreibilu26x75oyvlogdrrjs5wq7yatzfmhkgthhrfqxggbvky424xiy",
+  "policyDataMetadataCid": "bafkreicfulftxj52pfmbfjh65zfjf34svhxlxdfwltdoybykil4xj5hz3e",
+  "secretsSchemaCid": "bafkreibpbeloynhzov3fesk57cltvangoill4yazjmpqg7smjb4mebvzge",
+  "policyCodeHash": "0x0190e263bacf60becbcc836509d41941fc2f60f8c05544a8627a2df7620fc3db"
+}

@@ -1,0 +1,117 @@
+=== Wed Sep  2 14:27:27 MDT 2026 :: arkham_counterparty jco componentize ===
+=== Wed Sep  2 14:27:28 MDT 2026 :: arkham_counterparty sync source artifacts -> dist ===
+=== Wed Sep  2 14:27:28 MDT 2026 :: arkham_counterparty generate-cids (Pinata IPFS upload) ===
+Including secrets schema: "./arkham_counterparty/secrets_schema.json"
+================================================
+========== Uploading All Policy Files ==========
+================================================
+Directory: "./arkham_counterparty/dist"
+policyCodeHash: 0xcc72b3a914054bff72074b749d0898e62c929c8b62e924d6f1de0217b4fae3ba
+
+================================================
+============ Upload policy.wasm ================
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/dist/policy.wasm
+
+=== IPFS Upload Results ===
+IPFS Hash: bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee
+Public IPFS Link: https://ipfs.io/ipfs/bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee
+
+================================================
+============== Upload policy.rego ==============
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/dist/policy.rego
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreighqhxdgs2ykcqp5z44xli5q6nmg37wwfsmilfzfovcrhaipalvna
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreighqhxdgs2ykcqp5z44xli5q6nmg37wwfsmilfzfovcrhaipalvna
+Public IPFS Link: https://ipfs.io/ipfs/bafkreighqhxdgs2ykcqp5z44xli5q6nmg37wwfsmilfzfovcrhaipalvna
+
+================================================
+========== Upload params_schema.json ===========
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/dist/params_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreifqr6fhf4jdnnlad5cvorsfea5j442fzrunb7ia6xivrintdbmiy4
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreifqr6fhf4jdnnlad5cvorsfea5j442fzrunb7ia6xivrintdbmiy4
+Public IPFS Link: https://ipfs.io/ipfs/bafkreifqr6fhf4jdnnlad5cvorsfea5j442fzrunb7ia6xivrintdbmiy4
+
+================================================
+========== Upload policy_metadata.json =========
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/dist/policy_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigeni4bkxb6tbg6lrujxceyilh37xvhvztrd2wa3amnkm3lxbxoym
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigeni4bkxb6tbg6lrujxceyilh37xvhvztrd2wa3amnkm3lxbxoym
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigeni4bkxb6tbg6lrujxceyilh37xvhvztrd2wa3amnkm3lxbxoym
+
+================================================
+======== Upload policy_data_metadata.json ======
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/dist/policy_data_metadata.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza
+Public IPFS Link: https://ipfs.io/ipfs/bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza
+
+================================================
+========== Upload secrets_schema.json ==========
+================================================
+Uploading to Pinata IPFS path=./arkham_counterparty/secrets_schema.json
+
+=== IPFS Upload Results ===
+IPFS Hash: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+Direct IPFS Link gateway_link=https://orange-useful-booby-460.mypinata.cloud/bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+Public IPFS Link: https://ipfs.io/ipfs/bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+
+================================================
+========== Created policy_cids.json ============
+================================================
+Output file: "./arkham_counterparty/dist/policy_cids.json"
+
+{
+  "wasmCid": "bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee",
+  "policyCid": "bafkreighqhxdgs2ykcqp5z44xli5q6nmg37wwfsmilfzfovcrhaipalvna",
+  "schemaCid": "bafkreifqr6fhf4jdnnlad5cvorsfea5j442fzrunb7ia6xivrintdbmiy4",
+  "entrypoint": "arkham_counterparty_activity.allow",
+  "policyMetadataCid": "bafkreigeni4bkxb6tbg6lrujxceyilh37xvhvztrd2wa3amnkm3lxbxoym",
+  "policyDataMetadataCid": "bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza",
+  "secretsSchemaCid": "bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq",
+  "policyCodeHash": "0xcc72b3a914054bff72074b749d0898e62c929c8b62e924d6f1de0217b4fae3ba"
+}
+=== Wed Sep  2 14:27:36 MDT 2026 :: arkham_counterparty UPLOAD DONE ===
+wrote ./arkham_counterparty/dist/policy_cids.json
+=== Wed Sep  2 14:29:28 MDT 2026 :: arkham_counterparty policy-data deploy (prod/11155111) ===
+Deployment chain ID: 11155111
+Using expire_after_blocks from command: 120 blocks
+Deploying policy data:
+  wasmCid: bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee
+  secretsSchemaCid: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+  metadataCid: bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza
+  expireAfter: 120 blocks 
+
+Policy data deployed successfully at address: 0x30a3dEb38F805CfdA370BCA0687D811399aA4751
+Policy Data Address: 0x30a3dEb38F805CfdA370BCA0687D811399aA4751
+DATA_ADDR=0x30a3dEb38F805CfdA370BCA0687D811399aA4751
+=== Wed Sep  2 14:29:36 MDT 2026 :: arkham_counterparty DEPLOY DONE (prod/11155111) ===
+arkham_counterparty DATA=0x30a3dEb38F805CfdA370BCA0687D811399aA4751
+wrote ./arkham_counterparty/dist/last_deploy.json
+=== Wed Sep  2 16:18:59 MDT 2026 :: arkham_counterparty policy-data deploy (prod/84532) ===
+Deployment chain ID: 84532
+Using expire_after_blocks from command: 420 blocks
+Deploying policy data:
+  wasmCid: bafybeibhnuune37egzav7qbyjd5hmi2dm7bhtmmw63xjnyryziodgvw7ee
+  secretsSchemaCid: bafkreigxsw44xxz4uaxd4zhp7oooxyd6f3q3xuelmropbhd6jgtmdj5txq
+  metadataCid: bafkreiemrwf2mun7cr5ny677qcczk5jibfz2ga7xrsqn3hnr7nd3es7xza
+  expireAfter: 420 blocks 
+
+Policy data deployed successfully at address: 0x9cA5dC35748265DBd67392b47d9521Dc594074E7
+Policy Data Address: 0x9cA5dC35748265DBd67392b47d9521Dc594074E7
+DATA_ADDR=0x9cA5dC35748265DBd67392b47d9521Dc594074E7
+=== Wed Sep  2 16:19:06 MDT 2026 :: arkham_counterparty DEPLOY DONE (prod/84532) ===
+arkham_counterparty DATA=0x9cA5dC35748265DBd67392b47d9521Dc594074E7
+wrote ./arkham_counterparty/dist/last_deploy.json
