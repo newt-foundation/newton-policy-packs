@@ -17,9 +17,9 @@ clean_data := {
 }
 
 # Phase 0 § Stream B namespacing: `policy.rego` reads from
-# `data.wasm.safe.<field>`, so test fixtures wrap the inner shape under the
-# `safe` key.
-wrap(inner) := {"safe": inner}
+# `data.wasm.safe_signer_threshold.<field>`, so test fixtures wrap the inner shape under the
+# `safe_signer_threshold` key.
+wrap(inner) := {"safe_signer_threshold": inner}
 
 with_data(overrides) := wrap(object.union(clean_data, overrides))
 

@@ -7,10 +7,10 @@ default allow := false
 t := data.params
 
 # Phase 0 § Stream B namespacing: every pack's WASM output is wrapped under
-# its `PACK_ID` key by `policy.js`'s `wrapOutput("safe", ...)` so the
+# its `PACK_ID` key by `policy.js`'s `wrapOutput("safe_signer_threshold", ...)` so the
 # AVS-side shallow `merge_jsons` composes cleanly across packs without
 # top-level key collisions on shared field names.
-v := data.wasm.safe
+v := data.wasm.safe_signer_threshold
 
 # The oracle could not read the Safe (bad address, RPC failure, non-Safe
 # contract). Fail closed — an unreadable Safe is not a compliant Safe.

@@ -2,13 +2,13 @@ package safe_signer_threshold_wrapping_test
 
 import data.safe_signer_threshold
 
-# Phase 0 § Stream B Rego shape test for safe.
+# Phase 0 § Stream B Rego shape test for safe_signer_threshold.
 #
 # Locks the namespacing contract: the policy reads from
-# `data.wasm.safe.<field>`, NOT `data.wasm.<field>`. Mirrors `policy.js`'s
-# `wrapOutput("safe", ...)` envelope.
+# `data.wasm.safe_signer_threshold.<field>`, NOT `data.wasm.<field>`. Mirrors `policy.js`'s
+# `wrapOutput("safe_signer_threshold", ...)` envelope.
 #
-# Per-pack negative-shape pattern: safe uses the silent-skip pattern (like
+# Per-pack negative-shape pattern: safe_signer_threshold uses the silent-skip pattern (like
 # redstone/vaultsfyi/balancer). Every deny rule bottoms out in a comparison
 # or truthiness check that fail-skips when `v.<field>` is undefined, and
 # `allow` re-asserts field presence positively so the skip fails closed.
@@ -28,7 +28,7 @@ clean_inner := {
     "owner_count": 4,
 }
 
-namespaced(overrides) := {"safe": object.union(clean_inner, overrides)}
+namespaced(overrides) := {"safe_signer_threshold": object.union(clean_inner, overrides)}
 
 test_namespaced_allow_when_clean if {
     safe_signer_threshold.allow with data.params as default_params with data.wasm as namespaced({})
@@ -79,21 +79,21 @@ test_flat_input_does_not_trigger_namespaced_rules if {
 test_namespaced_error_does_not_allow if {
     not safe_signer_threshold.allow
         with data.params as default_params
-        with data.wasm as {"safe": {"error": "oracle failed"}}
+        with data.wasm as {"safe_signer_threshold": {"error": "oracle failed"}}
 }
 
 # Fail-closed under malformed/empty namespaced output.
 test_namespaced_empty_pack_slot_does_not_allow if {
     not safe_signer_threshold.allow
         with data.params as default_params
-        with data.wasm as {"safe": {}}
+        with data.wasm as {"safe_signer_threshold": {}}
 }
 
 # Cross-pack composition smoke: stuff sibling pack slots with extreme values
-# — safe's rules MUST only read its own slice via `v := data.wasm.safe`.
+# — safe_signer_threshold's rules MUST only read its own slice via `v := data.wasm.safe_signer_threshold`.
 test_other_pack_keys_do_not_interfere if {
     composite := {
-        "safe": clean_inner,
+        "safe_signer_threshold": clean_inner,
         "fordefi": {
             "signed_externally": true,
             "signatures": [],

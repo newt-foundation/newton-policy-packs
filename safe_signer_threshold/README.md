@@ -1,4 +1,4 @@
-# safe
+# safe_signer_threshold
 
 ## Overview
 
@@ -27,7 +27,7 @@ Two `eth_call`s, no third-party API:
 
 The `address[]` decoder validates the ABI offset word and that the payload actually carries `length * 32` bytes, so a truncated or malformed response errors rather than reporting a bogus owner count. An EOA or non-Safe contract returns `0x` from `eth_call` on most nodes, which is also treated as an error.
 
-Output (wrapped under the `safe` key by `wrapOutput`):
+Output (wrapped under the `safe_signer_threshold` key by `wrapOutput`):
 
 | Field | Description |
 |-------|-------------|
@@ -90,17 +90,17 @@ newton-cli doctor
 ## Build
 
 ```bash
-jco componentize ./safe/policy.js \
-  --wit ./safe/newton-provider.wit \
+jco componentize ./safe_signer_threshold/policy.js \
+  --wit ./safe_signer_threshold/newton-provider.wit \
   -n newton-provider \
   --disable http --disable random --disable fetch-event --disable stdio \
-  -o ./safe/dist/policy.wasm
+  -o ./safe_signer_threshold/dist/policy.wasm
 ```
 
 The `--disable` flags are mandatory: the `jco` defaults pull in `wasi:http`, which the Newton runtime's linker rejects. Verify with:
 
 ```bash
-jco print ./safe/dist/policy.wasm | grep wasi:http
+jco print ./safe_signer_threshold/dist/policy.wasm | grep wasi:http
 ```
 
 Only the unused `(export "wasi:http/incoming-handler@0.2.10#handle" ...)` line should appear — never an `(import "wasi:http/...")`.
@@ -108,18 +108,18 @@ Only the unused `(export "wasi:http/incoming-handler@0.2.10#handle" ...)` line s
 ## Test
 
 ```bash
-opa test ./safe/policy.rego ./safe/policy_test.rego ./safe/wrapping_test.rego -v
+opa test ./safe_signer_threshold/policy.rego ./safe_signer_threshold/policy_test.rego ./safe_signer_threshold/wrapping_test.rego -v
 ```
 
 ## Simulate
 
 ```bash
 newton-cli policy simulate \
-  --wasm-args ./safe/configs/wasm_args.json \
-  --intent-json ./safe/configs/intent.json \
-  --policy-params-data ./safe/configs/params.json \
-  --policy-file ./safe/policy.rego \
-  --wasm-file ./safe/dist/policy.wasm
+  --wasm-args ./safe_signer_threshold/configs/wasm_args.json \
+  --intent-json ./safe_signer_threshold/configs/intent.json \
+  --policy-params-data ./safe_signer_threshold/configs/params.json \
+  --policy-file ./safe_signer_threshold/policy.rego \
+  --wasm-file ./safe_signer_threshold/dist/policy.wasm
 ```
 
 ## Deploy

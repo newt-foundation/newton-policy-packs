@@ -5,7 +5,7 @@ import { get as getHostSecrets } from "newton:provider/secrets@0.2.0";
 // and `wrapOutput` mirror the canonical pattern in the sibling packs — the
 // AVS host shallow-merges every PolicyData WASM's stdout, so every payload
 // (success AND error) must live under `{[PACK_ID]: ...}`.
-const PACK_ID = "safe";
+const PACK_ID = "safe_signer_threshold";
 
 function wrapOutput(packId, valueOrError) {
   const out = JSON.stringify({ [packId]: valueOrError });
@@ -148,7 +148,7 @@ export function run(input) {
     const parsed = JSON.parse(input);
     // Phase 0 § Stream B input-unwrap shim. AVS forwards one `wasm_args`
     // blob to every PolicyData WASM in a policy. Composite execution
-    // produces `{ safe: {...}, blockaid: {...} }`; nullish coalescing reads
+    // produces `{ safe_signer_threshold: {...}, blockaid: {...} }`; nullish coalescing reads
     // our slice when present, falls back to flat for legacy single-pack
     // callers.
     const myArgs = parsed[PACK_ID] ?? parsed;
