@@ -32,6 +32,7 @@ export const KNOWN_PACK_IDS = [
 	"pharos_safe_mode",
 	"pharos_treasury",
 	"redstone",
+	"safe_signer_threshold",
 	"sumsub",
 	"vaultsfyi",
 	"webacy",
