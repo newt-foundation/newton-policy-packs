@@ -28,6 +28,7 @@ default_params := {
 clean_inner := {
     "safe_address": "0x1111111111111111111111111111111111111111",
     "chain_id": 11155111,
+    "block_number": 11629333,
     "threshold": 3,
     "owner_count": 4,
 }

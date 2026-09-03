@@ -18,12 +18,25 @@ Contract read: [`Safe.sol`](https://github.com/safe-fndn/safe-smart-account/blob
 
 ### Data Oracle (policy.js)
 
-Two `eth_call`s, no third-party API:
+Three JSON-RPC requests, no third-party API: one `eth_blockNumber` to resolve the head, then two `eth_call`s **both pinned to that block number**.
 
 | Call | Selector | Decoded as |
 |------|----------|-----------|
 | `getThreshold()` | `0xe75235b8` | `uint256` → `threshold` |
 | `getOwners()` | `0xa0e67e2b` | `address[]` element count → `owner_count` |
+
+Pinning matters: `latest` is re-resolved by the node on every request, so
+issuing the two reads against it can straddle a block boundary. An
+`addOwnerWithThreshold` or `changeThreshold` landing between them would pair a
+pre-change threshold with a post-change owner set — the exact configuration
+drift this policy exists to catch. Resolving the head once and pinning both
+reads makes the pair an atomic snapshot, and `block_number` reports which block
+that was.
+
+The tradeoff is a fail-closed one: a load-balanced RPC can route a pinned call
+to a node that hasn't ingested that head yet, which errors (`header not found`)
+rather than answering from a different block. Since the pack denies on oracle
+error, that degrades to a deny — never to an inconsistent read.
 
 The `address[]` decoder validates the ABI offset word and that the payload actually carries `length * 32` bytes, so a truncated or malformed response errors rather than reporting a bogus owner count. An EOA or non-Safe contract returns `0x` from `eth_call` on most nodes, which is also treated as an error.
 
@@ -35,6 +48,7 @@ Output (wrapped under the `safe_signer_threshold` key by `wrapOutput`):
 | `chain_id` | Chain the read was performed against — cross-checked against the intent |
 | `threshold` | Signatures the Safe requires to execute |
 | `owner_count` | Number of owners (signers) currently on the Safe |
+| `block_number` | Block both reads were pinned to |
 | `error` | Present *instead of* the fields above when the read failed (bad address, RPC failure, not a Safe) |
 
 ### Policy Rules (policy.rego)

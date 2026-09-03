@@ -75,19 +75,50 @@ function postJson(url, payload, headers) {
   return JSON.parse(text);
 }
 
-function ethCall(rpcUrl, to, data) {
+// `latest` is re-resolved by the node on every request, so issuing the two
+// reads against it can straddle a block boundary: an `addOwnerWithThreshold`
+// or `changeThreshold` landing between them would pair a pre-change threshold
+// with a post-change owner set. That mismatched pair is exactly the
+// configuration drift this policy exists to catch, so the reads must come from
+// one block. Resolve the head to a concrete number once, then pin BOTH
+// `eth_call`s to it — the second read specifies the same block the first was
+// sourced from, and the pair is an atomic snapshot of the Safe.
+//
+// Failure mode worth knowing: a load-balanced RPC can hand the pinned call to
+// a node that hasn't ingested this head yet, which errors ("header not found")
+// rather than silently answering from another block. The pack fails closed on
+// oracle error, so that degrades to a deny, never to an inconsistent read.
+function getLatestBlockNumber(rpcUrl) {
+  const resp = postJson(rpcUrl, {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "eth_blockNumber",
+    params: [],
+  });
+  if (resp.error) throw new Error(`rpc: ${resp.error.message ?? JSON.stringify(resp.error)}`);
+  const hex = resp.result;
+  if (typeof hex !== "string" || !/^0x[0-9a-fA-F]+$/.test(hex)) {
+    throw new Error(`rpc: bad eth_blockNumber result: ${String(hex)}`);
+  }
+  return hex;
+}
+
+// `blockTag` is required rather than defaulted to "latest": every caller must
+// state which block it is reading, so a future read can't quietly reintroduce
+// the straddle described above.
+function ethCall(rpcUrl, to, data, blockTag) {
   const resp = postJson(rpcUrl, {
     jsonrpc: "2.0",
     id: 1,
     method: "eth_call",
-    params: [{ to, data }, "latest"],
+    params: [{ to, data }, blockTag],
   });
   if (resp.error) throw new Error(`rpc: ${resp.error.message ?? JSON.stringify(resp.error)}`);
   const result = resp.result;
   // An EOA or a non-Safe contract without the accessor returns "0x" rather
   // than reverting on some nodes — treat it as "not a Safe".
   if (!result || result === "0x") {
-    throw new Error(`rpc: empty result for ${data} at ${to} (not a Safe?)`);
+    throw new Error(`rpc: empty result for ${data} at ${to} @ ${blockTag} (not a Safe?)`);
   }
   return result;
 }
@@ -173,14 +204,19 @@ export function run(input) {
     const rpcUrl = secret(secretName);
     if (!rpcUrl) throw new Error(`missing secret ${secretName}`);
 
-    const threshold = decodeUint256(ethCall(rpcUrl, address, SELECTOR_GET_THRESHOLD));
-    const ownerCount = decodeAddressArrayLength(ethCall(rpcUrl, address, SELECTOR_GET_OWNERS));
+    // Both reads are pinned to this one block — see getLatestBlockNumber().
+    const blockTag = getLatestBlockNumber(rpcUrl);
+    const threshold = decodeUint256(ethCall(rpcUrl, address, SELECTOR_GET_THRESHOLD, blockTag));
+    const ownerCount = decodeAddressArrayLength(
+      ethCall(rpcUrl, address, SELECTOR_GET_OWNERS, blockTag),
+    );
 
     return wrapOutput(PACK_ID, {
       safe_address: address,
       chain_id: resolvedChainId,
       threshold,
       owner_count: ownerCount,
+      block_number: Number(BigInt(blockTag)),
     });
   } catch (e) {
     return wrapOutput(PACK_ID, { error: String(e) });
