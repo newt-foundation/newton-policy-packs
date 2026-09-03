@@ -21,6 +21,33 @@ deny contains "oracle_error" if v.error
 # well-configured Safe.
 deny contains "safe_address_mismatch" if lower(v.safe_address) != lower(t.safe_address)
 
+# The attested chain. Unlike most packs, this policy reads the INTENT as well
+# as the oracle: the oracle chose which RPC to query from its own wasm_args, so
+# nothing but the signed intent can confirm the Safe was read on the chain the
+# transaction will actually execute on. Pointing wasm_args at a well-configured
+# Sepolia Safe while executing on Base must not pass.
+#
+# `input.chain_id` arrives as a STRING (camelCase `chainId` in the intent JSON
+# renders to snake_case here — see docs/CONTRIBUTING.md), while the oracle
+# reports a number. Both shapes are normalized to a number; anything else
+# leaves this undefined, which blocks `allow` below.
+intent_chain_id := input.chain_id if is_number(input.chain_id)
+
+intent_chain_id := to_number(input.chain_id) if is_string(input.chain_id)
+
+deny contains "chain_id_mismatch" if intent_chain_id != v.chain_id
+
+# newton-cli's `--chain-id` flag does NOT populate `input.chain_id` — only a
+# `chainId` key in the intent JSON does. Report the absence rather than let the
+# comparison above silent-skip into a pass.
+deny contains "intent_chain_id_missing" if not intent_chain_id_valid
+
+# Indirection through a rule is deliberate: `not is_number(intent_chain_id)`
+# evaluates to *undefined* (not true) when `intent_chain_id` itself is
+# undefined, because an undefined term makes the whole builtin call undefined.
+# Negating a rule reference does what's wanted.
+intent_chain_id_valid if is_number(intent_chain_id)
+
 deny contains "threshold_below_minimum" if v.threshold < t.min_threshold
 
 deny contains "owners_below_minimum" if v.owner_count < t.min_owners
@@ -35,6 +62,7 @@ allow if {
     address_matches
     is_number(v.threshold)
     is_number(v.owner_count)
+    intent_chain_id == v.chain_id
     v.threshold >= t.min_threshold
     v.owner_count >= t.min_owners
     v.owner_count <= t.max_owners

@@ -32,7 +32,7 @@ Output (wrapped under the `safe_signer_threshold` key by `wrapOutput`):
 | Field | Description |
 |-------|-------------|
 | `safe_address` | The address actually read, lowercased |
-| `chain_id` | Chain the read was performed against |
+| `chain_id` | Chain the read was performed against — cross-checked against the intent |
 | `threshold` | Signatures the Safe requires to execute |
 | `owner_count` | Number of owners (signers) currently on the Safe |
 | `error` | Present *instead of* the fields above when the read failed (bad address, RPC failure, not a Safe) |
@@ -45,9 +45,27 @@ Package: `safe_signer_threshold` — entrypoint `safe_signer_threshold.allow`.
 |-------------|-----------|-----------------|
 | `oracle_error` | `v.error` present | Safe unreadable — fail closed |
 | `safe_address_mismatch` | `lower(v.safe_address) != lower(t.safe_address)` | `wasm_args` pointed at a *different*, well-configured Safe |
+| `chain_id_mismatch` | oracle `chain_id` != intent `chain_id` | The Safe was read on a different chain than the one the transaction executes on |
+| `intent_chain_id_missing` | intent carries no usable `chain_id` | Nothing to cross-check the oracle's chain against — fail closed |
 | `threshold_below_minimum` | `threshold < min_threshold` | Threshold downgrade |
 | `owners_below_minimum` | `owner_count < min_owners` | Owner set shrunk below the approved floor |
 | `owners_above_maximum` | `owner_count > max_owners` | Owner set grown past the approved ceiling |
+
+This pack reads the **attested intent** as well as the oracle, which most packs
+don't. The oracle picks which RPC to query from its own `wasm_args`, so nothing
+but the signed intent can confirm the Safe was read on the chain the transaction
+will actually execute on — a well-configured Sepolia Safe paired with a Base
+execution must not pass.
+
+Two wrinkles worth knowing:
+
+- `input.chain_id` arrives as a **string** (camelCase `chainId` in the intent
+  JSON renders to snake_case here), while the oracle reports a number. The
+  policy normalizes both to a number before comparing; a numeric
+  `input.chain_id` works too, and anything unparseable reads as absent.
+- newton-cli's `--chain-id` flag does **not** populate `input.chain_id` — only
+  a `chainId` key in the intent JSON does. Simulate with `chainId` set in
+  `configs/intent.json` or every run denies on `intent_chain_id_missing`.
 
 `allow` re-asserts every field positively (`not v.error`, `is_number(v.threshold)`, …) rather than resting on `count(deny) == 0`. The deny rules all bottom out in comparisons that silent-skip on an undefined field, so an empty or malformed pack slot would otherwise fail *open*.
 
@@ -112,6 +130,8 @@ opa test ./safe_signer_threshold/policy.rego ./safe_signer_threshold/policy_test
 ```
 
 ## Simulate
+
+`configs/intent.json` must set `chainId` to the same chain as `wasm_args`, or the policy denies on `intent_chain_id_missing` / `chain_id_mismatch`.
 
 ```bash
 newton-cli policy simulate \

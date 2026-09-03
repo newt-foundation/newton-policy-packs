@@ -133,7 +133,7 @@ function decodeAddressArrayLength(hex) {
   }
   const offsetBytes = Number(BigInt(`0x${data.slice(0, 64)}`));
   const lengthStart = offsetBytes * 2;
-  if (!Number.isInteger(offsetBytes) || data.length < lengthStart + 64) {
+  if (data.length < lengthStart + 64) {
     throw new Error(`rpc: address[] offset ${offsetBytes} out of range`);
   }
   const length = Number(BigInt(`0x${data.slice(lengthStart, lengthStart + 64)}`));
