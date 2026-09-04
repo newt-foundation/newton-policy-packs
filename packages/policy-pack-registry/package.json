@@ -1,6 +1,6 @@
 {
 	"name": "@newton-xyz/policy-pack-registry",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Provider-owned trust data for Newton policy packs: the first-party pack-id registry and the audited policyData address map. Injected into @newton-xyz/policy-core's classifyProvenance.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
