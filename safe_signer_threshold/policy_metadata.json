@@ -1,0 +1,7 @@
+{
+  "name": "safe_signer_threshold",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://safe.global/",
+  "description": "Gates execution on a Safe's on-chain configuration: identity of the Safe, minimum signature threshold, and minimum/maximum owner count"
+}

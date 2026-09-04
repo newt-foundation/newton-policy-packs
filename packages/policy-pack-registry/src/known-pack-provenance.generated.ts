@@ -136,6 +136,7 @@ export const AUDITED_POLICY_DATA = {
 			prod: "0x6621D7F739a3682054ac974D772AEEBb8548b1BF",
 		},
 	},
+	safe_signer_threshold: {},
 	sumsub: {
 		"1": {
 			prod: "0x6B8d613bD3003A6e90F1536C576519A231730A1d",
