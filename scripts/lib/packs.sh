@@ -19,6 +19,7 @@ ALL_PACKS=(
   "balancer:balancer_pool_risk"
   "blockaid:blockaid_tx_safety"
   "chainalysis:chainalysis_address_screening"
+  "fordefi:fordefi_transaction_safety"
   "guardrail:guardrail_protocol_monitor"
   "persona:persona_kyc"
   "pharos_redemption:pharos_redemption_backing"

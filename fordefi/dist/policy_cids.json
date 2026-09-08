@@ -1,0 +1,10 @@
+{
+  "entrypoint": "fordefi_transaction_safety.allow",
+  "policyCid": "bafkreia4q3wcqmculxzh5qm5d6wq3fs5oa4cjuka6z3rfsjyqaieub72ey",
+  "policyCodeHash": "0xdff79cb88f82a89746e7ac186418fef9f6b16589dbf54fd060c9026581a5633f",
+  "policyDataMetadataCid": "bafkreihn35r5nkfybajfnz3iqfbkclau7pvg3y7hh7zyznjyqgu2ia64rq",
+  "policyMetadataCid": "bafkreifvin644azofqx5y7km3n7g5butk6d632464f4gw3x6j7hrljnlwa",
+  "schemaCid": "bafkreidicejbrr4rzdkpmwzeo6woowktphitbi6hpxj3zvmctakvlpcsp4",
+  "secretsSchemaCid": "bafkreico656tj4qzcqoydwhhe52h4gwn2ymgafbp6v63i3otasctcuvuba",
+  "wasmCid": "bafybeiem7aebtutrifdhqy52nzughdwwsxbngobzm6ukdy5czrtsilnbge"
+}

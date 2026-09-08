@@ -1,0 +1,7 @@
+{
+  "name": "fordefi Wasm",
+  "version": "0.0.1",
+  "author": "",
+  "link": "https://fordefi.com/",
+  "description": "Fetches a transaction from the fordefi api based on the supplied transaction id"
+}

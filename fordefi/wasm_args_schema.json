@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "description": "provide the lookup for the fordefi api",
+  "properties": {
+    "transactionId": {
+      "type": "string",
+      "description": "the transaction id to check"
+    }
+  },
+  "required": ["transactionId"]
+}
