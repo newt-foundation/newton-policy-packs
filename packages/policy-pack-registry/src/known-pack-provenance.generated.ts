@@ -179,6 +179,9 @@ export const AUDITED_POLICY_DATA = {
 			prod: "0xBFf38a5A77262ADfC10667004A550337A97EFB36",
 		},
 	},
+	xerberus_common_cause: {},
+	xerberus_liquidity_exit: {},
+	xerberus_what_if: {},
 } as const satisfies Readonly<
 	Record<
 		KnownPackId,

@@ -132,6 +132,9 @@ newton-policy-packs/
 ├── pharos_treasury/       # Risk-adjusted stablecoin treasury gate (Pharos)
 ├── pharos_safe_mode/      # Graduated stablecoin safe-mode gate (Pharos)
 ├── pharos_redemption/     # Redemption-backed asset gate (Pharos)
+├── xerberus_liquidity_exit/ # Position exit-time gate (Xerberus)
+├── xerberus_what_if/      # Portfolio concentration and liquidity-delta gate (Xerberus)
+├── xerberus_common_cause/ # Shared failure-mechanism gate (Xerberus)
 ├── .env.prod              # Starter env template
 └── package.json           # jco build deps
 ```
@@ -236,6 +239,18 @@ Graduated stablecoin safe-mode gate using [Pharos](https://pharos.watch). Under 
 ### pharos_redemption
 
 Redemption-backed asset gate using [Pharos](https://pharos.watch). Admits a stablecoin only when direct redemption is available through an approved provider and mechanism, limits support the position size, and the response is current. See [pharos_redemption/README.md](./pharos_redemption/README.md).
+
+### xerberus_liquidity_exit
+
+Liquidity exit gate using [Xerberus](https://xerberus.io). Denies acquiring a position that cannot be unwound within a curator-set number of days at a bounded market impact, or when the Xerberus data window is stale. See [xerberus_liquidity_exit/README.md](./xerberus_liquidity_exit/README.md).
+
+### xerberus_what_if
+
+Portfolio what-if gate using [Xerberus](https://xerberus.io). Simulates the book before and after a change and denies one that concentrates it, raises token HHI, erodes the share exitable within 30 days, or lengthens the slowest exit. Pure removals can be exempted from the staleness checks so an agent can always de-risk. See [xerberus_what_if/README.md](./xerberus_what_if/README.md).
+
+### xerberus_common_cause
+
+Common-cause gate using [Xerberus](https://xerberus.io). Denies when apparently diversified venues share a missing safeguard carrying too much combined exposure, a forbidden dependency such as one oracle provider, or an outsized shared collateral token. See [xerberus_common_cause/README.md](./xerberus_common_cause/README.md).
 
 ## Contributing a new pack
 

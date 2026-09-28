@@ -1,0 +1,7 @@
+{
+  "name": "xerberus_liquidity_exit",
+  "version": "0.0.1",
+  "author": "Xerberus",
+  "link": "https://xerberus.io",
+  "description": "Liquidity exit gate: denies acquiring a position that cannot be unwound within a curator-set number of days at a bounded market impact, or when the Xerberus data is stale"
+}

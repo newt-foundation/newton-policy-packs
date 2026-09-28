@@ -1,0 +1,7 @@
+{
+  "name": "xerberus_what_if Wasm",
+  "version": "0.0.1",
+  "author": "Xerberus",
+  "link": "https://xerberus.io",
+  "description": "Calls the Xerberus what_if MCP tool and emits before/after concentration, HHI, 30-day exit ladder and slowest-exit deltas for a hypothetical portfolio change, with data window and staleness"
+}

@@ -29,6 +29,9 @@ ALL_PACKS=(
   "sumsub:sumsub_kyc"
   "vaultsfyi:vault_risk_rating"
   "webacy:webacy_depeg_risk"
+  "xerberus_common_cause:xerberus_common_cause"
+  "xerberus_liquidity_exit:xerberus_liquidity_exit"
+  "xerberus_what_if:xerberus_portfolio_what_if"
 )
 
 resolve_pkg() {

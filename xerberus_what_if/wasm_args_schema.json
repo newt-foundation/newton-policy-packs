@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Xerberus portfolio what-if policy WASM at evaluation time",
+  "properties": {
+    "wallets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "maxItems": 10,
+      "description": "Wallet addresses (0x-prefixed) that make up the managed portfolio."
+    },
+    "add": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "description": "Token contract address (preferred) or symbol." },
+          "usd": { "type": "number", "minimum": 0, "description": "USD amount added." }
+        },
+        "required": ["token", "usd"]
+      },
+      "description": "Hypothetical additions to simulate. At least one of add or remove must be non-empty."
+    },
+    "remove": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "description": "Token contract address (preferred) or symbol." },
+          "usd": { "type": "number", "minimum": 0, "description": "USD amount removed." }
+        },
+        "required": ["token", "usd"]
+      },
+      "description": "Hypothetical removals to simulate. A change with removals and no additions counts as risk-reducing."
+    },
+    "impact_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Optional market-impact assumption in percent."
+    },
+    "chain": {
+      "type": "string",
+      "enum": ["ethereum"],
+      "description": "Optional Xerberus chain identifier. Only ethereum is supported today; defaults to ethereum."
+    },
+    "window": {
+      "type": "string",
+      "description": "Optional Xerberus data-window timestamp (ISO-8601). Pass the same value to every xerberus_* pack in a composite."
+    }
+  },
+  "required": ["wallets"]
+}

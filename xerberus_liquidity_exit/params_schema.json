@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Xerberus liquidity-exit gate",
+  "properties": {
+    "max_days_to_exit": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated days to unwind the proposed position within the modeled impact band. The design reference uses 7."
+    },
+    "max_impact_band_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Maximum impact band (percent) the quote may be modeled at. Guards against a caller requesting a looser band than the curator accepts. The design reference uses 1 (0.5 for stablecoins)."
+    },
+    "deny_on_stale": {
+      "type": "boolean",
+      "description": "When true, deny whenever Xerberus flags its data window as stale (is_stale). Keep true for exposure-increasing actions."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Xerberus data window, measured at evaluation time."
+    },
+    "require_token_in_intent": {
+      "type": "boolean",
+      "description": "When true, deny unless the quoted token address is the intent's call target or appears in its decoded arguments, so a quote for one token cannot authorise a transaction moving another."
+    }
+  },
+  "required": [
+    "max_days_to_exit",
+    "max_impact_band_pct",
+    "deny_on_stale",
+    "max_data_age_seconds",
+    "require_token_in_intent"
+  ],
+  "additionalProperties": false
+}

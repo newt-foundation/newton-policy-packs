@@ -36,6 +36,9 @@ export const KNOWN_PACK_IDS = [
 	"sumsub",
 	"vaultsfyi",
 	"webacy",
+	"xerberus_common_cause",
+	"xerberus_liquidity_exit",
+	"xerberus_what_if",
 ] as const satisfies ReadonlyArray<string>;
 
 export type KnownPackId = (typeof KNOWN_PACK_IDS)[number];

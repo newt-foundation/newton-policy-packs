@@ -1,0 +1,7 @@
+{
+  "name": "xerberus_common_cause Wasm",
+  "version": "0.0.1",
+  "author": "Xerberus",
+  "link": "https://xerberus.io",
+  "description": "Calls the Xerberus common_cause MCP tool and emits missing safeguards, declared dependencies and collateral tokens shared across the venues a portfolio holds, with combined exposure, unscored venues, data window and staleness"
+}
