@@ -53,11 +53,13 @@ dependency_breaches contains d if {
 }
 
 # Collateral share is measured against the exposure Xerberus compared, which is
-# the book it can see for these wallets.
+# the book it can see for these wallets. Cross-multiplied rather than divided,
+# and never start a line with `(`: regorus reads it as a call on the previous
+# line's term (`v.shared_collateral(...)`) and rejects the policy.
 collateral_breaches contains c if {
 	v.total_exposure_usd > 0
 	some c in v.shared_collateral
-	(c.combined_exposure_usd / v.total_exposure_usd) * 100 > t.max_shared_collateral_pct_of_book
+	c.combined_exposure_usd * 100 > t.max_shared_collateral_pct_of_book * v.total_exposure_usd
 }
 
 unscored_material contains s if {
