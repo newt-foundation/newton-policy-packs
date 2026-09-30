@@ -1,0 +1,7 @@
+{
+  "name": "xerberus_common_cause",
+  "version": "0.0.1",
+  "author": "Xerberus",
+  "link": "https://xerberus.io",
+  "description": "Common-cause gate: denies when apparently diversified venues share a missing safeguard carrying too much combined exposure, a forbidden dependency, or an outsized shared collateral token"
+}

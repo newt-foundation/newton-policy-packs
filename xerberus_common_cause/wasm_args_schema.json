@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "description": "Inputs passed to the Xerberus common-cause policy WASM at evaluation time",
+  "properties": {
+    "wallets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "maxItems": 10,
+      "description": "Wallet addresses (0x-prefixed) holding the positions to compare. At least two Xerberus register-mapped venues across them are needed for a meaningful result."
+    },
+    "chain": {
+      "type": "string",
+      "enum": ["ethereum"],
+      "description": "Optional Xerberus chain identifier. Only ethereum is supported today; defaults to ethereum."
+    },
+    "window": {
+      "type": "string",
+      "description": "Optional Xerberus data-window timestamp (ISO-8601). Pass the same value to every xerberus_* pack in a composite."
+    }
+  },
+  "required": ["wallets"]
+}

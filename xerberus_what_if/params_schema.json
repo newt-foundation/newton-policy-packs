@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Xerberus portfolio what-if gate",
+  "properties": {
+    "max_post_token_share_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Maximum share of the book (percent) the largest post-trade position may hold. Only denies when the change also grows that position's share. The design reference uses 50."
+    },
+    "max_hhi_delta": {
+      "type": "number",
+      "description": "Maximum tolerated increase in the token Herfindahl-Hirschman index (0-1 scale). The design reference uses 0.01."
+    },
+    "min_ladder_30d_delta_pp": {
+      "type": "number",
+      "description": "Minimum tolerated change, in percentage points, of the share of the book exitable within 30 days. Negative values allow some deterioration; the design reference uses -3."
+    },
+    "max_slowest_exit_delta_days": {
+      "type": "number",
+      "description": "Maximum tolerated increase in the portfolio's slowest token exit, in days. The design reference uses 3."
+    },
+    "deny_on_issues": {
+      "type": "boolean",
+      "description": "When true, deny if Xerberus reports any simulation issue (for example unpriced tokens or changes it could not apply)."
+    },
+    "deny_on_stale": {
+      "type": "boolean",
+      "description": "When true, deny whenever Xerberus flags its data window as stale (is_stale)."
+    },
+    "max_data_age_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum tolerated age of the Xerberus data window, measured at evaluation time."
+    },
+    "require_intent_party_in_wallets": {
+      "type": "boolean",
+      "description": "When true, deny unless the intent's sender or target is one of the simulated wallets, so a simulation of one portfolio cannot authorise a transaction on another."
+    },
+    "allow_stale_when_risk_reducing": {
+      "type": "boolean",
+      "description": "When true, a pure removal (no additions) is not denied for stale or old data, so an agent can always reduce exposure. The delta checks still apply."
+    }
+  },
+  "required": [
+    "max_post_token_share_pct",
+    "max_hhi_delta",
+    "min_ladder_30d_delta_pp",
+    "max_slowest_exit_delta_days",
+    "deny_on_issues",
+    "deny_on_stale",
+    "max_data_age_seconds",
+    "require_intent_party_in_wallets",
+    "allow_stale_when_risk_reducing"
+  ],
+  "additionalProperties": false
+}

@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { isKnownPackId, KNOWN_PACK_IDS } from "./known-pack-ids";
 
 describe("KNOWN_PACK_IDS", () => {
-	it("contains exactly the 16 currently-published pack short ids", () => {
+	it("contains exactly the 19 currently-published pack short ids", () => {
 		assert.deepEqual([...KNOWN_PACK_IDS].sort(), [
 			"arkham_counterparty",
 			"arkham_entity",
@@ -21,6 +21,9 @@ describe("KNOWN_PACK_IDS", () => {
 			"sumsub",
 			"vaultsfyi",
 			"webacy",
+			"xerberus_common_cause",
+			"xerberus_liquidity_exit",
+			"xerberus_what_if",
 		]);
 	});
 

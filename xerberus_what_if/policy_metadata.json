@@ -1,0 +1,7 @@
+{
+  "name": "xerberus_what_if",
+  "version": "0.0.1",
+  "author": "Xerberus",
+  "link": "https://xerberus.io",
+  "description": "Portfolio what-if gate: denies a transaction that pushes token concentration past a limit, raises HHI, erodes the share of the book exitable within 30 days, or lengthens the slowest exit beyond curator-set bounds"
+}

@@ -122,6 +122,9 @@ Verified by grepping each pack's `policy.js`:
 | pharos_treasury | `PHAROS_API_KEY` |
 | pharos_safe_mode | `PHAROS_API_KEY` |
 | pharos_redemption | `PHAROS_API_KEY` |
+| xerberus_liquidity_exit | `XERBERUS_API_KEY` |
+| xerberus_what_if | `XERBERUS_API_KEY` |
+| xerberus_common_cause | `XERBERUS_API_KEY` |
 
 Example for sumsub:
 
