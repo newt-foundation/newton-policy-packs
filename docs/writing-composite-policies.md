@@ -1,5 +1,7 @@
 # Writing a composite policy
 
+> **Superseded on newton-prover-avs `unified/main` (PR #767, 1:1 rego:wasm).** A policy with more than one PolicyData can no longer be attached to a policy client (`MultiOracleNotComposable`). Combine packs with a **policy set** instead; see [`policy-sets.md`](./policy-sets.md). The rest of this page describes the pre-#767 composite model.
+
 A guide for developers who want to gate a vault action with **multiple** oracles at once — e.g. "deny unless the vault passes vaultsfyi's risk envelope AND the depositor passes chainalysis's sanctions screening." You write one Rego policy that reads several published oracles, deploy a single on-chain policy that references them, and wire it into your Shield with the `@newton-xyz/policy-pack-shared` SDK.
 
 For the architecture and rollout history, see [`composite-policies.md`](./composite-policies.md). For a complete copy-paste example, see [`examples/composite-vaultsfyi-chainalysis/`](../examples/composite-vaultsfyi-chainalysis/). This doc is the step-by-step how-to.
