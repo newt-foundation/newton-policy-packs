@@ -3,5 +3,5 @@
   "version": "0.0.1",
   "author": "Xerberus",
   "link": "https://xerberus.io",
-  "description": "Calls the Xerberus common_cause MCP tool and emits missing safeguards, declared dependencies and collateral tokens shared across the venues a portfolio holds, with combined exposure, unscored venues, data window and staleness"
+  "description": "Reads a portfolio's venues from Xerberus get_positions, calls shared_dependencies_nodes over them, and emits the upstream nodes (tokens, protocols, oracles, governance) several venues share, each with the USD of the book behind it and its expected loss share, plus unresolved venues, data window and staleness"
 }

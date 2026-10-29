@@ -10,18 +10,42 @@ export const WasmArgsSchema = z
 			.min(1)
 			.max(10)
 			.describe(
-				"Wallet addresses (0x-prefixed) holding the positions to compare. At least two Xerberus register-mapped venues across them are needed for a meaningful result.",
+				"Wallet addresses (0x-prefixed) whose positions make up the book. Their venues above the $100 dust floor (largest 50) are compared; at least two are needed for a meaningful result.",
 			),
 		chain: z
 			.literal("ethereum")
 			.describe(
-				"Optional Xerberus chain identifier. Only ethereum is supported today; defaults to ethereum.",
+				"Optional chain identifier, echoed in the output. Xerberus only scores ethereum and no longer takes a chain argument.",
+			)
+			.optional(),
+		relations: z
+			.array(
+				z.enum([
+					"wrapper",
+					"lp_constituent",
+					"collateral",
+					"vault_alloc",
+					"leverage_loop",
+					"backing",
+					"liquidity_venue",
+					"runs_on",
+					"issuer",
+					"irm",
+					"oracle",
+					"operates",
+					"governance",
+					"obligor",
+				]),
+			)
+			.min(1)
+			.describe(
+				"Optional dependency families to follow upstream. Defaults to every family except liquidity_venue and lp_constituent (DEX pools).",
 			)
 			.optional(),
 		window: z
 			.string()
 			.describe(
-				"Optional Xerberus data-window timestamp (ISO-8601). Pass the same value to every xerberus_* pack in a composite.",
+				"Optional Xerberus data-window timestamp (ISO-8601). Omit for the latest window. Pass the same value to every xerberus_* pack in a composite.",
 			)
 			.optional(),
 	})

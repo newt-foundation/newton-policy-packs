@@ -250,7 +250,7 @@ Portfolio what-if gate using [Xerberus](https://xerberus.io). Simulates the book
 
 ### xerberus_common_cause
 
-Common-cause gate using [Xerberus](https://xerberus.io). Denies when apparently diversified venues share a missing safeguard carrying too much combined exposure, a forbidden dependency such as one oracle provider, or an outsized shared collateral token. See [xerberus_common_cause/README.md](./xerberus_common_cause/README.md).
+Common-cause gate using [Xerberus](https://xerberus.io). Denies when apparently diversified venues share one upstream node (a token, protocol, oracle or governance contract) with too much of the book behind it, a high expected loss share, or a node id the curator forbids. See [xerberus_common_cause/README.md](./xerberus_common_cause/README.md).
 
 ## Contributing a new pack
 

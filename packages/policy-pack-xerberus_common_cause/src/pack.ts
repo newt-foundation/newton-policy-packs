@@ -10,12 +10,13 @@ import { WasmArgsSchema } from "./wasm-args";
 /**
  * The Xerberus common-cause `PolicyPack`.
  *
- * Calls Xerberus's `common_cause` MCP tool over the venues a portfolio holds and
- * gates on failure mechanisms they share: missing safeguards carrying too much
- * combined exposure, forbidden shared dependencies, and outsized shared
- * collateral.
+ * Reads the venues a portfolio holds from Xerberus's `get_positions`, runs
+ * `shared_dependencies_nodes` over them, and gates on upstream nodes they
+ * share: too much of the book behind one node (in USD or as a share), a high
+ * expected loss share, or a forbidden node id.
  *
- * No `prepareQuery`: `wasmArgs` (`wallets`, optional `chain`, `window`) is
+ * No `prepareQuery`: `wasmArgs` (`wallets`, optional `chain`, `relations`,
+ * `window`) is
  * curator-supplied at intent-build time.
  */
 export const xerberus_common_cause = defineOracle({

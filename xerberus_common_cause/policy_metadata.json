@@ -3,5 +3,5 @@
   "version": "0.0.1",
   "author": "Xerberus",
   "link": "https://xerberus.io",
-  "description": "Common-cause gate: denies when apparently diversified venues share a missing safeguard carrying too much combined exposure, a forbidden dependency, or an outsized shared collateral token"
+  "description": "Common-cause gate: denies when apparently diversified venues share one upstream node (token, protocol, oracle, governance) with too much of the book behind it, a high expected loss share, or a forbidden node id"
 }

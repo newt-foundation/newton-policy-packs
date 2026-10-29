@@ -5,47 +5,59 @@ import { z } from "zod";
 
 export const ParamsSchema = z
 	.object({
-		max_shared_gap_exposure_usd: z
+		min_venues_for_shared_node: z
+			.number()
+			.gte(2)
+			.describe(
+				"How many of the book's venues must share an upstream node before any limit applies to it. The reference uses 2.",
+			),
+		shared_node_types: z
+			.array(z.string())
+			.describe(
+				"Xerberus node types the limits apply to (for example token, protocol, oracle, gov, irm), case-insensitive. An empty list applies them to every type.",
+			),
+		max_shared_exposure_usd: z
 			.number()
 			.gte(0)
 			.describe(
-				"Maximum combined USD exposure tolerated behind a single missing safeguard shared by several venues. The design reference uses 5000000.",
+				"Maximum USD of the book's venue exposure that may sit behind one shared upstream node. The reference uses 5000000.",
 			),
-		gap_failure_classes: z
-			.array(z.string())
-			.describe(
-				"Failure classes the shared-gap limit applies to (case-insensitive). An empty list applies it to every class.",
-			),
-		forbidden_shared_dependencies: z
-			.array(z.string())
-			.describe(
-				"Declared dependency targets (for example protocol:chainlink) that must not be shared across venues. Case-insensitive. An empty list disables the check.",
-			),
-		min_venues_for_shared_dependency: z
-			.number()
-			.gte(1)
-			.describe(
-				"How many venues must share a forbidden dependency before it denies. The design reference uses 2.",
-			),
-		max_shared_collateral_pct_of_book: z
+		max_shared_exposure_pct_of_book: z
 			.number()
 			.gte(0)
 			.lte(100)
 			.describe(
-				"Maximum share (percent) of the compared exposure that may sit behind one shared collateral token. The design reference uses 25.",
+				"Maximum share (percent) of the book's venue exposure that may sit behind one shared upstream node. The reference uses 40.",
 			),
-		material_subject_usd: z
+		max_shared_expected_loss_share: z
+			.number()
+			.gte(0)
+			.lte(1)
+			.describe(
+				"Maximum Xerberus expected loss share (loss rate in [0, 1]) of a shared upstream node. The reference uses 0.05.",
+			),
+		forbidden_shared_nodes: z
+			.array(z.string())
+			.describe(
+				"Xerberus node ids (for example protocol:lido or oracle:0x...) that the book's venues must not share. Case-insensitive. An empty list disables the check.",
+			),
+		material_venue_usd: z
 			.number()
 			.gte(0)
 			.describe(
-				"Exposure (USD) at or above which a venue Xerberus could not score counts as material.",
+				"Exposure (USD) at or above which a venue Xerberus could not place in its graph counts as material.",
 			),
-		deny_on_unscored: z.boolean().describe("When true, deny if any material venue is unscored."),
-		min_subjects_compared: z
+		deny_on_unresolved: z
+			.boolean()
+			.describe("When true, deny if any material venue is unresolved in the Xerberus graph."),
+		deny_on_truncated: z
+			.boolean()
+			.describe("When true, deny if Xerberus returned fewer shared nodes than it found."),
+		min_venues_compared: z
 			.number()
 			.gte(0)
 			.describe(
-				"Minimum number of venues Xerberus must have compared. Cross-venue analysis needs at least 2.",
+				"Minimum number of venues (above the $100 dust floor) the analysis must compare. Cross-venue analysis needs at least 2.",
 			),
 		deny_on_stale: z
 			.boolean()
@@ -70,56 +82,67 @@ export const ParamsJsonSchema = {
 	type: "object",
 	description: "Thresholds for the Xerberus common-cause gate",
 	properties: {
-		max_shared_gap_exposure_usd: {
+		min_venues_for_shared_node: {
+			type: "number",
+			minimum: 2,
+			description:
+				"How many of the book's venues must share an upstream node before any limit applies to it. The reference uses 2.",
+		},
+		shared_node_types: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Xerberus node types the limits apply to (for example token, protocol, oracle, gov, irm), case-insensitive. An empty list applies them to every type.",
+		},
+		max_shared_exposure_usd: {
 			type: "number",
 			minimum: 0,
 			description:
-				"Maximum combined USD exposure tolerated behind a single missing safeguard shared by several venues. The design reference uses 5000000.",
+				"Maximum USD of the book's venue exposure that may sit behind one shared upstream node. The reference uses 5000000.",
 		},
-		gap_failure_classes: {
-			type: "array",
-			items: {
-				type: "string",
-			},
-			description:
-				"Failure classes the shared-gap limit applies to (case-insensitive). An empty list applies it to every class.",
-		},
-		forbidden_shared_dependencies: {
-			type: "array",
-			items: {
-				type: "string",
-			},
-			description:
-				"Declared dependency targets (for example protocol:chainlink) that must not be shared across venues. Case-insensitive. An empty list disables the check.",
-		},
-		min_venues_for_shared_dependency: {
-			type: "number",
-			minimum: 1,
-			description:
-				"How many venues must share a forbidden dependency before it denies. The design reference uses 2.",
-		},
-		max_shared_collateral_pct_of_book: {
+		max_shared_exposure_pct_of_book: {
 			type: "number",
 			minimum: 0,
 			maximum: 100,
 			description:
-				"Maximum share (percent) of the compared exposure that may sit behind one shared collateral token. The design reference uses 25.",
+				"Maximum share (percent) of the book's venue exposure that may sit behind one shared upstream node. The reference uses 40.",
 		},
-		material_subject_usd: {
+		max_shared_expected_loss_share: {
+			type: "number",
+			minimum: 0,
+			maximum: 1,
+			description:
+				"Maximum Xerberus expected loss share (loss rate in [0, 1]) of a shared upstream node. The reference uses 0.05.",
+		},
+		forbidden_shared_nodes: {
+			type: "array",
+			items: {
+				type: "string",
+			},
+			description:
+				"Xerberus node ids (for example protocol:lido or oracle:0x...) that the book's venues must not share. Case-insensitive. An empty list disables the check.",
+		},
+		material_venue_usd: {
 			type: "number",
 			minimum: 0,
 			description:
-				"Exposure (USD) at or above which a venue Xerberus could not score counts as material.",
+				"Exposure (USD) at or above which a venue Xerberus could not place in its graph counts as material.",
 		},
-		deny_on_unscored: {
+		deny_on_unresolved: {
 			type: "boolean",
-			description: "When true, deny if any material venue is unscored.",
+			description: "When true, deny if any material venue is unresolved in the Xerberus graph.",
 		},
-		min_subjects_compared: {
+		deny_on_truncated: {
+			type: "boolean",
+			description: "When true, deny if Xerberus returned fewer shared nodes than it found.",
+		},
+		min_venues_compared: {
 			type: "number",
 			minimum: 0,
 			description:
-				"Minimum number of venues Xerberus must have compared. Cross-venue analysis needs at least 2.",
+				"Minimum number of venues (above the $100 dust floor) the analysis must compare. Cross-venue analysis needs at least 2.",
 		},
 		deny_on_stale: {
 			type: "boolean",
@@ -138,14 +161,16 @@ export const ParamsJsonSchema = {
 		},
 	},
 	required: [
-		"max_shared_gap_exposure_usd",
-		"gap_failure_classes",
-		"forbidden_shared_dependencies",
-		"min_venues_for_shared_dependency",
-		"max_shared_collateral_pct_of_book",
-		"material_subject_usd",
-		"deny_on_unscored",
-		"min_subjects_compared",
+		"min_venues_for_shared_node",
+		"shared_node_types",
+		"max_shared_exposure_usd",
+		"max_shared_exposure_pct_of_book",
+		"max_shared_expected_loss_share",
+		"forbidden_shared_nodes",
+		"material_venue_usd",
+		"deny_on_unresolved",
+		"deny_on_truncated",
+		"min_venues_compared",
 		"deny_on_stale",
 		"max_data_age_seconds",
 		"require_intent_party_in_wallets",

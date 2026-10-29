@@ -12,8 +12,12 @@ function wrapOutput(packId, valueOrError) {
 
 // Xerberus exposes its risk functions as MCP tools over JSON-RPC 2.0, not as
 // REST paths: every call is a `tools/call` POST to this one endpoint.
-const XERBERUS_MCP = "https://mcp.xerberus.io/enterprise/mcp";
-const TOOL = "common_cause";
+const XERBERUS_MCP = "https://mcp.xerberus.io/mcp";
+// `common_cause` is retired on /mcp. The book's venues are read from
+// `get_positions` and handed to `shared_dependencies_nodes` as `market:<uid>`
+// nodes; each shared upstream node is then priced by the venue USD behind it.
+const POSITIONS_TOOL = "get_positions";
+const SHARED_TOOL = "shared_dependencies_nodes";
 
 // Stay under the host's ~1 MiB WASM HTTP limit and the ~1.14 MB JSON.parse
 // ceiling that traps the component. A trap is worse than a deny, so throw.
@@ -47,6 +51,8 @@ function secret(name) {
 // --- MCP transport (identical across the xerberus_* packs) -----------------
 
 let _rpcId = 0;
+
+const OK_STATUSES = new Set(["scored", "ok"]);
 
 function headerValue(headers, name) {
   for (const [k, v] of headers ?? []) {
@@ -155,7 +161,28 @@ function callTool(name, args, apiKey) {
   if (result.isError) {
     throw new Error(`xerberus ${name} tool error: ${toolText(result).slice(0, 200)}`);
   }
-  return toolPayload(result);
+  const payload = toolPayload(result);
+  // Refusals (bad_request, retired, not_covered, unknown_subject, ...) come
+  // back as ordinary results carrying `status: {value, cause}`. Only a scored
+  // answer, or one with no status at all, is data.
+  const st = payload?.status;
+  if (st && typeof st === "object" && st.value != null && !OK_STATUSES.has(st.value)) {
+    throw new Error(`xerberus ${name} ${st.value}: ${String(st.cause ?? "").slice(0, 200)}`);
+  }
+  return payload;
+}
+
+// Freshness lives in its own block; `window` is a timestamp on some tools and
+// a `{start, latest}` object on others, so prefer `freshness.window`.
+function freshnessOf(payload) {
+  const f = payload?.freshness ?? {};
+  const w = payload?.window;
+  const top = typeof w === "string" ? w : w?.start;
+  return {
+    window: str(f.window ?? top),
+    latestWindow: str(f.latest_window),
+    isStale: typeof f.is_stale === "boolean" ? f.is_stale : null,
+  };
 }
 
 // --- input + normalisation helpers ------------------------------------------
@@ -201,8 +228,36 @@ function windowHonored(requested, returned) {
 }
 
 const MAX_WALLETS = 10;
-const MAX_SUBJECTS = 25;
-const MAX_ENTRIES = 25;
+// `shared_dependencies_nodes` takes 2 to 50 nodes.
+const MAX_VENUES = 50;
+// Xerberus's own dust floor for wallet expansion.
+const DUST_USD = 100;
+// Enough to return every shared node for a 50-venue book without truncation
+// in practice (a 14-venue book shares ~120); the server caps top_k at 500.
+const TOP_K = 200;
+const ASSET_SIDES = new Set(["supply", "collateral"]);
+
+// Every dependency family except DEX liquidity: `liquidity_venue` and
+// `lp_constituent` edges point at the pools a token trades in, which carry no
+// loss rate and would otherwise fill the ranking ahead of oracles, issuers and
+// governance.
+const DEP_TYPES = [
+  "wrapper",
+  "lp_constituent",
+  "collateral",
+  "vault_alloc",
+  "leverage_loop",
+  "backing",
+  "liquidity_venue",
+  "runs_on",
+  "issuer",
+  "irm",
+  "oracle",
+  "operates",
+  "governance",
+  "obligor",
+];
+const DEFAULT_RELATIONS = DEP_TYPES.filter((r) => r !== "liquidity_venue" && r !== "lp_constituent");
 
 function normaliseAddress(value, label) {
   if (typeof value !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(value)) {
@@ -222,6 +277,18 @@ function normaliseWallets(value) {
   return out;
 }
 
+function normaliseRelations(value) {
+  if (value == null) return DEFAULT_RELATIONS;
+  if (!Array.isArray(value) || value.length === 0) throw new Error("invalid relations");
+  const out = [];
+  for (const r of value) {
+    const rel = String(r).toLowerCase();
+    if (!DEP_TYPES.includes(rel)) throw new Error(`unknown relation: ${rel}`);
+    if (!out.includes(rel)) out.push(rel);
+  }
+  return out;
+}
+
 function list(x) {
   return Array.isArray(x) ? x : [];
 }
@@ -231,19 +298,25 @@ function lower(x) {
   return s == null ? null : s.toLowerCase();
 }
 
-// Largest first, then capped: the Rego only ever needs the biggest entries,
-// and an unbounded array risks the large-object crash in the component.
-function topBy(items, key, limit) {
-  return items.sort((a, b) => (b[key] ?? 0) - (a[key] ?? 0)).slice(0, limit);
-}
-
-function maxOf(items, key) {
-  let best = null;
-  for (const it of items) {
-    const n = it[key];
-    if (n != null && (best == null || n > best)) best = n;
+// Venue = lending market or vault the book sits in, keyed `market:<uid>` as
+// the dependency graph names it. Its exposure is the supply and collateral
+// held there: debt is owed to the venue, not lost with it.
+function addPositions(venues, payload) {
+  const totals = { book: 0, debt: 0 };
+  for (const p of list(payload?.positions)) {
+    if (p?.in_model !== true || p?.position_kind === "spot") continue;
+    const uid = lower(p?.market_uid);
+    if (!uid) continue;
+    const usd = Math.abs(num(p?.amount_usd) ?? 0);
+    if (!ASSET_SIDES.has(lower(p?.side))) {
+      totals.debt += usd;
+      continue;
+    }
+    const node = `market:${uid}`;
+    venues.set(node, (venues.get(node) ?? 0) + usd);
+    totals.book += usd;
   }
-  return best;
+  return totals;
 }
 
 export function run(input) {
@@ -257,67 +330,104 @@ export function run(input) {
     const wallets = normaliseWallets(myArgs.wallets);
     const chain = normaliseChain(myArgs.chain);
     const window = normaliseWindow(myArgs.window);
+    const relations = normaliseRelations(myArgs.relations);
 
     const apiKey = secret("XERBERUS_API_KEY");
     if (!apiKey) throw new Error("missing XERBERUS_API_KEY");
 
-    const args = { wallets, chain };
-    if (window != null) args.window = window;
+    // The first wallet fixes the window (latest unless one was pinned); every
+    // later read is pinned to it so the book and the graph describe one state.
+    const venues = new Map();
+    let fresh = null;
+    let bookUsd = 0;
+    let debtUsd = 0;
+    for (const wallet of wallets) {
+      const args = { wallet };
+      const pin = fresh?.window ?? window;
+      if (pin != null) args.window = pin;
+      const positions = callTool(POSITIONS_TOOL, args, apiKey);
+      const f = freshnessOf(positions);
+      if (fresh == null) {
+        if (f.window == null) throw new Error("get_positions returned no data window");
+        fresh = f;
+      } else if (!windowHonored(fresh.window, f.window)) {
+        throw new Error(`get_positions answered ${wallet} from ${f.window}, not ${fresh.window}`);
+      }
+      const totals = addPositions(venues, positions);
+      bookUsd += totals.book;
+      debtUsd += totals.debt;
+    }
 
-    const c = callTool(TOOL, args, apiKey);
-    const dataWindow = str(c?.data_window ?? c?.window);
+    const ranked = [...venues.entries()]
+      .filter(([, usd]) => usd >= DUST_USD)
+      .sort((a, b) => b[1] - a[1]);
+    const targets = ranked.slice(0, MAX_VENUES);
+    const omittedUsd = ranked.slice(MAX_VENUES).reduce((sum, [, usd]) => sum + usd, 0);
 
-    const subjects = list(c?.subjects_compared).map((s) => ({
-      subject: str(s?.subject),
-      scored: s?.scored === true,
-      exposure_usd: num(s?.exposure_usd) ?? 0,
-    }));
+    // Fewer than two venues leaves nothing to compare; report it rather than
+    // call a tool that requires two, and let the Rego decide.
+    let shared = [];
+    let unresolved = [];
+    let truncated = false;
+    if (targets.length >= 2) {
+      const sd = callTool(
+        SHARED_TOOL,
+        {
+          nodes: targets.map(([node]) => node),
+          relations,
+          min_shared: 2,
+          top_k: TOP_K,
+          window: fresh.window,
+        },
+        apiKey,
+      );
+      const sdWindow = freshnessOf(sd).window;
+      if (!windowHonored(fresh.window, sdWindow)) {
+        throw new Error(`${SHARED_TOOL} answered from ${sdWindow}, not ${fresh.window}`);
+      }
+      truncated = sd?.truncated === true;
+      unresolved = list(sd?.unresolved_targets).map((n) => ({
+        venue: lower(n),
+        exposure_usd: venues.get(lower(n)) ?? 0,
+      }));
+      shared = list(sd?.shared_dependencies).map((d) => {
+        const by = list(d?.shared_by).map(lower);
+        return {
+          node: lower(d?.node),
+          node_type: lower(d?.node_type),
+          label: str(d?.label),
+          venue_count: num(d?.n_targets) ?? by.length,
+          exposure_usd: by.reduce((sum, n) => sum + (venues.get(n) ?? 0), 0),
+          // null is Xerberus's "zero exit value", which it carries as 0.
+          expected_loss_share: num(d?.expected_loss_share) ?? 0,
+          combined_weight: num(d?.combined_weight) ?? 0,
+          combined_contribution: num(d?.combined_contribution) ?? 0,
+        };
+      });
+      shared.sort((a, b) => b.exposure_usd - a.exposure_usd);
+    }
 
-    // Shared missing safeguards: the same absent protection (e.g. an oracle
-    // price-deviation circuit breaker) across several venues, so one failure
-    // hits them together.
-    const gaps = list(c?.shared_missing_safeguards).map((g) => ({
-      tag: str(g?.tag),
-      failure_class: lower(g?.failure_class),
-      subject_count: list(g?.subjects).length,
-      combined_exposure_usd: num(g?.combined_exposure_usd) ?? 0,
-    }));
-
-    const dependencies = list(c?.shared_declared_dependencies).map((d) => ({
-      target: lower(d?.target),
-      connection_types: list(d?.connection_types).map(str).slice(0, 10),
-      subject_count: list(d?.subjects).length,
-    }));
-
-    const collateral = list(c?.shared_collateral_tokens).map((t) => ({
-      token: lower(t?.token),
-      symbol: str(t?.symbol),
-      subject_count: list(t?.subjects).length,
-      combined_exposure_usd: num(t?.combined_exposure_usd) ?? 0,
-    }));
-
+    const largest = shared[0] ?? null;
     return wrapOutput(PACK_ID, {
       wallets,
       chain,
-      subjects_compared_count: subjects.length,
-      scored_subjects_count: subjects.filter((s) => s.scored).length,
-      total_exposure_usd: subjects.reduce((sum, s) => sum + s.exposure_usd, 0),
-      unscored_subjects: topBy(
-        subjects.filter((s) => !s.scored),
-        "exposure_usd",
-        MAX_SUBJECTS,
-      ).map(({ subject, exposure_usd }) => ({ subject, exposure_usd })),
-      largest_shared_gap_exposure_usd: maxOf(gaps, "combined_exposure_usd") ?? 0,
-      shared_gaps: topBy(gaps, "combined_exposure_usd", MAX_ENTRIES),
-      shared_dependencies: topBy(dependencies, "subject_count", MAX_ENTRIES),
-      largest_shared_collateral_exposure_usd: maxOf(collateral, "combined_exposure_usd") ?? 0,
-      shared_collateral: topBy(collateral, "combined_exposure_usd", MAX_ENTRIES),
-      basis: str(c?.basis),
+      relations,
+      venues_compared_count: targets.length,
+      book_usd: bookUsd,
+      debt_usd: debtUsd,
+      venues_omitted_usd: omittedUsd,
+      unresolved_venues: unresolved,
+      shared_node_count: shared.length,
+      shared_nodes_truncated: truncated,
+      largest_shared_node: largest?.node ?? null,
+      largest_shared_exposure_usd: largest?.exposure_usd ?? 0,
+      shared_nodes: shared,
       requested_window: window ?? null,
-      data_window: dataWindow,
-      window_honored: windowHonored(window, dataWindow),
-      is_stale: typeof c?.is_stale === "boolean" ? c.is_stale : null,
-      data_age_seconds: ageSecondsFrom(dataWindow),
+      data_window: fresh.window,
+      latest_window: fresh.latestWindow,
+      window_honored: windowHonored(window, fresh.window),
+      is_stale: fresh.isStale,
+      data_age_seconds: ageSecondsFrom(fresh.window),
       timestamp: Date.now(),
     });
   } catch (e) {
