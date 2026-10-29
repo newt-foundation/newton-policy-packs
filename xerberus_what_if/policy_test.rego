@@ -7,6 +7,9 @@ treasury := "0xac0168b4fd7427bfd616e3a47fc05dd8175d5b64"
 
 wsteth := "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
 
+# The treasury's crvUSD wstETH market, where it holds wstETH as collateral.
+crvusd_wsteth := "crvusd:0x100daa78fc509db39ef7d04de0c1abd299f4c6ce"
+
 default_params := {
 	"max_post_token_share_pct": 50,
 	"max_hhi_delta": 0.01,
@@ -23,12 +26,11 @@ default_params := {
 clean_data := {
 	"wallets": [treasury],
 	"chain": "ethereum",
-	"add": [{"token": wsteth, "usd": 100000}],
-	"remove": [],
+	"legs": [{"action": "add", "side": "collateral", "market_uid": crvusd_wsteth, "usd": 100000}],
 	"is_risk_reducing": false,
 	"book_usd_before": 17770000,
 	"book_usd_after": 17870000,
-	"post_largest_token": "wstETH",
+	"post_largest_token": wsteth,
 	"post_largest_token_pct": 41.2,
 	"pre_largest_token_pct": 40.9,
 	"hhi_before": 0.3,
@@ -51,7 +53,7 @@ clean_data := {
 
 # The design's live $1M wstETH what-if result.
 design_live_result := object.union(clean_data, {
-	"add": [{"token": wsteth, "usd": 1000000}],
+	"legs": [{"action": "add", "side": "collateral", "market_uid": crvusd_wsteth, "usd": 1000000}],
 	"book_usd_after": 18770000,
 	"post_largest_token_pct": 53.5,
 	"pre_largest_token_pct": 50.9,
@@ -100,6 +102,31 @@ test_design_live_result_denies_on_every_portfolio_limit if {
 		"liquidity_30d_deterioration",
 		"slowest_exit_limit",
 	}
+}
+
+# The live $1M wstETH collateral add on the 2026-10-29 12:00 UTC window. The
+# 30-day ladder holds at 100% and the slowest exit grows 2.24 days, so only the
+# concentration limits trip.
+live_add_2026_10_29 := object.union(clean_data, {
+	"book_usd_before": 16444692.56,
+	"book_usd_after": 17444692.56,
+	"post_largest_token_pct": 51.0,
+	"pre_largest_token_pct": 48.02,
+	"hhi_before": 0.3882,
+	"hhi_after": 0.4001,
+	"hhi_delta": 0.0119,
+	"ladder_30d_before_pct": 100,
+	"ladder_30d_after_pct": 100,
+	"ladder_30d_delta_pp": 0,
+	"slowest_exit_days_before": 17.66,
+	"slowest_exit_days_after": 19.9,
+	"slowest_exit_delta_days": 2.24,
+	"requested_window": null,
+	"window_honored": null,
+})
+
+test_live_add_denies_on_concentration_only if {
+	denies(wrap(live_add_2026_10_29)) == {"concentration_limit", "hhi_delta_limit"}
 }
 
 test_deny_concentration_limit if {
@@ -151,8 +178,7 @@ test_deny_window_not_honored if {
 # --- risk-reducing path --------------------------------------------------------
 
 risk_reducing := {
-	"add": [],
-	"remove": [{"token": wsteth, "usd": 1000000}],
+	"legs": [{"action": "remove", "side": "supply", "market_uid": crvusd_wsteth, "usd": 1000000}],
 	"is_risk_reducing": true,
 	"post_largest_token_pct": 48.2,
 	"pre_largest_token_pct": 50.9,

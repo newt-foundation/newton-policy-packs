@@ -9,36 +9,40 @@ export const WasmArgsSchema = z
 			.array(z.string())
 			.min(1)
 			.max(10)
-			.describe("Wallet addresses (0x-prefixed) that make up the managed portfolio."),
-		add: z
+			.describe(
+				"Wallet addresses (0x-prefixed) that make up the managed portfolio, treated as one book.",
+			),
+		legs: z
 			.array(
 				z.object({
-					token: z.string().describe("Token contract address (preferred) or symbol."),
-					usd: z.number().gte(0).describe("USD amount added."),
+					action: z
+						.enum(["add", "remove"])
+						.describe("Whether the leg adds to or removes from the position."),
+					side: z
+						.enum(["supply", "collateral", "borrow"])
+						.describe(
+							"Which side of the market the leg changes. Removing collateral from a pool with debt is not risk-reducing.",
+						),
+					market_uid: z
+						.string()
+						.describe(
+							"Xerberus market id, `<protocol>:<key>` (e.g. `crvusd:0x100d…`, `aave_v3:<asset address>`, `morpho_blue:<market id>`).",
+						),
+					usd: z.number().gte(0).describe("USD amount of the leg."),
 				}),
 			)
-			.max(10)
+			.min(1)
+			.max(12)
 			.describe(
-				"Hypothetical additions to simulate. At least one of add or remove must be non-empty.",
-			)
-			.optional(),
-		remove: z
-			.array(
-				z.object({
-					token: z.string().describe("Token contract address (preferred) or symbol."),
-					usd: z.number().gte(0).describe("USD amount removed."),
-				}),
-			)
-			.max(10)
-			.describe(
-				"Hypothetical removals to simulate. A change with removals and no additions counts as risk-reducing.",
-			)
-			.optional(),
+				"The change to simulate, as a sequence of market legs. A leg lands in the book the wallet already holds in that market, else in a new one.",
+			),
 		impact_pct: z
 			.number()
 			.gte(0)
 			.lte(100)
-			.describe("Optional market-impact assumption in percent.")
+			.describe(
+				"Optional market-impact band in percent for the 30-day ladder and slowest-exit clocks. Xerberus defaults to 1.",
+			)
 			.optional(),
 		chain: z
 			.literal("ethereum")

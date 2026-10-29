@@ -7,39 +7,36 @@
       "items": { "type": "string" },
       "minItems": 1,
       "maxItems": 10,
-      "description": "Wallet addresses (0x-prefixed) that make up the managed portfolio."
+      "description": "Wallet addresses (0x-prefixed) that make up the managed portfolio, treated as one book."
     },
-    "add": {
+    "legs": {
       "type": "array",
-      "maxItems": 10,
+      "minItems": 1,
+      "maxItems": 12,
       "items": {
         "type": "object",
         "properties": {
-          "token": { "type": "string", "description": "Token contract address (preferred) or symbol." },
-          "usd": { "type": "number", "minimum": 0, "description": "USD amount added." }
+          "action": { "type": "string", "enum": ["add", "remove"], "description": "Whether the leg adds to or removes from the position." },
+          "side": {
+            "type": "string",
+            "enum": ["supply", "collateral", "borrow"],
+            "description": "Which side of the market the leg changes. Removing collateral from a pool with debt is not risk-reducing."
+          },
+          "market_uid": {
+            "type": "string",
+            "description": "Xerberus market id, `<protocol>:<key>` (e.g. `crvusd:0x100d…`, `aave_v3:<asset address>`, `morpho_blue:<market id>`)."
+          },
+          "usd": { "type": "number", "minimum": 0, "description": "USD amount of the leg." }
         },
-        "required": ["token", "usd"]
+        "required": ["action", "side", "market_uid", "usd"]
       },
-      "description": "Hypothetical additions to simulate. At least one of add or remove must be non-empty."
-    },
-    "remove": {
-      "type": "array",
-      "maxItems": 10,
-      "items": {
-        "type": "object",
-        "properties": {
-          "token": { "type": "string", "description": "Token contract address (preferred) or symbol." },
-          "usd": { "type": "number", "minimum": 0, "description": "USD amount removed." }
-        },
-        "required": ["token", "usd"]
-      },
-      "description": "Hypothetical removals to simulate. A change with removals and no additions counts as risk-reducing."
+      "description": "The change to simulate, as a sequence of market legs. A leg lands in the book the wallet already holds in that market, else in a new one."
     },
     "impact_pct": {
       "type": "number",
       "minimum": 0,
       "maximum": 100,
-      "description": "Optional market-impact assumption in percent."
+      "description": "Optional market-impact band in percent for the 30-day ladder and slowest-exit clocks. Xerberus defaults to 1."
     },
     "chain": {
       "type": "string",
@@ -51,5 +48,5 @@
       "description": "Optional Xerberus data-window timestamp (ISO-8601). Pass the same value to every xerberus_* pack in a composite."
     }
   },
-  "required": ["wallets"]
+  "required": ["wallets", "legs"]
 }

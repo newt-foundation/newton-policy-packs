@@ -12,8 +12,12 @@ function wrapOutput(packId, valueOrError) {
 
 // Xerberus exposes its risk functions as MCP tools over JSON-RPC 2.0, not as
 // REST paths: every call is a `tools/call` POST to this one endpoint.
-const XERBERUS_MCP = "https://mcp.xerberus.io/enterprise/mcp";
+const XERBERUS_MCP = "https://mcp.xerberus.io/mcp";
 const TOOL = "what_if";
+// `what_if` reports exposure by token but no exit clocks, so the 30-day ladder
+// and slowest exit are rebuilt from each token's per-day sale capacity.
+const LADDER_TOOL = "portfolio_ladder";
+const QUOTE_TOOL = "liquidity_exit_quote";
 
 // Stay under the host's ~1 MiB WASM HTTP limit and the ~1.14 MB JSON.parse
 // ceiling that traps the component. A trap is worse than a deny, so throw.
@@ -47,6 +51,8 @@ function secret(name) {
 // --- MCP transport (identical across the xerberus_* packs) -----------------
 
 let _rpcId = 0;
+
+const OK_STATUSES = new Set(["scored", "ok"]);
 
 function headerValue(headers, name) {
   for (const [k, v] of headers ?? []) {
@@ -155,7 +161,28 @@ function callTool(name, args, apiKey) {
   if (result.isError) {
     throw new Error(`xerberus ${name} tool error: ${toolText(result).slice(0, 200)}`);
   }
-  return toolPayload(result);
+  const payload = toolPayload(result);
+  // Refusals (bad_request, retired, not_covered, unknown_subject, ...) come
+  // back as ordinary results carrying `status: {value, cause}`. Only a scored
+  // answer, or one with no status at all, is data.
+  const st = payload?.status;
+  if (st && typeof st === "object" && st.value != null && !OK_STATUSES.has(st.value)) {
+    throw new Error(`xerberus ${name} ${st.value}: ${String(st.cause ?? "").slice(0, 200)}`);
+  }
+  return payload;
+}
+
+// Freshness lives in its own block; `window` is a timestamp on some tools and
+// a `{start, latest}` object on others, so prefer `freshness.window`.
+function freshnessOf(payload) {
+  const f = payload?.freshness ?? {};
+  const w = payload?.window;
+  const top = typeof w === "string" ? w : w?.start;
+  return {
+    window: str(f.window ?? top),
+    latestWindow: str(f.latest_window),
+    isStale: typeof f.is_stale === "boolean" ? f.is_stale : null,
+  };
 }
 
 // --- input + normalisation helpers ------------------------------------------
@@ -169,17 +196,6 @@ function num(x) {
 function str(x) {
   if (x == null) return null;
   return typeof x === "string" ? x : String(x);
-}
-
-// Token contract addresses are canonicalised to lowercase so Rego can match
-// them against the intent. Symbols are passed through (Xerberus accepts them)
-// but cannot be bound to an intent — prefer addresses in production.
-function normaliseToken(value) {
-  if (typeof value !== "string" || value.trim() === "") throw new Error(`invalid token: ${String(value)}`);
-  const t = value.trim();
-  if (/^0x[0-9a-fA-F]{40}$/.test(t)) return t.toLowerCase();
-  if (t.startsWith("0x") || t.length > 32) throw new Error(`invalid token: ${t}`);
-  return t;
 }
 
 function optionalPositive(value, label, max) {
@@ -219,8 +235,11 @@ function windowHonored(requested, returned) {
 }
 
 const MAX_WALLETS = 10;
-const MAX_CHANGES = 10;
+const MAX_LEGS = 12;
 const MAX_ISSUES = 10;
+const LEG_ACTIONS = new Set(["add", "remove"]);
+const LEG_SIDES = new Set(["supply", "collateral", "borrow"]);
+const LADDER_DAYS = 30;
 
 function normaliseAddress(value, label) {
   if (typeof value !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(value)) {
@@ -240,88 +259,109 @@ function normaliseWallets(value) {
   return out;
 }
 
-function normaliseChanges(value, label) {
-  if (value == null) return [];
-  if (!Array.isArray(value)) throw new Error(`invalid ${label}: expected an array`);
-  if (value.length > MAX_CHANGES) throw new Error(`too many ${label} entries: ${value.length} > ${MAX_CHANGES}`);
-  return value.map((c, i) => {
-    const usd = optionalPositive(c?.usd, `${label}[${i}].usd`);
-    if (usd == null) throw new Error(`missing ${label}[${i}].usd`);
-    return { token: normaliseToken(c?.token), usd };
+// Xerberus market ids are `<protocol>:<key>`, e.g. `aave_v3:0x7f39…` or
+// `crvusd:0x100d…`. Only the shape is checked here; Xerberus resolves them.
+function normaliseMarketUid(value, label) {
+  if (typeof value !== "string" || !/^[a-z0-9_]+:0x[0-9a-fA-F]+$/.test(value.trim())) {
+    throw new Error(`invalid ${label}: ${String(value)}`);
+  }
+  const [protocol, key] = value.trim().split(":");
+  return `${protocol}:${key.toLowerCase()}`;
+}
+
+function normaliseLegs(value) {
+  if (!Array.isArray(value) || value.length === 0) throw new Error("missing legs");
+  if (value.length > MAX_LEGS) throw new Error(`too many legs: ${value.length} > ${MAX_LEGS}`);
+  return value.map((l, i) => {
+    const action = String(l?.action ?? "").toLowerCase();
+    if (!LEG_ACTIONS.has(action)) throw new Error(`invalid legs[${i}].action: ${String(l?.action)}`);
+    const side = String(l?.side ?? "").toLowerCase();
+    if (!LEG_SIDES.has(side)) throw new Error(`invalid legs[${i}].side: ${String(l?.side)}`);
+    const usd = optionalPositive(l?.usd, `legs[${i}].usd`);
+    if (usd == null) throw new Error(`missing legs[${i}].usd`);
+    return { action, side, market_uid: normaliseMarketUid(l?.market_uid, `legs[${i}].market_uid`), usd };
   });
 }
 
-function sameToken(a, b) {
-  return a != null && b != null && String(a).toLowerCase() === String(b).toLowerCase();
+// token address -> USD, dropping zero rows.
+function exposure(state) {
+  const out = new Map();
+  for (const [token, usd] of Object.entries(state?.exposure_by_token ?? {})) {
+    const n = num(usd);
+    if (n != null && n > 0) out.set(token.toLowerCase(), n);
+  }
+  return out;
 }
 
-function positions(state) {
-  return Array.isArray(state?.top_positions) ? state.top_positions : [];
+function bookUsd(state, exp) {
+  const reported = num(state?.assets_usd);
+  if (reported != null) return reported;
+  let sum = 0;
+  for (const usd of exp.values()) sum += usd;
+  return sum;
 }
 
-// Share of book in percent. Derived from `usd / book_usd` when both are
-// present so the unit never depends on whether Xerberus reports `pct` as a
-// fraction or a percentage; falls back to the reported `pct`.
-function sharePct(position, bookUsd) {
-  const usd = num(position?.usd);
-  if (usd != null && bookUsd != null && bookUsd > 0) return (usd / bookUsd) * 100;
-  return num(position?.pct);
-}
-
-function largestPosition(state) {
-  const book = num(state?.book_usd);
+function largest(exp, book) {
   let best = null;
-  for (const p of positions(state)) {
-    const pct = sharePct(p, book);
-    if (pct == null) continue;
-    if (best == null || pct > best.pct) best = { token: str(p?.token), pct };
+  for (const [token, usd] of exp) {
+    if (best == null || usd > best.usd) best = { token, usd };
   }
-  return best;
+  return best && book > 0 ? { token: best.token, pct: (best.usd / book) * 100 } : null;
 }
 
-// The same token's share before the change. A token outside the reported top
-// positions reads as 0, which can only make the change look MORE
-// concentrating — the conservative direction.
-function shareOf(state, token) {
-  const book = num(state?.book_usd);
-  for (const p of positions(state)) {
-    if (sameToken(p?.token, token)) return sharePct(p, book) ?? 0;
+// Share of the book (percent) sellable inside LADDER_DAYS at the impact band,
+// tokens sold in parallel. A token with no depth curve exits nothing.
+function ladderPct(exp, book, capacity) {
+  if (!(book > 0)) return null;
+  let exitable = 0;
+  for (const [token, usd] of exp) {
+    const perDay = capacity.get(token);
+    if (perDay != null && perDay > 0) exitable += Math.min(usd, perDay * LADDER_DAYS);
   }
-  return 0;
+  return (exitable / book) * 100;
 }
 
-function ladder30d(state) {
-  return num(state?.ladder_pct_of_book?.["30d"]);
+// Days to exit the slowest token that has a depth curve.
+function slowestDays(exp, capacity) {
+  let worst = null;
+  for (const [token, usd] of exp) {
+    const perDay = capacity.get(token);
+    if (perDay == null || perDay <= 0) continue;
+    const days = usd / perDay;
+    if (worst == null || days > worst) worst = days;
+  }
+  return worst;
 }
 
-function diff(delta, after, before) {
-  if (delta != null) return delta;
+function diff(after, before) {
   if (after == null || before == null) return null;
   return after - before;
 }
 
-function isEmpty(x) {
-  if (x == null || x === false || x === "") return true;
-  if (Array.isArray(x)) return x.length === 0;
-  if (typeof x === "object") return Object.keys(x).length === 0;
-  return false;
+// Pure removals that leave every levered pool at least as healthy. Pulling
+// collateral from a pool with debt is a removal that ADDS risk, so the
+// per-pool health factor is checked rather than the leg actions alone.
+function riskReducing(legs, before, after) {
+  if (!legs.every((l) => l.action === "remove")) return false;
+  if ((num(after?.debt_usd) ?? 0) > (num(before?.debt_usd) ?? 0)) return false;
+  const hfBefore = new Map();
+  for (const p of Array.isArray(before?.pools) ? before.pools : []) {
+    hfBefore.set(p?.pool_uid, num(p?.health_factor));
+  }
+  for (const p of Array.isArray(after?.pools) ? after.pools : []) {
+    const hf = num(p?.health_factor);
+    const prior = hfBefore.get(p?.pool_uid);
+    if (hf == null || prior == null) {
+      if (num(p?.debt_usd) > 0) return false;
+      continue;
+    }
+    if (hf < prior) return false;
+  }
+  return true;
 }
 
-// `issues` is untyped in the tool contract. Flatten whatever arrives into a
-// short list of strings; empty containers are not issues.
-function issuesList(issues) {
-  if (isEmpty(issues)) return [];
-  let items;
-  if (Array.isArray(issues)) {
-    items = issues.filter((x) => !isEmpty(x)).map((x) => (typeof x === "string" ? x : JSON.stringify(x)));
-  } else if (typeof issues === "object") {
-    items = Object.entries(issues)
-      .filter(([, value]) => !isEmpty(value))
-      .map(([key, value]) => `${key}: ${typeof value === "string" ? value : JSON.stringify(value)}`);
-  } else {
-    items = [String(issues)];
-  }
-  return items.map((s) => s.slice(0, 200));
+function issueText(x) {
+  return (typeof x === "string" ? x : JSON.stringify(x)).slice(0, 200);
 }
 
 export function run(input) {
@@ -333,9 +373,7 @@ export function run(input) {
     loadHostSecrets();
 
     const wallets = normaliseWallets(myArgs.wallets);
-    const add = normaliseChanges(myArgs.add, "add");
-    const remove = normaliseChanges(myArgs.remove, "remove");
-    if (add.length === 0 && remove.length === 0) throw new Error("what_if needs at least one add or remove");
+    const legs = normaliseLegs(myArgs.legs);
     const impactPct = optionalPositive(myArgs.impact_pct, "impact_pct", 100);
     const chain = normaliseChain(myArgs.chain);
     const window = normaliseWindow(myArgs.window);
@@ -343,52 +381,89 @@ export function run(input) {
     const apiKey = secret("XERBERUS_API_KEY");
     if (!apiKey) throw new Error("missing XERBERUS_API_KEY");
 
-    const args = { wallets, add, remove, chain };
-    if (impactPct != null) args.impact_pct = impactPct;
+    const args = { addresses: wallets, legs };
     if (window != null) args.window = window;
-
     const w = callTool(TOOL, args, apiKey);
+    const fresh = freshnessOf(w);
+    if (fresh.window == null) throw new Error("what_if returned no data window");
     const before = w?.before;
     const after = w?.after;
-    const delta = w?.delta;
-    const dataWindow = str(w?.data_window ?? w?.window);
 
-    const largest = largestPosition(after);
-    const hhiBefore = num(before?.token_hhi);
-    const hhiAfter = num(after?.token_hhi);
-    const ladderBefore = ladder30d(before);
-    const ladderAfter = ladder30d(after);
-    const slowestBefore = num(before?.slowest_token_days);
-    const slowestAfter = num(after?.slowest_token_days);
-    const issues = issuesList(w?.issues);
+    // Pin the capacity reads to the window the simulation answered from, so
+    // every figure below comes from one snapshot.
+    const ladderArgs = { wallets, window: fresh.window };
+    if (impactPct != null) ladderArgs.impact_pct = impactPct;
+    const ladder = callTool(LADDER_TOOL, ladderArgs, apiKey);
+    const ladderWindow = freshnessOf(ladder).window;
+    if (!windowHonored(fresh.window, ladderWindow)) {
+      throw new Error(`portfolio_ladder answered from ${ladderWindow}, not ${fresh.window}`);
+    }
+    const capacity = new Map();
+    for (const r of Array.isArray(ladder?.rungs) ? ladder.rungs : []) {
+      if (r?.token != null) capacity.set(String(r.token).toLowerCase(), num(r?.max_sale_per_day_usd));
+    }
+
+    const expBefore = exposure(before);
+    const expAfter = exposure(after);
+    const issues = (Array.isArray(w?.notes) ? w.notes : []).map(issueText);
+
+    // A token the legs bring in (or one the ladder did not rung) needs its own
+    // quote. Capacity at a band does not depend on size, so one call each.
+    for (const [token, usd] of expAfter) {
+      if (capacity.has(token)) continue;
+      const qArgs = { token, usd_notional: usd, window: fresh.window };
+      if (impactPct != null) qArgs.impact_pct = impactPct;
+      const q = callTool(QUOTE_TOOL, qArgs, apiKey);
+      capacity.set(token, num(q?.max_sale_per_day_usd));
+    }
+    for (const [token, usd] of expAfter) {
+      const perDay = capacity.get(token);
+      if ((perDay == null || perDay <= 0) && usd > (expBefore.get(token) ?? 0)) {
+        issues.push(`no exit depth for ${token}, which the legs increase`);
+      }
+    }
+
+    const bookBefore = bookUsd(before, expBefore);
+    const bookAfter = bookUsd(after, expAfter);
+    const top = largest(expAfter, bookAfter);
+    const hhiBefore = num(before?.hhi_token);
+    const hhiAfter = num(after?.hhi_token);
+    const ladderBefore = ladderPct(expBefore, bookBefore, capacity);
+    const ladderAfter = ladderPct(expAfter, bookAfter, capacity);
+    const slowBefore = slowestDays(expBefore, capacity);
+    const slowAfter = slowestDays(expAfter, capacity);
 
     return wrapOutput(PACK_ID, {
       wallets,
       chain,
-      add,
-      remove,
-      is_risk_reducing: add.length === 0 && remove.length > 0,
-      book_usd_before: num(before?.book_usd),
-      book_usd_after: num(after?.book_usd),
-      post_largest_token: largest?.token ?? null,
-      post_largest_token_pct: largest?.pct ?? null,
-      pre_largest_token_pct: largest ? shareOf(before, largest.token) : null,
+      legs,
+      is_risk_reducing: riskReducing(legs, before, after),
+      book_usd_before: bookBefore,
+      book_usd_after: bookAfter,
+      post_largest_token: top?.token ?? null,
+      post_largest_token_pct: top?.pct ?? null,
+      // The same token's share before the change; a token not held reads as 0,
+      // which can only make the change look MORE concentrating.
+      pre_largest_token_pct: top && bookBefore > 0 ? ((expBefore.get(top.token) ?? 0) / bookBefore) * 100 : null,
       hhi_before: hhiBefore,
       hhi_after: hhiAfter,
-      hhi_delta: diff(num(delta?.token_hhi), hhiAfter, hhiBefore),
+      hhi_delta: num(w?.delta?.hhi_token) ?? diff(hhiAfter, hhiBefore),
       ladder_30d_before_pct: ladderBefore,
       ladder_30d_after_pct: ladderAfter,
-      ladder_30d_delta_pp: diff(num(delta?.ladder_pp?.["30d"]), ladderAfter, ladderBefore),
-      slowest_exit_days_before: slowestBefore,
-      slowest_exit_days_after: slowestAfter,
-      slowest_exit_delta_days: diff(num(delta?.slowest_token_days), slowestAfter, slowestBefore),
+      ladder_30d_delta_pp: diff(ladderAfter, ladderBefore),
+      slowest_exit_days_before: slowBefore,
+      slowest_exit_days_after: slowAfter,
+      slowest_exit_delta_days: diff(slowAfter, slowBefore),
+      weakest_health_factor_before: num(before?.weakest_health_factor),
+      weakest_health_factor_after: num(after?.weakest_health_factor),
       issues: issues.slice(0, MAX_ISSUES),
       issues_count: issues.length,
       requested_window: window ?? null,
-      data_window: dataWindow,
-      window_honored: windowHonored(window, dataWindow),
-      is_stale: typeof w?.is_stale === "boolean" ? w.is_stale : null,
-      data_age_seconds: ageSecondsFrom(dataWindow),
+      data_window: fresh.window,
+      latest_window: fresh.latestWindow,
+      window_honored: windowHonored(window, fresh.window),
+      is_stale: fresh.isStale,
+      data_age_seconds: ageSecondsFrom(fresh.window),
       timestamp: Date.now(),
     });
   } catch (e) {

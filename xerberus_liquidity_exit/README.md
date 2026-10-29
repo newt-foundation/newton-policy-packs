@@ -12,11 +12,12 @@ Requires a Xerberus enterprise API key (`XERBERUS_API_KEY`).
 
 ### Data Oracle (policy.js)
 
-One MCP `tools/call` of `liquidity_exit_quote`, POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/enterprise/mcp` with the key in the `x-api-key` header.
+One MCP `tools/call` of `liquidity_exit_quote`, POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/mcp` with the key in the `x-api-key` header.
 
 The MCP transport is shared by all three `xerberus_*` packs:
 
-- Non-2xx HTTP, a JSON-RPC `error`, or `result.isError` all throw, so the pack emits `{error}` and fails closed.
+- Non-2xx HTTP, a JSON-RPC `error`, `result.isError`, or a payload whose `status.value` is anything but `scored` (Xerberus answers `bad_request`, `retired`, `not_covered` and similar as ordinary results) all throw, so the pack emits `{error}` and fails closed.
+- Freshness is read from the payload's `freshness` block (`window`, `latest_window`, `is_stale`).
 - The response may be plain JSON or a single-shot `text/event-stream`; SSE is split into events and the message carrying the request id is used.
 - `result.structuredContent` is preferred; otherwise the JSON in the `text` content blocks is parsed.
 - Bodies over 900 KB are rejected before parsing, to stay clear of the WASM HTTP and `JSON.parse` limits.
@@ -28,10 +29,12 @@ The MCP transport is shared by all three `xerberus_*` packs:
 | `notional_usd` | Position size quoted |
 | `impact_band_pct` | Impact band the quote was modeled at |
 | `max_sale_per_day_usd` | Most that can be sold per day inside the band |
-| `days_to_exit` | Estimated days to fully exit |
-| `classification` | Xerberus's label (e.g. moderate, < 1 week) |
+| `days_to_exit` | Days to exit on the on-chain DEX floor inside the band. This is the gated figure |
+| `exit_horizon` | Xerberus's bucket for `days_to_exit` (e.g. `1-7d`) |
+| `fastest_route` / `fastest_days_to_exit` | The quickest measured route (e.g. `native_redemption`) and its clock |
+| `redemption_route_status` / `redemption_days_to_exit` | Whether a protocol-native redemption route exists (`present`, `inherited`, `not_modelled`, `not_applicable`) and its clock |
 | `cex_status` | Whether a centralised spot market was found |
-| `requested_window` / `data_window` | Window asked for, and the window Xerberus answered from |
+| `requested_window` / `data_window` / `latest_window` | Window asked for, the window Xerberus answered from, and the newest window it has |
 | `window_honored` | `true`/`false` when a window was pinned, `null` otherwise |
 | `is_stale` | Xerberus's own freshness flag |
 | `data_age_seconds` | Age of `data_window` at evaluation time |
@@ -69,6 +72,7 @@ Package `xerberus_liquidity_exit`. Deny reasons:
 - **Fail closed on freshness.** A missing `is_stale` or an unparseable `data_window` leaves the output malformed, which blocks `allow`. Keep `deny_on_stale` on for exposure-increasing actions.
 - **Pin the window in composites.** Pass one `window` to every `xerberus_*` pack so all results come from a single Xerberus snapshot; the composite gate denies when their `data_window`s differ.
 - **Use token addresses.** Xerberus accepts symbols, but a symbol is ambiguous and cannot be matched against the intent, so `require_token_in_intent` only works with an address.
+- **Why the DEX floor is gated.** A native route (a Lido withdrawal, a vault redeem) can be faster, but it depends on the issuer's queue staying open. `days_to_exit` is the exit that needs nobody's cooperation; the faster routes are reported beside it for the reviewer.
 - `usd_notional` is caller-supplied. The pack cannot price calldata itself, so the curator's intent builder is responsible for passing the real notional.
 
 ## Prerequisites

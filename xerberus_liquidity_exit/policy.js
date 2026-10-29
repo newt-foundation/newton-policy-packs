@@ -12,7 +12,7 @@ function wrapOutput(packId, valueOrError) {
 
 // Xerberus exposes its risk functions as MCP tools over JSON-RPC 2.0, not as
 // REST paths: every call is a `tools/call` POST to this one endpoint.
-const XERBERUS_MCP = "https://mcp.xerberus.io/enterprise/mcp";
+const XERBERUS_MCP = "https://mcp.xerberus.io/mcp";
 const TOOL = "liquidity_exit_quote";
 
 // Stay under the host's ~1 MiB WASM HTTP limit and the ~1.14 MB JSON.parse
@@ -47,6 +47,8 @@ function secret(name) {
 // --- MCP transport (identical across the xerberus_* packs) -----------------
 
 let _rpcId = 0;
+
+const OK_STATUSES = new Set(["scored", "ok"]);
 
 function headerValue(headers, name) {
   for (const [k, v] of headers ?? []) {
@@ -155,7 +157,28 @@ function callTool(name, args, apiKey) {
   if (result.isError) {
     throw new Error(`xerberus ${name} tool error: ${toolText(result).slice(0, 200)}`);
   }
-  return toolPayload(result);
+  const payload = toolPayload(result);
+  // Refusals (bad_request, retired, not_covered, unknown_subject, ...) come
+  // back as ordinary results carrying `status: {value, cause}`. Only a scored
+  // answer, or one with no status at all, is data.
+  const st = payload?.status;
+  if (st && typeof st === "object" && st.value != null && !OK_STATUSES.has(st.value)) {
+    throw new Error(`xerberus ${name} ${st.value}: ${String(st.cause ?? "").slice(0, 200)}`);
+  }
+  return payload;
+}
+
+// Freshness lives in its own block; `window` is a timestamp on some tools and
+// a `{start, latest}` object on others, so prefer `freshness.window`.
+function freshnessOf(payload) {
+  const f = payload?.freshness ?? {};
+  const w = payload?.window;
+  const top = typeof w === "string" ? w : w?.start;
+  return {
+    window: str(f.window ?? top),
+    latestWindow: str(f.latest_window),
+    isStale: typeof f.is_stale === "boolean" ? f.is_stale : null,
+  };
 }
 
 // --- input + normalisation helpers ------------------------------------------
@@ -236,12 +259,13 @@ export function run(input) {
     const apiKey = secret("XERBERUS_API_KEY");
     if (!apiKey) throw new Error("missing XERBERUS_API_KEY");
 
-    const args = { token, usd_notional: usdNotional, chain };
+    // The tool takes no chain argument; `chain` is validated above and echoed.
+    const args = { token, usd_notional: usdNotional };
     if (impactPct != null) args.impact_pct = impactPct;
     if (window != null) args.window = window;
 
     const q = callTool(TOOL, args, apiKey);
-    const dataWindow = str(q?.data_window ?? q?.window);
+    const fresh = freshnessOf(q);
 
     return wrapOutput(PACK_ID, {
       token,
@@ -250,14 +274,22 @@ export function run(input) {
       notional_usd: num(q?.notional_usd) ?? usdNotional,
       impact_band_pct: num(q?.impact_band_pct),
       max_sale_per_day_usd: num(q?.max_sale_per_day_usd),
+      // The DEX floor: selling on-chain inside the impact band. Kept as the
+      // gated figure because it needs no protocol cooperation; the faster
+      // native routes are reported beside it.
       days_to_exit: num(q?.days_to_exit),
-      classification: str(q?.classification),
+      exit_horizon: str(q?.exit_horizon),
+      fastest_route: str(q?.fastest_route ?? q?.headline?.route),
+      fastest_days_to_exit: num(q?.headline?.days_to_exit),
+      redemption_route_status: str(q?.redemption_route?.status),
+      redemption_days_to_exit: num(q?.redemption?.days_to_exit_redemption),
       cex_status: str(q?.cex?.status),
       requested_window: window ?? null,
-      data_window: dataWindow,
-      window_honored: windowHonored(window, dataWindow),
-      is_stale: typeof q?.is_stale === "boolean" ? q.is_stale : null,
-      data_age_seconds: ageSecondsFrom(dataWindow),
+      data_window: fresh.window,
+      latest_window: fresh.latestWindow,
+      window_honored: windowHonored(window, fresh.window),
+      is_stale: fresh.isStale,
+      data_age_seconds: ageSecondsFrom(fresh.window),
       timestamp: Date.now(),
     });
   } catch (e) {
