@@ -290,26 +290,30 @@ function normaliseRelations(value) {
   return out;
 }
 
-function list(x) {
-  return Array.isArray(x) ? x : [];
-}
-
-function lower(x) {
-  const s = str(x);
-  return s == null ? null : s.toLowerCase();
+// Xerberus answers are read strictly: a missing or mistyped field throws
+// rather than reading as an empty list, false or 0 that the deny rules pass.
+function need(value, type, where, field) {
+  let ok;
+  if (type === "array") ok = Array.isArray(value);
+  else if (type === "number") ok = Number.isFinite(value);
+  else ok = typeof value === type && value !== null && value !== "";
+  if (!ok) throw new Error(`xerberus ${where}: invalid ${field}: ${String(value).slice(0, 200)}`);
+  return value;
 }
 
 // Venue = lending market or vault the book sits in, keyed `market:<uid>` as
 // the dependency graph names it. Its exposure is the supply and collateral
 // held there: debt is owed to the venue, not lost with it.
-function addPositions(venues, payload) {
+function addPositions(venues, payload, wallet) {
+  const where = `${POSITIONS_TOOL} ${wallet}`;
   const totals = { book: 0, debt: 0 };
-  for (const p of list(payload?.positions)) {
-    if (p?.in_model !== true || p?.position_kind === "spot") continue;
-    const uid = lower(p?.market_uid);
-    if (!uid) continue;
-    const usd = Math.abs(num(p?.amount_usd) ?? 0);
-    if (!ASSET_SIDES.has(lower(p?.side))) {
+  for (const [i, p] of need(payload?.positions, "array", where, "positions").entries()) {
+    const at = `positions[${i}]`;
+    need(p, "object", where, at);
+    if (p.position_kind === "spot" || !need(p.in_model, "boolean", where, `${at}.in_model`)) continue;
+    const uid = need(p.market_uid, "string", where, `${at}.market_uid`).toLowerCase();
+    const usd = Math.abs(need(p.amount_usd, "number", where, `${at}.amount_usd`));
+    if (!ASSET_SIDES.has(need(p.side, "string", where, `${at}.side`).toLowerCase())) {
       totals.debt += usd;
       continue;
     }
@@ -354,7 +358,7 @@ export function run(input) {
       } else if (!windowHonored(fresh.window, f.window)) {
         throw new Error(`get_positions answered ${wallet} from ${f.window}, not ${fresh.window}`);
       }
-      const totals = addPositions(venues, positions);
+      const totals = addPositions(venues, positions, wallet);
       bookUsd += totals.book;
       debtUsd += totals.debt;
     }
@@ -386,23 +390,30 @@ export function run(input) {
       if (!windowHonored(fresh.window, sdWindow)) {
         throw new Error(`${SHARED_TOOL} answered from ${sdWindow}, not ${fresh.window}`);
       }
-      truncated = sd?.truncated === true;
-      unresolved = list(sd?.unresolved_targets).map((n) => ({
-        venue: lower(n),
-        exposure_usd: venues.get(lower(n)) ?? 0,
-      }));
-      shared = list(sd?.shared_dependencies).map((d) => {
-        const by = list(d?.shared_by).map(lower);
+      truncated = need(sd?.truncated, "boolean", SHARED_TOOL, "truncated");
+      unresolved = need(sd?.unresolved_targets, "array", SHARED_TOOL, "unresolved_targets").map((n, i) => {
+        const venue = need(n, "string", SHARED_TOOL, `unresolved_targets[${i}]`).toLowerCase();
+        return { venue, exposure_usd: venues.get(venue) ?? 0 };
+      });
+      shared = need(sd?.shared_dependencies, "array", SHARED_TOOL, "shared_dependencies").map((d, i) => {
+        const at = `shared_dependencies[${i}]`;
+        need(d, "object", SHARED_TOOL, at);
+        const by = need(d.shared_by, "array", SHARED_TOOL, `${at}.shared_by`).map((n, j) =>
+          need(n, "string", SHARED_TOOL, `${at}.shared_by[${j}]`).toLowerCase(),
+        );
         return {
-          node: lower(d?.node),
-          node_type: lower(d?.node_type),
+          node: need(d.node, "string", SHARED_TOOL, `${at}.node`).toLowerCase(),
+          node_type: need(d.node_type, "string", SHARED_TOOL, `${at}.node_type`).toLowerCase(),
           label: str(d?.label),
           venue_count: num(d?.n_targets) ?? by.length,
           exposure_usd: by.reduce((sum, n) => sum + (venues.get(n) ?? 0), 0),
           // null is Xerberus's "zero exit value", which it carries as 0.
-          expected_loss_share: num(d?.expected_loss_share) ?? 0,
-          combined_weight: num(d?.combined_weight) ?? 0,
-          combined_contribution: num(d?.combined_contribution) ?? 0,
+          expected_loss_share:
+            d.expected_loss_share === null
+              ? 0
+              : need(d.expected_loss_share, "number", SHARED_TOOL, `${at}.expected_loss_share`),
+          combined_weight: need(d.combined_weight, "number", SHARED_TOOL, `${at}.combined_weight`),
+          combined_contribution: need(d.combined_contribution, "number", SHARED_TOOL, `${at}.combined_contribution`),
         };
       });
       shared.sort((a, b) => b.exposure_usd - a.exposure_usd);
