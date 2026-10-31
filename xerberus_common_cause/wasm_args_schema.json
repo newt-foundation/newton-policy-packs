@@ -6,17 +6,26 @@
       "type": "array",
       "items": { "type": "string" },
       "minItems": 1,
-      "maxItems": 10,
-      "description": "Wallet addresses (0x-prefixed) holding the positions to compare. At least two Xerberus register-mapped venues across them are needed for a meaningful result."
+      "maxItems": 9,
+      "description": "Wallet addresses (0x-prefixed) whose positions make up the book. Their venues above the $100 dust floor (largest 50) are compared; at least two are needed for a meaningful result."
     },
     "chain": {
       "type": "string",
       "enum": ["ethereum"],
-      "description": "Optional Xerberus chain identifier. Only ethereum is supported today; defaults to ethereum."
+      "description": "Optional chain identifier, echoed in the output. Xerberus only scores ethereum and no longer takes a chain argument."
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["wrapper", "lp_constituent", "collateral", "vault_alloc", "leverage_loop", "backing", "liquidity_venue", "runs_on", "issuer", "irm", "oracle", "operates", "governance", "obligor"]
+      },
+      "minItems": 1,
+      "description": "Optional dependency families to follow upstream. Defaults to every family except liquidity_venue and lp_constituent (DEX pools)."
     },
     "window": {
       "type": "string",
-      "description": "Optional Xerberus data-window timestamp (ISO-8601). Pass the same value to every xerberus_* pack in a composite."
+      "description": "Optional Xerberus data-window timestamp (ISO-8601). Omit for the latest window. Pass the same value to every xerberus_* pack in a composite."
     }
   },
   "required": ["wallets"]

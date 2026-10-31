@@ -2,35 +2,39 @@
 
 ## Overview
 
-This policy catches **false diversification**. Positions in Fluid, Morpho and Compound look independent, but they can all depend on the same oracle, hold the same collateral, or lack the same safeguard — and a failure in that shared piece hits them together. Using [Xerberus](https://xerberus.io), it compares the venues a portfolio holds and denies when their shared failure mechanisms exceed curator limits.
+This policy catches **false diversification**. Positions in Fluid, Morpho, Compound and crvUSD look independent, but they can all lean on the same collateral token, the same staking protocol, the same oracle or the same governance contract, and a failure in that shared piece hits them together. Using [Xerberus](https://xerberus.io)'s dependency graph, it finds the upstream nodes a portfolio's venues share, prices each by the USD of the book sitting in the venues behind it, and denies when one carries more than the curator tolerates.
 
-Requires a Xerberus enterprise API key (`XERBERUS_API_KEY`).
+Requires a Xerberus API key (`XERBERUS_API_KEY`).
 
 ## How it works
 
 ### Data Oracle (policy.js)
 
-One MCP `tools/call` of `common_cause`, POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/enterprise/mcp` with the key in the `x-api-key` header. The transport is shared with the other `xerberus_*` packs; see [xerberus_liquidity_exit](../xerberus_liquidity_exit/README.md#data-oracle-policyjs).
+MCP `tools/call`s POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/mcp` with the key in the `x-api-key` header. The transport is shared with the other `xerberus_*` packs; see [xerberus_liquidity_exit](../xerberus_liquidity_exit/README.md#data-oracle-policyjs).
+
+1. **`get_positions`** for each wallet. The first answer fixes the window (the latest unless `window` is pinned) and every later call is pinned to it. In-model supply and collateral rows are summed per market into venue exposure, keyed `market:<market_uid>`; borrow rows count toward `debt_usd` only, since debt is owed to a venue rather than lost with it. Spot rows are skipped.
+2. **`shared_dependencies_nodes`** over the venues above the $100 dust floor (largest 50, the tool's limit), with `min_shared: 2`, `top_k: 200` and the same window. By default it follows every dependency family except `liquidity_venue` and `lp_constituent`; those are DEX pools with no loss rate that would otherwise fill the ranking ahead of the nodes that matter. Pass `relations` to choose families.
+3. Each shared node's `exposure_usd` is the sum of venue exposure across the venues that share it.
+
+`common_cause`, which this pack used to call on the enterprise endpoint, is retired on `/mcp`. Its missing-safeguard tags and failure classes have no counterpart in the graph, so the rules below are new rather than ported.
 
 | Field | Description |
 |---|---|
-| `wallets` | Echoed from wasm_args, lowercased |
-| `subjects_compared_count` / `scored_subjects_count` | Venues compared, and how many Xerberus could score |
-| `total_exposure_usd` | Sum of exposure across the compared venues |
-| `unscored_subjects[]` | `{subject, exposure_usd}` for venues Xerberus could not score, largest first |
-| `shared_gaps[]` | `{tag, failure_class, subject_count, combined_exposure_usd}` — missing safeguards shared across venues, largest first |
-| `largest_shared_gap_exposure_usd` | Largest combined exposure behind one shared gap |
-| `shared_dependencies[]` | `{target, connection_types, subject_count}` — declared dependencies shared across venues |
-| `shared_collateral[]` | `{token, symbol, subject_count, combined_exposure_usd}` — collateral tokens shared across venues |
-| `largest_shared_collateral_exposure_usd` | Largest combined exposure behind one shared collateral token |
-| `basis` | Xerberus's basis for the comparison |
-| `requested_window` / `data_window` / `window_honored` / `is_stale` / `data_age_seconds` | Freshness, as in the other `xerberus_*` packs |
+| `wallets` / `chain` / `relations` | Echoed from wasm_args (`relations` after defaults) |
+| `venues_compared_count` | Venues sent to `shared_dependencies_nodes` |
+| `book_usd` / `debt_usd` | Supply + collateral, and borrow, across all in-model positions |
+| `venues_omitted_usd` | Exposure in venues beyond the largest 50 |
+| `unresolved_venues[]` | `{venue, exposure_usd}` for venues Xerberus could not place in its graph |
+| `shared_nodes[]` | `{node, node_type, label, venue_count, exposure_usd, expected_loss_share, combined_weight, combined_contribution}`, largest `exposure_usd` first |
+| `shared_node_count` / `shared_nodes_truncated` | Shared nodes returned, and whether Xerberus found more than `top_k` |
+| `largest_shared_node` / `largest_shared_exposure_usd` | The shared node with the most of the book behind it |
+| `requested_window` / `data_window` / `latest_window` / `window_honored` / `is_stale` / `data_age_seconds` | Freshness, as in the other `xerberus_*` packs |
 
-Arrays are capped at 25 entries, largest first. Failure classes, dependency targets and collateral addresses are lowercased.
+`node_type` is Xerberus's: `token`, `protocol`, `oracle`, `gov`, `irm` and so on. `expected_loss_share` is the node's own Xerberus loss rate in [0, 1]; protocols, oracles and governance contracts carry 0, and Xerberus's "zero exit value" (null) is carried as 0 as it does. `combined_weight` and `combined_contribution` are Xerberus's dimensionless graph weights, passed through for reviewers.
 
 ### Policy Rules (policy.rego)
 
-Package `xerberus_common_cause`. Deny reasons:
+Package `xerberus_common_cause`. A shared node is **in scope** when at least `min_venues_for_shared_node` venues share it and, if `shared_node_types` is non-empty, its type is listed. Deny reasons:
 
 | Deny reason | Fires when |
 |---|---|
@@ -38,36 +42,46 @@ Package `xerberus_common_cause`. Deny reasons:
 | `stale_data` | `deny_on_stale` and Xerberus flags the window stale |
 | `data_too_old` | `data_age_seconds > max_data_age_seconds` |
 | `window_not_honored` | A window was pinned and Xerberus answered from another |
-| `shared_gap_limit` | An in-scope shared gap carries more than `max_shared_gap_exposure_usd` |
-| `shared_dependency_limit` | A `forbidden_shared_dependencies` target is shared by at least `min_venues_for_shared_dependency` venues |
-| `shared_collateral_limit` | One shared collateral token exceeds `max_shared_collateral_pct_of_book` of `total_exposure_usd` |
-| `unscored_material_subject` | `deny_on_unscored` and an unscored venue holds at least `material_subject_usd` |
-| `insufficient_venues` | Fewer than `min_subjects_compared` venues were compared |
+| `shared_exposure_limit` | An in-scope node has more than `max_shared_exposure_usd` behind it |
+| `shared_book_share_limit` | An in-scope node has more than `max_shared_exposure_pct_of_book` percent of `book_usd` behind it |
+| `shared_loss_limit` | An in-scope node's `expected_loss_share` exceeds `max_shared_expected_loss_share` |
+| `forbidden_shared_node` | A `forbidden_shared_nodes` id is shared by at least `min_venues_for_shared_node` venues |
+| `unresolved_material_venue` | `deny_on_unresolved` and an unresolved venue holds at least `material_venue_usd` |
+| `shared_nodes_truncated` | `deny_on_truncated` and Xerberus returned fewer shared nodes than it found |
+| `insufficient_venues` | Fewer than `min_venues_compared` venues were compared |
 | `wallets_not_bound_to_intent` | `require_intent_party_in_wallets` and neither the intent's sender nor target is an analysed wallet |
 
-The `shared_risks` rule explains what tripped (for example `forbidden dependency protocol:chainlink shared by 3 venues`). It is for `opa eval`, local simulation and composites; the AVS only evaluates `allow`.
+The `shared_risks` rule explains what tripped (for example `wstETH (token:0x7f39…) shared by 7 venues, $8979728 of a $16444693 book behind it`). It is for `opa eval`, local simulation and composites; the AVS only evaluates `allow`.
 
 ### Policy Parameters
 
 | Param | Type | Description |
 |---|---|---|
-| `max_shared_gap_exposure_usd` | number | Exposure ceiling behind one shared gap. Design reference: 5,000,000 |
-| `gap_failure_classes` | string[] | Failure classes the gap limit applies to; empty means all |
-| `forbidden_shared_dependencies` | string[] | Dependency targets that must not be shared (e.g. `protocol:chainlink`) |
-| `min_venues_for_shared_dependency` | number | Venues that must share a forbidden dependency before it denies. Design reference: 2 |
-| `max_shared_collateral_pct_of_book` | number | Shared-collateral ceiling, percent. Design reference: 25 |
-| `material_subject_usd` | number | Exposure at which an unscored venue matters |
-| `deny_on_unscored` | bool | Deny on material unscored venues |
-| `min_subjects_compared` | number | Venues needed for a meaningful comparison. Design reference: 2 |
+| `min_venues_for_shared_node` | number | Venues that must share a node before any limit applies. Reference: 2 |
+| `shared_node_types` | string[] | Node types the limits apply to; empty means all |
+| `max_shared_exposure_usd` | number | USD ceiling behind one shared node. Reference: 5,000,000 |
+| `max_shared_exposure_pct_of_book` | number | Ceiling behind one shared node, percent of `book_usd`. Reference: 40 |
+| `max_shared_expected_loss_share` | number | Ceiling on a shared node's own loss rate. Reference: 0.05 |
+| `forbidden_shared_nodes` | string[] | Node ids that must not be shared (e.g. `protocol:lido`, `oracle:0x…`) |
+| `material_venue_usd` | number | Exposure at which an unresolved venue matters |
+| `deny_on_unresolved` | bool | Deny on material unresolved venues |
+| `deny_on_truncated` | bool | Deny when the shared-node list was truncated |
+| `min_venues_compared` | number | Venues needed for a meaningful comparison. Reference: 2 |
 | `deny_on_stale` | bool | Deny when Xerberus flags the window stale |
 | `max_data_age_seconds` | number | Oldest data window accepted |
 | `require_intent_party_in_wallets` | bool | Bind the analysed portfolio to the transaction |
 
+### Live result
+
+Treasury `0xac01…5b64`, 2026-10-29T12:00 UTC window (not stale), reference params: **DENY** (`shared_exposure_limit`, `shared_book_share_limit`). The book is $16.44M of supply and collateral across 11 venues. Seven of those venues lean on wstETH and, through it, WETH, `protocol:lido` and Lido's governance contract, with $8.98M (55%) of the book behind them. `protocol:crvusd` has $7.69M behind it across two venues, WBTC $6.09M across four, and two oracle contracts about $5.4M each across three. No shared node has an expected loss share above 0.03.
+
 ## Notes
 
-- **New venues are invisible.** `common_cause` only sees positions that already exist in the supplied wallets, so a transaction entering a brand-new venue cannot be evaluated for shared risk until after it lands. Gate first-time venue entry separately — with a destination-protocol check or manual approval.
-- **Collateral share is measured against compared exposure.** `total_exposure_usd` is the exposure across the venues Xerberus compared, which can be smaller than the whole book. That makes the check stricter than a whole-portfolio denominator: in the design scenario WBTC's $3.80M is ~21% of the $17.8M book but ~41% of the $9.31M compared. A composite that also runs `xerberus_what_if` can measure against `book_usd_before` instead.
-- **Two venues minimum.** Cross-venue analysis needs at least two Xerberus register-mapped venues; `insufficient_venues` stops a single-venue result from reading as "no shared risk".
+- **Shared nodes overlap.** A token, its issuer protocol and that protocol's governance contract usually share the same venues, so one concentration trips several nodes at once. `shared_risks` lists each one; read them together.
+- **USD is venue exposure, not token exposure.** `exposure_usd` sums the supply and collateral in every venue that leans on a node, including assets in those venues that are not the node itself. It answers "how much of the book is in venues that fail together if this node fails", which is the common-cause question.
+- **Oracles are contracts, not providers.** Xerberus names oracles by contract address rather than by provider, so `forbidden_shared_nodes` takes `oracle:0x…` ids, not `protocol:chainlink`.
+- **New venues are invisible.** Only positions that already exist in the supplied wallets are compared, so a transaction entering a brand-new venue cannot be evaluated for shared risk until after it lands. Gate first-time venue entry separately, with a destination-protocol check or manual approval.
+- **Two venues minimum.** `insufficient_venues` stops a single-venue result from reading as "no shared risk".
 
 ## Prerequisites
 

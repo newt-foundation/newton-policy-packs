@@ -9,7 +9,7 @@ This policy catches transactions that look fine in isolation but make the **port
 - erodes the share of the book exitable within 30 days, or
 - lengthens the portfolio's slowest exit.
 
-Xerberus returns deterministic exposure and liquidity deltas here; it does not rerun a systemic rating or a tail-risk model.
+Xerberus recomputes the book's exposure, concentration and per-pool health factors after the change; the pack rebuilds the liquidity clocks from Xerberus's per-token sale capacity at the same window.
 
 Requires a Xerberus enterprise API key (`XERBERUS_API_KEY`).
 
@@ -17,22 +17,29 @@ Requires a Xerberus enterprise API key (`XERBERUS_API_KEY`).
 
 ### Data Oracle (policy.js)
 
-One MCP `tools/call` of `what_if`, POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/enterprise/mcp` with the key in the `x-api-key` header. The transport is shared with the other `xerberus_*` packs; see [xerberus_liquidity_exit](../xerberus_liquidity_exit/README.md#data-oracle-policyjs).
+MCP `tools/call`s POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/mcp` with the key in the `x-api-key` header. The transport is shared with the other `xerberus_*` packs; see [xerberus_liquidity_exit](../xerberus_liquidity_exit/README.md#data-oracle-policyjs).
+
+1. `what_if` with `addresses` = `wallets` and the `legs` — the book before and after: `assets_usd`, `exposure_by_token`, `hhi_token`, per-pool health factors.
+2. `portfolio_ladder` for the same wallets, pinned to the window `what_if` answered from — each held token's `max_sale_per_day_usd` at the impact band. A different window throws.
+3. `liquidity_exit_quote` for any token in the after-book the ladder did not rung (a token the legs bring in), same window. A different window throws. With more than 8 such tokens the pack throws before any quote, since with steps 1 and 2 that would pass the enclave's 10 HTTP calls per run.
+
+`what_if` no longer reports exit clocks, so the 30-day ladder and slowest exit are computed here, the way Xerberus's own ladder computes them: tokens sell in parallel, each at its per-day capacity; the 30-day ladder is `Σ min(usd, 30 × capacity) / book`, the slowest exit is `max(usd / capacity)`. A token with no depth curve exits nothing within 30 days and is left out of the slowest exit; when the legs increase such a token it is reported as an issue.
 
 | Field | Description |
 |---|---|
-| `wallets` / `add` / `remove` | Echoed from wasm_args (addresses lowercased) |
-| `is_risk_reducing` | `true` for a pure removal (no additions) |
+| `wallets` / `legs` | Echoed from wasm_args (addresses and market keys lowercased) |
+| `is_risk_reducing` | `true` when every leg is a removal, debt does not grow, and no levered pool's health factor falls; `false` when the debt or pool data to show it is missing |
 | `book_usd_before` / `book_usd_after` | Portfolio value either side of the change |
 | `post_largest_token` / `post_largest_token_pct` | Largest position after the change and its share of the book, in percent |
-| `pre_largest_token_pct` | That same token's share before the change (0 if outside the reported top positions) |
+| `pre_largest_token_pct` | That same token's share before the change (0 if not held) |
 | `hhi_before` / `hhi_after` / `hhi_delta` | Token HHI (0–1 scale) and its change |
 | `ladder_30d_before_pct` / `ladder_30d_after_pct` / `ladder_30d_delta_pp` | Share of the book exitable within 30 days, and its change in percentage points |
 | `slowest_exit_days_before` / `slowest_exit_days_after` / `slowest_exit_delta_days` | Slowest token exit and its change |
-| `issues` / `issues_count` | Simulation issues flattened to strings (first 10) and their count |
-| `requested_window` / `data_window` / `window_honored` / `is_stale` / `data_age_seconds` | Freshness, as in the other `xerberus_*` packs |
+| `weakest_health_factor_before` / `weakest_health_factor_after` | Lowest per-pool health factor either side (reported, not gated) |
+| `issues` / `issues_count` | Xerberus's `notes`, plus any no-depth token the legs increase (first 10) and their count |
+| `requested_window` / `data_window` / `latest_window` / `window_honored` / `is_stale` / `data_age_seconds` | Freshness, as in the other `xerberus_*` packs |
 
-Position shares are derived from `usd / book_usd`, so the unit never depends on whether Xerberus reports `pct` as a fraction or a percentage. Deltas use Xerberus's `delta` block and fall back to `after − before`.
+Position shares are `exposure_by_token[token] / assets_usd`, in percent. `hhi_delta` uses Xerberus's `delta.hhi_token` and falls back to `after − before`.
 
 ### Policy Rules (policy.rego)
 
@@ -67,10 +74,11 @@ Package `xerberus_portfolio_what_if`. Deny reasons:
 
 ## Notes
 
-- **Risk-reducing path.** With `allow_stale_when_risk_reducing` on, a change with removals and no additions is exempt from `stale_data` and `data_too_old`, so unavailable data never stops an agent reducing exposure. The delta checks still apply, and the exemption never covers additions.
+- **Risk-reducing path.** With `allow_stale_when_risk_reducing` on, a risk-reducing change is exempt from `stale_data` and `data_too_old`, so unavailable data never stops an agent reducing exposure. The delta checks still apply, and the exemption never covers additions. Pulling collateral out of a pool that carries debt lowers its health factor, so it does not count.
 - **Concentration only denies when it grows.** A trade that trims an already-concentrated book is not blocked by the level it is reducing.
-- **The design scenario denies.** The live $1M wstETH what-if (concentration 50.9% → 53.5%, HHI +0.0128, 30-day ladder −4.32 pp, slowest exit +5.26 days) trips every portfolio limit at the design's reference thresholds, even though its standalone exit quote is under a week.
-- `add` and `remove` are caller-supplied; the curator's intent builder is responsible for describing the real change.
+- **The design scenario denies.** Adding $1M of wstETH collateral to the treasury's crvUSD market (`crvusd:0x100d…`) on the 2026-10-29 12:00 UTC window takes wstETH from 48.0% to 51.0% of the book and token HHI up 0.0119, so `concentration_limit` and `hhi_delta_limit` deny at the design's reference thresholds. The 30-day ladder stays at 100% and the slowest exit grows 2.24 days, inside their limits. Removing the same $1M is allowed.
+- **Legs name a market, not a token.** Xerberus simulates venue positions, so each leg is `{action, side, market_uid, usd}`. Find a wallet's market ids with Xerberus's `get_positions`.
+- `legs` are caller-supplied; the curator's intent builder is responsible for describing the real change.
 
 ## Prerequisites
 

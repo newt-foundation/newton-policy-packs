@@ -17,71 +17,90 @@ v := data.wasm.xerberus_common_cause
 # fail closed.
 well_formed if {
 	is_array(v.wallets)
-	is_number(v.subjects_compared_count)
-	is_number(v.total_exposure_usd)
-	is_array(v.unscored_subjects)
-	is_array(v.shared_gaps)
-	is_array(v.shared_dependencies)
-	is_array(v.shared_collateral)
+	is_number(v.venues_compared_count)
+	is_number(v.book_usd)
+	is_array(v.unresolved_venues)
+	is_array(v.shared_nodes)
+	is_boolean(v.shared_nodes_truncated)
 	is_boolean(v.is_stale)
 	is_number(v.data_age_seconds)
 }
 
-# --- shared-risk classification ---------------------------------------------
+# --- shared-node classification ----------------------------------------------
 
-gap_classes := {lower(c) | some c in t.gap_failure_classes}
+node_types := {lower(n) | some n in t.shared_node_types}
 
-forbidden_dependencies := {lower(d) | some d in t.forbidden_shared_dependencies}
+forbidden_nodes := {lower(n) | some n in t.forbidden_shared_nodes}
 
-# An empty class list means every failure class counts.
-gap_in_scope(_) if count(gap_classes) == 0
-
-gap_in_scope(g) if g.failure_class in gap_classes
-
-# A missing safeguard shared by several venues, carrying more combined exposure
-# than the curator tolerates.
-gap_breaches contains g if {
-	some g in v.shared_gaps
-	gap_in_scope(g)
-	g.combined_exposure_usd > t.max_shared_gap_exposure_usd
+# A shared node counts once enough of the book's venues lean on it and, when
+# the curator lists node types, it is one of them. An empty list means every
+# type (token, protocol, oracle, gov, irm, ...).
+in_scope(n) if {
+	n.venue_count >= t.min_venues_for_shared_node
+	count(node_types) == 0
 }
 
-dependency_breaches contains d if {
-	some d in v.shared_dependencies
-	d.target in forbidden_dependencies
-	d.subject_count >= t.min_venues_for_shared_dependency
+in_scope(n) if {
+	n.venue_count >= t.min_venues_for_shared_node
+	n.node_type in node_types
 }
 
-# Collateral share is measured against the exposure Xerberus compared, which is
-# the book it can see for these wallets. Cross-multiplied rather than divided,
-# and never start a line with `(`: regorus reads it as a call on the previous
-# line's term (`v.shared_collateral(...)`) and rejects the policy.
-collateral_breaches contains c if {
-	v.total_exposure_usd > 0
-	some c in v.shared_collateral
-	c.combined_exposure_usd * 100 > t.max_shared_collateral_pct_of_book * v.total_exposure_usd
+# One upstream node with more of the book's venue exposure behind it than the
+# curator tolerates.
+exposure_breaches contains n if {
+	some n in v.shared_nodes
+	in_scope(n)
+	n.exposure_usd > t.max_shared_exposure_usd
 }
 
-unscored_material contains s if {
-	some s in v.unscored_subjects
-	s.exposure_usd >= t.material_subject_usd
+# Share of the book behind one shared node. Cross-multiplied rather than
+# divided, and never start a line with `(`: regorus reads it as a call on the
+# previous line's term and rejects the policy.
+book_share_breaches contains n if {
+	v.book_usd > 0
+	some n in v.shared_nodes
+	in_scope(n)
+	n.exposure_usd * 100 > t.max_shared_exposure_pct_of_book * v.book_usd
+}
+
+# A shared node whose own Xerberus loss rate is above the limit.
+loss_breaches contains n if {
+	some n in v.shared_nodes
+	in_scope(n)
+	n.expected_loss_share > t.max_shared_expected_loss_share
+}
+
+forbidden_breaches contains n if {
+	some n in v.shared_nodes
+	n.venue_count >= t.min_venues_for_shared_node
+	n.node in forbidden_nodes
+}
+
+unresolved_material contains u if {
+	some u in v.unresolved_venues
+	u.exposure_usd >= t.material_venue_usd
 }
 
 # Reviewer-facing explanation of what tripped. NOT evaluated on-chain; the AVS
 # entrypoint is `xerberus_common_cause.allow` only.
 shared_risks contains detail if {
-	some g in gap_breaches
-	detail := sprintf("missing safeguard %v (%v) across %v venues, $%v combined", [g.tag, g.failure_class, g.subject_count, g.combined_exposure_usd])
+	some n in exposure_breaches
+	detail := sprintf("%v (%v) shared by %v venues, $%v of the book behind it", [n.label, n.node, n.venue_count, round(n.exposure_usd)])
 }
 
 shared_risks contains detail if {
-	some d in dependency_breaches
-	detail := sprintf("forbidden dependency %v shared by %v venues", [d.target, d.subject_count])
+	some n in book_share_breaches
+	detail := sprintf("%v (%v) shared by %v venues, $%v of a $%v book behind it", [n.label, n.node, n.venue_count, round(n.exposure_usd), round(v.book_usd)])
 }
 
 shared_risks contains detail if {
-	some c in collateral_breaches
-	detail := sprintf("collateral %v shared by %v venues, $%v combined", [c.symbol, c.subject_count, c.combined_exposure_usd])
+	some n in loss_breaches
+	detail := sprintf("%v (%v) shared by %v venues has expected loss share %v", [n.label, n.node, n.venue_count, n.expected_loss_share])
+}
+
+shared_risks contains detail if {
+	some n in forbidden_breaches
+	detail := sprintf("forbidden node %v shared by %v venues", [n.node, n.venue_count])
 }
 
 # The analysed portfolio must belong to a party of the transaction.
@@ -113,20 +132,29 @@ deny contains "data_too_old" if v.data_age_seconds > t.max_data_age_seconds
 
 deny contains "window_not_honored" if v.window_honored == false
 
-deny contains "shared_gap_limit" if count(gap_breaches) > 0
+deny contains "shared_exposure_limit" if count(exposure_breaches) > 0
 
-deny contains "shared_dependency_limit" if count(dependency_breaches) > 0
+deny contains "shared_book_share_limit" if count(book_share_breaches) > 0
 
-deny contains "shared_collateral_limit" if count(collateral_breaches) > 0
+deny contains "shared_loss_limit" if count(loss_breaches) > 0
 
-deny contains "unscored_material_subject" if {
-	t.deny_on_unscored
-	count(unscored_material) > 0
+deny contains "forbidden_shared_node" if count(forbidden_breaches) > 0
+
+deny contains "unresolved_material_venue" if {
+	t.deny_on_unresolved
+	count(unresolved_material) > 0
+}
+
+# Xerberus ranks shared nodes by breadth, so a truncated list can drop a node
+# that few venues share but that carries much of the book.
+deny contains "shared_nodes_truncated" if {
+	t.deny_on_truncated
+	v.shared_nodes_truncated == true
 }
 
 # Cross-venue analysis needs at least two venues to compare; fewer means the
 # checks above had nothing to find, not that there was nothing there.
-deny contains "insufficient_venues" if v.subjects_compared_count < t.min_subjects_compared
+deny contains "insufficient_venues" if v.venues_compared_count < t.min_venues_compared
 
 deny contains "wallets_not_bound_to_intent" if {
 	t.require_intent_party_in_wallets

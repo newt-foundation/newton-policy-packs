@@ -3,6 +3,6 @@
 export const PACK_NAME = "xerberus_common_cause" as const;
 export const PACK_VERSION = "0.0.1" as const;
 export const PACK_DESCRIPTION =
-	"Common-cause gate: denies when apparently diversified venues share a missing safeguard carrying too much combined exposure, a forbidden dependency, or an outsized shared collateral token" as const;
+	"Common-cause gate: denies when apparently diversified venues share one upstream node (token, protocol, oracle, governance) with too much of the book behind it, a high expected loss share, or a forbidden node id" as const;
 export const PACK_LINK = "https://xerberus.io" as const;
 export const PACK_AUTHOR = "Xerberus" as const;

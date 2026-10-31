@@ -12,14 +12,16 @@ import future.keywords
 # Coverage limit: Rego side only. It does NOT execute `policy.js`.
 
 default_params := {
-	"max_shared_gap_exposure_usd": 5000000,
-	"gap_failure_classes": [],
-	"forbidden_shared_dependencies": ["protocol:chainlink"],
-	"min_venues_for_shared_dependency": 2,
-	"max_shared_collateral_pct_of_book": 25,
-	"material_subject_usd": 100000,
-	"deny_on_unscored": true,
-	"min_subjects_compared": 2,
+	"min_venues_for_shared_node": 2,
+	"shared_node_types": [],
+	"max_shared_exposure_usd": 5000000,
+	"max_shared_exposure_pct_of_book": 40,
+	"max_shared_expected_loss_share": 0.05,
+	"forbidden_shared_nodes": [],
+	"material_venue_usd": 100000,
+	"deny_on_unresolved": true,
+	"deny_on_truncated": true,
+	"min_venues_compared": 2,
 	"deny_on_stale": true,
 	"max_data_age_seconds": 86400,
 	"require_intent_party_in_wallets": false,
@@ -27,18 +29,24 @@ default_params := {
 
 clean_inner := {
 	"wallets": ["0xac0168b4fd7427bfd616e3a47fc05dd8175d5b64"],
-	"subjects_compared_count": 3,
-	"total_exposure_usd": 9308230.82,
-	"unscored_subjects": [],
-	"shared_gaps": [],
-	"shared_dependencies": [],
-	"shared_collateral": [],
-	"window_honored": true,
+	"venues_compared_count": 11,
+	"book_usd": 16444692.56,
+	"unresolved_venues": [],
+	"shared_nodes": [],
+	"shared_nodes_truncated": false,
+	"window_honored": null,
 	"is_stale": false,
 	"data_age_seconds": 3600,
 }
 
-hostile_gap := {"tag": "x", "failure_class": "oracle_integrity", "subject_count": 3, "combined_exposure_usd": 9000000}
+hostile_node := {
+	"node": "token:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+	"node_type": "token",
+	"label": "wstETH",
+	"venue_count": 7,
+	"exposure_usd": 9000000,
+	"expected_loss_share": 0.03,
+}
 
 namespaced(overrides) := {"xerberus_common_cause": object.union(clean_inner, overrides)}
 
@@ -46,14 +54,14 @@ test_namespaced_allow_when_clean if {
 	xerberus_common_cause.allow with data.params as default_params with data.wasm as namespaced({})
 }
 
-test_namespaced_deny_shared_gap_limit if {
-	"shared_gap_limit" in xerberus_common_cause.deny
+test_namespaced_deny_shared_exposure_limit if {
+	"shared_exposure_limit" in xerberus_common_cause.deny
 		with data.params as default_params
-		with data.wasm as namespaced({"shared_gaps": [hostile_gap]})
+		with data.wasm as namespaced({"shared_nodes": [hostile_node]})
 }
 
 test_flat_input_does_not_trigger_business_rules if {
-	flat := object.union(clean_inner, {"shared_gaps": [hostile_gap], "is_stale": true})
+	flat := object.union(clean_inner, {"shared_nodes": [hostile_node], "is_stale": true})
 	xerberus_common_cause.deny == {"malformed_oracle_output"} with data.params as default_params with data.wasm as flat
 }
 
@@ -68,7 +76,7 @@ test_namespaced_empty_pack_slot_does_not_allow if {
 test_other_pack_keys_do_not_interfere if {
 	composite := {
 		"xerberus_common_cause": clean_inner,
-		"xerberus_what_if": {"shared_gaps": [hostile_gap], "is_stale": true},
+		"xerberus_what_if": {"shared_nodes": [hostile_node], "is_stale": true},
 		"xerberus_liquidity_exit": {"error": "boom"},
 	}
 	xerberus_common_cause.allow with data.params as default_params with data.wasm as composite
