@@ -21,7 +21,7 @@ MCP `tools/call`s POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/mcp` with t
 
 1. `what_if` with `addresses` = `wallets` and the `legs` — the book before and after: `assets_usd`, `exposure_by_token`, `hhi_token`, per-pool health factors.
 2. `portfolio_ladder` for the same wallets, pinned to the window `what_if` answered from — each held token's `max_sale_per_day_usd` at the impact band. A different window throws.
-3. `liquidity_exit_quote` for any token in the after-book the ladder did not rung (a token the legs bring in), same window.
+3. `liquidity_exit_quote` for any token in the after-book the ladder did not rung (a token the legs bring in), same window. A different window throws. With more than 8 such tokens the pack throws before any quote, since with steps 1 and 2 that would pass the enclave's 10 HTTP calls per run.
 
 `what_if` no longer reports exit clocks, so the 30-day ladder and slowest exit are computed here, the way Xerberus's own ladder computes them: tokens sell in parallel, each at its per-day capacity; the 30-day ladder is `Σ min(usd, 30 × capacity) / book`, the slowest exit is `max(usd / capacity)`. A token with no depth curve exits nothing within 30 days and is left out of the slowest exit; when the legs increase such a token it is reported as an issue.
 

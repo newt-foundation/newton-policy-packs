@@ -242,6 +242,8 @@ const MAX_ISSUES = 10;
 const LEG_ACTIONS = new Set(["add", "remove"]);
 const LEG_SIDES = new Set(["supply", "collateral", "borrow"]);
 const LADDER_DAYS = 30;
+// The enclave allows 10 HTTP calls per run: what_if, portfolio_ladder and the quotes.
+const MAX_HTTP_CALLS = 10;
 
 function normaliseAddress(value, label) {
   if (typeof value !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(value)) {
@@ -411,11 +413,19 @@ export function run(input) {
 
     // A token the legs bring in (or one the ladder did not rung) needs its own
     // quote. Capacity at a band does not depend on size, so one call each.
+    const unrunged = [...expAfter.keys()].filter((token) => !capacity.has(token));
+    if (2 + unrunged.length > MAX_HTTP_CALLS) {
+      throw new Error(`too many tokens to quote: ${unrunged.length} > ${MAX_HTTP_CALLS - 2}`);
+    }
     for (const [token, usd] of expAfter) {
       if (capacity.has(token)) continue;
       const qArgs = { token, usd_notional: usd, window: fresh.window };
       if (impactPct != null) qArgs.impact_pct = impactPct;
       const q = callTool(QUOTE_TOOL, qArgs, apiKey);
+      const qWindow = freshnessOf(q).window;
+      if (!windowHonored(fresh.window, qWindow)) {
+        throw new Error(`${QUOTE_TOOL} answered ${token} from ${qWindow}, not ${fresh.window}`);
+      }
       capacity.set(token, num(q?.max_sale_per_day_usd));
     }
     for (const [token, usd] of expAfter) {
