@@ -8,7 +8,7 @@ export const WasmArgsSchema = z
 		wallets: z
 			.array(z.string())
 			.min(1)
-			.max(10)
+			.max(9)
 			.describe(
 				"Wallet addresses (0x-prefixed) whose positions make up the book. Their venues above the $100 dust floor (largest 50) are compared; at least two are needed for a meaningful result.",
 			),

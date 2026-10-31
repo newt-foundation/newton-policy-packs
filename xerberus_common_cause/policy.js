@@ -227,7 +227,8 @@ function windowHonored(requested, returned) {
   return Date.parse(requested) === Date.parse(returned);
 }
 
-const MAX_WALLETS = 10;
+// The enclave allows 10 HTTP calls per run: 9 get_positions + 1 shared_dependencies_nodes.
+const MAX_WALLETS = 9;
 // `shared_dependencies_nodes` takes 2 to 50 nodes.
 const MAX_VENUES = 50;
 // Xerberus's own dust floor for wallet expansion.

@@ -6,7 +6,7 @@
       "type": "array",
       "items": { "type": "string" },
       "minItems": 1,
-      "maxItems": 10,
+      "maxItems": 9,
       "description": "Wallet addresses (0x-prefixed) whose positions make up the book. Their venues above the $100 dust floor (largest 50) are compared; at least two are needed for a meaningful result."
     },
     "chain": {
