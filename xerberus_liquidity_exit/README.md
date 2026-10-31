@@ -16,7 +16,7 @@ One MCP `tools/call` of `liquidity_exit_quote`, POSTed as JSON-RPC 2.0 to `https
 
 The MCP transport is shared by all three `xerberus_*` packs:
 
-- Non-2xx HTTP, a JSON-RPC `error`, `result.isError`, or a payload whose `status.value` is anything but `scored` (Xerberus answers `bad_request`, `retired`, `not_covered` and similar as ordinary results) all throw, so the pack emits `{error}` and fails closed.
+- Non-2xx HTTP, a JSON-RPC `error`, `result.isError`, or a payload with a `status` other than an object whose `value` is `scored` or `ok` (Xerberus answers `bad_request`, `retired`, `not_covered` and similar as ordinary results) all throw, so the pack emits `{error}` and fails closed. A payload with no `status` is read as data.
 - Freshness is read from the payload's `freshness` block (`window`, `latest_window`, `is_stale`).
 - The response may be plain JSON or a single-shot `text/event-stream`; SSE is split into events and the message carrying the request id is used.
 - `result.structuredContent` is preferred; otherwise the JSON in the `text` content blocks is parsed.

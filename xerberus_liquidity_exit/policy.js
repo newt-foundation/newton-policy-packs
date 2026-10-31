@@ -160,10 +160,12 @@ function callTool(name, args, apiKey) {
   const payload = toolPayload(result);
   // Refusals (bad_request, retired, not_covered, unknown_subject, ...) come
   // back as ordinary results carrying `status: {value, cause}`. Only a scored
-  // answer, or one with no status at all, is data.
+  // (or ok) answer, or one with no status at all, is data; a status of any
+  // other shape throws.
   const st = payload?.status;
-  if (st && typeof st === "object" && st.value != null && !OK_STATUSES.has(st.value)) {
-    throw new Error(`xerberus ${name} ${st.value}: ${String(st.cause ?? "").slice(0, 200)}`);
+  if (st != null && !(typeof st === "object" && OK_STATUSES.has(st.value))) {
+    const value = typeof st === "object" ? st.value : st;
+    throw new Error(`xerberus ${name} ${String(value).slice(0, 200)}: ${String(st.cause ?? "").slice(0, 200)}`);
   }
   return payload;
 }
