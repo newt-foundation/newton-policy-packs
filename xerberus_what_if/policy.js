@@ -345,18 +345,23 @@ function diff(after, before) {
 // Pure removals that leave every levered pool at least as healthy. Pulling
 // collateral from a pool with debt is a removal that ADDS risk, so the
 // per-pool health factor is checked rather than the leg actions alone.
+// Missing debt or pool data proves nothing, so it is not risk-reducing.
 function riskReducing(legs, before, after) {
   if (!legs.every((l) => l.action === "remove")) return false;
-  if ((num(after?.debt_usd) ?? 0) > (num(before?.debt_usd) ?? 0)) return false;
+  const debtBefore = num(before?.debt_usd);
+  const debtAfter = num(after?.debt_usd);
+  if (debtBefore == null || debtAfter == null || debtAfter > debtBefore) return false;
+  if (!Array.isArray(before?.pools) || !Array.isArray(after?.pools)) return false;
   const hfBefore = new Map();
-  for (const p of Array.isArray(before?.pools) ? before.pools : []) {
-    hfBefore.set(p?.pool_uid, num(p?.health_factor));
+  for (const p of before.pools) {
+    if (p?.pool_uid != null) hfBefore.set(p.pool_uid, num(p.health_factor));
   }
-  for (const p of Array.isArray(after?.pools) ? after.pools : []) {
+  for (const p of after.pools) {
     const hf = num(p?.health_factor);
     const prior = hfBefore.get(p?.pool_uid);
     if (hf == null || prior == null) {
-      if (num(p?.debt_usd) > 0) return false;
+      const debt = num(p?.debt_usd);
+      if (debt == null || debt > 0) return false;
       continue;
     }
     if (hf < prior) return false;

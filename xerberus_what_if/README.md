@@ -28,7 +28,7 @@ MCP `tools/call`s POSTed as JSON-RPC 2.0 to `https://mcp.xerberus.io/mcp` with t
 | Field | Description |
 |---|---|
 | `wallets` / `legs` | Echoed from wasm_args (addresses and market keys lowercased) |
-| `is_risk_reducing` | `true` when every leg is a removal, debt does not grow, and no levered pool's health factor falls |
+| `is_risk_reducing` | `true` when every leg is a removal, debt does not grow, and no levered pool's health factor falls; `false` when the debt or pool data to show it is missing |
 | `book_usd_before` / `book_usd_after` | Portfolio value either side of the change |
 | `post_largest_token` / `post_largest_token_pct` | Largest position after the change and its share of the book, in percent |
 | `pre_largest_token_pct` | That same token's share before the change (0 if not held) |
