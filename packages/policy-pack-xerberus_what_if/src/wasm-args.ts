@@ -28,7 +28,7 @@ export const WasmArgsSchema = z
 						.describe(
 							"Xerberus market id, `<protocol>:<key>` (e.g. `crvusd:0x100d…`, `aave_v3:<asset address>`, `morpho_blue:<market id>`).",
 						),
-					usd: z.number().gte(0).describe("USD amount of the leg."),
+					usd: z.number().gt(0).describe("USD amount of the leg."),
 				}),
 			)
 			.min(1)
