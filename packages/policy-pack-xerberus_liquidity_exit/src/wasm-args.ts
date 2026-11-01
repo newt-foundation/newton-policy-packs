@@ -10,10 +10,10 @@ export const WasmArgsSchema = z
 			.describe(
 				"Token contract address (0x-prefixed) of the asset being acquired. Symbols are accepted by Xerberus but are ambiguous and cannot be bound to the intent; use the address in production.",
 			),
-		usd_notional: z.number().gte(0).describe("Proposed position size in USD."),
+		usd_notional: z.number().gt(0).describe("Proposed position size in USD."),
 		impact_pct: z
 			.number()
-			.gte(0)
+			.gt(0)
 			.lte(100)
 			.describe(
 				"Optional maximum acceptable market impact in percent. Xerberus defaults apply when omitted.",
