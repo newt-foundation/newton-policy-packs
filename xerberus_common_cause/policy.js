@@ -297,8 +297,13 @@ function normaliseRelations(value) {
 function need(value, type, where, field) {
   let ok;
   if (type === "array") ok = Array.isArray(value);
-  else if (type === "number") ok = Number.isFinite(value);
-  else ok = typeof value === type && value !== null && value !== "";
+  else if (type === "number") {
+    // Numeric strings pass, as num() reads them in the other xerberus packs.
+    // Blank ones throw: Number("") is 0, which would read as no exposure.
+    const n = typeof value === "string" && value.trim() !== "" ? Number(value) : value;
+    if (Number.isFinite(n)) return n;
+    ok = false;
+  } else ok = typeof value === type && value !== null && value !== "";
   if (!ok) throw new Error(`xerberus ${where}: invalid ${field}: ${String(value).slice(0, 200)}`);
   return value;
 }
