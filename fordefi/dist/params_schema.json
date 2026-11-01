@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "description": "Thresholds for the Fordefi signature checks",
+  "properties": {
+    "min_signatures": {
+      "type": "number",
+      "description": "the number of signatures under which to deny"
+    }
+  },
+  "required": [
+    "min_signatures"
+  ]
+}
