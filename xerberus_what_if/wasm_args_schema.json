@@ -34,7 +34,7 @@
     },
     "impact_pct": {
       "type": "number",
-      "minimum": 0,
+      "exclusiveMinimum": 0,
       "maximum": 100,
       "description": "Optional market-impact band in percent for the 30-day ladder and slowest-exit clocks. Xerberus defaults to 1."
     },

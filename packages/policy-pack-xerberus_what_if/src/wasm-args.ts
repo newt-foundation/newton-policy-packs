@@ -38,7 +38,7 @@ export const WasmArgsSchema = z
 			),
 		impact_pct: z
 			.number()
-			.gte(0)
+			.gt(0)
 			.lte(100)
 			.describe(
 				"Optional market-impact band in percent for the 30-day ladder and slowest-exit clocks. Xerberus defaults to 1.",

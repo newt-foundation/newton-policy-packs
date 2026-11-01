@@ -8,12 +8,12 @@
     },
     "usd_notional": {
       "type": "number",
-      "minimum": 0,
+      "exclusiveMinimum": 0,
       "description": "Proposed position size in USD."
     },
     "impact_pct": {
       "type": "number",
-      "minimum": 0,
+      "exclusiveMinimum": 0,
       "maximum": 100,
       "description": "Optional maximum acceptable market impact in percent. Xerberus defaults apply when omitted."
     },
