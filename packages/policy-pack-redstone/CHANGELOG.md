@@ -1,5 +1,11 @@
 # @newton-xyz/policy-pack-redstone
 
+## 7.0.1
+
+### Patch Changes
+
+- f8eb927: The reference `policy.rego` now fails closed when an oracle field it compares is not a number. Rego orders null below every number, so a null field (what the oracle writes for a NaN) passed `<=` and `allow` came out true. Curators who copied the earlier Rego should redeploy their policy with this version.
+
 ## 7.0.0
 
 ### Major Changes
