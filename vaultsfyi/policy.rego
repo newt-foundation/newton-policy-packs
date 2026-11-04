@@ -38,7 +38,17 @@ deny contains "vault_corrupted" if {
     t.deny_on_corrupted
 }
 
+# Rego orders null below every number and strings above them, so a null or
+# string field would pass `<=` and `>=`. The oracle serializes a NaN as null,
+# so every compared field must be a number, and every flag a boolean, before
+# it counts (the composite example probes the same fields).
 allow if {
+    is_number(v.apy_z_score)
+    is_number(v.tvl_drawdown_24h_pct)
+    is_number(v.tvl_drawdown_7d_pct)
+    is_boolean(v.has_critical_flag)
+    is_boolean(v.is_corrupted)
+    is_boolean(v.allocation_changed_since_last)
     v.apy_z_score <= t.apy_z_max
     v.tvl_drawdown_24h_pct <= t.tvl_drawdown_24h_max_pct
     v.tvl_drawdown_7d_pct <= t.tvl_drawdown_7d_max_pct
@@ -49,7 +59,10 @@ allow if {
 }
 
 risk_score_ok if v.risk_score == null
-risk_score_ok if v.risk_score >= t.risk_score_floor
+risk_score_ok if {
+    is_number(v.risk_score)
+    v.risk_score >= t.risk_score_floor
+}
 
 allocation_change_blocks if {
     v.allocation_changed_since_last
