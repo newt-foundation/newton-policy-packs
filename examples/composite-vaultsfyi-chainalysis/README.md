@@ -1,5 +1,7 @@
 # Composite policy example — vaultsfyi + chainalysis
 
+> **Superseded on newton-prover-avs `unified/main` (PR #767, 1:1 rego:wasm).** A policy with more than one PolicyData can no longer be attached to a policy client (`MultiOracleNotComposable`). Combine packs with a **policy set** instead; see [`policy-sets.md`](../../docs/policy-sets.md). The rest of this page describes the pre-#767 composite model.
+
 A worked, end-to-end example of composing two published policy packs into **one** Newton policy: a vault deposit must pass **both** vaultsfyi's risk envelope **and** chainalysis's sanctions screening.
 
 This is the reference partners copy. It exercises the full composite-policy surface shipped in `@newton-xyz/policy-core`. For the conceptual guide, see [`docs/writing-composite-policies.md`](../../docs/writing-composite-policies.md).
