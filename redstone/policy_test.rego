@@ -132,3 +132,14 @@ test_null_divergence_does_not_allow if {
     d := with_data({"divergence_bp": null})
     not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as d
 }
+
+test_null_prev_divergence_does_not_allow_with_sustained_check if {
+    params := object.union(default_params, {"enable_sustained_check": true})
+    d := with_data({"divergence_bp": 70, "prev_snapshot_present": true, "prev_divergence_bp": null, "sustained_seconds": 3600})
+    not redstone_oracle_divergence.allow with data.params as params with data.wasm as d
+}
+
+test_null_sustained_seconds_does_not_allow if {
+    d := with_data({"sustained_seconds": null})
+    not redstone_oracle_divergence.allow with data.params as default_params with data.wasm as d
+}
