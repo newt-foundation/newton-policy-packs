@@ -24,8 +24,8 @@ deny contains "divergence_sustained" if {
 }
 
 # Rego orders null below every number, so `null <= 300` holds. The oracle
-# serializes a NaN price or timestamp as null, so both fields must be numbers
-# before they are compared.
+# serializes a NaN price or timestamp as null, so every field compared here must
+# be a number first.
 allow if {
     is_number(v.redstone_feed_age_seconds)
     is_number(v.divergence_bp)
