@@ -87,3 +87,15 @@ jobs:
       # regressions before publish.
       - name: Unit tests
         run: pnpm -r test
+
+      # Rego unit tests, one pack at a time against its source policy.rego.
+      # dist/policy.rego is a copy, so loading both would define `allow` twice.
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: 1.21.1
+
+      - name: Rego tests
+        run: |
+          for d in $(git ls-files '*/policy_test.rego' | xargs -n1 dirname | sort -u); do
+            opa test "$d/policy.rego" $(git ls-files "$d/*_test.rego")
+          done

@@ -134,3 +134,30 @@ test_deny_on_oracle_error if {
 test_deny_on_empty_payload if {
     not vault_risk_rating.allow with data.params as default_params with data.wasm as wrap({})
 }
+
+# The oracle serializes a NaN as null, and Rego orders null below every number
+# and strings above them, so a non-number must not pass the comparisons in `allow`.
+test_null_apy_z_score_does_not_allow if {
+    d := with_data({"apy_z_score": null})
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as d
+}
+
+test_null_tvl_drawdown_24h_does_not_allow if {
+    d := with_data({"tvl_drawdown_24h_pct": null})
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as d
+}
+
+test_null_tvl_drawdown_7d_does_not_allow if {
+    d := with_data({"tvl_drawdown_7d_pct": null})
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as d
+}
+
+test_string_risk_score_does_not_allow if {
+    d := with_data({"risk_score": "high"})
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as d
+}
+
+test_missing_flag_does_not_allow if {
+    d := wrap(object.remove(clean_data, {"has_critical_flag"}))
+    not vault_risk_rating.allow with data.params as default_params with data.wasm as d
+}
