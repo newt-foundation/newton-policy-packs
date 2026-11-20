@@ -1,5 +1,7 @@
 # Composite policies
 
+> **Superseded on newton-prover-avs `unified/main` (PR #767, 1:1 rego:wasm).** A policy with more than one PolicyData can no longer be attached to a policy client (`MultiOracleNotComposable`). Combine packs with a **policy set** instead; see [`policy-sets.md`](./policy-sets.md). The rest of this page describes the pre-#767 composite model.
+
 > **Status:** Composites are live. The phased rollout (Phase 0: pack namespacing, Phase 1: module projection API, Phase 2: defineComposite builder) shipped and was superseded by the v2 authoring surface. Packs are now authored with `definePolicyPack({...})` (the one factory in each pack's `src/pack.ts`) and passed DIRECTLY to `defineComposite` and `generateCompositeParamsSchema` without a projection step. The Phase-1 `OracleModule` type, `oracleModuleFromPack(pack)` helper, and per-pack `<name>OracleModule` exports (vaultsfyiOracleModule, chainalysisOracleModule, etc.) were DELETED in the v2 refactor. Current stable artifacts:
 >
 > - **Phase 0 (shipped, unchanged)** - Pack-side namespacing convention: `PACK_ID` wrapper in every pack's `policy.js` (output namespacing via `wrapOutput("<pack-id>", ...)`), `data.wasm.<pack-id>.*` references in every pack's `policy.rego`. Every reference pack in this repo namespaces correctly; copy-as-is into a composite works.

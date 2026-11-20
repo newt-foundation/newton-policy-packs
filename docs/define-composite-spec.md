@@ -1,5 +1,7 @@
 # `defineComposite` builder + composite SDK consumption — design spec
 
+> **Superseded on newton-prover-avs `unified/main` (PR #767, 1:1 rego:wasm).** A policy with more than one PolicyData can no longer be attached to a policy client (`MultiOracleNotComposable`). Combine packs with a **policy set** instead; see [`policy-sets.md`](./policy-sets.md). The rest of this page describes the pre-#767 composite model.
+
 > SUPERSEDED (2026-07). This document describes the pre-v2 public `defineComposite`
 > surface, including a `defineComposite([pack])` bare-array form that never
 > typechecked. The v2 authoring surface is `definePolicyPack` (to author a

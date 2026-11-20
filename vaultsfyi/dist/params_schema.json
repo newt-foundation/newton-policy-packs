@@ -15,8 +15,10 @@
       "description": "Max allowed 7d TVL drawdown percentage"
     },
     "risk_score_floor": {
-      "type": "number",
-      "description": "Minimum acceptable risk score (0-1 scale)"
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Minimum acceptable risk score (0-100 integer scale; matches the AVS-side `vault.scores.netScore`). Set to 0 to effectively disable the floor."
     },
     "deny_on_allocation_change": {
       "type": "boolean",
