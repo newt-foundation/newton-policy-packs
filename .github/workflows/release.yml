@@ -42,8 +42,11 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          # Required for npm publish provenance + the npm registry config.
-          registry-url: "https://registry.npmjs.org"
+          # No registry-url here on purpose: it makes setup-node generate a
+          # token .npmrc that shadows npm trusted publishing (OIDC).
+
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@^11.5.1
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -105,8 +108,6 @@ jobs:
           # not-yet-existing package name. Set both — `NPM_TOKEN` for
           # changesets/action's PR-creation HTTP path, `NODE_AUTH_TOKEN` for
           # the publish path.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           # Force npm to attach OIDC provenance to every publish. With
           # `id-token: write` granted on the job, this turns the
           # `permissions` declaration into a real cryptographic signature
