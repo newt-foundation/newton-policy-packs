@@ -1,6 +1,6 @@
 {
 	"name": "@newton-xyz/policy-packs",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "All Newton policy packs in one package: typed TypeScript bindings for every Newton policy pack, with one subpath export per pack.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
