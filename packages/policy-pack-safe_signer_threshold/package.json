@@ -1,6 +1,7 @@
 {
   "name": "@newton-xyz/policy-pack-safe_signer_threshold",
   "version": "0.1.1",
+  "private": true,
   "description": "Typed TypeScript bindings for the Newton safe_signer_threshold policy pack.",
   "license": "Apache-2.0",
   "author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",

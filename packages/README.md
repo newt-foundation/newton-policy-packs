@@ -1,6 +1,15 @@
 # `packages/` — TypeScript bindings tree
 
-Per-pack TypeScript bindings for the AVS-side policy packs at the repo root. Each subdirectory publishes as `@newton-xyz/policy-pack-<name>`.
+Per-pack TypeScript bindings for the AVS-side policy packs at the repo root.
+
+**Publishing (umbrella consolidation):** the per-pack packages are `private` and no longer
+publish individually. The only publishing package is `packages/policy-packs/`
+(`@newton-xyz/policy-packs`), which bundles every pack and exposes one subpath export per
+pack (e.g. `@newton-xyz/policy-packs/webacy`). Pack changes are changeset-ed against the
+umbrella and version together. Until codegen learns to do it automatically, adding a pack
+also means adding its umbrella wiring by hand: `packages/policy-packs/src/<name>.ts`, the
+`tsup.config.ts` entry, the `package.json` devDependency + `exports` subpath, and the
+namespace export in `packages/policy-packs/src/index.ts`.
 
 ## Layout
 

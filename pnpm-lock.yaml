@@ -484,6 +484,87 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
 
+  packages/policy-packs:
+    devDependencies:
+      '@newton-xyz/policy-core':
+        specifier: ^0.2.0
+        version: 0.2.0(viem@2.52.2(typescript@5.9.3)(zod@3.25.76))(zod@3.25.76)
+      '@newton-xyz/policy-pack-arkham_counterparty':
+        specifier: workspace:*
+        version: link:../policy-pack-arkham_counterparty
+      '@newton-xyz/policy-pack-arkham_entity':
+        specifier: workspace:*
+        version: link:../policy-pack-arkham_entity
+      '@newton-xyz/policy-pack-arkham_risk':
+        specifier: workspace:*
+        version: link:../policy-pack-arkham_risk
+      '@newton-xyz/policy-pack-balancer':
+        specifier: workspace:*
+        version: link:../policy-pack-balancer
+      '@newton-xyz/policy-pack-blockaid':
+        specifier: workspace:*
+        version: link:../policy-pack-blockaid
+      '@newton-xyz/policy-pack-chainalysis':
+        specifier: workspace:*
+        version: link:../policy-pack-chainalysis
+      '@newton-xyz/policy-pack-guardrail':
+        specifier: workspace:*
+        version: link:../policy-pack-guardrail
+      '@newton-xyz/policy-pack-persona':
+        specifier: workspace:*
+        version: link:../policy-pack-persona
+      '@newton-xyz/policy-pack-pharos_redemption':
+        specifier: workspace:*
+        version: link:../policy-pack-pharos_redemption
+      '@newton-xyz/policy-pack-pharos_safe_mode':
+        specifier: workspace:*
+        version: link:../policy-pack-pharos_safe_mode
+      '@newton-xyz/policy-pack-pharos_treasury':
+        specifier: workspace:*
+        version: link:../policy-pack-pharos_treasury
+      '@newton-xyz/policy-pack-redstone':
+        specifier: workspace:*
+        version: link:../policy-pack-redstone
+      '@newton-xyz/policy-pack-registry':
+        specifier: workspace:*
+        version: link:../policy-pack-registry
+      '@newton-xyz/policy-pack-safe_signer_threshold':
+        specifier: workspace:*
+        version: link:../policy-pack-safe_signer_threshold
+      '@newton-xyz/policy-pack-sumsub':
+        specifier: workspace:*
+        version: link:../policy-pack-sumsub
+      '@newton-xyz/policy-pack-vaultsfyi':
+        specifier: workspace:*
+        version: link:../policy-pack-vaultsfyi
+      '@newton-xyz/policy-pack-webacy':
+        specifier: workspace:*
+        version: link:../policy-pack-webacy
+      '@newton-xyz/policy-pack-xerberus_common_cause':
+        specifier: workspace:*
+        version: link:../policy-pack-xerberus_common_cause
+      '@newton-xyz/policy-pack-xerberus_liquidity_exit':
+        specifier: workspace:*
+        version: link:../policy-pack-xerberus_liquidity_exit
+      '@newton-xyz/policy-pack-xerberus_what_if':
+        specifier: workspace:*
+        version: link:../policy-pack-xerberus_what_if
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.22.4)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      viem:
+        specifier: ^2.0.0
+        version: 2.52.2(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

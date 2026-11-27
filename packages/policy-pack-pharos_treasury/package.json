@@ -1,6 +1,7 @@
 {
 	"name": "@newton-xyz/policy-pack-pharos_treasury",
 	"version": "0.1.2",
+	"private": true,
 	"description": "Typed TypeScript bindings for the Newton pharos_treasury policy pack.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",

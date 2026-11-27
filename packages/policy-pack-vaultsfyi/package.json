@@ -1,6 +1,7 @@
 {
 	"name": "@newton-xyz/policy-pack-vaultsfyi",
 	"version": "7.0.2",
+	"private": true,
 	"description": "Typed TypeScript bindings for the Newton vaultsfyi policy pack.",
 	"license": "Apache-2.0",
 	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
