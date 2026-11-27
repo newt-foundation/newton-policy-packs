@@ -13,6 +13,15 @@
  * pack maintainers can hand-tune them (e.g. add a custom prepare-query
  * dep) without losing their work.
  *
+ * The umbrella package (`packages/policy-packs`, `@newton-xyz/policy-packs`)
+ * is the only publishing package — the per-pack packages are `private` and
+ * the umbrella bundles them. Its per-pack wiring (`src/<name>.ts` modules,
+ * `src/index.ts` namespace exports, the `tsup.config.ts` entry list, and
+ * the `package.json` `exports` subpaths + workspace devDependencies) is
+ * regenerated from the discovered pack list (plus the hand-maintained
+ * registry package) on every run (see `emitUmbrella`), so adding a pack
+ * directory is the only manual step, plus `pnpm install` for the lockfile.
+ *
  * History: retargeted from PR #25's `sdk/scripts/generate-packs.ts` (Alec
  * Savvy) per NEWT-1457. Original emitted into a single `sdk/src/packs/`
  * subtree; this version emits into one workspace per pack so each
@@ -32,6 +41,15 @@ const PACKAGES_DIR = path.join(REPO_ROOT, "packages");
 // AUDITED_POLICY_DATA map. Replaces the retired policy-pack-shared as the codegen's
 // registry/provenance target.
 const REGISTRY_PACKAGE_DIR = path.join(PACKAGES_DIR, "policy-pack-registry");
+// The umbrella package: bundles every (private) per-pack package and is the
+// only package that publishes. Its per-pack wiring is codegen-owned (see
+// emitUmbrella below).
+const UMBRELLA_PACKAGE_DIR = path.join(PACKAGES_DIR, "policy-packs");
+// Workspace packages the umbrella bundles even though they are not AVS-side
+// packs and so are never returned by discoverPacks: the registry package is
+// hand-maintained (its KNOWN_PACK_IDS registry is hand-authored) but ships
+// through the umbrella like every generated pack.
+const UMBRELLA_BUNDLED_EXTRA = ["registry"];
 
 const SCHEMA_FILES = [
 	"wasm_args_schema.json",
@@ -491,6 +509,167 @@ The \`package.json\`, \`tsconfig.json\`, \`tsup.config.ts\`, and this README are
 `;
 }
 
+/**
+ * Umbrella package wiring (`@newton-xyz/policy-packs`). The per-pack
+ * packages are `private`; only the umbrella publishes, bundling every pack
+ * behind one subpath export per pack. Everything in the umbrella that
+ * depends on the pack list is derived here from the discovered packs, so a
+ * new pack joins the umbrella on the next `pnpm gen:bindings` with no
+ * hand-editing: `src/<name>.ts` re-export modules, the `src/index.ts`
+ * namespace exports, the `tsup.config.ts` entry list, and the
+ * `package.json` `exports` subpaths + `workspace:*` devDependencies.
+ * Hand-maintained `package.json` fields (version, scripts, peerDeps, …)
+ * are preserved verbatim — codegen owns only the wiring.
+ */
+
+/**
+ * The full list of names the umbrella wires up: the discovered AVS-side
+ * packs plus UMBRELLA_BUNDLED_EXTRA (the hand-maintained registry
+ * package), sorted for deterministic output.
+ */
+export function umbrellaPackList(packs: string[]): string[] {
+	return [...packs, ...UMBRELLA_BUNDLED_EXTRA].sort();
+}
+export function emitUmbrellaPackModule(packName: string): string {
+	return `${BANNER}// Umbrella re-export for the ${packName} policy pack. The pack package itself is
+// private; its code is bundled into @newton-xyz/policy-packs at build time.
+export * from "@newton-xyz/policy-pack-${packName}";
+`;
+}
+
+export function emitUmbrellaIndex(packs: string[]): string {
+	const lines = packs.map((p) => `export * as ${p} from "./${p}";`).join("\n");
+	return `${BANNER}// @newton-xyz/policy-packs: every Newton policy pack in one package.
+//
+// Import a single pack from its subpath, e.g.
+//   import { ... } from "@newton-xyz/policy-packs/webacy";
+// or pull a pack in as a namespace from the root entry, as below.
+
+${lines}
+`;
+}
+
+export function emitUmbrellaTsupConfig(packs: string[]): string {
+	const entries = ["src/index.ts", ...packs.map((p) => `src/${p}.ts`)]
+		.map((e) => `\t\t"${e}",`)
+		.join("\n");
+	return `import { defineConfig } from "tsup";
+
+export default defineConfig({
+\tentry: [
+${entries}
+\t],
+\tformat: ["esm", "cjs"],
+\tdts: true,
+\tsourcemap: true,
+\tclean: true,
+\tplatform: "neutral",
+\ttarget: "es2022",
+\texternal: ["viem", "zod", "@newton-xyz/policy-core"],
+});
+`;
+}
+
+interface UmbrellaPackageJson {
+	exports?: Record<string, unknown>;
+	devDependencies?: Record<string, string>;
+	[key: string]: unknown;
+}
+
+/**
+ * Rebuild the codegen-owned parts of the umbrella `package.json` for the
+ * given pack list: `exports` ("." first — preserved verbatim if present —
+ * then one subpath per pack, then any other hand-added export keys in
+ * their existing order) and the `@newton-xyz/policy-pack-*` entries of
+ * `devDependencies` (one `workspace:*` per pack, first; every non-pack
+ * entry follows in its existing order). A stale pack subpath — a
+ * single-segment `./<name>` key whose value is exactly the generated
+ * entry shape for that name — drops out; a hand-added subpath with any
+ * other shape is preserved. Everything else in the file is returned
+ * untouched.
+ */
+export function updateUmbrellaPackageJson(
+	pkg: UmbrellaPackageJson,
+	packs: string[],
+): UmbrellaPackageJson {
+	const existingExports = pkg.exports ?? {};
+	const exports: Record<string, unknown> = {};
+	if ("." in existingExports) {
+		exports["."] = existingExports["."];
+	} else {
+		exports["."] = {
+			types: "./dist/index.d.ts",
+			import: "./dist/index.js",
+			require: "./dist/index.cjs",
+		};
+	}
+	for (const p of packs) {
+		exports[`./${p}`] = {
+			types: `./dist/${p}.d.ts`,
+			import: `./dist/${p}.js`,
+			require: `./dist/${p}.cjs`,
+		};
+	}
+	for (const [key, value] of Object.entries(existingExports)) {
+		if (key === "." || packs.some((p) => key === `./${p}`)) continue;
+		// Drop stale pack subpaths (removed packs): single-segment key whose
+		// value is exactly the generated entry shape for that name. Any other
+		// hand-added subpath is preserved.
+		const stalePack = key.match(/^\.\/([a-z0-9_]+)$/)?.[1];
+		if (
+			stalePack &&
+			JSON.stringify(value) ===
+				JSON.stringify({
+					types: `./dist/${stalePack}.d.ts`,
+					import: `./dist/${stalePack}.js`,
+					require: `./dist/${stalePack}.cjs`,
+				})
+		) {
+			continue;
+		}
+		exports[key] = value;
+	}
+	const existingDev = pkg.devDependencies ?? {};
+	const devDependencies: Record<string, string> = {};
+	for (const p of packs) {
+		devDependencies[`@newton-xyz/policy-pack-${p}`] = "workspace:*";
+	}
+	for (const [key, value] of Object.entries(existingDev)) {
+		if (key.startsWith("@newton-xyz/policy-pack-")) continue;
+		devDependencies[key] = value;
+	}
+	return { ...pkg, exports, devDependencies };
+}
+
+function emitUmbrella(packs: string[]): void {
+	const pkgJsonPath = path.join(UMBRELLA_PACKAGE_DIR, "package.json");
+	if (!existsSync(pkgJsonPath)) {
+		fail(
+			`missing ${pkgJsonPath}; the @newton-xyz/policy-packs umbrella package must exist (see packages/README.md).`,
+		);
+	}
+	const srcDir = path.join(UMBRELLA_PACKAGE_DIR, "src");
+	mkdirSync(srcDir, { recursive: true });
+	// Remove wiring for packs that no longer exist. Only files carrying the
+	// generated re-export shape are touched — anything hand-written survives.
+	for (const entry of readdirSync(srcDir)) {
+		if (!entry.endsWith(".ts") || entry === "index.ts") continue;
+		const packName = entry.slice(0, -".ts".length);
+		if (packs.includes(packName)) continue;
+		const filePath = path.join(srcDir, entry);
+		if (readFileSync(filePath, "utf8").includes('from "@newton-xyz/policy-pack-')) {
+			rmSync(filePath);
+		}
+	}
+	for (const packName of packs) {
+		writeFile(path.join(srcDir, `${packName}.ts`), emitUmbrellaPackModule(packName));
+	}
+	writeFile(path.join(srcDir, "index.ts"), emitUmbrellaIndex(packs));
+	writeFile(path.join(UMBRELLA_PACKAGE_DIR, "tsup.config.ts"), emitUmbrellaTsupConfig(packs));
+	const pkg = readJson<UmbrellaPackageJson>(pkgJsonPath);
+	writeFile(pkgJsonPath, `${JSON.stringify(updateUmbrellaPackageJson(pkg, packs), null, "\t")}\n`);
+}
+
 function camel(s: string): string {
 	return s.replace(/[-_](\w)/g, (_, c) => c.toUpperCase());
 }
@@ -665,6 +844,11 @@ function main(): void {
 	);
 	console.log(
 		"  provenance -> packages/policy-pack-registry/src/known-pack-provenance.generated.ts",
+	);
+
+	emitUmbrella(umbrellaPackList(packs));
+	console.log(
+		"  umbrella -> packages/policy-packs/ (src modules, index, tsup entries, package.json wiring)",
 	);
 
 	// Formatting is the responsibility of `pnpm lint:fix`, not codegen. The

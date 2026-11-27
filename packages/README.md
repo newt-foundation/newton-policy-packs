@@ -6,10 +6,13 @@ Per-pack TypeScript bindings for the AVS-side policy packs at the repo root.
 publish individually. The only publishing package is `packages/policy-packs/`
 (`@newton-xyz/policy-packs`), which bundles every pack and exposes one subpath export per
 pack (e.g. `@newton-xyz/policy-packs/webacy`). Pack changes are changeset-ed against the
-umbrella and version together. Until codegen learns to do it automatically, adding a pack
-also means adding its umbrella wiring by hand: `packages/policy-packs/src/<name>.ts`, the
-`tsup.config.ts` entry, the `package.json` devDependency + `exports` subpath, and the
-namespace export in `packages/policy-packs/src/index.ts`.
+umbrella and version together. Codegen maintains the umbrella wiring automatically:
+`pnpm gen:bindings` regenerates `packages/policy-packs/src/<name>.ts`, the namespace
+export in `packages/policy-packs/src/index.ts`, the `tsup.config.ts` entry list, and the
+`package.json` devDependency + `exports` subpath from the discovered pack list (plus
+the hand-maintained registry package, which the umbrella also bundles), so
+adding a pack needs no hand-editing there. (`pnpm install` afterwards registers the
+new workspace dependency in the lockfile.)
 
 ## Layout
 
@@ -48,8 +51,8 @@ The codegen wipes only the six generated files on regen. Hand-written files surv
 1. Drop the AVS-side artifacts under a new top-level dir at the repo root: `<name>/{policy.rego, policy.js, *_schema.json, policy_metadata.json}`.
 2. Add an entry under `packs.<name>` in the top-level `deployments.json` for every chain it's been deployed on.
 3. Run `pnpm gen:bindings` from the repo root.
-4. The new package appears at `packages/policy-pack-<name>/` with generated bindings.
-5. Run `pnpm install` to register the new workspace.
+4. The new package appears at `packages/policy-pack-<name>/` with generated bindings, and its umbrella wiring under `packages/policy-packs/` is generated in the same run.
+5. Run `pnpm install` to register the new workspace (including the umbrella's new devDependency in the lockfile).
 6. Optionally write a hand-written `pack.ts` exporting a `PolicyPack` object so curators can use it with `createShield(...)`.
 
 ## Regeneration
