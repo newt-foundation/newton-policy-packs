@@ -1,5 +1,11 @@
 # @newton-xyz/policy-pack-registry
 
+## 0.3.1
+
+### Patch Changes
+
+- c087775: Validation release for npm trusted publishing (OIDC). No functional changes; first publish through the trusted publishing workflow to validate each package's trusted publisher configuration.
+
 ## 0.3.0
 
 ### Minor Changes
