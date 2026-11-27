@@ -1,5 +1,6 @@
 /**
- * Self-test for the `_manifest` reservation walker in generate-bindings.ts.
+ * Self-tests for generate-bindings.ts: the `_manifest` reservation walker,
+ * the published-env filter, and the umbrella package wiring.
  * The walker rejects any params_schema.json that admits a top-level
  * `_manifest` field — that key is reserved as the composite-policy manifest
  * discriminator (NEWT-1541). A naive `properties._manifest` check is dodgeable
@@ -13,7 +14,12 @@
 
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { filterPublishedEnvs, findManifestKeyViolation } from "./generate-bindings";
+import {
+	emitUmbrellaIndex,
+	filterPublishedEnvs,
+	findManifestKeyViolation,
+	updateUmbrellaPackageJson,
+} from "./generate-bindings";
 
 describe("findManifestKeyViolation — accepted (no violation)", () => {
 	it("returns null for a closed object schema with no _manifest", () => {
@@ -210,5 +216,89 @@ describe("filterPublishedEnvs — stagef is internal-only, never published", () 
 	it("returns an empty object when every cell is stagef", () => {
 		const out = filterPublishedEnvs({ "1": { stagef: entry("0xb") } });
 		assert.deepEqual(out, {});
+	});
+});
+
+describe("updateUmbrellaPackageJson — umbrella wiring is codegen-owned", () => {
+	const basePkg = () => ({
+		name: "@newton-xyz/policy-packs",
+		version: "1.0.0",
+		scripts: { build: "tsup" },
+		peerDependencies: { "@newton-xyz/policy-core": ">=0.2.0 <1.0.0" },
+		exports: {
+			".": {
+				types: "./dist/index.d.ts",
+				import: "./dist/index.js",
+				require: "./dist/index.cjs",
+			},
+			"./webacy": {
+				types: "./dist/webacy.d.ts",
+				import: "./dist/webacy.js",
+				require: "./dist/webacy.cjs",
+			},
+		},
+		devDependencies: {
+			"@newton-xyz/policy-pack-webacy": "workspace:*",
+			"@newton-xyz/policy-core": "^0.2.0",
+			tsup: "^8.5.1",
+		},
+	});
+
+	it("adds a new pack's subpath export and workspace devDep", () => {
+		const out = updateUmbrellaPackageJson(basePkg(), ["balancer", "webacy"]);
+		assert.deepEqual(Object.keys(out.exports ?? {}), [".", "./balancer", "./webacy"]);
+		assert.deepEqual(out.exports?.["./balancer"], {
+			types: "./dist/balancer.d.ts",
+			import: "./dist/balancer.js",
+			require: "./dist/balancer.cjs",
+		});
+		assert.equal(out.devDependencies?.["@newton-xyz/policy-pack-balancer"], "workspace:*");
+	});
+
+	it("drops a removed pack's export and devDep", () => {
+		const out = updateUmbrellaPackageJson(basePkg(), ["balancer"]);
+		assert.deepEqual(Object.keys(out.exports ?? {}), [".", "./balancer"]);
+		assert.equal(out.devDependencies?.["@newton-xyz/policy-pack-webacy"], undefined);
+	});
+
+	it("preserves hand-maintained fields and non-pack entries verbatim", () => {
+		const pkg = basePkg();
+		const out = updateUmbrellaPackageJson(pkg, ["webacy"]);
+		assert.equal(out.version, "1.0.0");
+		assert.deepEqual(out.scripts, pkg.scripts);
+		assert.deepEqual(out.peerDependencies, pkg.peerDependencies);
+		assert.equal(out.devDependencies?.["@newton-xyz/policy-core"], "^0.2.0");
+		assert.equal(out.devDependencies?.tsup, "^8.5.1");
+		// Non-pack devDeps keep their existing relative order, after the packs.
+		assert.deepEqual(Object.keys(out.devDependencies ?? {}), [
+			"@newton-xyz/policy-pack-webacy",
+			"@newton-xyz/policy-core",
+			"tsup",
+		]);
+	});
+
+	it("preserves a hand-added subpath whose shape is not the generated one", () => {
+		const pkg = basePkg();
+		pkg.exports["./utils"] = { import: "./dist/utils.js" };
+		const out = updateUmbrellaPackageJson(pkg, ["webacy"]);
+		assert.deepEqual(out.exports?.["./utils"], { import: "./dist/utils.js" });
+	});
+
+	it("is idempotent", () => {
+		const once = updateUmbrellaPackageJson(basePkg(), ["balancer", "webacy"]);
+		const twice = updateUmbrellaPackageJson(once, ["balancer", "webacy"]);
+		assert.deepEqual(twice, once);
+	});
+});
+
+describe("emitUmbrellaIndex — one namespace re-export per pack", () => {
+	it("emits packs in the given order, under the AUTO-GENERATED banner", () => {
+		const out = emitUmbrellaIndex(["balancer", "webacy"]);
+		assert.ok(out.startsWith("// AUTO-GENERATED"));
+		assert.ok(out.includes('export * as balancer from "./balancer";'));
+		assert.ok(out.includes('export * as webacy from "./webacy";'));
+		assert.ok(
+			out.indexOf('export * as balancer') < out.indexOf('export * as webacy'),
+		);
 	});
 });
