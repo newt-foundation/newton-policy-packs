@@ -1,0 +1,180 @@
+{
+	"name": "@newton-xyz/policy-packs",
+	"version": "1.0.0",
+	"description": "All Newton policy packs in one package: typed TypeScript bindings for every Newton policy pack, with one subpath export per pack.",
+	"license": "Apache-2.0",
+	"author": "Newton Protocol <https://x.com/newton_xyz> (https://newton.xyz)",
+	"homepage": "https://github.com/newt-foundation/newton-policy-packs/tree/main/packages/policy-packs",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/newt-foundation/newton-policy-packs.git",
+		"directory": "packages/policy-packs"
+	},
+	"bugs": {
+		"url": "https://github.com/newt-foundation/newton-policy-packs/issues"
+	},
+	"keywords": [
+		"newton",
+		"newton-protocol",
+		"policy-pack",
+		"shield"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		},
+		"./arkham_counterparty": {
+			"types": "./dist/arkham_counterparty.d.ts",
+			"import": "./dist/arkham_counterparty.js",
+			"require": "./dist/arkham_counterparty.cjs"
+		},
+		"./arkham_entity": {
+			"types": "./dist/arkham_entity.d.ts",
+			"import": "./dist/arkham_entity.js",
+			"require": "./dist/arkham_entity.cjs"
+		},
+		"./arkham_risk": {
+			"types": "./dist/arkham_risk.d.ts",
+			"import": "./dist/arkham_risk.js",
+			"require": "./dist/arkham_risk.cjs"
+		},
+		"./balancer": {
+			"types": "./dist/balancer.d.ts",
+			"import": "./dist/balancer.js",
+			"require": "./dist/balancer.cjs"
+		},
+		"./blockaid": {
+			"types": "./dist/blockaid.d.ts",
+			"import": "./dist/blockaid.js",
+			"require": "./dist/blockaid.cjs"
+		},
+		"./chainalysis": {
+			"types": "./dist/chainalysis.d.ts",
+			"import": "./dist/chainalysis.js",
+			"require": "./dist/chainalysis.cjs"
+		},
+		"./guardrail": {
+			"types": "./dist/guardrail.d.ts",
+			"import": "./dist/guardrail.js",
+			"require": "./dist/guardrail.cjs"
+		},
+		"./persona": {
+			"types": "./dist/persona.d.ts",
+			"import": "./dist/persona.js",
+			"require": "./dist/persona.cjs"
+		},
+		"./pharos_redemption": {
+			"types": "./dist/pharos_redemption.d.ts",
+			"import": "./dist/pharos_redemption.js",
+			"require": "./dist/pharos_redemption.cjs"
+		},
+		"./pharos_safe_mode": {
+			"types": "./dist/pharos_safe_mode.d.ts",
+			"import": "./dist/pharos_safe_mode.js",
+			"require": "./dist/pharos_safe_mode.cjs"
+		},
+		"./pharos_treasury": {
+			"types": "./dist/pharos_treasury.d.ts",
+			"import": "./dist/pharos_treasury.js",
+			"require": "./dist/pharos_treasury.cjs"
+		},
+		"./redstone": {
+			"types": "./dist/redstone.d.ts",
+			"import": "./dist/redstone.js",
+			"require": "./dist/redstone.cjs"
+		},
+		"./registry": {
+			"types": "./dist/registry.d.ts",
+			"import": "./dist/registry.js",
+			"require": "./dist/registry.cjs"
+		},
+		"./safe_signer_threshold": {
+			"types": "./dist/safe_signer_threshold.d.ts",
+			"import": "./dist/safe_signer_threshold.js",
+			"require": "./dist/safe_signer_threshold.cjs"
+		},
+		"./sumsub": {
+			"types": "./dist/sumsub.d.ts",
+			"import": "./dist/sumsub.js",
+			"require": "./dist/sumsub.cjs"
+		},
+		"./vaultsfyi": {
+			"types": "./dist/vaultsfyi.d.ts",
+			"import": "./dist/vaultsfyi.js",
+			"require": "./dist/vaultsfyi.cjs"
+		},
+		"./webacy": {
+			"types": "./dist/webacy.d.ts",
+			"import": "./dist/webacy.js",
+			"require": "./dist/webacy.cjs"
+		},
+		"./xerberus_common_cause": {
+			"types": "./dist/xerberus_common_cause.d.ts",
+			"import": "./dist/xerberus_common_cause.js",
+			"require": "./dist/xerberus_common_cause.cjs"
+		},
+		"./xerberus_liquidity_exit": {
+			"types": "./dist/xerberus_liquidity_exit.d.ts",
+			"import": "./dist/xerberus_liquidity_exit.js",
+			"require": "./dist/xerberus_liquidity_exit.cjs"
+		},
+		"./xerberus_what_if": {
+			"types": "./dist/xerberus_what_if.d.ts",
+			"import": "./dist/xerberus_what_if.js",
+			"require": "./dist/xerberus_what_if.cjs"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@newton-xyz/policy-core": ">=0.2.0 <1.0.0",
+		"viem": "^2.0.0",
+		"zod": "^3.0.0"
+	},
+	"devDependencies": {
+		"@newton-xyz/policy-pack-arkham_counterparty": "workspace:*",
+		"@newton-xyz/policy-pack-arkham_entity": "workspace:*",
+		"@newton-xyz/policy-pack-arkham_risk": "workspace:*",
+		"@newton-xyz/policy-pack-balancer": "workspace:*",
+		"@newton-xyz/policy-pack-blockaid": "workspace:*",
+		"@newton-xyz/policy-pack-chainalysis": "workspace:*",
+		"@newton-xyz/policy-pack-guardrail": "workspace:*",
+		"@newton-xyz/policy-pack-persona": "workspace:*",
+		"@newton-xyz/policy-pack-pharos_redemption": "workspace:*",
+		"@newton-xyz/policy-pack-pharos_safe_mode": "workspace:*",
+		"@newton-xyz/policy-pack-pharos_treasury": "workspace:*",
+		"@newton-xyz/policy-pack-redstone": "workspace:*",
+		"@newton-xyz/policy-pack-registry": "workspace:*",
+		"@newton-xyz/policy-pack-safe_signer_threshold": "workspace:*",
+		"@newton-xyz/policy-pack-sumsub": "workspace:*",
+		"@newton-xyz/policy-pack-vaultsfyi": "workspace:*",
+		"@newton-xyz/policy-pack-webacy": "workspace:*",
+		"@newton-xyz/policy-pack-xerberus_common_cause": "workspace:*",
+		"@newton-xyz/policy-pack-xerberus_liquidity_exit": "workspace:*",
+		"@newton-xyz/policy-pack-xerberus_what_if": "workspace:*",
+		"@newton-xyz/policy-core": "^0.2.0",
+		"tsup": "^8.5.1",
+		"tsx": "^4.19.0",
+		"typescript": "^5.5.0",
+		"viem": "^2.0.0",
+		"zod": "^3.23.0"
+	}
+}
