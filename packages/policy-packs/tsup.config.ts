@@ -25,7 +25,7 @@ export default defineConfig({
 		"src/xerberus_what_if.ts",
 	],
 	format: ["esm", "cjs"],
-	dts: true,
+	dts: { resolve: true },
 	sourcemap: true,
 	clean: true,
 	platform: "neutral",
