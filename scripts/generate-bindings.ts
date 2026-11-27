@@ -560,7 +560,7 @@ export default defineConfig({
 ${entries}
 \t],
 \tformat: ["esm", "cjs"],
-\tdts: true,
+\tdts: { resolve: true },
 \tsourcemap: true,
 \tclean: true,
 \tplatform: "neutral",
