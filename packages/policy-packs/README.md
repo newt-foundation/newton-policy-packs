@@ -20,10 +20,11 @@ the per-pack packages.
 
 ## Usage
 
-Import a pack from its subpath:
+Import a pack from its subpath (each pack keeps its own exported API; for
+example the webacy pack's oracle object):
 
 ```ts
-import { webacyPolicyPack } from "@newton-xyz/policy-packs/webacy";
+import { webacy } from "@newton-xyz/policy-packs/webacy";
 ```
 
 Or import packs as namespaces from the root entry:
