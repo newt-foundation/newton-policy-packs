@@ -9,7 +9,8 @@ pack (e.g. `@newton-xyz/policy-packs/webacy`). Pack changes are changeset-ed aga
 umbrella and version together. Codegen maintains the umbrella wiring automatically:
 `pnpm gen:bindings` regenerates `packages/policy-packs/src/<name>.ts`, the namespace
 export in `packages/policy-packs/src/index.ts`, the `tsup.config.ts` entry list, and the
-`package.json` devDependency + `exports` subpath from the discovered pack list, so
+`package.json` devDependency + `exports` subpath from the discovered pack list (plus
+the hand-maintained registry package, which the umbrella also bundles), so
 adding a pack needs no hand-editing there. (`pnpm install` afterwards registers the
 new workspace dependency in the lockfile.)
 

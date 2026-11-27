@@ -18,9 +18,9 @@
  * the umbrella bundles them. Its per-pack wiring (`src/<name>.ts` modules,
  * `src/index.ts` namespace exports, the `tsup.config.ts` entry list, and
  * the `package.json` `exports` subpaths + workspace devDependencies) is
- * regenerated from the discovered pack list on every run (see
- * `emitUmbrella`), so adding a pack directory is the only manual step,
- * plus `pnpm install` for the lockfile.
+ * regenerated from the discovered pack list (plus the hand-maintained
+ * registry package) on every run (see `emitUmbrella`), so adding a pack
+ * directory is the only manual step, plus `pnpm install` for the lockfile.
  *
  * History: retargeted from PR #25's `sdk/scripts/generate-packs.ts` (Alec
  * Savvy) per NEWT-1457. Original emitted into a single `sdk/src/packs/`
@@ -45,6 +45,11 @@ const REGISTRY_PACKAGE_DIR = path.join(PACKAGES_DIR, "policy-pack-registry");
 // only package that publishes. Its per-pack wiring is codegen-owned (see
 // emitUmbrella below).
 const UMBRELLA_PACKAGE_DIR = path.join(PACKAGES_DIR, "policy-packs");
+// Workspace packages the umbrella bundles even though they are not AVS-side
+// packs and so are never returned by discoverPacks: the registry package is
+// hand-maintained (its KNOWN_PACK_IDS registry is hand-authored) but ships
+// through the umbrella like every generated pack.
+const UMBRELLA_BUNDLED_EXTRA = ["registry"];
 
 const SCHEMA_FILES = [
 	"wasm_args_schema.json",
@@ -516,6 +521,15 @@ The \`package.json\`, \`tsconfig.json\`, \`tsup.config.ts\`, and this README are
  * Hand-maintained `package.json` fields (version, scripts, peerDeps, …)
  * are preserved verbatim — codegen owns only the wiring.
  */
+
+/**
+ * The full list of names the umbrella wires up: the discovered AVS-side
+ * packs plus UMBRELLA_BUNDLED_EXTRA (the hand-maintained registry
+ * package), sorted for deterministic output.
+ */
+export function umbrellaPackList(packs: string[]): string[] {
+	return [...packs, ...UMBRELLA_BUNDLED_EXTRA].sort();
+}
 export function emitUmbrellaPackModule(packName: string): string {
 	return `${BANNER}// Umbrella re-export for the ${packName} policy pack. The pack package itself is
 // private; its code is bundled into @newton-xyz/policy-packs at build time.
@@ -832,7 +846,7 @@ function main(): void {
 		"  provenance -> packages/policy-pack-registry/src/known-pack-provenance.generated.ts",
 	);
 
-	emitUmbrella(packs);
+	emitUmbrella(umbrellaPackList(packs));
 	console.log(
 		"  umbrella -> packages/policy-packs/ (src modules, index, tsup entries, package.json wiring)",
 	);

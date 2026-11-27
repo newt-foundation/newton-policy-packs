@@ -18,6 +18,7 @@ import {
 	emitUmbrellaIndex,
 	filterPublishedEnvs,
 	findManifestKeyViolation,
+	umbrellaPackList,
 	updateUmbrellaPackageJson,
 } from "./generate-bindings";
 
@@ -297,8 +298,14 @@ describe("emitUmbrellaIndex — one namespace re-export per pack", () => {
 		assert.ok(out.startsWith("// AUTO-GENERATED"));
 		assert.ok(out.includes('export * as balancer from "./balancer";'));
 		assert.ok(out.includes('export * as webacy from "./webacy";'));
-		assert.ok(
-			out.indexOf('export * as balancer') < out.indexOf('export * as webacy'),
-		);
+		assert.ok(out.indexOf("export * as balancer") < out.indexOf("export * as webacy"));
+	});
+});
+
+describe("umbrellaPackList — discovered packs plus bundled extras", () => {
+	it("adds the hand-maintained registry package and sorts the result", () => {
+		// The registry package has no AVS-side pack directory, so
+		// discoverPacks never returns it — but the umbrella bundles it.
+		assert.deepEqual(umbrellaPackList(["webacy", "balancer"]), ["balancer", "registry", "webacy"]);
 	});
 });
